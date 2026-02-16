@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+faster-whisper
+redis
+pydub
+numpy
+python-multipart

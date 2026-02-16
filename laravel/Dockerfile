@@ -1,0 +1,18 @@
+FROM php:8.3-fpm
+
+WORKDIR /var/www
+
+RUN apt-get update && apt-get install -y \
+        git unzip curl libzip-dev \
+    && docker-php-ext-install zip pdo pdo_mysql \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY . .
+
+RUN composer install
+
+CMD ["php-fpm"]
