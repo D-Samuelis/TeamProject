@@ -19,11 +19,11 @@
     @guest
     <div class="flex flex-col sm:flex-row justify-center gap-4">
         <a href="{{ route('register') }}"
-           class="px-6 py-3 bg-cyan-400 hover:bg-green-400 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200">
+           class="px-6 py-3 bg-cyan-400 hover:bg-cyan-100 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200">
             Register
         </a>
         <a href="{{ route('login') }}"
-           class="px-6 py-3 bg-cyan-400 hover:bg-green-400 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200">
+           class="px-6 py-3 bg-cyan-400 hover:bg-cyan-100 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200">
             Login
         </a>
     </div>

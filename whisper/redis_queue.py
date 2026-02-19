@@ -3,8 +3,7 @@ import json
 from typing import Any, Optional, Dict
 from config import REDIS_URL, JOB_QUEUE, RESULT_PREFIX, RESULT_TTL_SECONDS
 
-# Create Redis client that returns strings (not raw bytes).
-# This makes working with JSON and text simpler.
+# Redis client -> returns strings
 r = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 def push_job(job: dict):
@@ -14,7 +13,6 @@ def push_job(job: dict):
     :param job: A dictionary containing job details, e.g. {"job_id": "123", "language": "en"}
     :type job: dict
     """
-    # Ensure we push a JSON string onto the list
     r.lpush(JOB_QUEUE, json.dumps(job))
 
 def pop_job() -> Optional[Dict[str, Any]]:
@@ -24,15 +22,15 @@ def pop_job() -> Optional[Dict[str, Any]]:
     This blocks until a job is available (BRPOP). Returns the job as a dict,
     or None if no job was returned (shouldn't happen with blocking BRPOP unless interrupted).
     """
-    item = r.brpop(JOB_QUEUE)  # blocks until an item is available
+    item = r.brpop(JOB_QUEUE) # blocking call
     if not item:
         return None
-    # brpop returns a tuple (queue_name, value) when decode_responses=True value is a string
+    # tuple (queue_name, value)
     _, job_str = item
     try:
         return json.loads(job_str)
     except Exception:
-        # If the payload isn't valid JSON, return it wrapped in a dict for compatibility
+        # Invalid JSON -> return for check
         return {"raw": job_str}
 
 def set_result(job_id: str, result: Any):
@@ -45,11 +43,11 @@ def set_result(job_id: str, result: Any):
     :type result: Any
     """
     key = f"{RESULT_PREFIX}:{job_id}"
-    # Serialize dicts/lists to JSON so Redis stores a string
+    # Redis stores a string
     if isinstance(result, (dict, list)):
         payload = json.dumps(result)
     else:
-        # Convert other types to string (int/float/str)
+        # Fallback for other types
         payload = str(result)
     r.set(key, payload, ex=RESULT_TTL_SECONDS)
 
@@ -67,7 +65,7 @@ def get_result(job_id: str) -> Optional[Any]:
     val = r.get(key)
     if val is None:
         return None
-    # Try to parse JSON, fall back to raw string
+    # Try to parse JSON
     try:
         return json.loads(val)
     except Exception:
@@ -80,5 +78,6 @@ def delete_result(job_id: str):
     :param job_id: The job identifier
     :type job_id: str
     """
+    # Maybe remove since TTL is set(?)
     key = f"{RESULT_PREFIX}:{job_id}"
     r.delete(key)

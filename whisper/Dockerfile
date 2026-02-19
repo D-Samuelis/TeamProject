@@ -16,5 +16,4 @@ COPY . .
 
 EXPOSE 8000
 
-# Default is gateway, but in docker-compose override with worker command for worker
 CMD ["uvicorn", "gateway:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -8,7 +8,6 @@ from config import AUDIO_DIR
 
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-# Choose model size deliberately; ensure image predownload matches or remove predownload.
 MODEL_NAME = "medium"
 model = WhisperModel(MODEL_NAME, compute_type="int8")
 print(f"Whisper model {MODEL_NAME} loaded.")
@@ -20,7 +19,7 @@ while True:
     raw_path = None
     clean_path = None
     try:
-        data = pop_job()  # blocks until job available
+        data = pop_job()  # Block until job available
         job_id = data.get("job_id")
         if not job_id:
             print("[worker] invalid job payload:", data)
@@ -30,7 +29,7 @@ while True:
         raw_path = os.path.join(AUDIO_DIR, f"{job_id}.wav")
         clean_path = os.path.join(AUDIO_DIR, f"{job_id}_clean.wav")
 
-        # Wait for gateway to flush the file (defensive)
+        # Wait for gateway to flush the file
         waited = 0.0
         while not os.path.exists(raw_path) and waited < WAIT_FOR_RAW_SECONDS:
             time.sleep(SLEEP_STEP)
@@ -45,7 +44,7 @@ while True:
             })
             continue
 
-        # Preprocess
+        # Preprocess the audio -> better for Whisper
         try:
             preprocess(raw_path, clean_path)
         except Exception as e:
@@ -57,7 +56,6 @@ while True:
             })
             continue
 
-        # Defensive: make sure clean file exists
         waited = 0.0
         while not os.path.exists(clean_path) and waited < 2.0:
             time.sleep(SLEEP_STEP)
@@ -97,7 +95,10 @@ while True:
     finally:
         # Try cleanup of both files, ignore failures
         try:
-            if os.path.exists(raw_path): os.remove(raw_path)
-            if os.path.exists(clean_path): os.remove(clean_path)
+            if raw_path and os.path.exists(raw_path):
+                os.remove(raw_path)
+
+            if clean_path and os.path.exists(clean_path):
+                os.remove(clean_path)
         except Exception:
             pass

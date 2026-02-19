@@ -31,11 +31,11 @@
 
             <div class="form-actions flex justify-between items-center mt-6">
                 <button type="submit"
-                    class="px-6 py-3 bg-cyan-100 hover:bg-cyan-400 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                    class="px-6 py-3 bg-cyan-100 hover:bg-cyan-400 text-gray-900 font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200 cursor-pointer">
                     Login
                 </button>
                 <a href="{{ route('register') }}"
-                    class="text-cyan-400 hover:text-cyan-100 font-semibold transition duration-200">
+                    class="text-cyan-400 hover:text-cyan-100 font-semibold transition duration-200 cursor-pointer">
                     Register
                 </a>
             </div>
