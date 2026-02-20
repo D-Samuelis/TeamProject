@@ -14,7 +14,7 @@
     <!-- Lineicons CSS -->
     <link rel="stylesheet" href="https://cdn.lineicons.com/3.0/lineicons.css">
 
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
@@ -23,7 +23,7 @@
     @include('partials.nav')
 </nav>
 
-<main>
+<main class="main">
     @yield('content')
 </main>
 

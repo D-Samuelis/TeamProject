@@ -34,14 +34,13 @@
     z-index: -1;
     border-radius: 0.5rem;
     color: var(--color-text-unimportant-dark);
-    padding: 1.5rem;
+    padding: .75rem 1rem 2rem 1rem;
 }
 
 .notifications-menu__title {
     margin-bottom: 1rem;
     font-size: var(--font-size-base);
     color: var(--color-text);
-    font-weight: 600;
 }
 
 .notifications-menu__content {

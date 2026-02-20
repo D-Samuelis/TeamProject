@@ -3,26 +3,27 @@
 @section('title', 'Bexora | Book a Service')
 
 @section('content')
-<div class="welcome-container">
-    <div class="welcome-card">
-        <h1>Book an appointment.</h1>
-        <input id="aiBookingInput" type="text" placeholder="Text appended from textGenerator.js">
+<div class="welcome">
+    <div class="welcome__hero">
+        <h1 class="welcome__title">Book an appointment.</h1>
+        <input id="aiBookingInput" type="text" class="welcome__input" placeholder="Text appended from textGenerator.js">
     </div>
 
-    <div class="welcome-buttons">
-        <a href="/manualBooking" class="button button-primary">
-            <h2 class="title">Manual booking</h2>
-            <p class="description">Book your appointments manually with standard selection.</p>
-            <div class="icon"><i class="fa-solid fa-filter"></i></div>
+    <div class="welcome__actions">
+        <a href="/manualBooking" class="welcome-card welcome-card--manual">
+            <h2 class="welcome-card__title">Manual booking</h2>
+            <p class="welcome-card__description">Book your appointments manually with standard selection.</p>
+            <div class="welcome-card__icon"><i class="fa-solid fa-filter"></i></div>
         </a>
-        <a href="/myAppointments" class="button button-secondary">
-            <h2 class="title">My appointments</h2>
-            <p class="description">Manage all your appointments from one place with ease.</p>
-            <div class="icon"><i class="fa-solid fa-calendar"></i></div>
+        
+        <a href="/myAppointments" class="welcome-card welcome-card--appointments">
+            <h2 class="welcome-card__title">My appointments</h2>
+            <p class="welcome-card__description">Manage all your appointments from one place with ease.</p>
+            <div class="welcome-card__icon"><i class="fa-solid fa-calendar"></i></div>
         </a>
     </div>
 </div>
-<!--
+
 @vite('resources/js/pages/welcome/entry.js')
--->
+
 @endsection
