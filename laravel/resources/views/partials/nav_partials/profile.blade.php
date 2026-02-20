@@ -51,7 +51,16 @@
 
         <div class="profile-menu__options">
             <div class="profile-menu__option" id="lightModeOption">
+                <a href="/dev" class="profile-menu__link"><p class="debug-text">Dev</p></a>
+            </div>
+            <div class="profile-menu__option" id="lightModeOption">
+                <a href="/" class="profile-menu__link">Booking</a>
+            </div>
+            <div class="profile-menu__option" id="lightModeOption">
                 <a href="/profile" class="profile-menu__link">My Profile</a>
+            </div>
+            <div class="profile-menu__option" id="lightModeOption">
+                <a href="/auth" class="profile-menu__link">Sign-In</a>
             </div>
             <div class="profile-menu__option" id="darkModeOption">
                 <form method="POST" action="/logout" class="profile-menu__form">
