@@ -15,11 +15,19 @@ use App\Application\Auth\DTO\LoginUserDTO;
 class AuthController extends Controller
 {
     /**
+     * Show auth page
+     */
+    public function showAuth()
+    {
+        return view('pages.auth');
+    }
+
+    /**
      * Show register form
      */
     public function showRegister()
     {
-        return view('auth.register');
+        return view('pages.auth');
     }
 
     /**
@@ -50,7 +58,7 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
-        return view('auth.login');
+        return view('pages.auth');
     }
 
     /**
@@ -107,6 +115,6 @@ class AuthController extends Controller
 
         Auth::logout();
 
-        return redirect()->route('login')->with('success', 'You have been logged out.');
+        return redirect()->route('/')->with('success', 'You have been logged out.');
     }
 }

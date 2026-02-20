@@ -1,0 +1,35 @@
+.nav-main {
+    position: sticky;
+    top: 0;
+    padding: 2rem 3rem;
+    z-index: 100;
+}
+
+.nav-main__container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.nav-main__logo {
+    font-size: var(--font-size-logo);
+    font-family: Novelin-Light, sans-serif;
+    font-weight: 100;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: .5rem;
+}
+
+.nav-main__logo span {
+    color: var(--color-primary);
+}
+
+.nav-main__items {
+    position: absolute;
+    right: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-shrink: 0;
+    z-index: 0;
+}

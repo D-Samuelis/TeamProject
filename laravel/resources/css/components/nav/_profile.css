@@ -1,0 +1,162 @@
+/* --- BLOCK: Profile (Trigger) --- */
+.profile {
+    position: relative;
+    display: inline-block;
+}
+
+.profile__button {
+    position: relative;
+    width: 10rem;
+    height: 2.5rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.profile__card {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    height: 100%;
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    transition: color 0.2s ease;
+}
+
+.profile__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: .0625rem solid var(--color-primary);
+    background-color: var(--color-bg-complement);
+}
+
+.profile__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.profile__name {
+    font-weight: 500;
+}
+
+.profile__role {
+    font-size: .75rem;
+    color: var(--color-text-unimportant);
+}
+
+/* --- BLOCK: Profile Menu (Dropdown) --- */
+.profile-menu {
+    position: absolute;
+    top: -0.1rem;
+    right: 0rem;
+    background-color: var(--color-box-shadow-input);
+    min-width: 25rem;
+    z-index: -1;
+    border-radius: 0.5rem;
+    color: var(--color-text-unimportant-dark);
+    padding: .75rem 1rem 2rem 1rem;
+}
+
+.profile-menu__title {
+    margin-bottom: 1rem;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+}
+
+.profile-menu__overview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-text);
+}
+
+.profile-menu__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: .0625rem solid var(--color-primary);
+    background-color: var(--color-bg-complement);
+}
+
+.profile-menu__user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-menu__name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.profile-menu__email {
+    color: var(--color-text-unimportant);
+    font-size: var(--font-size-small);
+}
+
+.profile-menu__status {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-small);
+}
+
+.profile-menu__divider {
+    height: .0625rem;
+    background-color: var(--color-border);
+    margin: 1rem 0;
+}
+
+.profile-menu__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.profile-menu__option {
+    border-radius: 0.4rem;
+    transition: background-color 0.2s ease;
+}
+
+.profile-menu__option:hover {
+    background-color: var(--color-bg-complement);
+}
+
+.profile-menu__link, 
+.profile-menu__logout-btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: var(--font-size-small);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* --- Animations --- */
+.profile-wanish {
+    opacity: 0;
+    transform: translateX(7.5rem);
+    transition: all 0.45s ease-out;
+    pointer-events: none;
+}
+
+.profile-move-icon {
+    position: absolute;
+    transform: translateX(7.5rem);
+    transition: transform 0.45s ease-out;
+}

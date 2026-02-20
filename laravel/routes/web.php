@@ -16,7 +16,11 @@ Route::post('/audio/transcribe', [AudioController::class, 'upload']);
 /**
  * Public routes
  */
-Route::get('/', fn () => view('welcome'));
+Route::get('/', fn () => view('pages.welcome'));
+
+Route::get('/dev', fn () => view('pages.dev'));
+
+Route::get('/auth', fn () => view('pages.auth'));
 
 /**
  * Authentication routes
@@ -36,7 +40,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
  */
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', fn () => view('dashboard'))
+    Route::get('/dashboard', fn () => view('pages.dashboard'))
         ->name('dashboard');
 
     Route::middleware('role:client')->get('/client', fn () => view('client'));

@@ -1,0 +1,42 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Dôležité, aby body vedelo, z čoho má brať 100% */
+}
+
+body {
+    display: flex;
+    flex-direction: column; 
+    
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: Inter-Regular, sans-serif;
+}
+
+.main {
+    flex-grow: 1; 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.debug-text {
+    font-size: inherit;
+    color: var(--color-red);
+}
+
+.debug-text::after {
+    position: absolute;
+    content: '<debug>';
+    color: var(--color-red);
+    font-weight: bold;
+    font-size: .65rem;
+    margin-top: -.1rem;
+}
