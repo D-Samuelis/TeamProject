@@ -16,7 +16,7 @@ Route::post('/audio/transcribe', [AudioController::class, 'upload']);
 /**
  * Public routes
  */
-Route::get('/', fn () => view('welcome'));
+Route::get('/', fn () => view('pages.welcome'));
 
 /**
  * Authentication routes
