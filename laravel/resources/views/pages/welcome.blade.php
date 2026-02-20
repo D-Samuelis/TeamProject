@@ -22,7 +22,7 @@
         </a>
     </div>
 </div>
-
+<!--
 @vite('resources/js/pages/welcome/entry.js')
-
+-->
 @endsection

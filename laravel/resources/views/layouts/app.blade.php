@@ -19,7 +19,7 @@
 
 <body>
 
-<nav>
+<nav class="nav-main">
     @include('partials.nav')
 </nav>
 

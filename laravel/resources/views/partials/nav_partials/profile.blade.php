@@ -1,57 +1,62 @@
 <div class="profile">
-    <button id="profileButton" class="profile-button">
-        <div class="profile-card">
-            <div class="profile-icon" id="profileIcon">
+    <button id="profileButton" class="profile__button">
+        <div class="profile__card">
+            <div class="profile__icon" id="profileIcon">
                 <i class="fa-solid fa-user"></i>
             </div>
-            <div class="profile-info" id="profileInfo">
-                <div class="profile-name">Guest User</div>
-                <div class="profile-role">Client<div>
-            </div>
+            <div class="profile__info" id="profileInfo">
+                <div class="profile__name">Guest User</div>
+                <div class="profile__role">Client</div> </div>
         </div>
     </button>
 </div>
 
-<div class="menu-content hidden" id="profileMenuContent">
-    <h3 class="menu-title">Profile</h3>
-    <div class="menu-item">
-        <div class="profile-overview">
-            <div class="profile-column">
-                <div class="profile-icon-large">
+<div class="profile-menu hidden" id="profileMenuContent">
+    <h3 class="profile-menu__title">Profile</h3>
+    
+    <div class="profile-menu__content">
+        <div class="profile-menu__overview">
+            <div class="profile-menu__avatar-wrapper">
+                <div class="profile-menu__avatar">
                     <i class="fa-solid fa-user"></i>
                 </div>
             </div>
-            <div class="profile-column">
-                <div class="profile-name">Guest User</div>
-                <div class="profile-email">user@gmail.com</div>
+            <div class="profile-menu__user-details">
+                <div class="profile-menu__name">Guest User</div>
+                <div class="profile-menu__email">user@gmail.com</div>
             </div>
         </div>
-        <div class="user-status">
-            <div class="profile-role">Client</div>
-            <div class="member-since">Joined at 10.12.2025</div>
+
+        <div class="profile-menu__status">
+            <div class="profile-menu__badge">Client</div>
+            <div class="profile-menu__date">Joined at 10.12.2025</div>
         </div>
-        <div class="divider"></div>
-        <div class="theme-toggle">
-            <div class="theme-slider" id="themeSlider"></div>
-            <button class="theme-btn" data-theme="light">
+
+        <div class="profile-menu__divider"></div>
+
+        <div class="profile-menu__theme-toggle theme-toggle">
+            <div class="theme-toggle__slider" id="themeSlider"></div>
+            <button class="theme-toggle__btn" data-theme="light">
                 <i class="fa-regular fa-sun"></i>
             </button>
-            <button class="theme-btn" data-theme="dark">
+            <button class="theme-toggle__btn" data-theme="dark">
                 <i class="fa-regular fa-moon"></i>
             </button>
-            <button class="theme-btn" data-theme="system">
+            <button class="theme-toggle__btn" data-theme="system">
                 <i class="fa-solid fa-desktop"></i>
             </button>
         </div>
-        <div class="divider"></div>
-        <div class="options">
-            <div class="option my-profile-button" id="lightModeOption">
-                <a href="/profile">My Profile</a>
+
+        <div class="profile-menu__divider"></div>
+
+        <div class="profile-menu__options">
+            <div class="profile-menu__option" id="lightModeOption">
+                <a href="/profile" class="profile-menu__link">My Profile</a>
             </div>
-            <div class="option logout-button" id="darkModeOption">
-                <form method="POST" action="/logout">
+            <div class="profile-menu__option" id="darkModeOption">
+                <form method="POST" action="/logout" class="profile-menu__form">
                     @csrf
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="profile-menu__logout-btn">Logout</button>
                 </form>
             </div>
         </div>

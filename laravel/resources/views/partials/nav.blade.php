@@ -1,8 +1,8 @@
-<div class="grow flex flex-row items-center justify-center mx-4 gap-6">
+<div class="nav-main__container">
 
-    <a href="/" class="logo">BEX<span>O</span>RA</a>
+    <a href="/" class="nav-main__logo">BEX<span>O</span>RA</a>
 
-    <div class="ml-auto flex flex-row items-center gap-4">
+    <div class="nav-main__items">
         @include('partials.nav_partials.notifications')
         @include('partials.nav_partials.profile')
     </div>

@@ -1,0 +1,72 @@
+/* --- BLOCK: Notifications (Trigger) --- */
+.notifications {
+    display: inline-block;
+}
+
+.notifications__trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.notifications__icon {
+    font-size: 1.5rem;
+    color: var(--color-text);
+    transition: color 0.2s ease;
+}
+
+.notifications__trigger:hover .notifications__icon {
+    color: var(--color-primary-hover);
+}
+
+/* --- BLOCK: Notifications Menu (Dropdown) --- */
+.notifications-menu {
+    position: absolute;
+    top: -0.1rem;
+    right: 12rem;
+    background-color: var(--color-box-shadow-input);
+    min-width: 25rem;
+    z-index: -1;
+    border-radius: 0.5rem;
+    color: var(--color-text-unimportant-dark);
+    padding: 1.5rem;
+}
+
+.notifications-menu__title {
+    margin-bottom: 1rem;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.notifications-menu__content {
+    /* list of notif */
+}
+
+.notifications-menu__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.notifications-menu__empty {
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    text-align: center;
+    padding: 1rem 0;
+}
+
+/* Example notification */
+.notifications-menu__item {
+    padding: 0.75rem;
+    border-radius: 0.4rem;
+    background-color: var(--color-bg-complement);
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    border-left: 3px solid var(--color-primary);
+}
