@@ -4,22 +4,49 @@
 
 @section('content')
 <div class="auth-page">
-    <div class="auth-card" id="authCard">
+
+    <div class="auth-page__banner">
         
-        <div class="auth-card__header">
-            <button id="switchToLogin" class="auth-card__tab auth-card__tab--active">Login</button>
-            <button id="switchToRegister" class="auth-card__tab">Register</button>
-        </div>
+        <div class="auth-section">
 
-        <div id="loginSection" class="auth-card__section {{ $errors->has('name') || $errors->has('password_confirmation') ? 'hidden' : '' }}">
-            @include('partials.auth_partials.login')
-        </div>
+            <div class="auth-section__header">
+                We need to know you!
+            </div>
 
-        <div id="registerSection" class="auth-card__section {{ $errors->has('name') || $errors->has('password_confirmation') ? '' : 'hidden' }}">
-            @include('partials.auth_partials.register')
+            <div class="auth-section__content">
+                In order to use this app you need to have an account and be logged in.
+                urobit tam dropdown pre vyber typu uctu a dat tam i-cko ako info kde hover
+                na to zobrazi info ze ak user zvoli PROVIDER typ tak sa automaticky posle
+                po zaregistrovani poziadavka na schvalenie, ale zaroven sa miesto create
+                account tlacitka zobrazi next step kde clovek zaregistruje svoju prevadzku...
+                az potom tlacitko create account v next stepe...
+            </div>
+
         </div>
 
     </div>
+
+    <div class="auth-page__form">
+        
+        <div class="auth-card" id="authCard">
+        
+            <div class="auth-card__header">
+                <button id="switchToLogin" class="auth-card__tab auth-card__tab--active">Login</button>
+                <button id="switchToRegister" class="auth-card__tab">Register</button>
+            </div>
+
+            <div id="loginSection" class="auth-card__section {{ $errors->has('name') || $errors->has('password_confirmation') ? 'hidden' : '' }}">
+                @include('partials.auth_partials.login')
+            </div>
+
+            <div id="registerSection" class="auth-card__section {{ $errors->has('name') || $errors->has('password_confirmation') ? '' : 'hidden' }}">
+                @include('partials.auth_partials.register')
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 @vite('resources/js/pages/auth/entry.js')

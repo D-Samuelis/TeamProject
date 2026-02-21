@@ -2,11 +2,10 @@ import { DARK_MODE_STORAGE_KEY } from '../../config/storageKeys.js';
 
 export default function initTheme() {
     const body = document.body;
-    // POZOR: Musíš použiť tvoju novú BEM triedu!
+
     const buttons = document.querySelectorAll('.theme-toggle__btn');
     const slider = document.getElementById('themeSlider');
 
-    // Poistka: Ak na stránke nie je slider, nepokračuj (zabráni chybám v konzole)
     if (!slider) return;
 
     function applyTheme(theme) {
@@ -25,7 +24,6 @@ export default function initTheme() {
 
     function moveSliderTo(theme) {
         const index = { light: 0, dark: 1, system: 2 }[theme] ?? 2;
-        // Ak máš padding .1rem na slideri, možno budeš musieť doladiť percentá
         slider.style.transform = `translateX(${index * 100}%)`;
     }
 
@@ -40,10 +38,8 @@ export default function initTheme() {
         moveSliderTo(theme);
     }
 
-    // Inicializácia
     loadInitialTheme();
 
-    // Event Listenery
     buttons.forEach(button => {
         button.addEventListener('click', () => {
             const theme = button.dataset.theme;

@@ -1,7 +1,49 @@
+.auth-page {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100vw;
+    align-items: center;
+}
+
+.auth-page__form {
+    height: 100%;
+    width: 60vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+}
+
 .auth-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+}
+
+.auth-header__title {
+    font-family: Inter-Bold, sans-serif;
+    font-size: var(--font-size-logo);
+    margin-bottom: .5rem;
+}
+
+.auth-header__dash {
+    border-radius: 1rem;
+    width: 3rem;
+    height: .5rem;
+    background-color: var(--color-primary);
+}
+
+.auth-form__content {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.auth-form__column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .auth-form__group {
