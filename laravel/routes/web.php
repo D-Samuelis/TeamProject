@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\AudioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\AuthController;
 
+use App\Http\Controllers\TestController;
 
 /**
  * Audio test
@@ -16,11 +17,11 @@ Route::post('/audio/transcribe', [AudioController::class, 'upload']);
 /**
  * Public routes
  */
-Route::get('/', fn () => view('pages.welcome'));
+Route::get('/', fn() => view('pages.welcome'));
 
-Route::get('/dev', fn () => view('pages.dev'));
+Route::get('/dev', fn() => view('pages.dev'));
 
-Route::get('/auth', fn () => view('pages.auth'));
+Route::get('/auth', fn() => view('pages.auth'));
 
 /**
  * Authentication routes
@@ -39,13 +40,21 @@ Route::post('/logout', [AuthController::class, 'logout'])
  * Protected routes
  */
 Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', fn() => view('pages.dashboard'))->name('dashboard');
 
-    Route::get('/dashboard', fn () => view('pages.dashboard'))
-        ->name('dashboard');
+    Route::middleware('role:client')->get('/client', fn() => view('client'));
 
-    Route::middleware('role:client')->get('/client', fn () => view('client'));
+    Route::middleware('role:provider')->get('/provider', fn() => view('provider'));
 
-    Route::middleware('role:provider')->get('/provider', fn () => view('provider'));
+    Route::middleware('role:admin')->get('/admin', fn() => view('admin'));
 
-    Route::middleware('role:admin')->get('/admin', fn () => view('admin'));
+    Route::prefix('test-admin')->group(function () {
+        Route::get('/', [TestController::class, 'index'])->name('test.index');
+
+        Route::post('/business', [TestController::class, 'storeBusiness'])->name('test.business.store');
+        Route::post('/branch', [TestController::class, 'storeBranch'])->name('test.branch.store');
+        Route::post('/service', [TestController::class, 'storeService'])->name('test.service.store');
+        Route::post('/asset', [TestController::class, 'storeAsset'])->name('test.asset.store');
+        Route::post('/attach-asset', [TestController::class, 'attachAsset'])->name('test.asset.attach');
+    });
 });

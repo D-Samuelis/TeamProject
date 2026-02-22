@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('name');
 
             // physical | mobile | virtual
-            $table->string('type');
+            $table->string('type')->nullable();
 
             $table->string('address')->nullable();
 
