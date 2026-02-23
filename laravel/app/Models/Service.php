@@ -9,16 +9,16 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['business_id', 'branch_id', 'name', 'description', 'is_online'];
+    protected $fillable = ['business_id', 'name', 'description', 'duration_minutes', 'price', 'is_online', 'location_type', 'is_active'];
 
     public function business()
     {
         return $this->belongsTo(Business::class);
     }
 
-    public function branch()
+    public function branches()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsToMany(Branch::class);
     }
 
     public function users()

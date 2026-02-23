@@ -12,6 +12,7 @@ class Business extends Model
     protected $fillable = [
         'name',
         'description',
+        'is_published',
     ];
 
     public function users()

@@ -7,7 +7,7 @@
 
 <h1>Test Admin Panel</h1>
 
-{{-- ================= BUSINESS ================= --}}
+<!-- ================= BUSINESS ================= -->
 <form method="POST" action="{{ route('test.business.store') }}">
     @csrf
     <h2>Create Business</h2>
@@ -16,7 +16,7 @@
     <button type="submit">Create Business</button>
 </form>
 
-{{-- ================= BRANCH ================= --}}
+<!-- ================= BRANCH ================= -->
 <form method="POST" action="{{ route('test.branch.store') }}">
     @csrf
     <h2>Create Branch</h2>
@@ -29,12 +29,22 @@
     </select>
 
     <input type="text" name="name" placeholder="Branch Name" required>
-    <input type="text" name="address" placeholder="Address">
+
+    <select name="type" required>
+        <option value="physical">Physical</option>
+        <option value="online">Online</option>
+        <option value="hybrid">Hybrid</option>
+    </select>
+
+    <input type="text" name="address_line_1" placeholder="Address Line 1">
+    <input type="text" name="city" placeholder="City">
+    <input type="text" name="postal_code" placeholder="Postal Code">
+    <input type="text" name="country" placeholder="Country">
 
     <button type="submit">Create Branch</button>
 </form>
 
-{{-- ================= SERVICE ================= --}}
+<!-- ================= SERVICE ================= -->
 <form method="POST" action="{{ route('test.service.store') }}">
     @csrf
     <h2>Create Service</h2>
@@ -46,12 +56,12 @@
         @endforeach
     </select>
 
-    <select name="branch_id" required>
-        <option value="">Select Branch</option>
+    <!-- MULTIPLE BRANCHES -->
+    <select name="branch_ids[]" multiple required>
         @foreach($businesses as $business)
             @foreach($business->branches as $branch)
                 <option value="{{ $branch->id }}">
-                    {{ $business->name }} - {{ $branch->name }}
+                    {{ $business->name }} - {{ $branch->name }} ({{ $branch->type }})
                 </option>
             @endforeach
         @endforeach
@@ -59,26 +69,25 @@
 
     <input type="text" name="name" placeholder="Service Name" required>
     <input type="text" name="description" placeholder="Description">
-
-    <label>
-        <input type="checkbox" name="is_online" value="1">
-        Is Online
-    </label>
+    <input type="number" name="duration_minutes" placeholder="Duration (minutes)">
+    <input type="number" step="0.01" name="price" placeholder="Price">
 
     <button type="submit">Create Service</button>
 </form>
 
-{{-- ================= DISPLAY DATA ================= --}}
+<!-- ================= DISPLAY DATA ================= -->
 <h2>Database Overview</h2>
 
 @foreach($businesses as $business)
-    <div class="box">
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:20px;">
         <strong>Business:</strong> {{ $business->name }}
 
         <p><strong>Branches:</strong></p>
         <ul>
             @foreach($business->branches as $branch)
-                <li>{{ $branch->name }}</li>
+                <li>
+                    {{ $branch->name }} ({{ $branch->type }})
+                </li>
             @endforeach
         </ul>
 
@@ -86,11 +95,17 @@
         <ul>
             @foreach($business->services as $service)
                 <li>
-                    {{ $service->name }}
-                    (Branch: {{ $service->branch->name ?? 'N/A' }})
-                    @if($service->is_online)
-                        — Online
-                    @endif
+                    <strong>{{ $service->name }}</strong>
+                    — {{ $service->duration_minutes }} min
+                    — ${{ $service->price }}
+
+                    <br>
+                    Available in:
+                    @foreach($service->branches as $branch)
+                        <span>
+                            {{ $branch->name }} ({{ $branch->type }})
+                        </span>@if(!$loop->last), @endif
+                    @endforeach
                 </li>
             @endforeach
         </ul>

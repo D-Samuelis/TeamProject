@@ -9,21 +9,20 @@ class Branch extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'business_id',
-        'name',
-        'address',
-    ];
+    protected $fillable = ['business_id', 'name', 'type', 'address_line_1', 'address_line_2', 'city', 'postal_code', 'country', 'is_active'];
 
-    public function business()
+     public function business()
     {
         return $this->belongsTo(Business::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('role')
-            ->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
     }
 }

@@ -15,7 +15,10 @@ class TestController extends Controller
     public function index()
     {
         return view('archive.test-admin', [
-            'businesses' => Business::with(['branches', 'services'])->get(),
+            'businesses' => Business::with([
+                'branches',
+                'services.branches'
+            ])->get(),
         ]);
     }
 
@@ -37,24 +40,70 @@ class TestController extends Controller
 
     public function storeBranch(Request $request)
     {
-        Branch::create([
-            'business_id' => $request->business_id,
-            'name' => $request->name,
-            'address' => $request->address,
+        $validated = $request->validate([
+            'business_id' => 'required|exists:businesses,id',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:physical,online,hybrid',
+            'address_line_1' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:50',
+            'country' => 'nullable|string|max:255',
         ]);
+
+        $business = Business::findOrFail($validated['business_id']);
+
+        abort_unless(
+            $business
+                ->users()
+                ->where('user_id', auth()->id())
+                ->wherePivot('role', BusinessRole::OWNER->value)
+                ->exists(),
+            403
+        );
+
+        Branch::create($validated);
 
         return back();
     }
 
     public function storeService(Request $request)
     {
-        Service::create([
-            'business_id' => $request->business_id,
-            'branch_id' => $request->branch_id,
-            'name' => $request->name,
-            'description' => $request->description,
-            'is_online' => $request->has('is_online'),
+        $validated = $request->validate([
+            'business_id' => 'required|exists:businesses,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'branch_ids' => 'array',
         ]);
+
+        DB::transaction(function () use ($validated) {
+            $business = Business::findOrFail($validated['business_id']);
+
+            // Only business owners can create services
+            abort_unless(
+                $business
+                    ->users()
+                    ->where('user_id', auth()->id())
+                    ->wherePivot('role', BusinessRole::OWNER->value)
+                    ->exists(),
+                403
+            );
+
+            $service = Service::create([
+                'business_id' => $business->id,
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            if (!empty($validated['branch_ids'])) {
+                // Only attach branches that belong to this business
+                $validBranchIds = Branch::where('business_id', $business->id)
+                    ->whereIn('id', $validated['branch_ids'])
+                    ->pluck('id')
+                    ->toArray();
+
+                $service->branches()->attach($validBranchIds);
+            }
+        });
 
         return back();
     }
