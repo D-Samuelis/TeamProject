@@ -25,8 +25,8 @@
 
             <div class="auth-form__group">
                 <label for="register_title_prefix" class="auth-form__label">Title Before Name</label>
-                <input type="text" id="register_title_prefix" name="title_prefix" class="auth-form__input" placeholder="Bc.">
-                <div class="auth-form__error invalid-input-field"></div>
+                <input type="text" id="register_title_prefix" name="title_prefix" class="auth-form__input" placeholder="Bc." list="titles_before_list">
+                <datalist id="titles_before_list"></datalist> <div class="auth-form__error invalid-input-field"></div>
             </div>
 
             <div class="auth-form__group">
@@ -58,9 +58,9 @@
             </div>
 
             <div class="auth-form__group">
-                <label for="register_title_suffix" class="auth-form__label">Title After Name</label>
-                <input type="text" id="register_title_suffix" name="title_suffix" class="auth-form__input" placeholder="PhD.">
-                <div class="auth-form__error invalid-input-field"></div>
+                <label for="register_title_prefix" class="auth-form__label">Title After Name</label>
+                <input type="text" id="register_title_suffix" name="title_suffix" class="auth-form__input" placeholder="PhD." list="titles_after_list">
+                <datalist id="titles_after_list"></datalist> <div class="auth-form__error invalid-input-field"></div>
             </div>
 
             <div class="auth-form__group">
