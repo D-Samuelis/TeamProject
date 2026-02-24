@@ -1,0 +1,196 @@
+.auth-form__content {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.auth-form__column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.auth-form__group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-form__label {
+    position: absolute;
+    top: -.65rem;
+    left: .5rem;
+    padding: 0rem .1rem;
+    background-color: var(--color-bg);
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    font-family: 'Inter-SemiBold';
+}
+
+.auth-form__label span{
+    font-size: var(--font-size-base);
+}
+
+.auth-form__input {
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    border: .0625rem solid #dddddd;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    min-width: 20rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-form__group:focus-within .auth-form__label {
+    top: -1.5rem;
+    background-color: transparent;
+    color: var(--color-primary);
+    transition: top 0.2s ease-in-out, background-color .1s ease-in-out, color .2s ease-in-out;
+}
+
+.auth-form__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-box-shadow-input);
+}
+
+.gender-selection {
+    margin-bottom: 1.5rem;
+}
+
+.gender-selection__title {
+    padding: 0rem .1rem;
+    background-color: var(--color-bg);
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    font-family: 'Inter-SemiBold';
+}
+
+.gender-selection__row {
+    position: relative;
+    border: .0625rem solid var(--color-border);
+    display: flex;
+    margin-top: .5rem;
+    border-radius: .25rem;
+    overflow: hidden;
+    background-color: var(--color-bg);
+}
+
+.gender-radio {
+    display: none;
+}
+
+.gender-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: var(--color-primary);
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+
+.gender-label {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0rem .1rem;
+    background-color: transparent;
+    font-size: var(--font-size-base);
+    color: var(--color-text-unimportant);
+    font-family: 'Inter-SemiBold';
+    flex: 1;
+    height: 3rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.gender-radio:checked + .gender-label {
+    color: var(--color-white);
+}
+
+.gender-label:hover {
+    color: var(--color-primary-hover);
+}
+
+.auth-form__error {
+    display: flex;
+    align-items: center;
+    height: .75rem;
+    margin-top: -.15rem;
+    font-size: var(--font-size-small);
+}
+
+.invalid-input-field {
+    visibility: hidden;
+    color: var(--color-danger);
+    font-size: var(--font-size-base);
+}
+
+.invalid-input-field.active {
+    visibility: visible;
+}
+
+.input-error {
+    border-color: var(--color-danger) !important;
+}
+
+.auth-form__helper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-small);
+}
+
+.auth-form__link {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.auth-form__link:hover {
+    text-decoration: underline;
+}
+
+.auth-form__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: 0.25rem;
+    font-family: 'Inter-Bold', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.auth-form__submit:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.auth-form__submit:active {
+    transform: scale(0.98);
+}
+
+.auth-form__group:has(.input-error) .auth-form__label {
+    color: var(--color-danger);
+}
+
+.auth-form__group:has(.input-error) {
+    animation: shake 0.2s ease-in-out 0s 2;
+    will-change: transform;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0rem); }
+    25% { transform: translateX(0.25rem); }
+    75% { transform: translateX(-0.25rem); }
+    100% { transform: translateX(0rem); }
+}

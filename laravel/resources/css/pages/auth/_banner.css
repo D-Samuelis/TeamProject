@@ -1,9 +1,8 @@
 .auth-page__banner {
     height: 100%;
-    width: 40vw;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background-color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-gradient-dark) 100%);
 }
