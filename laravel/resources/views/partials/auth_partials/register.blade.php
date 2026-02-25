@@ -26,7 +26,14 @@
             <div class="auth-form__group">
                 <label for="register_title_prefix" class="auth-form__label">Title Before Name</label>
                 <input type="text" id="register_title_prefix" name="title_prefix" class="auth-form__input" placeholder="Bc." list="titles_before_list">
-                <datalist id="titles_before_list"></datalist> <div class="auth-form__error invalid-input-field"></div>
+                <datalist id="titles_before_list"></datalist>
+                <div class="auth-form__error invalid-input-field"></div>
+                
+                <div class="auth-form__info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span class="info-label">Title Info</span>
+                    <div class="info-tooltip"></div>
+                </div>
             </div>
 
             <div class="auth-form__group">
@@ -43,7 +50,12 @@
 
             <div class="auth-form__group">
                 <label for="register_password" class="auth-form__label">Password</label>
-                <input type="password" id="register_password" name="password" class="auth-form__input" placeholder="Min. 8 characters">
+                <div class="input-wrapper">
+                    <input type="password" id="register_password" name="password" class="auth-form__input" placeholder="Min. 8 characters">
+                    <button type="button" class="password-toggle" tabindex="-1">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
                 <div class="auth-form__error invalid-input-field"></div>
             </div>
 
@@ -58,9 +70,16 @@
             </div>
 
             <div class="auth-form__group">
-                <label for="register_title_prefix" class="auth-form__label">Title After Name</label>
+                <label for="register_title_suffix" class="auth-form__label">Title After Name</label>
                 <input type="text" id="register_title_suffix" name="title_suffix" class="auth-form__input" placeholder="PhD." list="titles_after_list">
-                <datalist id="titles_after_list"></datalist> <div class="auth-form__error invalid-input-field"></div>
+                <datalist id="titles_after_list"></datalist>
+                <div class="auth-form__error invalid-input-field"></div>
+                
+                <div class="auth-form__info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span class="info-label">Title Info</span>
+                    <div class="info-tooltip"></div>
+                </div>
             </div>
 
             <div class="auth-form__group">
@@ -77,7 +96,12 @@
 
             <div class="auth-form__group">
                 <label for="register_password_confirmation" class="auth-form__label">Confirm Password</label>
-                <input type="password" id="register_password_confirmation" name="password_confirmation" class="auth-form__input" placeholder="••••••••">
+                <div class="input-wrapper">
+                    <input type="password" id="register_password_confirmation" name="password_confirmation" class="auth-form__input" placeholder="••••••••">
+                    <button type="button" class="password-toggle" tabindex="-1">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
                 <div class="auth-form__error invalid-input-field"></div>
             </div>
 

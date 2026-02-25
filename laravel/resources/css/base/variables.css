@@ -43,7 +43,11 @@
     --font-size-small: 0.875rem;
 
     --color-danger: #ff4221;
+    --color-danger-text: #ff4221;
     --color-success: #29ff29;
+    --color-success-text: #29ff29;
+    --color-warning: #f8c82a;
+    --color-warning-text: #e9a71a;
 }
 
 .theme-dark {
