@@ -7,7 +7,7 @@
 .auth-form__column {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 4rem;
 }
 
 .auth-form__group {
@@ -121,22 +121,42 @@
     color: var(--color-primary-hover);
 }
 
-.auth-form__error {
+.auth-form__error,
+.auth-form__info {
+    position: absolute;
+    top: 3.5rem;
+    left: 0;
+    margin-top: 0;
+    z-index: 20;
+    white-space: nowrap;
     display: flex;
     align-items: center;
-    height: .75rem;
-    margin-top: -.15rem;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.25rem;
     font-size: var(--font-size-small);
-}
-
-.invalid-input-field {
+    font-family: 'Inter-Regular', sans-serif;
+    width: fit-content;
+    transition: all 0.2s ease;
     visibility: hidden;
-    color: var(--color-danger);
-    font-size: var(--font-size-base);
+    opacity: 0;
 }
 
-.invalid-input-field.active {
-    visibility: visible;
+.auth-form__error {
+    color: var(--color-danger);
+    background-color: color-mix(in srgb, var(--color-danger), transparent 92%);
+}
+
+.auth-form__info {
+    color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-primary), transparent 92%);
+    z-index: 20;
+}
+
+.auth-form__error i,
+.auth-form__info i {
+    font-size: 0.9rem; /* Jednotná veľkosť ikoniek */
+    flex-shrink: 0;
 }
 
 .input-error {
@@ -198,24 +218,7 @@
     100% { transform: translateX(0rem); }
 }
 
-.auth-form__info {
-    position: absolute;
-    top: 3.25rem;
-    visibility: hidden; 
-    opacity: 0;
-    display: flex;
-    transition: opacity 0.2s ease;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: var(--font-size-small);
-    color: var(--color-primary);
-    width: fit-content;
-    transition: all 0.2s ease;
-    z-index: 20;
-}
-
+.auth-form__error.active,
 .auth-form__info.active {
     visibility: visible;
     opacity: 1;

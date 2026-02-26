@@ -44,7 +44,7 @@ export default function initAuthValidator() {
         const show = (msg) => {
             input.classList.add('input-error');
             if (errorDiv) {
-                errorDiv.textContent = msg;
+                errorDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${msg}</span>`;
                 errorDiv.classList.add('active');
             }
         };
@@ -53,7 +53,9 @@ export default function initAuthValidator() {
             input.classList.remove('input-error');
             if (errorDiv) {
                 errorDiv.classList.remove('active');
-                errorDiv.innerHTML = '&nbsp;'; //fix for older browsers...
+                setTimeout(() => { 
+                    if(!errorDiv.classList.contains('active')) errorDiv.innerHTML = ''; 
+                }, 200);
             }
         };
 

@@ -27,11 +27,10 @@
                 <label for="register_title_prefix" class="auth-form__label">Title Before Name</label>
                 <input type="text" id="register_title_prefix" name="title_prefix" class="auth-form__input" placeholder="Bc." list="titles_before_list">
                 <datalist id="titles_before_list"></datalist>
-                <div class="auth-form__error invalid-input-field"></div>
-                
+
                 <div class="auth-form__info">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span class="info-label">Title Info</span>
+                    <span class="info-label">Warning</span>
                     <div class="info-tooltip"></div>
                 </div>
             </div>
@@ -73,11 +72,10 @@
                 <label for="register_title_suffix" class="auth-form__label">Title After Name</label>
                 <input type="text" id="register_title_suffix" name="title_suffix" class="auth-form__input" placeholder="PhD." list="titles_after_list">
                 <datalist id="titles_after_list"></datalist>
-                <div class="auth-form__error invalid-input-field"></div>
                 
                 <div class="auth-form__info">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span class="info-label">Title Info</span>
+                    <span class="info-label">Warning</span>
                     <div class="info-tooltip"></div>
                 </div>
             </div>
