@@ -18,7 +18,7 @@
         <div class="auth-form__column">
             <x-auth-input id="register_name" name="name" label="Full Name" placeholder="John Doe" />
             
-            <x-auth-input id="register_title_prefix" name="title_prefix" label="Title Before Name" 
+            <x-auth-input id="register_title_prefix" name="title_prefix" label="Title Before Name [Optional]" 
                           placeholder="Bc." list="titles_before_list" info="true" />
             
             <x-auth-input id="register_email" name="email" label="Email Address" type="email" 
@@ -33,7 +33,7 @@
         <div class="auth-form__column">
             <x-auth-input id="register_birth" name="birth" label="Birth Date" type="date" />
             
-            <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name" 
+            <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name [Optional]" 
                           placeholder="PhD." list="titles_after_list" info="true" />
             
             <x-auth-input id="register_phone" name="phone" label="Phone Number" placeholder="+421 000 000 000" />

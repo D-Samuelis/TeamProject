@@ -1,5 +1,5 @@
 export default function initAuthValidator() {
-    const forms = document.querySelectorAll('.auth-form');
+    const forms = document.querySelectorAll('.auth-form:not(.no-validate)');
     
     if (forms.length === 0) return;
 
