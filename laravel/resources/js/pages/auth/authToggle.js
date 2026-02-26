@@ -1,39 +1,40 @@
+// authToggle.js
 export default function initAuthToggle() {
-    const authCard = document.getElementById('authCard');
     const loginBtn = document.getElementById('switchToLogin');
     const registerBtn = document.getElementById('switchToRegister');
     const loginSection = document.getElementById('loginSection');
     const registerSection = document.getElementById('registerSection');
 
-    if (!authCard || !loginBtn || !registerBtn) return;
+    // DEBUG: Skontroluj v konzole, či JS vidí tieto prvky
+    console.log({ loginBtn, registerBtn, loginSection, registerSection });
 
-    const toggleAuth = (mode) => {
+    if (!loginSection || !registerSection) return;
+
+    const showSection = (mode) => {
         if (mode === 'register') {
             loginSection.classList.add('hidden');
             registerSection.classList.remove('hidden');
-            
-            registerBtn.classList.add('auth-card__tab--active');
-            loginBtn.classList.remove('auth-card__tab--active');
-            
             window.history.replaceState(null, '', '#register');
         } else {
             registerSection.classList.add('hidden');
             loginSection.classList.remove('hidden');
-            
-            loginBtn.classList.add('auth-card__tab--active');
-            registerBtn.classList.remove('auth-card__tab--active');
-            
             window.history.replaceState(null, '', '#login');
         }
     };
 
-    loginBtn.addEventListener('click', () => toggleAuth('login'));
-    registerBtn.addEventListener('click', () => toggleAuth('register'));
+    // Používame voliteľné reťazenie (?.) aby JS nezlyhal, ak tlačidlo nenájde
+    registerBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('register');
+    });
 
-    const hasRegisterErrors = registerSection.querySelector('.auth-form__error') !== null;
-    const isRegisterHash = window.location.hash === '#register';
+    loginBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('login');
+    });
 
-    if (hasRegisterErrors || isRegisterHash) {
-        toggleAuth('register');
+    // Inicializácia pri načítaní (podľa hashu v URL)
+    if (window.location.hash === '#register') {
+        showSection('register');
     }
 }

@@ -168,7 +168,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: var(--font-size-small);
+    margin-top: 2rem;
+    font-size: var(--font-size-base);
 }
 
 .auth-form__link {
@@ -230,19 +231,23 @@
     bottom: 120%;
     left: 0;
     width: 250px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    height: auto;
     line-height: 1.4;
     text-align: left;
     background: #333;
-    color: #fff;
+    color: var(--color-white);
     padding: 0.75rem;
     border-radius: 0.5rem;
     visibility: hidden;
+    font-size: var(--font-size-base);
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(10px);
     z-index: 100;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    pointer-events: none;
     z-index: 100;
 }
 
@@ -296,4 +301,76 @@
 #register_password,
 #register_password_confirmation {
     padding-right: 3rem !important; 
+}
+
+.auth-swap {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.auth-swap .welcome-card {
+    display: block;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    outline: none;
+}
+
+.welcome-card__title, .welcome-card__description {
+    display: block;
+}
+
+.welcome-card:active {
+    transform: scale(0.99);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+}
+
+.auth-form__submit-card {
+    cursor: pointer !important;
+}
+
+.welcome-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center;
+    text-align: center !important;
+    width: 100%;
+}
+
+.auth-form__submit-card {
+    height: 3rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form__submit-card .welcome-card__title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin-bottom: 0;
+}
+
+.auth-form__submit-card .welcome-card__icon {
+    position: absolute;
+    right: .25rem;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-white);
+    opacity: 1;
+    font-size: var(--font-size-base);
+}
+
+
+.welcome-card__description {
+    text-align: left;
+    margin-left: 0;
+    width: 100%;
 }

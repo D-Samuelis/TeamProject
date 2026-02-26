@@ -4,7 +4,7 @@
     <div class="auth-header">
 
         <div class="auth-header__title">
-            Registration
+            Create a brand new Account
         </div>
 
         <div class="auth-header__dash">
@@ -36,7 +36,7 @@
             <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name" 
                           placeholder="PhD." list="titles_after_list" info="true" />
             
-            <x-auth-input id="register_phone" name="phone" label="Phone Number" placeholder="+421 9xx xxx xxx" />
+            <x-auth-input id="register_phone" name="phone" label="Phone Number" placeholder="+421 000 000 000" />
             
             <x-auth-input id="register_city" name="city" label="City" placeholder="Bratislava" />
             
@@ -65,8 +65,16 @@
         </div>
     </div>
 
-    <button type="submit" class="auth-form__submit auth-form__submit--primary">
-        <span>Create Account</span>
-        <i class="fa-solid fa-user-plus"></i>
+    <button type="submit" class="auth-form__submit-card welcome-card welcome-card--appointments">
+        <h2 class="welcome-card__title">Create Account</h2>
+        <div class="welcome-card__icon"><i class="fa-solid fa-user-plus"></i></div>
     </button>
+
+    <div class="auth-swap">
+        <button type="button" id="switchToLogin" class="welcome-card welcome-card--manual">
+            <h2 class="welcome-card__title">Already registered?</h2>
+            <p class="welcome-card__description">Sign in to your existing account and manage your appointments.</p>
+            <div class="welcome-card__icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+        </button>
+    </div>
 </form>

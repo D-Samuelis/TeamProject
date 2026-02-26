@@ -31,8 +31,7 @@
         <div class="auth-card" id="authCard">
         
             <div class="auth-card__header">
-                <button id="switchToLogin" class="auth-card__tab auth-card__tab--active">Login</button>
-                <button id="switchToRegister" class="auth-card__tab">Register</button>
+                
             </div>
 
             <div id="loginSection" class="auth-card__section {{ $errors->has('name') || $errors->has('password_confirmation') ? 'hidden' : '' }}">
