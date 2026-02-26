@@ -1,6 +1,6 @@
 <?php
 // app/Application/Auth/RegisterUser.php
-namespace App\Application\Auth;
+namespace App\Application\Auth\UseCases;
 
 use App\Application\Auth\DTO\RegisterUserDTO;
 use App\Application\Auth\DTO\RegisteredUserDTO;

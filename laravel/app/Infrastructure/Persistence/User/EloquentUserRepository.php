@@ -1,5 +1,5 @@
 <?php
-// app/Infrastructure/Persistence/EloquentUserRepository.php
+
 namespace App\Infrastructure\Persistence;
 
 use App\Domain\User\Entities\User as DomainUser;

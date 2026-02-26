@@ -1,6 +1,6 @@
 <?php
 // app/Application/Auth/LogoutUser.php
-namespace App\Application\Auth;
+namespace App\Application\Auth\UseCases;
 
 use App\Domain\User\Repositories\UserRepository;
 use App\Infrastructure\Auth\TokenServiceInterface;

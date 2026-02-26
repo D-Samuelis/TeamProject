@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\RegisterRequest;
-use App\Application\Auth\RegisterUser;
+use App\Http\Controllers\Controller;
+
+use App\Application\Auth\UseCases\RegisterUser;
+use App\Application\Auth\UseCases\LoginUser;
+use App\Application\Auth\UseCases\LogoutUser;
+
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+
 use App\Application\Auth\DTO\RegisterUserDTO;
-use App\Http\Requests\LoginRequest;
-use App\Application\Auth\LoginUser;
-use App\Application\Auth\LogoutUser;
 use App\Application\Auth\DTO\LoginUserDTO;
 
 class AuthController extends Controller
