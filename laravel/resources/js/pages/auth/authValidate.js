@@ -20,10 +20,12 @@ export default function initAuthValidator() {
         match: { value: 'password', message: 'Passwords do not match' }
     },
     birth: {
-        required: { value: true, message: 'Please select your birth date' }
+        required: { value: true, message: 'Please select your birth date' },
+        ageCheck: { max: 100, message: 'You surely are not 100 years old' }
     },
     phone: {
-        required: { value: true, message: 'Phone number is a required field' }
+        required: { value: true, message: 'Phone number is required' },
+        isPhone: { value: true, message: 'Format: +421 9xx xxx xxx' }
     },
     country: {
         required: { value: true, message: 'Country is a required field' }
@@ -64,6 +66,34 @@ export default function initAuthValidator() {
             return false;
         }
 
+        if (rules.ageCheck && value) {
+            const birthDate = new Date(value);
+            const today = new Date();
+            
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (birthDate > today) {
+                show("Birth date cannot be in the future");
+                return false;
+            }
+
+            if (age > rules.ageCheck.max) {
+                show(rules.ageCheck.message);
+                return false;
+            }
+        }
+
+        if (rules.isPhone && value) {
+            if (!/^\+[0-9\s]{10,20}$/.test(value)) {
+                show(rules.isPhone.message);
+                return false;
+            }
+        }
+
         if (rules.isEmail && value) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(value)) {
@@ -93,6 +123,37 @@ export default function initAuthValidator() {
         const inputs = form.querySelectorAll('input:not([type="radio"]), select');
 
         inputs.forEach(input => {
+            if (input.name === 'phone') {
+                input.addEventListener('input', (e) => {
+                    let value = input.value;
+
+                    if (value.length === 1 && value !== '+') {
+                        if (/\d/.test(value)) {
+                            value = '+' + value;
+                        } else {
+                            input.value = '';
+                            return;
+                        }
+                    }
+
+                    const hasPlus = value.startsWith('+');
+                    const digits = value.replace(/\D/g, '');
+
+                    let formatted = hasPlus ? '+' : '';
+                    
+                    if (digits.length > 0) {
+                        formatted += digits.substring(0, 3);
+                        
+                        if (digits.length > 3) {
+                            const rest = digits.substring(3).match(/.{1,3}/g);
+                            formatted += ' ' + rest.join(' ');
+                        }
+                    }
+
+                    input.value = formatted.substring(0, 16);
+                });
+            }
+
             input.addEventListener('input', () => {
                 if (input.classList.contains('input-error')) validateField(input, form);
             });
