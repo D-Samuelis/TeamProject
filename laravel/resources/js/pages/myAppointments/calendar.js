@@ -1,10 +1,107 @@
+import { getTodayInfo } from '../../utils/today.js';
+import { daysInMonth, formatDate, getFirstDayOfMonth } from '../../utils/date.js';
+
+export function initCalendar() {
+    const calendarContainer = document.getElementById("calendarContainer");
+    const calendar = createDiv("calendar");
+    generateCalendar_v2(calendar, 2026, 1);
+    calendarContainer.appendChild(calendar);
+
+    console.log(getTodayInfo());
+    console.log(calendar);
+}
+
+function generateCalendar_v2(calendar, year, month) {
+    calendar.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'calendar__grid';
+
+    appendWeekDayHeader(calendar);
+
+    let firstDayWeek = getFirstDayOfMonth(year, month);
+    firstDayWeek = (firstDayWeek === 0) ? 6 : (firstDayWeek - 1); // Po-Ne logika
+    const totalDays = daysInMonth(year, month);
+    
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    for (let i = firstDayWeek - 1; i >= 0; i--) {
+        const dayNum = prevMonthDays - i;
+        grid.appendChild(addCellToCalendar_v2(dayNum, 'calendar__cell--empty'));
+    }
+
+    for (let day = 1; day <= totalDays; day++) {
+        let extraClass = null;
+        if (isCurrentMonth && day === today.getDate()) {
+            extraClass = 'calendar__cell--today';
+        }
+        
+        const cell = addCellToCalendar_v2(day, extraClass, { day: day });
+        grid.appendChild(cell);
+    }
+
+    const currentCells = grid.children.length;
+    const remainingCells = 42 - currentCells; 
+    
+    for (let i = 1; i <= remainingCells; i++) {
+        grid.appendChild(addCellToCalendar_v2(i, 'calendar__cell--empty'));
+    }
+
+    calendar.appendChild(grid);
+}
+
+function addCellToCalendar_v2(text, extraClass = null, data = null) {
+    let className = "calendar__cell";
+    if (extraClass) className += ` ${extraClass}`;
+
+    const cell = createDiv(className, null, data, text);
+
+    if (!extraClass?.includes('--empty')) {
+        cell.addEventListener('click', function() {
+            document.querySelectorAll('.calendar__cell--active').forEach(el => {
+                el.classList.remove('calendar__cell--active');
+            });
+
+            this.classList.add('calendar__cell--active');
+        });
+    }
+
+    return cell;
+}
+
+function appendWeekDayHeader(container) {
+    const parrent = createDiv("calendar__header");
+
+    ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].forEach(day => {
+        const div = createDiv("calendar__weekday", null, null, day);
+
+        /*if (currentDay.startsWith(div.textContent)) div.classList.add('active-date');*/
+        parrent.appendChild(div);
+    });
+
+    container.appendChild(parrent);
+}
+
+function createDiv(className, id, data, textContent) {
+    const div = document.createElement('div');
+    
+    if (className) div.className = className;
+    if (id) div.id = id;
+    if (textContent) div.textContent = textContent;
+
+    if (data && typeof data === 'object') {
+        Object.assign(div.dataset, data);
+    }
+
+    return div;
+}
+
 /**
  * Calendar view handler for myAppointments page
  */
 
-import { daysInMonth, formatDate, getFirstDayOfMonth } from '../../utils/date.js';
 import { getAppointmentsForDate } from '../../utils/appointment.js';
-import { getTodayInfo } from '../../utils/today.js';
 
 const info = getTodayInfo();
 let currentYear = info.year;
@@ -210,11 +307,12 @@ export function initCalendarView(appointments) {
     });
 
     // Initial render
+    /*
     generateCalendar(currentYear, currentMonth);
 
     highlightCurrentMonth(currentMonth);
 
-    updateYearDisplay();
+    updateYearDisplay();*/
 }
 
 function animateMonthTransition() {

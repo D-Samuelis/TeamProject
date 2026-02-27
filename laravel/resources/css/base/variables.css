@@ -7,6 +7,7 @@
     --color-text-unimportant-hover: rgb(85, 85, 85);
     --color-text-unimportant-dark: #646464;
     --color-text-unimportant-dark-hover: #444444;
+    --color-text-unimportant-light: rgb(189, 189, 189);
 
     --color-secondary-button: #e9e9e9;
     --color-secondary-button-hover: #d3d3d3;
@@ -22,6 +23,7 @@
     --color-button-hover: #ebebeb;
 
     --color-border: #5a5a5a;
+    --color-border-light: #dddddd;
     --color-border-hover:rgb(77, 77, 77);
     --color-box-shadow: rgba(0,0,0,0.12);
     --color-box-shadow-input: rgba(161, 171, 189, 0.3);
@@ -59,6 +61,7 @@
     --color-text-unimportant-hover: #d3d2d2;
     --color-text-unimportant-dark: #646464;
     --color-text-unimportant-dark-hover: #444444;
+    --color-text-unimportant-light: rgb(156, 156, 156);
 
     --color-button-hover: #1d1d27;
 

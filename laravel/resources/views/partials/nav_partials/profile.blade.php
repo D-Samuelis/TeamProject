@@ -57,6 +57,9 @@
                 <a href="/" class="profile-menu__link">Booking</a>
             </div>
             <div class="profile-menu__option" id="lightModeOption">
+                <a href="/myAppointments" class="profile-menu__link">My Appointments</a>
+            </div>
+            <div class="profile-menu__option" id="lightModeOption">
                 <a href="/profile" class="profile-menu__link">My Profile</a>
             </div>
             <div class="profile-menu__option" id="lightModeOption">
