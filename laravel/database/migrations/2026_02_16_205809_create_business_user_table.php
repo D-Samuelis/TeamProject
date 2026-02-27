@@ -12,15 +12,10 @@ return new class extends Migration {
     {
         Schema::create('business_user', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
-
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
             $table->string('role'); // owner, admin, member
-
             $table->timestamps();
-
             $table->unique(['business_id', 'user_id']);
         });
     }

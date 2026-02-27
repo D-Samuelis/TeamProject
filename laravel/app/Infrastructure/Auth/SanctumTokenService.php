@@ -2,27 +2,17 @@
 // app/Infrastructure/Auth/SanctumTokenService.php
 namespace App\Infrastructure\Auth;
 
-use App\Domain\User\Entities\User as DomainUser;
-use App\Models\User as EloquentUser;
+use App\Domain\User\Entities\User;
 
 final class SanctumTokenService implements TokenServiceInterface
 {
-    public function createTokenFor(DomainUser $user, string $name = 'api-token'): string
+    public function createTokenFor(User $user, string $name = 'api-token'): string
     {
-        // find Eloquent model from domain user id
-        $eloquent = EloquentUser::find($user->getId());
-        if (!$eloquent) {
-            throw new \RuntimeException('Cannot create token for non-existing user.');
-        }
-
-        return $eloquent->createToken($name)->plainTextToken;
+        return $user->createToken($name)->plainTextToken;
     }
 
-    public function revokeAllTokensFor(DomainUser $user): void
+    public function revokeAllTokensFor(User $user): void
     {
-        $eloquent = EloquentUser::find($user->getId());
-        if ($eloquent) {
-            $eloquent->tokens()->delete();
-        }
+        $user->tokens()->delete();
     }
 }

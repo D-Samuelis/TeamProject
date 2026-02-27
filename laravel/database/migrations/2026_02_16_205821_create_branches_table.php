@@ -12,20 +12,24 @@ return new class extends Migration {
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
-
-            // physical | mobile | virtual
             $table->string('type');
+            // physical | online | mobile
 
-            $table->string('address')->nullable();
+            $table->string('address_line_1')->nullable();
+            $table->string('address_line_2')->nullable();
+            $table->string('city')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('country')->nullable();
+
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+
+            $table->boolean('is_active')->default(true);
 
             $table->timestamps();
-            $table->softDeletes();
-
-            $table->index('business_id');
         });
     }
 

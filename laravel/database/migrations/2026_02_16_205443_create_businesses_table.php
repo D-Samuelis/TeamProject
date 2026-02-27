@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('businesses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->foreignId('owner_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('description')->nullable();
+            $table->boolean('is_published')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

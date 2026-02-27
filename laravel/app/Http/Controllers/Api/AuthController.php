@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-use App\Application\Auth\RegisterUser;
-use App\Application\Auth\LoginUser;
-use App\Application\Auth\LogoutUser;
+use App\Application\Auth\UseCases\RegisterUser;
+use App\Application\Auth\UseCases\LoginUser;
+use App\Application\Auth\UseCases\LogoutUser;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Application\Auth\DTO\RegisterUserDTO;
 use App\Application\Auth\DTO\LoginUserDTO;
 

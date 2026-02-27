@@ -14,11 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
-            // Remove later, Spatie permissions will handle this
-            $table->string('role');
-
+            $table->string('role'); // manager, staff
             $table->timestamps();
+
             $table->unique(['branch_id', 'user_id']);
         });
     }
