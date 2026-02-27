@@ -22,6 +22,8 @@ Route::get('/dev', fn () => view('pages.dev'));
 
 Route::get('/auth', fn () => view('pages.auth'));
 
+Route::get('/myAppointments', fn () => view('pages.myAppointments'));
+
 /**
  * Authentication routes
  */
