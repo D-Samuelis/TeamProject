@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Requests\Business\StoreBusinessRequest;
 
+use App\Application\Business\DTO\CreateBusinessDTO;
 use App\Application\Business\UseCases\CreateBusiness;
 use App\Application\Business\UseCases\ListBusinesses;
 
@@ -22,7 +23,13 @@ class BusinessController extends Controller
         StoreBusinessRequest $request,
         CreateBusiness $useCase
     ) {
-        $useCase->execute($request->validated(), auth()->id());
+        $dto = new CreateBusinessDTO(
+            $request->validated('name'),
+            $request->validated('description'),
+            $request->validated('is_published') ?? false
+        );
+
+        $useCase->execute($dto, auth()->id());
 
         return back();
     }

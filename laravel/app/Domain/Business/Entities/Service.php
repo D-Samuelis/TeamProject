@@ -11,7 +11,7 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['business_id', 'name', 'description', 'duration_minutes', 'price', 'is_online', 'location_type', 'is_active'];
+    protected $fillable = ['business_id', 'name', 'description', 'duration_minutes', 'price', 'location_type', 'is_active'];
 
     public function business()
     {

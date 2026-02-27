@@ -4,7 +4,9 @@ use App\Http\Controllers\Web\AudioController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\AuthController;
 
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\Web\BranchController;
+use App\Http\Controllers\Web\BusinessController;
+use App\Http\Controllers\Web\ServiceController;
 
 /**
  * Audio test
@@ -49,12 +51,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:admin')->get('/admin', fn() => view('admin'));
 
     Route::prefix('test-admin')->group(function () {
-        Route::get('/', [TestController::class, 'index'])->name('test.index');
+        // Single page index — still comes from BusinessController
+        Route::get('/', [BusinessController::class, 'index'])->name('test.index');
 
-        Route::post('/business', [TestController::class, 'storeBusiness'])->name('test.business.store');
-        Route::post('/branch', [TestController::class, 'storeBranch'])->name('test.branch.store');
-        Route::post('/service', [TestController::class, 'storeService'])->name('test.service.store');
-        Route::post('/asset', [TestController::class, 'storeAsset'])->name('test.asset.store');
-        Route::post('/attach-asset', [TestController::class, 'attachAsset'])->name('test.asset.attach');
+        // Individual POST actions handled by their own controllers
+        Route::post('/business', [BusinessController::class, 'store'])->name('test.business.store');
+        Route::post('/branch', [BranchController::class, 'store'])->name('test.branch.store');
+        Route::post('/service', [ServiceController::class, 'store'])->name('test.service.store');
     });
 });

@@ -11,7 +11,7 @@ class StoreServiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,7 +25,10 @@ class StoreServiceRequest extends FormRequest
             'business_id' => 'required|exists:businesses,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'duration_minutes' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
             'branch_ids' => 'array',
+            'branch_ids.*' => 'exists:branches,id',
         ];
     }
 }

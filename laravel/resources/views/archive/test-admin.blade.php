@@ -100,7 +100,7 @@
                     — ${{ $service->price }}
 
                     <br>
-                    Available in:
+                    Available at:
                     @foreach($service->branches as $branch)
                         <span>
                             {{ $branch->name }} ({{ $branch->type }})

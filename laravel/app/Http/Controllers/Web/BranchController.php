@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
+
+use App\Application\Business\DTO\CreateBranchDTO;
 use App\Application\Business\UseCases\CreateBranch;
 use App\Http\Requests\Business\StoreBranchRequest;
 
@@ -11,7 +14,17 @@ class BranchController extends Controller
         StoreBranchRequest $request,
         CreateBranch $useCase
     ) {
-        $useCase->execute($request->validated(), auth()->id());
+        $dto = new CreateBranchDTO(
+            $request->validated('business_id'),
+            $request->validated('name'),
+            $request->validated('type'),
+            $request->validated('address_line1'),
+            $request->validated('city'),
+            $request->validated('postal_code'),
+            $request->validated('country'),
+        );
+
+        $useCase->execute($dto, auth()->id());
 
         return back();
     }
