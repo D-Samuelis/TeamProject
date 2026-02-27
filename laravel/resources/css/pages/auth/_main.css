@@ -36,6 +36,10 @@
     margin-bottom: 1rem;
 }
 
-.auth-page .nav-main {
+/*
+ * Hide main navigation in auth pages
+*/
+.auth-page ~ .nav-main, 
+body:has(.auth-page) .nav-main {
     display: none;
 }
