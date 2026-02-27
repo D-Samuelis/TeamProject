@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Domain\User\Repositories\UserRepository;
-use App\Infrastructure\Persistence\EloquentUserRepository;
 use App\Infrastructure\Auth\TokenServiceInterface;
 use App\Infrastructure\Auth\SanctumTokenService;
 
@@ -13,7 +11,6 @@ class RepositoryServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app->bind(UserRepository::class, EloquentUserRepository::class);
         $this->app->bind(TokenServiceInterface::class, SanctumTokenService::class);
 
         // SpatieRoleAssigner is concrete but you can also bind an interface if you prefer

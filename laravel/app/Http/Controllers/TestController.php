@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Domain\Business\Entities\Branch;
+use App\Domain\Business\Entities\Business;
+use App\Domain\Business\Entities\Service;
 use App\Enums\BusinessRole;
-use App\Models\Business;
-use App\Models\Branch;
-use App\Models\Service;
 
 class TestController extends Controller
 {

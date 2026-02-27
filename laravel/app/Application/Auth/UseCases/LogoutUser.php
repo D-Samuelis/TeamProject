@@ -1,32 +1,27 @@
 <?php
-// app/Application/Auth/LogoutUser.php
+
 namespace App\Application\Auth\UseCases;
 
-use App\Domain\User\Repositories\UserRepository;
 use App\Infrastructure\Auth\TokenServiceInterface;
-use App\Domain\User\Entities\User as DomainUser;
+use App\Domain\User\Entities\User;
 use InvalidArgumentException;
 
 /**
- * Use case class to handle user logout logic. This class encapsulates the business rules for logging out a user. It is called by the AuthController to separate concerns.
- * @package App\Application\Auth
+ * Use case class to handle user logout logic.
  */
-
 final class LogoutUser
 {
     public function __construct(
-        private TokenServiceInterface $tokenService,
-        private UserRepository $users
+        private TokenServiceInterface $tokenService
     ) {}
 
     /**
-     * Logout by domain user instance or by user id (string).
-     * We'll accept a DomainUser or string id to be flexible.
+     * Logout by user instance or user id.
      */
-    public function execute(DomainUser|string $userOrId): void
+    public function execute(User|string $userOrId): void
     {
         if (is_string($userOrId)) {
-            $user = $this->users->findById($userOrId);
+            $user = User::find($userOrId);
             if (!$user) {
                 throw new InvalidArgumentException('User not found.');
             }
@@ -36,6 +31,6 @@ final class LogoutUser
 
         $this->tokenService->revokeAllTokensFor($user);
 
-        // other infra cleanup (optional): revoke sessions, delete refresh tokens, etc.
+        // revoke sessions (?)
     }
 }

@@ -49,9 +49,7 @@ class AuthController extends Controller
 
         $result = $registerUser->execute($dto);
 
-        // log the user in (Eloquent model needed)
-        $eloquentUser = \App\Models\User::find($result->user->getId());
-        Auth::login($eloquentUser);
+        Auth::login($result->user);
 
         return redirect()->route('dashboard')->with('success', 'Welcome!');
     }
@@ -79,22 +77,12 @@ class AuthController extends Controller
         );
 
         try {
-            $result = $loginUser->execute($dto); // returns RegisteredUserDTO
-            $domainUser = $result->user;
+            $result = $loginUser->execute($dto);
 
-            // convert domain user -> Eloquent model for Auth::login
-            $eloquent = \App\Models\User::find($domainUser->getId());
-            if (!$eloquent) {
-                // This should rarely happen; repository and Eloquent are consistent.
-                throw new \RuntimeException('Eloquent user not found.');
-            }
+            Auth::login($result->user, $dto->remember);
 
-            Auth::login($eloquent, $dto->remember);
-
-            // Optionally: store token for API usage, or return it for SPA
             return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
         } catch (\InvalidArgumentException $e) {
-            // map domain/auth failure to form error
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'email' => [$e->getMessage()],
             ]);
@@ -106,11 +94,11 @@ class AuthController extends Controller
      */
     public function logout(\Illuminate\Http\Request $request, LogoutUser $logoutUser)
     {
-        $eloquent = $request->user(); // Eloquent user
+        $user = $request->user(); // Eloquent user
 
-        if ($eloquent) {
+        if ($user) {
             // convert to domain or pass id
-            $logoutUser->execute($eloquent->id); // LogoutUser will find domain user via repository
+            $logoutUser->execute($user->id); // LogoutUser will find domain user via repository
         }
 
         $request->session()->invalidate();
