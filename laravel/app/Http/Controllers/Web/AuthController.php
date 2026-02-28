@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers\Web;
 
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
-
-use App\Application\Auth\UseCases\RegisterUser;
+use App\Application\Auth\DTO\LoginUserDTO;
+use App\Application\Auth\DTO\RegisterUserDTO;
 use App\Application\Auth\UseCases\LoginUser;
 use App\Application\Auth\UseCases\LogoutUser;
-
-use App\Http\Requests\Auth\RegisterRequest;
+use App\Application\Auth\UseCases\RegisterUser;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-
-use App\Application\Auth\DTO\RegisterUserDTO;
-use App\Application\Auth\DTO\LoginUserDTO;
+use App\Http\Requests\Auth\RegisterRequest;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     /**
      * Show auth page
      */
-    public function showAuth()
+    public function showAuth(\Illuminate\Http\Request $request)
     {
-        return view('pages.auth');
+        $mode = $request->route()->getName(); // 'login' or 'register'
+
+        return view('pages.auth', [
+            'mode' => $mode === 'register' ? 'register' : 'login',
+        ]);
     }
 
     /**
@@ -44,7 +45,7 @@ class AuthController extends Controller
             $request->input('birth_date'),
             $request->input('title_suffix'),
             $request->input('phone_number'),
-            $request->input('gender')
+            $request->input('gender'),
         );
 
         $result = $registerUser->execute($dto);
@@ -57,7 +58,7 @@ class AuthController extends Controller
     /**
      * Login an existing user.
      * Expects 'email' and 'password' in the request.
-     * 
+     *
      * @return View|RedirectResponse
      */
     public function login(LoginRequest $request, LoginUser $loginUser)
@@ -65,15 +66,16 @@ class AuthController extends Controller
         $dto = new LoginUserDTO(
             $request->input('email'),
             $request->input('password'),
-            (bool)$request->input('remember', false)
+            $request->input('remember', false)
         );
 
         try {
             $result = $loginUser->execute($dto);
 
-            Auth::login(\App\Infrastructure\Auth\UserMapper::toEloquent($result->user), $dto->remember);
+            $eloquentUser = \App\Infrastructure\Auth\UserMapper::toEloquent($result->user);
+            Auth::login($eloquentUser, $dto->remember);
 
-            return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
+            return redirect()->route('dashboard')->with('success', 'Welcome back!');
         } catch (\InvalidArgumentException $e) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'email' => [$e->getMessage()],

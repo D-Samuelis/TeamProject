@@ -70,7 +70,7 @@
                 <a href="/profile" class="profile-menu__link">My Profile</a>
             </div>
             <div class="profile-menu__option" id="lightModeOption">
-                <a href="/auth" class="profile-menu__link">Sign-In</a>
+                <a href="/login" class="profile-menu__link">Sign-In</a>
             </div>
             <div class="profile-menu__option" id="darkModeOption">
                 <form method="POST" action="/logout" class="profile-menu__form">

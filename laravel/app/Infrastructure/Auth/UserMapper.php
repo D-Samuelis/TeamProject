@@ -12,17 +12,25 @@ final class UserMapper
         // If user exists, fetch from DB; otherwise create new
         $eloquentUser = $domainUser->id ? EloquentUser::find($domainUser->id) : new EloquentUser();
 
-        // Map all fields
-        $eloquentUser->name = $domainUser->name;
-        $eloquentUser->email = $domainUser->email;
-        $eloquentUser->password = $domainUser->password;
-        $eloquentUser->country = $domainUser->country;
-        $eloquentUser->city = $domainUser->city;
-        $eloquentUser->title_prefix = $domainUser->title_prefix;
-        $eloquentUser->birth_date = $domainUser->birth_date?->format('Y-m-d');
-        $eloquentUser->title_suffix = $domainUser->title_suffix;
-        $eloquentUser->phone_number = $domainUser->phone_number;
-        $eloquentUser->gender = $domainUser->gender;
+        // Map all fields using fillable to allow mass assignment
+        $eloquentUser->fill([
+            'name' => $domainUser->name,
+            'email' => $domainUser->email,
+            'password' => $domainUser->password,
+            'country' => $domainUser->country,
+            'city' => $domainUser->city,
+            'title_prefix' => $domainUser->title_prefix,
+            'birth_date' => $domainUser->birth_date?->format('Y-m-d'),
+            'title_suffix' => $domainUser->title_suffix,
+            'phone_number' => $domainUser->phone_number,
+            'gender' => $domainUser->gender,
+        ]);
+
+        // Persist if it’s a new user (so remember_token works)
+        if (!$domainUser->id) {
+            $eloquentUser->save();
+            $domainUser->id = $eloquentUser->id;
+        }
 
         return $eloquentUser;
     }

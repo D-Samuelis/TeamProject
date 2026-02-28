@@ -16,10 +16,9 @@ Route::prefix('/')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::get('/login', [AuthController::class, 'showAuth'])->name('login');
         Route::get('/register', [AuthController::class, 'showAuth'])->name('register');
-        Route::post('login', 'login')->name('login');
-        Route::post('register', 'register')->name('register');
-    
-        Route::get('auth', fn() => view('pages.auth'));
+
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
     });
     Route::view('myAppointments', 'pages.myAppointments');
 });
