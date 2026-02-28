@@ -5,23 +5,22 @@ namespace App\Application\Business\UseCases;
 use Illuminate\Support\Facades\DB;
 
 use App\Application\Business\DTO\CreateServiceDTO;
+use App\Application\Auth\AuthorizationService;
 
 use App\Domain\Business\Entities\Branch;
 use App\Domain\Business\Entities\Business;
 use App\Domain\Business\Entities\Service;
 
-use App\Domain\Business\Services\BusinessAuthorizationService;
-
 class CreateService
 {
-    public function __construct(private BusinessAuthorizationService $authService) {}
+    public function __construct(private AuthorizationService $authService) {}
 
-    public function execute(CreateServiceDTO $dto, int $userId): void
+    public function execute(CreateServiceDTO $dto, int $userId): Service
     {
-        DB::transaction(function () use ($dto, $userId) {
+        return DB::transaction(function () use ($dto, $userId) {
             $business = Business::findOrFail($dto->businessId);
 
-            $this->authService->ensureOwner($business, $userId);
+            $this->authService->ensureCanManageBusiness($business->id, $userId);
 
             $service = Service::create([
                 'business_id' => $business->id,
@@ -34,10 +33,15 @@ class CreateService
             ]);
 
             if (!empty($dto->branchIds)) {
-                $validBranchIds = Branch::where('business_id', $business->id)->whereIn('id', $dto->branchIds)->pluck('id')->toArray();
+                $validBranchIds = Branch::where('business_id', $business->id)
+                    ->whereIn('id', $dto->branchIds)
+                    ->pluck('id')
+                    ->toArray();
 
                 $service->branches()->attach($validBranchIds);
             }
+
+            return $service;
         });
     }
 }

@@ -2,15 +2,16 @@
 
 namespace App\Application\Business\UseCases;
 
-use App\Domain\Business\Entities\Business;
+use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 
 class ListBusinesses
 {
+    public function __construct(
+        private readonly BusinessRepositoryInterface $businessRepository
+    ) {}
+
     public function execute()
     {
-        return Business::with([
-            'branches',
-            'services.branches'
-        ])->get();
+        return $this->businessRepository->allWithRelations();
     }
 }

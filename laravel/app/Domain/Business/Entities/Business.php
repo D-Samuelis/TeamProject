@@ -2,34 +2,20 @@
 
 namespace App\Domain\Business\Entities;
 
-use App\Domain\User\Entities\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Domain\Business\Enums\BusinessStateEnum;
 
-class Business extends Model
+final class Business
 {
-    use HasFactory;
+    public function __construct(
+        public int $id,
+        public string $name,
+        public ?string $description,
+        public string $state, // BusinessStateEnum->value
+        public bool $isPublished
+    ) {}
 
-    protected $fillable = [
-        'name',
-        'description',
-        'is_published',
-    ];
-
-    public function users()
+    public function isApproved(): bool
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('role')
-            ->withTimestamps();
-    }
-
-    public function branches()
-    {
-        return $this->hasMany(Branch::class);
-    }
-
-    public function services()
-    {
-        return $this->hasMany(Service::class);
+        return $this->state === BusinessStateEnum::APPROVED->value;
     }
 }

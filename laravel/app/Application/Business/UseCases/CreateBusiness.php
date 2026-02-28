@@ -6,7 +6,8 @@ use App\Application\Business\DTO\CreateBusinessDTO;
 use Illuminate\Support\Facades\DB;
 
 use App\Domain\Business\Entities\Business;
-use App\Enums\BusinessRole;
+use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Domain\Business\Enums\BusinessStateEnum;
 
 class CreateBusiness
 {
@@ -16,11 +17,12 @@ class CreateBusiness
             $business = Business::create([
                 'name' => $dto->name,
                 'description' => $dto->description,
-                'is_published' => $dto->isPublished
+                'state' => BusinessStateEnum::PENDING->value,
+                'is_published' => false,
             ]);
 
             $business->users()->attach($userId, [
-                'role' => BusinessRole::OWNER->value
+                'role' => BusinessRoleEnum::OWNER->value
             ]);
         });
     }

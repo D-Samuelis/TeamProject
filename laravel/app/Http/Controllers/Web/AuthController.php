@@ -26,14 +26,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Show register form
-     */
-    public function showRegister()
-    {
-        return view('pages.auth');
-    }
-
-    /**
      * Register a new user.
      * Expects 'name', 'email', 'password', and 'password_confirmation' in the request.
      *
@@ -44,22 +36,22 @@ class AuthController extends Controller
         $dto = new RegisterUserDTO(
             $request->input('name'),
             $request->input('email'),
-            $request->input('password')
+            $request->input('country'),
+            $request->input('city'),
+            $request->input('password'),
+
+            $request->input('title_prefix'),
+            $request->input('birth_date'),
+            $request->input('title_suffix'),
+            $request->input('phone_number'),
+            $request->input('gender')
         );
 
         $result = $registerUser->execute($dto);
 
-        Auth::login($result->user);
+        Auth::login(\App\Infrastructure\Auth\UserMapper::toEloquent($result->user));
 
         return redirect()->route('dashboard')->with('success', 'Welcome!');
-    }
-
-    /**
-     * Show login form
-     */
-    public function showLogin()
-    {
-        return view('pages.auth');
     }
 
     /**
@@ -79,7 +71,7 @@ class AuthController extends Controller
         try {
             $result = $loginUser->execute($dto);
 
-            Auth::login($result->user, $dto->remember);
+            Auth::login(\App\Infrastructure\Auth\UserMapper::toEloquent($result->user), $dto->remember);
 
             return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
         } catch (\InvalidArgumentException $e) {
@@ -90,7 +82,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout authenticated user (WEB)
+     * Logout authenticated user
      */
     public function logout(\Illuminate\Http\Request $request, LogoutUser $logoutUser)
     {
@@ -106,6 +98,6 @@ class AuthController extends Controller
 
         Auth::logout();
 
-        return redirect()->route('/')->with('success', 'You have been logged out.');
+        return redirect()->route('home')->with('success', 'You have been logged out.');
     }
 }

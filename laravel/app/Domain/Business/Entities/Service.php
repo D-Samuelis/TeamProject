@@ -1,30 +1,16 @@
 <?php
-
 namespace App\Domain\Business\Entities;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-use App\Domain\User\Entities\User;
-
-class Service extends Model
+final class Service
 {
-    use HasFactory;
-
-    protected $fillable = ['business_id', 'name', 'description', 'duration_minutes', 'price', 'location_type', 'is_active'];
-
-    public function business()
-    {
-        return $this->belongsTo(Business::class);
-    }
-
-    public function branches()
-    {
-        return $this->belongsToMany(Branch::class);
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
-    }
+    public function __construct(
+        public int $id,
+        public int $businessId,
+        public string $name,
+        public ?string $description,
+        public int $durationMinutes,
+        public float $price,
+        public string $locationType,
+        public bool $isActive
+    ) {}
 }

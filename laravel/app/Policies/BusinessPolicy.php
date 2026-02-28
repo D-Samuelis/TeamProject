@@ -2,65 +2,44 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
-use App\Models\Business;
-use App\Models\User;
+use App\Application\Auth\AuthorizationService;
+use App\Models\Auth\User;
+use App\Domain\Business\Entities\Business;
 
 class BusinessPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    public function __construct(private AuthorizationService $authService) {}
+
+    // Can user create a branch for this business?
+    public function createBranch(User $user, int $businessId): bool
     {
-        return false;
+        try {
+            $this->authService->ensureCanCreateBranch($businessId, $user->id);
+            return true;
+        } catch (\DomainException) {
+            return false;
+        }
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Business $business): bool
+    // Can user manage this business (update, create service, etc.)
+    public function manage(User $user, Business $business): bool
     {
-        return false;
+        try {
+            $this->authService->ensureCanManageBusiness($business->id, $user->id);
+            return true;
+        } catch (\DomainException) {
+            return false;
+        }
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
+    // Can user create a business?
     public function create(User $user): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Business $business): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Business $business): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Business $business): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Business $business): bool
-    {
-        return false;
+        try {
+            $this->authService->ensureCanCreateBusiness($user->id);
+            return true;
+        } catch (\DomainException) {
+            return false;
+        }
     }
 }

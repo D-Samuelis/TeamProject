@@ -26,7 +26,6 @@ class BusinessController extends Controller
         $dto = new CreateBusinessDTO(
             $request->validated('name'),
             $request->validated('description'),
-            $request->validated('is_published') ?? false
         );
 
         $useCase->execute($dto, auth()->id());
