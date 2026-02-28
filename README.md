@@ -35,9 +35,13 @@ cp .env.example .env
 * `DB_CONNECTION=mysql`
 * `DB_HOST=mysql`
 * `DB_PORT=3306`
-* `DB_DATABASE=laravel`
-* `DB_USERNAME=laravel`
-* `DB_PASSWORD=secret`
+* `DB_DATABASE=`
+* `DB_USERNAME=`
+* `DB_PASSWORD=`
+* `DB_ROOT_PASSWORD=`
+* `PMA_HOST=`
+* `PMA_USER=`
+* `PMA_PASSWORD=`
 
 ### 3. Start Docker Containers
 Launch the infrastructure. 
@@ -45,6 +49,20 @@ Launch the infrastructure.
 ```bash
 docker compose up -d
 ```
+or if you are not in the `laravel` directory:
+```bash
+docker compose --env-file ./laravel/.env up
+```
+### 3.1 Stop Docker Containers
+To shut down all the containers run
+```bash
+docker compose down
+```
+or if you are not in the `laravel` directory:
+```bash
+docker compose --env-file ./laravel/.env up
+```
+
 
 ### 4. Backend Setup
 Install the necessary backend packages and dependencies:
