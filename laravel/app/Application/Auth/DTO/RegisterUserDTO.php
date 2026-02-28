@@ -8,6 +8,13 @@ final class RegisterUserDTO
     public function __construct(
         public string $name,
         public string $email,
-        public string $password
+        public string $country,
+        public string $city,
+        public string $password,
+        public ?string $title_prefix,
+        public ?string $birth_date,
+        public ?string $title_suffix,
+        public ?string $phone_number,
+        public ?string $gender
     ) {}
 }

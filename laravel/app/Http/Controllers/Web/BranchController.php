@@ -13,7 +13,7 @@ class BranchController extends Controller
     public function store(
         StoreBranchRequest $request,
         CreateBranch $useCase
-    ) {
+    ) {       
         $dto = new CreateBranchDTO(
             $request->validated('business_id'),
             $request->validated('name'),

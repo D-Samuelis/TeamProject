@@ -2,26 +2,24 @@
 
 namespace App\Application\Auth\UseCases;
 
-use App\Infrastructure\Auth\TokenServiceInterface;
-use App\Domain\User\Entities\User;
 use InvalidArgumentException;
 
-/**
- * Use case class to handle user logout logic.
- */
+use App\Domain\User\Entities\User; 
+use App\Domain\User\Repositories\UserRepositoryInterface;
+
+use App\Infrastructure\Auth\TokenServiceInterface;
+
 final class LogoutUser
 {
     public function __construct(
-        private TokenServiceInterface $tokenService
+        private TokenServiceInterface $tokenService,
+        private UserRepositoryInterface $userRepo
     ) {}
 
-    /**
-     * Logout by user instance or user id.
-     */
-    public function execute(User|string $userOrId): void
+    public function execute(User|int|string $userOrId): void
     {
-        if (is_string($userOrId)) {
-            $user = User::find($userOrId);
+        if (is_string($userOrId) || is_int($userOrId)) {
+            $user = $this->userRepo->findById((int)$userOrId);
             if (!$user) {
                 throw new InvalidArgumentException('User not found.');
             }
@@ -30,7 +28,5 @@ final class LogoutUser
         }
 
         $this->tokenService->revokeAllTokensFor($user);
-
-        // revoke sessions (?)
     }
 }

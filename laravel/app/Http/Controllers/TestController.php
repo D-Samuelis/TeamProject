@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Domain\Business\Entities\Branch;
 use App\Domain\Business\Entities\Business;
 use App\Domain\Business\Entities\Service;
-use App\Enums\BusinessRole;
+use App\Domain\Business\Enums\BusinessRoleEnum;
 
 class TestController extends Controller
 {
@@ -32,7 +32,7 @@ class TestController extends Controller
         DB::transaction(function () use ($validated, $request) {
             $business = Business::create($validated);
 
-            $business->users()->attach(auth()->id(), ['role' => BusinessRole::OWNER->value]);
+            $business->users()->attach(auth()->id(), ['role' => BusinessRoleEnum::OWNER->value]);
         });
 
         return back();
@@ -56,7 +56,7 @@ class TestController extends Controller
             $business
                 ->users()
                 ->where('user_id', auth()->id())
-                ->wherePivot('role', BusinessRole::OWNER->value)
+                ->wherePivot('role', BusinessRoleEnum::OWNER->value)
                 ->exists(),
             403
         );
@@ -83,7 +83,7 @@ class TestController extends Controller
                 $business
                     ->users()
                     ->where('user_id', auth()->id())
-                    ->wherePivot('role', BusinessRole::OWNER->value)
+                    ->wherePivot('role', BusinessRoleEnum::OWNER->value)
                     ->exists(),
                 403
             );

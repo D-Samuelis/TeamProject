@@ -6,10 +6,10 @@ use InvalidArgumentException;
 
 use App\Infrastructure\Auth\TokenServiceInterface;
 use App\Domain\User\Services\PasswordHasher;
-use App\Domain\User\Entities\User;
 
 use App\Application\Auth\DTO\LoginUserDTO;
 use App\Application\Auth\DTO\RegisteredUserDTO;
+use App\Domain\User\Repositories\UserRepositoryInterface;
 
 /**
  * Use case class to handle user login logic.
@@ -17,20 +17,20 @@ use App\Application\Auth\DTO\RegisteredUserDTO;
 final class LoginUser
 {
     public function __construct(
-        private TokenServiceInterface $tokenService,
-        private PasswordHasher $hasher
+        private UserRepositoryInterface $userRepo,
+        private PasswordHasher $hasher,
+        private TokenServiceInterface $tokenService
     ) {}
 
     public function execute(LoginUserDTO $dto): RegisteredUserDTO
     {
-        $user = User::where('email', $dto->email)->first();
+        $user = $this->userRepo->findByEmail($dto->email);
 
         if (!$user || !$this->hasher->verify($dto->password, $user->password)) {
             throw new InvalidArgumentException('Invalid credentials.');
         }
 
         $token = $this->tokenService->createTokenFor($user);
-
         return new RegisteredUserDTO($user, $token);
     }
 }

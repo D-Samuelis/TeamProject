@@ -2,29 +2,18 @@
 
 namespace App\Domain\Business\Entities;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-use App\Domain\User\Entities\User;
-
-class Branch extends Model
+final class Branch
 {
-    use HasFactory;
-
-    protected $fillable = ['business_id', 'name', 'type', 'address_line_1', 'address_line_2', 'city', 'postal_code', 'country', 'is_active'];
-
-    public function business()
-    {
-        return $this->belongsTo(Business::class);
-    }
-
-    public function services()
-    {
-        return $this->belongsToMany(Service::class);
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
-    }
+    public function __construct(
+        public int $id,
+        public int $businessId,
+        public string $name,
+        public string $type,
+        public string $addressLine1,
+        public ?string $addressLine2,
+        public string $city,
+        public string $postalCode,
+        public string $country,
+        public bool $isActive
+    ) {}
 }

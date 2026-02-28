@@ -1,15 +1,16 @@
 <?php
-// app/Application/Auth/RegisterUser.php
+
 namespace App\Application\Auth\UseCases;
 
-use App\Domain\User\Entities\User;
-use App\Domain\User\Services\PasswordHasher;
+use InvalidArgumentException;
 
 use App\Application\Auth\DTO\RegisteredUserDTO;
 use App\Application\Auth\DTO\RegisterUserDTO;
 
+use App\Domain\User\Services\PasswordHasher;
+use App\Domain\User\Repositories\UserRepositoryInterface;
+
 use App\Infrastructure\Auth\TokenServiceInterface;
-use App\Infrastructure\Auth\SpatieRoleAssigner;
 
 /**
  * Use case class to handle user registration logic.
@@ -17,23 +18,37 @@ use App\Infrastructure\Auth\SpatieRoleAssigner;
 final class RegisterUser
 {
     public function __construct(
+        private UserRepositoryInterface $userRepo,
         private TokenServiceInterface $tokenService,
-        private SpatieRoleAssigner $roleAssigner,
         private PasswordHasher $hasher
     ) {}
 
     public function execute(RegisterUserDTO $dto): RegisteredUserDTO
     {
-        $user = new User([
-            'name' => $dto->name,
-            'email' => $dto->email,
-            'password' => $this->hasher->hash($dto->password),
-        ]);
+        // Check if email exists
+        if ($this->userRepo->findByEmail($dto->email)) {
+            throw new InvalidArgumentException('Email already registered.');
+        }
 
-        $user->save(); // Eloquent directly saves
+        // Create domain entity
+        $user = new \App\Domain\User\Entities\User(
+            null,
+            $dto->name,
+            $dto->email,
+            $this->hasher->hash($dto->password),
+            $dto->country,
+            $dto->city,
+            $dto->title_prefix,
+            $dto->birth_date ? new \DateTimeImmutable($dto->birth_date) : null,
+            $dto->title_suffix,
+            $dto->phone_number,
+            $dto->gender
+        );
 
-        $this->roleAssigner->assignRole($user, 'client');
+        // Persist via repository
+        $this->userRepo->save($user);
 
+        // Generate token
         $token = $this->tokenService->createTokenFor($user);
 
         return new RegisteredUserDTO($user, $token);

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Enums;
+namespace App\Domain\Business\Enums;
 
-enum BranchRole: string
+enum BranchRoleEnum: string
 {
     case MANAGER = 'manager';
     case STAFF = 'staff';
