@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth;
+namespace App\Application\Auth\Services;
 
 use DomainException;
 
@@ -22,7 +22,7 @@ class AuthorizationService
             throw new DomainException('Only the business owner can create branches.');
         }
 
-        $this->ensureBusinessIsApproved($business);
+//        $this->ensureBusinessIsApproved($business);
     }
 
     public function ensureCanManageBusiness(Business $business, int $userId): void
@@ -31,7 +31,7 @@ class AuthorizationService
             throw new DomainException('Not allowed to manage this business.');
         }
 
-        $this->ensureBusinessIsApproved($business);
+//        $this->ensureBusinessIsApproved($business);
     }
 
     public function ensureCanCreateBusiness(int $userId): void
@@ -48,7 +48,7 @@ class AuthorizationService
     {
         // Owner can manage any branch
         if ($this->isOwner($business, $userId)) {
-            $this->ensureBusinessIsApproved($business);
+//            $this->ensureBusinessIsApproved($business);
             return;
         }
 
@@ -58,7 +58,7 @@ class AuthorizationService
             throw new DomainException('Not allowed to manage this branch.');
         }
 
-        $this->ensureBusinessIsApproved($business);
+//        $this->ensureBusinessIsApproved($business);
     }
 
     // Helpers

@@ -23,6 +23,11 @@ class Service extends Model
         return $this->belongsToMany(Branch::class);
     }
 
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();

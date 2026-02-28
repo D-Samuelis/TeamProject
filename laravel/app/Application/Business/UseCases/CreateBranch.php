@@ -2,7 +2,7 @@
 namespace App\Application\Business\UseCases;
 
 use App\Application\Business\DTO\CreateBranchDTO;
-use App\Application\Auth\AuthorizationService;
+use App\Application\Auth\Services\AuthorizationService;
 use App\Domain\Business\Repositories\BranchRepositoryInterface;
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 use App\Domain\Business\Entities\Branch;

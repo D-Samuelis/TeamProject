@@ -75,6 +75,43 @@
     <button type="submit">Create Service</button>
 </form>
 
+<!-- ================= ASSET ================= -->
+<form method="POST" action="{{ route('test.asset.store') }}">
+    @csrf
+    <h2>Create Asset</h2>
+
+    <label>Select Branches:</label>
+    <select name="branch_ids[]" multiple required>
+        @foreach($businesses as $business)
+            <optgroup label="{{ $business->name }}">
+                @foreach($business->branches as $branch)
+                    <option value="{{ $branch->id }}">
+                        {{ $branch->name }} ({{ $branch->type }})
+                    </option>
+                @endforeach
+            </optgroup>
+        @endforeach
+    </select>
+
+    <label>Select Services:</label>
+    <select name="services_ids[]" multiple required>
+        @foreach($businesses as $business)
+            <optgroup label="{{ $business->name }}">
+                @foreach($business->services as $service)
+                    <option value="{{ $service->id }}">
+                        {{ $service->name }}
+                    </option>
+                @endforeach
+            </optgroup>
+        @endforeach
+    </select>
+
+    <input type="text" name="name" placeholder="Asset Name" required>
+    <textarea name="description" placeholder="Description"></textarea>
+
+    <button type="submit">Create Asset</button>
+</form>
+
 <!-- ================= DISPLAY DATA ================= -->
 <h2>Database Overview</h2>
 

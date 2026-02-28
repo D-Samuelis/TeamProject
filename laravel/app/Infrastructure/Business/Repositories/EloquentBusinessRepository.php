@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 use App\Domain\Business\Entities\Business as DomainBusiness;
+use App\Domain\Business\Enums\BusinessRoleEnum;
 
 use App\Models\Business\Business as EloquentBusiness;
 
@@ -68,5 +69,14 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
             'branches',
             'services.branches'
         ])->get();
+    }
+
+    public function attachOwner(int $businessId, int $userId): void
+    {
+        $business = EloquentBusiness::findOrFail($businessId);
+
+        $business->users()->attach($userId, [
+            'role' => BusinessRoleEnum::OWNER->value
+        ]);
     }
 }

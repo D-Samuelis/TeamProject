@@ -18,7 +18,7 @@ Route::prefix('/')->group(function () {
         Route::get('/register', [AuthController::class, 'showAuth'])->name('register');
         Route::post('login', 'login')->name('login');
         Route::post('register', 'register')->name('register');
-    
+
         Route::get('auth', fn() => view('pages.auth'));
     });
     Route::view('myAppointments', 'pages.myAppointments');
@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/business', [BusinessController::class, 'store'])->name('test.business.store');
         Route::post('/branch', [BranchController::class, 'store'])->name('test.branch.store');
         Route::post('/service', [ServiceController::class, 'store'])->name('test.service.store');
+        Route::post('/asset', [AssetController::class, 'store'])->name('test.asset.store');
     });
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');

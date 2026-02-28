@@ -10,7 +10,7 @@ final class Business
         public int $id,
         public string $name,
         public ?string $description,
-        public string $state, // BusinessStateEnum->value
+        public BusinessStateEnum $state, // BusinessStateEnum->value
         public bool $isPublished
     ) {}
 

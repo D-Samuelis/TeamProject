@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Domain\Business\Entities\Branch;
 use App\Domain\Business\Entities\Business;
 use App\Domain\Business\Entities\Service;
+use App\Domain\Business\Entities\Asset;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 
 class TestController extends Controller
@@ -17,6 +18,8 @@ class TestController extends Controller
         return view('archive.test-admin', [
             'businesses' => Business::with([
                 'branches',
+                'branches.assets',
+                'services.assets',
                 'services.branches'
             ])->get(),
         ]);
@@ -106,5 +109,40 @@ class TestController extends Controller
         });
 
         return back();
+    }
+
+    public function storeAsset(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'branch_ids' => 'array',
+            'branch_ids.*' => 'exists:branches,id',
+            'services_ids' => 'array',
+            'services_ids.*' => 'exists:services,id',
+        ]);
+
+        return DB::transaction(function () use ($validated) {
+            $asset = Asset::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            if (!empty($validated['branch_ids'])) {
+                $validBranchIds = Branch::whereIn('id', $validated['branch_ids'])
+                    ->pluck('id');
+
+                $asset->branches()->attach($validBranchIds);
+            }
+
+            if (!empty($validated['services_ids'])) {
+                $validServiceIds = Service::whereIn('id', $validated['services_ids'])
+                    ->pluck('id');
+
+                $asset->services()->attach($validServiceIds);
+            }
+
+            return back()->with('success', 'Asset created and assigned successfully.');
+        });
     }
 }

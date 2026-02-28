@@ -23,6 +23,16 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Domain\Business\Repositories\BusinessRepositoryInterface::class,
             \App\Infrastructure\Business\Repositories\EloquentBusinessRepository::class
         );
+
+        $this->app->bind(
+            \App\Domain\Business\Repositories\ServiceRepositoryInterface::class,
+            \App\Infrastructure\Business\Repositories\EloquentServiceRepository::class
+        );
+
+        $this->app->bind(
+            \App\Domain\Business\Repositories\BranchRepositoryInterface::class,
+            \App\Infrastructure\Business\Repositories\EloquentBranchRepository::class
+        );
     }
 
     public function boot() {}

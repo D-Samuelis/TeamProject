@@ -18,6 +18,8 @@ interface BusinessRepositoryInterface
     public function existsOwner(int $userId): bool;
 
     public function getOwners(int $businessId): array;
- 
+
+    public function attachOwner(int $businessId, int $userId): void;
+
     public function allWithRelations(): Collection;
 }

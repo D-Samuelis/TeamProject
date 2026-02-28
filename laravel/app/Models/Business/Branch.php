@@ -23,6 +23,11 @@ class Branch extends Model
         return $this->belongsToMany(Service::class);
     }
 
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
