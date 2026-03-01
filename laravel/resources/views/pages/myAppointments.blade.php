@@ -16,7 +16,10 @@
         </section>
 
         <section class="appointments__pending">
-            <h3 class="appointments__subtitle">Pending Appointments</h3>
+            <h3 class="appointments__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                Pending Appointments
+            </h3>
             <div id="pendingList" class="appointments__mini-list">
                 {{-- JS generated appointmets --}}
             </div>

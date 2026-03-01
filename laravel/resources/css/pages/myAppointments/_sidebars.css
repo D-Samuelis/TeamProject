@@ -10,8 +10,26 @@
 }
 
 .appointments__subtitle {
-    font-family: 'Inter-Bold', sans-serif;
+    font-family: 'Inter-SemiBold', sans-serif;
     font-size: var(--font-size-base);
     margin-bottom: 1rem;
     color: var(--color-text);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.appointments__subtitle i {
+    margin-right: .5rem;
+    font-size: var(--font-size-small);
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.appointments__subtitle:hover i {
+    transform: rotate(-90deg);
+    transition: transform .2s ease-out;
 }
