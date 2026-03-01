@@ -1,6 +1,7 @@
 <?php
 
-use App\Mcp\Servers\WeatherServer;
+use App\Mcp\Servers\AppointmentServer;
 use Laravel\Mcp\Facades\Mcp;
 
-Mcp::web('/mcp/weather', WeatherServer::class);
+// TODO - add auth using Laravel Sanctum
+Mcp::web('/mcp/appointment', AppointmentServer::class);
