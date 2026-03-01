@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Application\Auth\DTO\LoginUserDTO;
-use App\Application\Auth\DTO\RegisterUserDTO;
-use App\Application\Auth\UseCases\LoginUser;
-use App\Application\Auth\UseCases\LogoutUser;
-use App\Application\Auth\UseCases\RegisterUser;
+use App\Application\User\DTO\LoginUserDTO;
+use App\Application\User\DTO\RegisterUserDTO;
+use App\Application\User\UseCases\LoginUser;
+use App\Application\User\UseCases\LogoutUser;
+use App\Application\User\UseCases\RegisterUser;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\RegisterRequest;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -19,7 +19,7 @@ class AuthController extends Controller
      */
     public function showAuth(\Illuminate\Http\Request $request)
     {
-        $mode = $request->route()->getName(); // 'login' or 'register'
+        $mode = $request->route()->getName();
 
         return view('pages.auth', [
             'mode' => $mode === 'register' ? 'register' : 'login',
@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         $result = $registerUser->execute($dto);
 
-        Auth::login(\App\Infrastructure\Auth\UserMapper::toEloquent($result->user));
+        Auth::login(\App\Infrastructure\User\UserMapper::toEloquent($result->user));
 
         return redirect()->route('dashboard')->with('success', 'Welcome!');
     }
@@ -72,7 +72,7 @@ class AuthController extends Controller
         try {
             $result = $loginUser->execute($dto);
 
-            $eloquentUser = \App\Infrastructure\Auth\UserMapper::toEloquent($result->user);
+            $eloquentUser = \App\Infrastructure\User\UserMapper::toEloquent($result->user);
             Auth::login($eloquentUser, $dto->remember);
 
             return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');

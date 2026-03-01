@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\BusinessController;
+use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\ServiceController;
 
 /**
@@ -20,6 +21,7 @@ Route::prefix('/')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
     });
+
     Route::view('myAppointments', 'pages.myAppointments');
 });
 
@@ -29,6 +31,13 @@ Route::prefix('/')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('pages.dashboard'))->name('dashboard');
 
+    Route::controller(ProfileController::class)
+        ->prefix('/profile')
+        ->group(function () {
+            Route::get('/', 'show')->name('profile.show');
+            Route::post('/', 'update')->name('profile.update');
+        });
+
     Route::prefix('test-admin')->group(function () {
         Route::get('/', [BusinessController::class, 'index'])->name('test.index');
         Route::post('/business', [BusinessController::class, 'store'])->name('test.business.store');
@@ -36,5 +45,5 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/service', [ServiceController::class, 'store'])->name('test.service.store');
     });
 
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth\DTO;
+namespace App\Application\User\DTO;
 
 final class RegisteredUserDTO
 {

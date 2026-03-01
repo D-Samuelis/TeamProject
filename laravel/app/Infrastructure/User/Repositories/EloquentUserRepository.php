@@ -2,39 +2,41 @@
 
 namespace App\Infrastructure\User\Repositories;
 
-use App\Domain\User\Entities\User;
+use App\Domain\User\Entities\User as DomainUser;
 use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Models\Auth\User as EloquentUser;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
-    public function findById(int $id): ?User
+    public function findById(int $id): ?DomainUser
     {
         $eloquent = EloquentUser::find($id);
-        return $eloquent ? \App\Infrastructure\Auth\UserMapper::toDomain($eloquent) : null;
+        return $eloquent ? \App\Infrastructure\User\UserMapper::toDomain($eloquent) : null;
     }
 
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?DomainUser
     {
         $eloquent = EloquentUser::where('email', $email)->first();
-        return $eloquent ? \App\Infrastructure\Auth\UserMapper::toDomain($eloquent) : null;
+        return $eloquent ? \App\Infrastructure\User\UserMapper::toDomain($eloquent) : null;
     }
 
     public function findByIds(array $ids): array
     {
         $collection = EloquentUser::whereIn('id', $ids)->get();
-        return $collection->map(fn($e) => \App\Infrastructure\Auth\UserMapper::toDomain($e))->all();
+        return $collection->map(fn($e) => \App\Infrastructure\User\UserMapper::toDomain($e))->all();
     }
 
-    public function save(User $user): void
+    public function save(DomainUser $user): DomainUser
     {
-        $eloquent = \App\Infrastructure\Auth\UserMapper::toEloquent($user);
+        $eloquent = \App\Infrastructure\User\UserMapper::toEloquent($user);
 
         $eloquent->save();
 
         if (!$user->id) {
             $user->id = $eloquent->id;
         }
+
+        return $user;
     }
 
     public function existsWithBusinessRole(int $userId, int $businessId, string $role): bool

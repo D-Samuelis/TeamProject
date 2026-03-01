@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Auth;
+namespace App\Infrastructure\User;
 
 use App\Domain\User\Entities\User as DomainUser;
 use App\Models\Auth\User as EloquentUser;
@@ -9,14 +9,15 @@ final class UserMapper
 {
     public static function toEloquent(DomainUser $domainUser): EloquentUser
     {
-        // If user exists, fetch from DB; otherwise create new
-        $eloquentUser = $domainUser->id ? EloquentUser::find($domainUser->id) : new EloquentUser();
+        if (!$domainUser->id) {
+            throw new \RuntimeException('Cannot map DomainUser without ID for update');
+        }
 
-        // Map all fields using fillable to allow mass assignment
-        $eloquentUser->fill([
+        $eloquentUser = EloquentUser::findOrFail($domainUser->id);
+
+        $data = array_filter([
             'name' => $domainUser->name,
             'email' => $domainUser->email,
-            'password' => $domainUser->password,
             'country' => $domainUser->country,
             'city' => $domainUser->city,
             'title_prefix' => $domainUser->title_prefix,
@@ -24,13 +25,9 @@ final class UserMapper
             'title_suffix' => $domainUser->title_suffix,
             'phone_number' => $domainUser->phone_number,
             'gender' => $domainUser->gender,
-        ]);
+        ], fn($value) => $value !== null);
 
-        // Persist if it’s a new user (so remember_token works)
-        if (!$domainUser->id) {
-            $eloquentUser->save();
-            $domainUser->id = $eloquentUser->id;
-        }
+        $eloquentUser->fill($data);
 
         return $eloquentUser;
     }

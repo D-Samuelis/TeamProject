@@ -1,6 +1,6 @@
 <?php
 // app/Application/Auth/DTO/RegisterUserDTO.php
-namespace App\Application\Auth\DTO;
+namespace App\Application\User\DTO;
 
 // Purpose: typed data transfer objects that Application layer uses as input/output.
 final class RegisterUserDTO

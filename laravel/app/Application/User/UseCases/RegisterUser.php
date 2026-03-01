@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Application\Auth\UseCases;
+namespace App\Application\User\UseCases;
 
 use InvalidArgumentException;
 
-use App\Application\Auth\DTO\RegisteredUserDTO;
-use App\Application\Auth\DTO\RegisterUserDTO;
+use App\Application\User\DTO\RegisteredUserDTO;
+use App\Application\User\DTO\RegisterUserDTO;
 
 use App\Domain\User\Services\PasswordHasher;
 use App\Domain\User\Repositories\UserRepositoryInterface;

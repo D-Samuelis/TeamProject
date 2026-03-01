@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth\Services;
+namespace App\Application\User\Services;
 
 use DomainException;
 

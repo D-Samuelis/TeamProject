@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth\UseCases;
+namespace App\Application\User\UseCases;
 
 use InvalidArgumentException;
 

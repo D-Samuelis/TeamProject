@@ -5,7 +5,7 @@ namespace App\Application\Business\UseCases;
 use Illuminate\Support\Facades\DB;
 
 use App\Application\Business\DTO\CreateServiceDTO;
-use App\Application\Auth\Services\AuthorizationService;
+use App\Application\User\Services\AuthorizationService;
 
 use App\Domain\Business\Entities\Service;
 use App\Domain\Business\Repositories\BranchRepositoryInterface;
