@@ -16,7 +16,7 @@
         </section>
 
         <section class="appointments__pending">
-            <h3 class="appointments__subtitle">Pending Requests</h3>
+            <h3 class="appointments__subtitle">Pending Appointments</h3>
             <div id="pendingList" class="appointments__mini-list">
                 {{-- JS generated appointmets --}}
             </div>
@@ -26,6 +26,11 @@
     <main class="appointments__main">
         <header class="timeline-header">
             <h2 class="timeline-header__title" id="selectedDateText">February 27, 2026</h2>
+            <div class="timeline-info">
+                <div class="timeline-info__icon"> i </div>
+                <div class="timeline-info__text"> Appointmets today:</div>
+                <div class="timeline-info__count">4</div>
+            </div>
         </header>
         <div class="timeline" id="timelineContainer">
             {{-- JS generated time slots --}}
