@@ -5,12 +5,13 @@ namespace App\Application\Business\DTO;
 class CreateBranchDTO
 {
     public function __construct(
-        public int $businessId,
+        public int $business_id,
         public string $name,
         public string $type,
-        public ?string $addressLine1 = null,
-        public ?string $city = null,
-        public ?string $postalCode = null,
-        public ?string $country = null,
+        public string $address_line_1,
+        public ?string $address_line_2 = null,
+        public string $city,
+        public string $postal_code,
+        public string $country,
     ) {}
 }

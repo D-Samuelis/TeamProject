@@ -5,15 +5,15 @@ namespace App\Domain\Business\Entities;
 final class Branch
 {
     public function __construct(
-        public int $id,
-        public int $businessId,
+        public ?int $id,
+        public int $business_id,
         public string $name,
         public string $type,
-        public string $addressLine1,
-        public ?string $addressLine2,
+        public ?string $address_line_1,
+        public ?string $address_line_2,
         public string $city,
-        public string $postalCode,
+        public string $postal_code,
         public string $country,
-        public bool $isActive
+        public bool $is_active
     ) {}
 }

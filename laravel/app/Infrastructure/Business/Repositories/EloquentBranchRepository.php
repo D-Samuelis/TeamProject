@@ -25,10 +25,21 @@ class EloquentBranchRepository implements BranchRepositoryInterface
     }
 
     // Create a new branch
-    public function create(array $data): DomainBranch
+    public function save(DomainBranch $branch): DomainBranch
     {
-        $branch = EloquentBranch::create($data);
-        return $this->mapToDomain($branch);
+        $eloquent = EloquentBranch::create([
+            'business_id'   => $branch->business_id,
+            'name'          => $branch->name,
+            'type'          => $branch->type,
+            'address_line1' => $branch->address_line_1,
+            'address_line2' => $branch->address_line_2,
+            'city'          => $branch->city,
+            'postal_code'   => $branch->postal_code,
+            'country'       => $branch->country,
+            'is_active'     => $branch->is_active,
+        ]);
+
+        return $this->mapToDomain($eloquent);
     }
 
     // Attach services to a branch
@@ -62,15 +73,15 @@ class EloquentBranchRepository implements BranchRepositoryInterface
     {
         return new DomainBranch(
             id: $branch->id,
-            businessId: $branch->business_id,
+            business_id: $branch->business_id,
             name: $branch->name,
             type: $branch->type,
-            addressLine1: $branch->address_line_1,
-            addressLine2: $branch->address_line_2,
+            address_line_1: $branch->address_line_1,
+            address_line_2: $branch->address_line_2,
             city: $branch->city,
-            postalCode: $branch->postal_code,
+            postal_code: $branch->postal_code,
             country: $branch->country,
-            isActive: $branch->is_active
+            is_active: $branch->is_active
         );
     }
 }

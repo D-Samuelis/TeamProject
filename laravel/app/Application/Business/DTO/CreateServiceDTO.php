@@ -5,13 +5,13 @@ namespace App\Application\Business\DTO;
 class CreateServiceDTO
 {
     public function __construct(
-        public int $businessId,
+        public int $business_id,
         public string $name,
         public ?string $description = null,
-        public int $durationMinutes = 0,
+        public int $duration_minutes = 0,
         public float $price = 0.0,
-        public string $locationType = 'branch',
-        public bool $isActive = false,
-        public array $branchIds = []
+        public string $location_type = 'branch',
+        public bool $is_active = false,
+        public array $branch_ids = []
     ) {}
 }

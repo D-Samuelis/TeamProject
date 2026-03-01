@@ -7,15 +7,15 @@ use App\Domain\Business\Enums\BusinessStateEnum;
 final class Business
 {
     public function __construct(
-        public int $id,
+        public ?int $id,
         public string $name,
         public ?string $description,
-        public string $state, // BusinessStateEnum->value
+        public BusinessStateEnum $state,
         public bool $isPublished
     ) {}
 
     public function isApproved(): bool
     {
-        return $this->state === BusinessStateEnum::APPROVED->value;
+        return $this->state === BusinessStateEnum::APPROVED;
     }
 }

@@ -75,7 +75,7 @@ class AuthController extends Controller
             $eloquentUser = \App\Infrastructure\Auth\UserMapper::toEloquent($result->user);
             Auth::login($eloquentUser, $dto->remember);
 
-            return redirect()->route('dashboard')->with('success', 'Welcome back!');
+            return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
         } catch (\InvalidArgumentException $e) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'email' => [$e->getMessage()],

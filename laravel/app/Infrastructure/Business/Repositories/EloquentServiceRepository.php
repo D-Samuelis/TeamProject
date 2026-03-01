@@ -14,22 +14,30 @@ class EloquentServiceRepository implements ServiceRepositoryInterface
         return $service ? $this->mapToDomain($service) : null;
     }
 
-    public function findByBusinessId(int $businessId): array
+    public function findByBusinessId(int $business_id): array
     {
-        $services = EloquentService::where('business_id', $businessId)->get();
+        $services = EloquentService::where('business_id', $business_id)->get();
         return $services->map(fn($s) => $this->mapToDomain($s))->all();
     }
 
-    public function create(array $data): DomainService
+    public function save(DomainService $data): DomainService
     {
-        $service = EloquentService::create($data);
+        $service = EloquentService::create([
+            'business_id' => $data->business_id,
+            'name' => $data->name,
+            'description' => $data->description,
+            'duration_minutes' => $data->duration_minutes,
+            'price' => $data->price,
+            'location_type' => $data->location_type,
+            'is_active' => $data->is_active,
+        ]);
         return $this->mapToDomain($service);
     }
 
-    public function attachBranches(DomainService $service, array $branchIds): void
+    public function attachBranches(DomainService $service, array $branch_ids): void
     {
         $eloquentService = EloquentService::findOrFail($service->id);
-        $eloquentService->branches()->sync($branchIds);
+        $eloquentService->branches()->sync($branch_ids);
     }
 
     public function attachUsers(DomainService $service, array $userIdsWithRoles): void
@@ -42,13 +50,13 @@ class EloquentServiceRepository implements ServiceRepositoryInterface
     {
         return new DomainService(
             id: $service->id,
-            businessId: $service->business_id,
+            business_id: $service->business_id,
             name: $service->name,
             description: $service->description,
-            durationMinutes: $service->duration_minutes,
+            duration_minutes: $service->duration_minutes,
             price: $service->price,
-            locationType: $service->location_type,
-            isActive: $service->is_active,
+            location_type: $service->location_type,
+            is_active: $service->is_active,
         );
     }
 }

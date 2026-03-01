@@ -37,6 +37,7 @@
     </select>
 
     <input type="text" name="address_line_1" placeholder="Address Line 1">
+    <input type="text" name="address_line_2" placeholder="Address Line 2">
     <input type="text" name="city" placeholder="City">
     <input type="text" name="postal_code" placeholder="Postal Code">
     <input type="text" name="country" placeholder="Country">

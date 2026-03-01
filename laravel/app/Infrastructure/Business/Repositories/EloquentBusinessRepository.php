@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 use App\Domain\Business\Entities\Business as DomainBusiness;
-
+use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Models\Business\Business as EloquentBusiness;
 
 class EloquentBusinessRepository implements BusinessRepositoryInterface
@@ -23,10 +23,16 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
         return $businesses->map(fn($b) => $this->mapToDomain($b))->all();
     }
 
-    public function create(array $data): DomainBusiness
+    public function save(DomainBusiness $business): DomainBusiness
     {
-        $business = EloquentBusiness::create($data);
-        return $this->mapToDomain($business);
+        $eloquent = EloquentBusiness::create([
+            'name' => $business->name,
+            'description' => $business->description,
+            'state' => $business->state,
+            'is_published' => $business->isPublished,
+        ]);
+
+        return $this->mapToDomain($eloquent);
     }
 
     public function update(DomainBusiness $business, array $data): DomainBusiness
@@ -38,7 +44,7 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
 
     public function existsOwner(int $userId): bool
     {
-        return EloquentBusiness::whereHas('users', fn($q) => $q->where('user_id', $userId)->wherePivot('role', 'owner'))->exists();
+        return EloquentBusiness::whereHas('users', fn($q) => $q->where('user_id', $userId)->wherePivot('role', BusinessRoleEnum::OWNER->value))->exists();
     }
 
     public function getOwners(int $businessId): array
@@ -61,12 +67,17 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
         );
     }
 
-
     public function allWithRelations(): Collection
     {
         return EloquentBusiness::with([
             'branches',
             'services.branches'
         ])->get();
+    }
+
+    public function attachUser(int $businessId, int $userId, BusinessRoleEnum $role): void
+    {
+        $business = EloquentBusiness::findOrFail($businessId);
+        $business->users()->attach($userId, ['role' => $role->value]);
     }
 }
