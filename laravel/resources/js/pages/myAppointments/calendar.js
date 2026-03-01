@@ -19,7 +19,7 @@ function generateCalendar_v2(calendar, year, month) {
     appendWeekDayHeader(calendar);
 
     let firstDayWeek = getFirstDayOfMonth(year, month);
-    firstDayWeek = (firstDayWeek === 0) ? 6 : (firstDayWeek - 1); // Po-Ne logika
+    firstDayWeek = (firstDayWeek === 0) ? 6 : (firstDayWeek - 1); // Convert Sunday based week to Monday based
     const totalDays = daysInMonth(year, month);
     
     const today = new Date();
@@ -158,7 +158,7 @@ function getCellTypeName(type) {
 
 /**
  * Adds empty cells to calendar (bleached cells to make calendar consistentn width and height)
- * @param {element} container - master container for appending
+ * @param {HTMLElement} container - master container for appending
  * @param {string} date
  * @param {string} type - cell type [ empty/default ]
  */
@@ -181,7 +181,7 @@ function addEmptyCellsAfterMonth(container, remainingCells) {
 
 /**
  * Adds appointments to cell in calendar
- * @param {element} div - cell for adding appointments to
+ * @param {HTMLElement} div - cell for adding appointments to
  * @param {string} dateStr - date
  */
 function addAppointmentsToCell(div, dateStr) {
@@ -196,7 +196,7 @@ function addAppointmentsToCell(div, dateStr) {
 
 /**
  * Adds empty cells to calendar (bleached cells to make calendar consistentn width and height)
- * @param {element} container - master container for appending
+ * @param {HTMLElement} container - master container for appending
  * @param {number} totalDays - number of days in current month
  * @param {number} year
  * @param {number} month
@@ -219,7 +219,7 @@ function addCellsCurrentMonth(container, totalDays, year, month, currentDayNumbe
 
 /**
  * Adds empty cells to calendar (bleached cells to make calendar consistentn width and height)
- * @param {element} container - master container for appending
+ * @param {HTMLElement} container - master container for appending
  * @param {number} firstDayWeek - when is monday...
  * @param {number} totalDaysPrevMonth - number of days from previous month
  */
@@ -235,7 +235,7 @@ function getEmptyCellsBeforeFirstDay(year, month) {
 
 /**
  * Adds weekday header to calendar
- * @param {element} container - master container for appending
+ * @param {HTMLElement} container - master container for appending
  */
 function addWeekdayHeader(container) {
     ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].forEach(d => {

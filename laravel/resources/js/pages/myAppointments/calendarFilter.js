@@ -25,10 +25,7 @@ export function initCalendarFilters() {
     const yearFragment = document.createDocumentFragment();
     for (let i = 0; i <= 5; i++) {
         const year = currentYear + i;
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        yearFragment.appendChild(option);
+        yearFragment.appendChild(createOption(year, year, year === currentYear));
     }
     yearSelect.appendChild(yearFragment);
 
@@ -37,4 +34,20 @@ export function initCalendarFilters() {
             console.log(`swap to: ${monthSelect.value} / ${yearSelect.value}`);
         });
     });
+}
+
+/**
+ * Creates an option element for select dropdown
+ * @param {number} value 
+ * @param {string} text 
+ * @param {boolean} selected 
+ * @returns 
+ */
+function createOption(value, text, selected = false) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    if (selected) option.selected = true;
+
+    return option;
 }

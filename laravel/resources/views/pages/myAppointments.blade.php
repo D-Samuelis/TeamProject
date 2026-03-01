@@ -27,8 +27,8 @@
         <header class="timeline-header">
             <h2 class="timeline-header__title" id="selectedDateText">February 27, 2026</h2>
             <div class="timeline-info">
-                <div class="timeline-info__icon"> i </div>
-                <div class="timeline-info__text"> Appointmets today:</div>
+                <div class="timeline-info__icon"> <i class="fa-regular fa-calendar-days"></i> </div>
+                <div class="timeline-info__text"> Appointments:</div>
                 <div class="timeline-info__count">4</div>
             </div>
         </header>

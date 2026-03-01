@@ -1,0 +1,17 @@
+.appointments__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    background-color: var(--color-bg-complement);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+    border-radius: .15rem;
+    height: 98%;
+    padding: 1rem;
+}
+
+.appointments__subtitle {
+    font-family: 'Inter-Bold', sans-serif;
+    font-size: var(--font-size-base);
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
