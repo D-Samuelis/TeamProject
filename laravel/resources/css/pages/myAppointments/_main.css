@@ -19,3 +19,8 @@
     height: calc(100vh - 80px - 3rem);
     overflow: hidden;
 }
+
+.appointments__control-group {
+    display: flex;
+    gap: .25rem;
+}

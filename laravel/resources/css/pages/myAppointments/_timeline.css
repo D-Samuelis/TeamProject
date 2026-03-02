@@ -1,9 +1,19 @@
+#timelineView, #listView {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
 .timeline {
+    width: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
     padding-top: 1rem;
     padding-bottom: 2rem;
     position: relative;
     flex-grow: 1;
-    overflow-y: auto; 
     overflow-x: hidden;
     /* border: 1px solid red; */
     scrollbar-width: thin;
@@ -25,8 +35,17 @@
 
 .timeline-header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: .25rem;
+    justify-content: space-between;
+}
+
+.timeline-header-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
 }
 
 .timeline-header__title {
