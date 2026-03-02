@@ -1,0 +1,34 @@
+.button__toggle-left {
+    padding: .35rem 1rem;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    background-color: var(--color-text-unimportant-light);
+    color: var(--color-text-white);
+    border-bottom-left-radius: .25rem;
+    border-top-left-radius: .25rem;
+    transition: background-color .2s ease-out;
+    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+}
+
+.button__toggle-right {
+    padding: .35rem 1rem;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    background-color: var(--color-text-unimportant-light);
+    color: var(--color-text-white);
+    border-bottom-right-radius: .25rem;
+    border-top-right-radius: .25rem;
+    transition: background-color .2s ease-out;
+    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+}
+
+.button__toggle-left:hover,
+.button__toggle-right:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.button__toggle-left.active,
+.button__toggle-right.active {
+    background-color: var(--color-primary);
+    cursor: default;
+}

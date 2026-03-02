@@ -16,7 +16,10 @@
         </section>
 
         <section class="appointments__pending">
-            <h3 class="appointments__subtitle">Pending Appointments</h3>
+            <h3 class="appointments__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                Pending Appointments
+            </h3>
             <div id="pendingList" class="appointments__mini-list">
                 {{-- JS generated appointmets --}}
             </div>
@@ -25,22 +28,35 @@
 
     <main class="appointments__main">
         <header class="timeline-header">
-            <h2 class="timeline-header__title" id="selectedDateText">February 27, 2026</h2>
-            <div class="timeline-info">
-                <div class="timeline-info__icon"> i </div>
-                <div class="timeline-info__text"> Appointmets today:</div>
-                <div class="timeline-info__count">4</div>
+            <div class="timeline-header-main">
+                <h2 class="timeline-header__title" id="selectedDateText">February 27, 2026</h2>
+                <div class="timeline-info">
+                    <div class="timeline-info__icon"> <i class="fa-regular fa-calendar-days"></i> </div>
+                    <div class="timeline-info__text"> Appointments:</div>
+                    <div class="timeline-info__count">4</div>
+                </div>
+            </div>
+            <div class="timeline-header-controls">
+                <div class="appointments__control-group">
+                    <button class="button button__toggle-left active" id="showTimeline"><i class="fa-solid fa-table-columns"></i></button>
+                    <button class="button button__toggle-right" id="showList"><i class="fa-solid fa-list"></i></button>
+                </div>
             </div>
         </header>
-        <div class="timeline" id="timelineContainer">
-            {{-- JS generated time slots --}}
+        <div id="timelineView">
+            <div class="timeline" id="timelineContainer">
+                {{-- JS generated time slots --}}
+            </div>
+        </div>
+
+        <div id="listView" class="hidden">
+            <div id="listContainer">
+                This shit will be fatched later and dislayed as table...
+            </div>
         </div>
     </main>
 
     <aside class="appointments__controls">
-        <div class="appointments__control-group">
-            <button class="button button--secondary" id="viewSwitcher">Switch to List View</button>
-        </div>
         <div class="appointments__control-group">
             <h3 class="appointments__subtitle">Filters</h3>
             {{-- Filters --}}

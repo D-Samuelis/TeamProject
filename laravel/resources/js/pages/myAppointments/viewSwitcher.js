@@ -1,28 +1,30 @@
 export function initViewSwitcher() {
-    const controls = {
-        calendar: {
-            btn: document.getElementById('showCalendar'),
-            view: document.getElementById('calendarView')
+    const views = {
+        timeline: {
+            btn: document.getElementById('showTimeline'),
+            container: document.getElementById('timelineView')
         },
         list: {
             btn: document.getElementById('showList'),
-            view: document.getElementById('listView')
+            container: document.getElementById('listView')
         }
     };
 
-    // Ak chýbajú kľúčové prvky, nepokračuj
-    if (!controls.calendar.btn || !controls.list.btn) return;
+    if (!views.timeline.btn || !views.list.btn) return;
 
     function switchView(targetKey) {
-        Object.keys(controls).forEach(key => {
+        Object.keys(views).forEach(key => {
             const isTarget = key === targetKey;
             
-            controls[key].view?.classList.toggle('hidden', !isTarget);
-            controls[key].btn?.classList.toggle('active', isTarget);
+            views[key].container?.classList.toggle('hidden', !isTarget);
+            views[key].btn?.classList.toggle('active', isTarget);
         });
+
+        if (targetKey === 'timeline') {
+            window.dispatchEvent(new Event('resize'));
+        }
     }
 
-    Object.keys(controls).forEach(key => {
-        controls[key].btn.addEventListener('click', () => switchView(key));
-    });
+    views.timeline.btn.addEventListener('click', () => switchView('timeline'));
+    views.list.btn.addEventListener('click', () => switchView('list'));
 }
