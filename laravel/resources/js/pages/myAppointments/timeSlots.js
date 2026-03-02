@@ -34,8 +34,6 @@ export function initTimeSlots() {
         container.appendChild(slot);
     }
 
-    updateNowIndicator();
-
     setTimeout(() => {
         const container = document.getElementById('timelineContainer');
         const indicator = document.querySelector('.timeline__now-indicator');
@@ -49,7 +47,14 @@ export function initTimeSlots() {
         }
     }, 200);
 
-    setInterval(updateNowIndicator, 60000);
+    updateNowIndicator();
+
+    const delay = syncIndicatorToCurrentTime();
+
+    setTimeout(() => {
+        updateNowIndicator();
+        setInterval(updateNowIndicator, 60000);
+    }, delay);
 }
 
 function updateNowIndicator() {
@@ -67,4 +72,14 @@ function updateNowIndicator() {
     const topPosition = (hours * slotHeight) + (minutes * (slotHeight / 60) + 16);
 
     indicator.style.top = `${topPosition}px`;
+}
+
+function syncIndicatorToCurrentTime() {
+    const now = new Date();
+    const seconds = now.getSeconds();
+    const ms = now.getMilliseconds();
+
+    const msUntilNextMinute = ((60 - seconds) * 1000) - ms;
+
+    return msUntilNextMinute;
 }
