@@ -1,25 +1,14 @@
 <================== POWERSHELL TEST ==================>
 
-$FilePath = "<path_to_the_project>\whisper\test_data\mary.mp3"
-
-$Uri = "http://localhost:8000/transcribe"
-
+$FilePath = "D:\02-School\02-University\02-Ing\01-First_Year\00-I_TP\05-Laravel_Demo\whisper\test_data\mary.mp3"
+$Uri = "http://localhost:8001/transcribe"
 Add-Type -AssemblyName System.Net.Http
-
 $client = New-Object System.Net.Http.HttpClient
-
 $multipart = New-Object System.Net.Http.MultipartFormDataContent
-
 $fileStream = [System.IO.File]::OpenRead($FilePath)
-
 $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
-
 $fileContent.Headers.ContentDisposition = [System.Net.Http.Headers.ContentDispositionHeaderValue]::Parse('form-data; name="file"; filename="mary.mp3"')
-
 $multipart.Add($fileContent)
-
 $response = $client.PostAsync($Uri, $multipart).Result
-
 $result = $response.Content.ReadAsStringAsync().Result
-
 Write-Output $result
