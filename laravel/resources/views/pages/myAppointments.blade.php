@@ -57,7 +57,7 @@
     </main>
 
     <aside class="appointments__controls">
-        <section class="appointments__control-group">
+        <section class="appointments__filters">
             <h3 class="appointments__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
                 Status Filters
