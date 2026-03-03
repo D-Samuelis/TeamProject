@@ -20,7 +20,7 @@
                 <i class="fa-solid fa-chevron-down"></i>
                 Pending Appointments
             </h3>
-            <div id="pendingList" class="appointments__mini-list">
+            <div id="pendingList" class="dropdown__mini-list">
                 {{-- JS generated appointmets --}}
             </div>
         </section>
@@ -57,10 +57,15 @@
     </main>
 
     <aside class="appointments__controls">
-        <div class="appointments__control-group">
-            <h3 class="appointments__subtitle">Filters</h3>
-            {{-- Filters --}}
-        </div>
+        <section class="appointments__control-group">
+            <h3 class="appointments__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                Status Filters
+            </h3>
+            <div id="filterList" class="dropdown__mini-list">
+                {{-- JS generated filters --}}
+            </div>
+        </section>
     </aside>
 </div>
 

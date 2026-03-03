@@ -30,7 +30,14 @@
     justify-content: center;
 }
 
+.appointments__subtitle:hover {
+    color: var(--color-primary);
+}
+
 .appointments__subtitle:hover i {
-    transform: rotate(-90deg);
     transition: transform .2s ease-out;
+}
+
+.appointments__subtitle:active {
+    transform: scale(0.98);
 }
