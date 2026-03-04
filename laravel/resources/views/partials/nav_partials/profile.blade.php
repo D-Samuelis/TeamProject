@@ -5,15 +5,16 @@
                 <i class="fa-solid fa-user"></i>
             </div>
             <div class="profile__info" id="profileInfo">
-                <div class="profile__name">Guest User</div>
-                <div class="profile__role">Client</div> </div>
+                <div class="profile__name">{{ auth()->user()->name ?? 'Guest User' }}</div>
+                <div class="profile__role">{{ auth()->check() ? 'Client' : '' }}</div>
+            </div>
         </div>
     </button>
 </div>
 
 <div class="profile-menu hidden" id="profileMenuContent">
     <h3 class="profile-menu__title">Profile</h3>
-    
+
     <div class="profile-menu__content">
         <div class="profile-menu__overview">
             <div class="profile-menu__avatar-wrapper">
@@ -22,14 +23,18 @@
                 </div>
             </div>
             <div class="profile-menu__user-details">
-                <div class="profile-menu__name">Guest User</div>
-                <div class="profile-menu__email">user@gmail.com</div>
+                <div class="profile-menu__name">{{ auth()->user()->name ?? 'Guest User' }}</div>
+                <div class="profile-menu__email">{{ auth()->user()->email ?? 'user@gmail.com' }}</div>
             </div>
         </div>
 
         <div class="profile-menu__status">
             <div class="profile-menu__badge">Client</div>
-            <div class="profile-menu__date">Joined at 10.12.2025</div>
+            <div class="profile-menu__date">Joined:
+                @auth
+                    {{ auth()->user()->created_at->format('d.m.Y') }}
+                @endauth
+            </div>
         </div>
 
         <div class="profile-menu__divider"></div>
@@ -51,7 +56,9 @@
 
         <div class="profile-menu__options">
             <div class="profile-menu__option" id="lightModeOption">
-                <a href="/dev" class="profile-menu__link"><p class="debug-text">Dev</p></a>
+                <a href="/dev" class="profile-menu__link">
+                    <p class="debug-text">Dev</p>
+                </a>
             </div>
             <div class="profile-menu__option" id="lightModeOption">
                 <a href="/" class="profile-menu__link">Booking</a>
@@ -63,7 +70,7 @@
                 <a href="/profile" class="profile-menu__link">My Profile</a>
             </div>
             <div class="profile-menu__option" id="lightModeOption">
-                <a href="/auth" class="profile-menu__link">Sign-In</a>
+                <a href="/login" class="profile-menu__link">Sign-In</a>
             </div>
             <div class="profile-menu__option" id="darkModeOption">
                 <form method="POST" action="/logout" class="profile-menu__form">

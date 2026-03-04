@@ -16,7 +16,8 @@
     @if ($errors->any())
         <div class="auth-form__global-error">
             <i class="fa-solid fa-circle-exclamation"></i>
-            <span>Invalid email address or password. Please try again.</span>
+            {{-- <span>Invalid email address or password. Please try again.</span> --}}
+            <span>{{ $errors->first() }}</span>
         </div>
     @endif
 

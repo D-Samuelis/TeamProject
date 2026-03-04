@@ -31,12 +31,12 @@
         </div>
 
         <div class="auth-form__column">
-            <x-auth-input id="register_birth" name="birth" label="Birth Date" type="date" />
+            <x-auth-input id="register_birth" name="birth_date" label="Birth Date" type="date" />
             
             <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name [Optional]" 
                           placeholder="PhD." list="titles_after_list" info="true" />
             
-            <x-auth-input id="register_phone" name="phone" label="Phone Number" placeholder="+421 000 000 000" />
+            <x-auth-input id="register_phone" name="phone_number" label="Phone Number" placeholder="+421 000 000 000" />
             
             <x-auth-input id="register_city" name="city" label="City" placeholder="Bratislava" />
             

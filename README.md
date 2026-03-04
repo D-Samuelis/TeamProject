@@ -35,9 +35,13 @@ cp .env.example .env
 * `DB_CONNECTION=mysql`
 * `DB_HOST=mysql`
 * `DB_PORT=3306`
-* `DB_DATABASE=laravel`
-* `DB_USERNAME=laravel`
-* `DB_PASSWORD=secret`
+* `DB_DATABASE=`
+* `DB_USERNAME=`
+* `DB_PASSWORD=`
+* `DB_ROOT_PASSWORD=`
+* `PMA_HOST=`
+* `PMA_USER=`
+* `PMA_PASSWORD=`
 
 ### 3. Start Docker Containers
 Launch the infrastructure. 
@@ -45,6 +49,20 @@ Launch the infrastructure.
 ```bash
 docker compose up -d
 ```
+or if you are not in the `laravel` directory:
+```bash
+docker compose --env-file ./laravel/.env up
+```
+### 3.1 Stop Docker Containers
+To shut down all the containers run
+```bash
+docker compose down
+```
+or if you are not in the `laravel` directory:
+```bash
+docker compose --env-file ./laravel/.env up
+```
+
 
 ### 4. Backend Setup
 Install the necessary backend packages and dependencies:
@@ -92,3 +110,48 @@ The application will be accessible at:
 
 ### ⚠️ Troubleshooting
 If you encounter permission issues, re-run the `chown` and `chmod` commands from step 6. Make sure Docker is active before running any `docker compose` commands.
+
+---
+
+## 📡 MCP 
+
+### MCP server
+
+Run the following Artisan command to launch MCP Inspector.
+```bash
+php artisan mcp:inspector {route}
+```
+MCP Inspector is a browser-based tool that helps you work with and test your MCP server. When you run this command, it will also start the MCP server on localhost, allowing MCP clients to use it.
+#### Example
+
+```bash
+php artisan mcp:inspector mcp/appointment
+```
+
+### MCP client
+Currently, we don't have MCP client set up. For now, we can use third party tools with MCP Client support.
+
+### Claude desktop setup 
+
+1. Download Claude Desktop - [https://claude.ai/download](https://claude.ai/download)
+2. Open Claude config file at
+```
+~\Claude\claude_desktop_config.json
+```
+3. Add the MCP server into claude_desktop_config.json
+```json
+{
+  "mcpServers": {
+    "appointment": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8080/mcp/appointment"
+      ]
+    }
+  }
+}
+```
+4. Restart Claude Desktop
+
+

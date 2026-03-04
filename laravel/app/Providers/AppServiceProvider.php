@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Domain\User\Services\PasswordHasher::class,
+            \App\Infrastructure\Auth\LaravelPasswordHasher::class
+        );
     }
 
     /**

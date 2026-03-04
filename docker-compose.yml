@@ -1,57 +1,37 @@
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:80"
-    volumes:
-      - ./laravel:/var/www
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - laravel
-
-  laravel:
-    build: ./laravel
-    volumes:
-      - ./laravel:/var/www
-      - laravel_storage:/var/www/storage
-    depends_on:
-      - mysql
-      - redis
-
   mysql:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: root
-    volumes:
-      - mysql_data:/var/lib/mysql
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     depends_on:
       - mysql
     ports:
-      - "8081:80"
+      - "8080:80"
     environment:
-      PMA_HOST: mysql
-      PMA_USER: laravel
-      PMA_PASSWORD: secret
+      PMA_HOST: ${PMA_HOST}
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
 
   redis:
     image: redis:alpine
     restart: unless-stopped
+    ports:
+      - "6379:6379"
 
   stt-gateway:
     build: ./whisper
-    image: whisper-service
     command: uvicorn gateway:app --host 0.0.0.0 --port 8000
     ports:
-      - "8002:8000"
+      - "8001:8000"
     volumes:
       - whisper-audio:/tmp/audio
     environment:
@@ -59,7 +39,7 @@ services:
       - AUDIO_DIR=/tmp/audio
 
   stt-worker:
-    image: whisper-service
+    build: ./whisper
     command: python worker.py
     volumes:
       - whisper-audio:/tmp/audio
@@ -72,4 +52,3 @@ volumes:
   mysql_data:
   whisper-audio:
   whisper-model-cache:
-  laravel_storage:

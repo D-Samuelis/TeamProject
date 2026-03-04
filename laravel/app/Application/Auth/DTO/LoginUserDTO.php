@@ -1,5 +1,5 @@
 <?php
-// app/Application/Auth/DTO/LoginUserDTO.php
+
 namespace App\Application\Auth\DTO;
 
 // Purpose: typed data transfer objects that Application layer uses as input/output.
