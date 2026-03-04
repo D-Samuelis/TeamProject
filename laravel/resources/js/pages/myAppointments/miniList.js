@@ -22,7 +22,7 @@ export function initCollapsibleList(containerId) {
                 list.style.display = 'none';
             } else {
                 icon.style.transform = 'rotate(0deg)';
-                list.style.display = 'block';
+                list.style.display = 'flex';
             }
         });
     }

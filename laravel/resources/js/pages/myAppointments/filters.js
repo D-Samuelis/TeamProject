@@ -15,6 +15,7 @@ export function initStatusFilters() {
     statuses.forEach(status => {
         const filterItem = document.createElement('div');
         filterItem.className = `filter-item filter-item--${status.color} ${status.active ? 'is-active' : ''}`;
+        
         filterItem.innerHTML = `
             <div class="filter-item__checkbox">
                 <i class="fa-solid fa-check"></i>
@@ -26,7 +27,6 @@ export function initStatusFilters() {
             status.active = !status.active;
             filterItem.classList.toggle('is-active');
             
-            console.log('Active filters:', statuses.filter(s => s.active).map(s => s.id));
             window.dispatchEvent(new CustomEvent('filtersChanged', { detail: statuses }));
         });
 

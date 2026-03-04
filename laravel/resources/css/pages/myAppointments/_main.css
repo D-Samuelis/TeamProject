@@ -6,10 +6,11 @@
 .appointments {
     display: grid;
     grid-template-columns: 16.75rem 1fr 15rem; 
-    gap: 2rem;
+    gap: 1rem;
     width: 100%;
-    padding: 0 1.5rem;
     height: calc(100vh - 100px - 24px); 
+    border-top: 1px solid var(--color-border-light);
+    border-bottom: 1px solid var(--color-border-light);
     overflow: hidden;
 }
 
@@ -18,6 +19,12 @@
     flex-direction: column;
     height: calc(100vh - 80px - 3rem);
     overflow: hidden;
+    padding-top: .5rem;
+}
+
+.appointments__controls {
+    padding: .5rem 1rem;
+    border-left: 1px solid var(--color-border-light);
 }
 
 .appointments__control-group {
@@ -39,36 +46,39 @@
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
-    opacity: 0.5;
-    filter: grayscale(1);
-    background-color: red!important;
+    background: color-mix(in srgb, var(--color-border), transparent 98%);
+    border: 1px solid color-mix(in srgb, var(--color-border), transparent 95%);
+}
+
+.filter-item .filter-item__label {
+    color: var(--color-text-unimportant);
 }
 
 .filter-item.is-active {
-    opacity: 1;
-    filter: grayscale(0);
-    background: color-mix(in srgb, var(--color-bg-light), transparent 20%);
+    background: var(--status-color);
+    border: 1px solid color-mix(in srgb, var(--status-color), transparent 80%);
+}
+
+.filter-item.is-active .filter-item__label {
+    color: var(--status-text);
 }
 
 .filter-item__checkbox {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.1rem;
+    height: 1.1rem;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.7rem;
     background: var(--color-bg-dark);
     border: 1px solid var(--color-border);
-    font-size: 0.7rem;
     color: transparent;
+    transition: all 0.2s ease;
 }
 
 .filter-item.is-active .filter-item__checkbox {
+    background: var(--status-color);
+    border-color: var(--status-color);
     color: white;
 }
-
-.filter-item--yellow.is-active .filter-item__checkbox { background: #FFD700; border-color: #FFD700; }
-.filter-item--blue.is-active   .filter-item__checkbox { background: #007BFF; border-color: #007BFF; }
-.filter-item--red.is-active    .filter-item__checkbox { background: #FF4444; border-color: #FF4444; }
-.filter-item--black.is-active  .filter-item__checkbox { background: #333333; border-color: #333333; }
-.filter-item--green.is-active  .filter-item__checkbox { background: #28A745; border-color: #28A745; }
