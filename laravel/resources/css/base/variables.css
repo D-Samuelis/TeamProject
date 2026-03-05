@@ -47,8 +47,10 @@
 
     --color-danger: #ff4221;
     --color-danger-text: #ff4221;
+
     --color-success: #29ff29;
     --color-success-text: #29ff29;
+
     --color-warning: #f8c82a;
     --color-warning-text: #e9a71a;
 
@@ -120,14 +122,6 @@
     --status-green-hover: #557555;
     --status-green-text: #dcfce7;
 }
-
-.filter-item--yellow { --status-color: var(--status-yellow); --status-text: var(--status-yellow-text); --status-hover: var(--status-yellow-hover); }
-.filter-item--blue   { --status-color: var(--status-blue);   --status-text: var(--status-blue-text);   --status-hover: var(--status-blue-hover); }
-.filter-item--red    { --status-color: var(--status-red);    --status-text: var(--status-red-text);    --status-hover: var(--status-red-hover); }
-.filter-item--black  { --status-color: var(--status-black);  --status-text: var(--status-black-text);  --status-hover: var(--status-black-hover); }
-.filter-item--green  { --status-color: var(--status-green);  --status-text: var(--status-green-text);  --status-hover: var(--status-green-hover); }
-
-
 
 @font-face {
     font-family: 'Inter-Bold';
