@@ -30,9 +30,9 @@ class BusinessController extends Controller
             $request->validated('description'),
         );
 
-        $useCase->execute($dto, auth()->id());
+        $business = $useCase->execute($dto, auth()->id());
 
-        return back();
+        return back()->with('success', "Branch '{$business->name}' created successfully.");
     }
 
     public function destroy(
@@ -41,12 +41,11 @@ class BusinessController extends Controller
         DeleteBusiness $useCase
     ) {
         $business = $businessRepo->findById($businessId);
-
         abort_if(!$business, 404);
 
-        $this->authorize('delete', $business);
+        $this->authorize('destroy', $business); // always model, never ID
 
-        $useCase->execute($business, auth()->id());
+        $useCase->execute($businessId, auth()->id());
 
         return back();
     }

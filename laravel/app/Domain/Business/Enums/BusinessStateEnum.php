@@ -8,5 +8,4 @@ enum BusinessStateEnum: string
     case UNDER_REVIEW = 'under_review';
     case APPROVED = 'approved';
     case REJECTED = 'rejected';
-    case DELETED = 'deleted';
 }

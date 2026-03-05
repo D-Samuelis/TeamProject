@@ -4,26 +4,35 @@ namespace App\Application\Business\UseCases;
 
 use Illuminate\Support\Facades\DB;
 
-use App\Application\Auth\Services\AuthorizationService;
+use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
-use App\Domain\Business\Entities\Business as DomainBusiness;
+use App\Application\Auth\Services\BusinessAuthorizationService;
 
 class DeleteBusiness
 {
     public function __construct(
-        private AuthorizationService $authService,
+        private UserRepositoryInterface $userRepo,
+        private BusinessAuthorizationService $businessAuthService,
         private BusinessRepositoryInterface $businessRepo
     ) {}
 
-    public function execute(DomainBusiness $business, int $userId): void
+    public function execute(int $businessId, int $userId): void
     {
-        DB::transaction(function () use ($business, $userId) {
+        DB::transaction(function () use ($businessId, $userId) {
+            $business = $this->businessRepo->findById($businessId);
+            if (!$business) {
+                throw new \DomainException('Business not found.');
+            }
+            $user = $this->userRepo->findById($userId);
+            if (!$user) {
+                throw new \DomainException('User not found.');
+            }
 
             // Authorization
-            $this->authService->ensureCanManageBusiness($business, $userId);
+            $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
 
             // Delete
-            $this->businessRepo->delete($business->id, $userId);
+            $this->businessRepo->delete($business);
         });
     }
 }

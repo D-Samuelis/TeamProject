@@ -2,49 +2,36 @@
 namespace App\Application\Business\UseCases;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\Business\Branch;
 
 use App\Application\Business\DTO\CreateBranchDTO;
-use App\Application\Auth\Services\AuthorizationService;
 
+use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Domain\Business\Repositories\BranchRepositoryInterface;
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
-use App\Domain\Business\Entities\Branch as DomainBranch;
 
 class CreateBranch
 {
     public function __construct(
-        private AuthorizationService $authService,
+        private UserRepositoryInterface $userRepo,
         private BusinessRepositoryInterface $businessRepo,
         private BranchRepositoryInterface $branchRepo
     ) {}
 
-    public function execute(CreateBranchDTO $dto, int $userId): DomainBranch
+    public function execute(CreateBranchDTO $dto, int $userId): Branch
     {
         return DB::transaction(function () use ($dto, $userId) {
-
             $business = $this->businessRepo->findById($dto->business_id);
             if (!$business) {
                 throw new \DomainException('Business not found.');
             }
 
-            $this->authService->ensureCanCreateBranch($business, $userId);
+            $user = $this->userRepo->findById($userId);
+            if (!$user) {
+                throw new \DomainException('User not found.');
+            }
 
-            // Construct the domain entity first
-            $branch = new DomainBranch(
-                id: null,
-                business_id: $business->id,
-                name: $dto->name,
-                type: $dto->type,
-                address_line_1: $dto->address_line_1,
-                address_line_2: $dto->address_line_2 ?? null,
-                city: $dto->city,
-                postal_code: $dto->postal_code,
-                country: $dto->country,
-                is_active: true,
-            );
-
-            // Persist via repository
-            return $this->branchRepo->save($branch);
+            return $this->branchRepo->save($dto->toArray());
         });
     }
 }

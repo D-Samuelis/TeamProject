@@ -2,17 +2,18 @@
 
 namespace App\Domain\Business\Repositories;
 
-use App\Domain\Business\Entities\Service as DomainService;
+use Illuminate\Support\Collection;
+use App\Models\Business\Service;
 
 interface ServiceRepositoryInterface
 {
-    public function findById(int $id): ?DomainService;
+    public function findById(int $id): ?Service;
 
-    public function findByBusinessId(int $businessId): array;
+    public function findByBusinessId(int $businessId): Collection;
 
-    public function save(DomainService $data): DomainService;
+    public function save(array $data): Service;
 
-    public function attachBranches(DomainService $service, array $branch_ids): void;
+    public function attachBranches(Service $service, array $branchIds): void;
 
-    public function attachUsers(DomainService $service, array $userIdsWithRoles): void;
+    public function attachUsers(Service $service, array $userIdsWithRoles): void;
 }

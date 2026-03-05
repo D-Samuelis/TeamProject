@@ -16,5 +16,11 @@ final class User
         public ?string $title_suffix = null,
         public ?string $phone_number = null,
         public ?string $gender = null,
+        public ?bool $is_admin = false,
     ) {}
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin;
+    }
 }

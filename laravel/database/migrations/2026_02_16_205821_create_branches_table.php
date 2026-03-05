@@ -16,20 +16,17 @@ return new class extends Migration {
 
             $table->string('name');
             $table->string('type');
-            // physical | online | mobile
-
             $table->string('address_line_1')->nullable();
             $table->string('address_line_2')->nullable();
             $table->string('city')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('country')->nullable();
-
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
-
             $table->boolean('is_active')->default(true);
-
+            $table->timestamp('delete_after')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

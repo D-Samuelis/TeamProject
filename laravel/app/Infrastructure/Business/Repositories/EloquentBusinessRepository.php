@@ -4,52 +4,39 @@ namespace App\Infrastructure\Business\Repositories;
 
 use Illuminate\Support\Collection;
 
+use App\Models\Business\Business;
+
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
-use App\Domain\Business\Entities\Business as DomainBusiness;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\Business\Enums\BusinessStateEnum;
-use App\Models\Business\Business as EloquentBusiness;
 
 class EloquentBusinessRepository implements BusinessRepositoryInterface
 {
-    public function findById(int $id): ?DomainBusiness
+    public function findById(int $id): ?Business
     {
-        $business = EloquentBusiness::find($id);
-        return $business ? $this->mapToDomain($business) : null;
+        return Business::find($id);
     }
 
-    public function findByUserId(int $userId): array
+    public function findByUserId(int $userId): Collection
     {
-        $businesses = EloquentBusiness::whereHas('users', fn($q) => $q->where('user_id', $userId))->get();
-        return $businesses->map(fn($b) => $this->mapToDomain($b))->all();
+        return Business::whereHas('users', fn($q) => $q->where('user_id', $userId))->get();
     }
 
-    public function save(DomainBusiness $business): DomainBusiness
+    public function save(array $data): Business
     {
-        $eloquent = EloquentBusiness::create([
-            'name' => $business->name,
-            'description' => $business->description,
-            'state' => $business->state,
-            'is_published' => $business->isPublished,
-        ]);
-
-        return $this->mapToDomain($eloquent);
+        return Business::create($data);
     }
 
-    public function update(DomainBusiness $business, array $data): DomainBusiness
+    public function update(Business $business, array $data): Business
     {
-        $eloquent = EloquentBusiness::findOrFail($business->id);
-        $eloquent->update($data);
-        return $this->mapToDomain($eloquent);
+        $business->update($data);
+        return $business;
     }
 
-    public function delete(int $businessId, int $userId): void
+    public function delete(Business $business): void
     {
-        $business = EloquentBusiness::findOrFail($businessId);
-
         $business->update([
-            'state' => BusinessStateEnum::DELETED,
-            'delete_after' => now()->addDays(7)
+            'delete_after' => now()->addDays(7),
         ]);
 
         $business->delete();
@@ -57,40 +44,32 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
 
     public function existsOwner(int $userId): bool
     {
-        return EloquentBusiness::whereHas('users', fn($q) => $q->where('user_id', $userId)->wherePivot('role', BusinessRoleEnum::OWNER->value))->exists();
+        return Business::whereHas(
+            'users',
+            fn($q) =>
+            $q->where('user_id', $userId)
+                ->wherePivot('role', BusinessRoleEnum::OWNER->value)
+        )->exists();
     }
 
-    public function getOwners(int $businessId): array
+    public function getOwners(Business $business): array
     {
-        $business = EloquentBusiness::find($businessId);
-        if (!$business) {
-            return [];
-        }
-        return $business->users()->wherePivot('role', 'owner')->pluck('user_id')->all();
-    }
-
-    private function mapToDomain(EloquentBusiness $business): DomainBusiness
-    {
-        return new DomainBusiness(
-            id: $business->id,
-            name: $business->name,
-            description: $business->description,
-            state: $business->state,
-            isPublished: $business->is_published,
-        );
+        return $business->users()
+            ->wherePivot('role', BusinessRoleEnum::OWNER->value)
+            ->pluck('user_id')
+            ->all();
     }
 
     public function allWithRelations(): Collection
     {
-        return EloquentBusiness::with([
+        return Business::with([
             'branches',
             'services.branches'
         ])->get();
     }
 
-    public function attachUser(int $businessId, int $userId, BusinessRoleEnum $role): void
+    public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void
     {
-        $business = EloquentBusiness::findOrFail($businessId);
         $business->users()->attach($userId, ['role' => $role->value]);
     }
 }

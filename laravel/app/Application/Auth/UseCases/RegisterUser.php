@@ -4,6 +4,8 @@ namespace App\Application\Auth\UseCases;
 
 use InvalidArgumentException;
 
+use App\Domain\User\Entities\User as DomainUser;
+
 use App\Application\Auth\DTO\RegisteredUserDTO;
 use App\Application\Auth\DTO\RegisterUserDTO;
 
@@ -25,30 +27,14 @@ final class RegisterUser
 
     public function execute(RegisterUserDTO $dto): RegisteredUserDTO
     {
-        // Check if email exists
         if ($this->userRepo->findByEmail($dto->email)) {
             throw new InvalidArgumentException('Email already registered.');
         }
 
-        // Create domain entity
-        $user = new \App\Domain\User\Entities\User(
-            null,
-            $dto->name,
-            $dto->email,
-            $this->hasher->hash($dto->password),
-            $dto->country,
-            $dto->city,
-            $dto->title_prefix,
-            $dto->birth_date ? new \DateTimeImmutable($dto->birth_date) : null,
-            $dto->title_suffix,
-            $dto->phone_number,
-            $dto->gender
-        );
+        $dto->password = $this->hasher->hash($dto->password);
 
-        // Persist via repository
-        $this->userRepo->save($user);
+        $user = $this->userRepo->save($dto->toArray());
 
-        // Generate token
         $token = $this->tokenService->createTokenFor($user);
 
         return new RegisteredUserDTO($user, $token);

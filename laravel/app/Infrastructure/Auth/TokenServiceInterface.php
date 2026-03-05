@@ -2,8 +2,10 @@
 
 namespace App\Infrastructure\Auth;
 
+use App\Models\Auth\User;
+
 interface TokenServiceInterface
 {
-    public function createTokenFor(\App\Domain\User\Entities\User $user): string;
-    public function revokeAllTokensFor(\App\Domain\User\Entities\User $user): void;
+    public function createTokenFor(User $user): string;
+    public function revokeAllTokensFor(User $user): void;
 }

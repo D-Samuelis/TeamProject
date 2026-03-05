@@ -4,27 +4,20 @@ namespace App\Application\Auth\UseCases;
 
 use InvalidArgumentException;
 
-use App\Domain\User\Entities\User; 
-use App\Domain\User\Repositories\UserRepositoryInterface;
 
 use App\Infrastructure\Auth\TokenServiceInterface;
+use App\Models\Auth\User;
 
 final class LogoutUser
 {
     public function __construct(
         private TokenServiceInterface $tokenService,
-        private UserRepositoryInterface $userRepo
     ) {}
 
-    public function execute(User|int|string $userOrId): void
+    public function execute(User $user): void
     {
-        if (is_string($userOrId) || is_int($userOrId)) {
-            $user = $this->userRepo->findById((int)$userOrId);
-            if (!$user) {
-                throw new InvalidArgumentException('User not found.');
-            }
-        } else {
-            $user = $userOrId;
+        if (!$user) {
+            throw new InvalidArgumentException('User not found.');
         }
 
         $this->tokenService->revokeAllTokensFor($user);
