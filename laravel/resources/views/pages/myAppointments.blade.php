@@ -15,6 +15,16 @@
             <div class="calendar__container" id="calendarContainer"></div>
         </section>
 
+        <section class="appointments__filters">
+            <h3 class="appointments__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                Status Filters
+            </h3>
+            <div id="filterList" class="dropdown__mini-list">
+                {{-- JS generated filters --}}
+            </div>
+        </section>
+
         <section class="appointments__pending">
             <h3 class="appointments__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
@@ -55,18 +65,6 @@
             </div>
         </div>
     </main>
-
-    <aside class="appointments__controls">
-        <section class="appointments__filters">
-            <h3 class="appointments__subtitle">
-                <i class="fa-solid fa-chevron-down"></i>
-                Status Filters
-            </h3>
-            <div id="filterList" class="dropdown__mini-list">
-                {{-- JS generated filters --}}
-            </div>
-        </section>
-    </aside>
 </div>
 
 @vite('resources/js/pages/myAppointments/entry.js')

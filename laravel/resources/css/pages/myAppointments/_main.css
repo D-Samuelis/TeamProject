@@ -5,8 +5,7 @@
 
 .appointments {
     display: grid;
-    grid-template-columns: 16.75rem 1fr 15rem; 
-    gap: 1rem;
+    grid-template-columns: 16.75rem 1fr;
     width: 100%;
     height: calc(100vh - 100px - 24px); 
     border-top: 1px solid var(--color-border-light);
@@ -19,7 +18,7 @@
     flex-direction: column;
     height: calc(100vh - 80px - 3rem);
     overflow: hidden;
-    padding-top: .5rem;
+    padding: 1rem;
 }
 
 .appointments__controls {
@@ -48,6 +47,8 @@
     user-select: none;
     background: color-mix(in srgb, var(--color-border), transparent 98%);
     border: 1px solid color-mix(in srgb, var(--color-border), transparent 95%);
+    border-radius: .15rem;
+    box-shadow: none;
 }
 
 .filter-item .filter-item__label {
@@ -57,6 +58,11 @@
 .filter-item.is-active {
     background: var(--status-color);
     border: 1px solid color-mix(in srgb, var(--status-color), transparent 80%);
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}
+
+.filter-item.is-active:hover {
+    background: var(--status-hover);
 }
 
 .filter-item.is-active .filter-item__label {
@@ -64,21 +70,27 @@
 }
 
 .filter-item__checkbox {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: .8rem;
     background: var(--color-bg-dark);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-light);
     color: transparent;
     transition: all 0.2s ease;
+    box-shadow: none;
 }
 
 .filter-item.is-active .filter-item__checkbox {
     background: var(--status-color);
     border-color: var(--status-color);
-    color: white;
+    color: var(--status-text);
+}
+
+.filter-item.is-active:hover .filter-item__checkbox {
+    background: var(--status-hover);
+    border-color: var(--status-hover);
 }
