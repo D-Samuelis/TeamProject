@@ -8,7 +8,9 @@ use App\Http\Requests\Business\StoreBusinessRequest;
 
 use App\Application\Business\DTO\CreateBusinessDTO;
 use App\Application\Business\UseCases\CreateBusiness;
+use App\Application\Business\UseCases\DeleteBusiness;
 use App\Application\Business\UseCases\ListBusinesses;
+use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 
 class BusinessController extends Controller
 {
@@ -29,6 +31,22 @@ class BusinessController extends Controller
         );
 
         $useCase->execute($dto, auth()->id());
+
+        return back();
+    }
+
+    public function destroy(
+        int $businessId,
+        BusinessRepositoryInterface $businessRepo,
+        DeleteBusiness $useCase
+    ) {
+        $business = $businessRepo->findById($businessId);
+
+        abort_if(!$business, 404);
+
+        $this->authorize('delete', $business);
+
+        $useCase->execute($business, auth()->id());
 
         return back();
     }

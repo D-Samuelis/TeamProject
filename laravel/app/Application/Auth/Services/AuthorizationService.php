@@ -7,17 +7,28 @@ use DomainException;
 use App\Domain\Business\Entities\Business;
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 use App\Domain\Business\Repositories\BranchRepositoryInterface;
+use App\Domain\User\Repositories\UserRepositoryInterface;
 
 class AuthorizationService
 {
     public function __construct(
         private BusinessRepositoryInterface $businessRepo,
-        private BranchRepositoryInterface $branchRepo
+        private BranchRepositoryInterface $branchRepo,
+        private UserRepositoryInterface $userRepo,
     ) {}
+
+    public function isAdmin(int $userId)
+    {
+        return $this->userRepo->isAdmin($userId);
+    }
 
     // Business checks
     public function ensureCanCreateBranch(Business $business, int $userId): void
     {
+        if ($this->isAdmin($userId)) {
+            return;
+        }
+
         if (! $this->isOwner($business, $userId)) {
             throw new DomainException('Only the business owner can create branches.');
         }
@@ -27,6 +38,10 @@ class AuthorizationService
 
     public function ensureCanManageBusiness(Business $business, int $userId): void
     {
+        if ($this->isAdmin($userId)) {
+            return;
+        }
+
         if (! $this->isOwner($business, $userId)) {
             throw new DomainException('Not allowed to manage this business.');
         }
@@ -36,6 +51,10 @@ class AuthorizationService
 
     public function ensureCanCreateBusiness(int $userId): void
     {
+        if ($this->isAdmin($userId)) {
+            return;
+        }
+
         $ownsBusiness = $this->businessRepo->existsOwner($userId);
 
         if ($ownsBusiness) {
@@ -46,6 +65,10 @@ class AuthorizationService
     // Branch checks
     public function ensureCanManageBranch(int $branchId, Business $business, int $userId): void
     {
+        if ($this->isAdmin($userId)) {
+            return;
+        }
+
         // Owner can manage any branch
         if ($this->isOwner($business, $userId)) {
             $this->ensureBusinessIsApproved($business);
@@ -59,6 +82,17 @@ class AuthorizationService
         }
 
         $this->ensureBusinessIsApproved($business);
+    }
+
+    public function ensureCanDeleteBusiness(Business $business, int $userId): void
+    {
+        if ($this->isAdmin($userId)) {
+            return;
+        }
+
+        if (! $this->isOwner($business, $userId)) {
+            throw new DomainException('Only the owner can delete the business.');
+        }
     }
 
     // Helpers
@@ -79,6 +113,7 @@ class AuthorizationService
     public function canManageBranch(int $branchId, Business $business, int $userId): bool
     {
         return $this->isOwner($business, $userId)
-            || in_array($userId, $this->branchRepo->getAssignments($branchId));
+            || in_array($userId, $this->branchRepo->getAssignments($branchId))
+            || $this->isAdmin($userId);
     }
 }

@@ -2,19 +2,19 @@
 
 namespace App\Policies;
 
-use App\Application\Auth\AuthorizationService;
+use App\Application\Auth\Services\AuthorizationService;
 use App\Models\Auth\User;
-use App\Domain\Business\Entities\Business;
+use App\Domain\Business\Entities\Business as DomainBusiness;
 
 class BusinessPolicy
 {
     public function __construct(private AuthorizationService $authService) {}
 
     // Can user create a branch for this business?
-    public function createBranch(User $user, int $businessId): bool
+    public function createBranch(User $user, DomainBusiness $business): bool
     {
         try {
-            $this->authService->ensureCanCreateBranch($businessId, $user->id);
+            $this->authService->ensureCanCreateBranch($business, $user->id);
             return true;
         } catch (\DomainException) {
             return false;
@@ -22,10 +22,10 @@ class BusinessPolicy
     }
 
     // Can user manage this business (update, create service, etc.)
-    public function manage(User $user, Business $business): bool
+    public function manage(User $user, DomainBusiness $business): bool
     {
         try {
-            $this->authService->ensureCanManageBusiness($business->id, $user->id);
+            $this->authService->ensureCanManageBusiness($business, $user->id);
             return true;
         } catch (\DomainException) {
             return false;
@@ -37,6 +37,16 @@ class BusinessPolicy
     {
         try {
             $this->authService->ensureCanCreateBusiness($user->id);
+            return true;
+        } catch (\DomainException) {
+            return false;
+        }
+    }
+
+    public function delete(User $user, DomainBusiness $business): bool
+    {
+        try {
+            $this->authService->ensureCanDeleteBusiness($business, $user->id);
             return true;
         } catch (\DomainException) {
             return false;

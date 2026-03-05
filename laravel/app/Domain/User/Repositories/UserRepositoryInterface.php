@@ -6,6 +6,8 @@ use App\Domain\User\Entities\User;
 
 interface UserRepositoryInterface
 {
+    public function isAdmin(int $userId): bool;
+
     public function findById(int $id): ?User;
 
     public function findByEmail(string $email): ?User;

@@ -8,6 +8,12 @@ use App\Models\Auth\User as EloquentUser;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
+    public function isAdmin(int $id): bool
+    {
+        return EloquentUser::where('id', $id)
+            ->value('is_admin');
+    }
+
     public function findById(int $id): ?User
     {
         $eloquent = EloquentUser::find($id);

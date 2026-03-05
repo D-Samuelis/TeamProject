@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use App\Domain\Business\Repositories\BusinessRepositoryInterface;
 use App\Domain\Business\Entities\Business as DomainBusiness;
 use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Domain\Business\Enums\BusinessStateEnum;
 use App\Models\Business\Business as EloquentBusiness;
 
 class EloquentBusinessRepository implements BusinessRepositoryInterface
@@ -40,6 +41,18 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
         $eloquent = EloquentBusiness::findOrFail($business->id);
         $eloquent->update($data);
         return $this->mapToDomain($eloquent);
+    }
+
+    public function delete(int $businessId, int $userId): void
+    {
+        $business = EloquentBusiness::findOrFail($businessId);
+
+        $business->update([
+            'state' => BusinessStateEnum::DELETED,
+            'delete_after' => now()->addDays(7)
+        ]);
+
+        $business->delete();
     }
 
     public function existsOwner(int $userId): bool
