@@ -2,7 +2,11 @@
 
 namespace App\Domain\User\Repositories;
 
-use App\Domain\User\Entities\User;
+use App\Domain\Business\Enums\BranchRoleEnum;
+use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Models\Auth\User;
+use App\Models\Business\Branch;
+use App\Models\Business\Business;
 
 interface UserRepositoryInterface
 {
@@ -10,11 +14,11 @@ interface UserRepositoryInterface
 
     public function findByEmail(string $email): ?User;
 
-    public function findByIds(array $ids): array;
+    public function save(array $data): User;
 
-    public function save(User $user): void;
+    public function delete(User $user): void;
 
-    public function existsWithBusinessRole(int $userId, int $businessId, string $role): bool;
+    public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum;
 
-    public function existsWithBranchRole(int $userId, int $branchId, string $role): bool;
+    public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum;
 }

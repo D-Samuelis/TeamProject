@@ -3,13 +3,14 @@
 namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Auth\User;
 
 class Branch extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['business_id', 'name', 'type', 'address_line_1', 'address_line_2', 'city', 'postal_code', 'country', 'is_active'];
 

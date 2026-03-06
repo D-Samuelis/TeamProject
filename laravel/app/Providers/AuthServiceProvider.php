@@ -29,12 +29,5 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
-    public function boot()
-    {
-        Gate::before(function ($user) {
-            if ($user->hasRole('admin')) {
-                return true;
-            }
-        });
-    }
+    public function boot() {}
 }

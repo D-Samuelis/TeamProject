@@ -2,52 +2,45 @@
 
 namespace App\Infrastructure\User\Repositories;
 
-use App\Domain\User\Entities\User;
+use App\Models\Auth\User;
+
 use App\Domain\User\Repositories\UserRepositoryInterface;
-use App\Models\Auth\User as EloquentUser;
+use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Domain\Business\Enums\BranchRoleEnum;
+use App\Models\Business\Branch;
+use App\Models\Business\Business;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
     public function findById(int $id): ?User
     {
-        $eloquent = EloquentUser::find($id);
-        return $eloquent ? \App\Infrastructure\Auth\UserMapper::toDomain($eloquent) : null;
+        return User::find($id);
     }
 
     public function findByEmail(string $email): ?User
     {
-        $eloquent = EloquentUser::where('email', $email)->first();
-        return $eloquent ? \App\Infrastructure\Auth\UserMapper::toDomain($eloquent) : null;
+        return User::where('email', $email)->first();
     }
 
-    public function findByIds(array $ids): array
+    public function save(array $data): User
     {
-        $collection = EloquentUser::whereIn('id', $ids)->get();
-        return $collection->map(fn($e) => \App\Infrastructure\Auth\UserMapper::toDomain($e))->all();
+        return User::create($data);
     }
 
-    public function save(User $user): void
+    public function delete(User $user): void
     {
-        $eloquent = \App\Infrastructure\Auth\UserMapper::toEloquent($user);
-
-        $eloquent->save();
-
-        if (!$user->id) {
-            $user->id = $eloquent->id;
-        }
+        $user->delete();
     }
 
-    public function existsWithBusinessRole(int $userId, int $businessId, string $role): bool
+    public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum
     {
-        return EloquentUser::where('id', $userId)
-            ->whereHas('businesses', fn($q) => $q->where('business_id', $businessId)->wherePivot('role', $role))
-            ->exists();
+        $pivot = $user->businesses()->where('business_id', $business->id)->first()?->pivot;
+        return $pivot?->role;
     }
 
-    public function existsWithBranchRole(int $userId, int $branchId, string $role): bool
+    public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum
     {
-        return EloquentUser::where('id', $userId)
-            ->whereHas('branches', fn($q) => $q->where('branch_id', $branchId)->wherePivot('role', $role))
-            ->exists();
+        $pivot = $user->branches()->where('branch_id', $branch->id)->first()?->pivot;
+        return $pivot?->role;
     }
 }

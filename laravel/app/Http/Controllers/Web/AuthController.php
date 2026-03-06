@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         $result = $registerUser->execute($dto);
 
-        Auth::login(\App\Infrastructure\Auth\UserMapper::toEloquent($result->user));
+        Auth::login($result->user);
 
         return redirect()->route('dashboard')->with('success', 'Welcome!');
     }
@@ -72,8 +72,7 @@ class AuthController extends Controller
         try {
             $result = $loginUser->execute($dto);
 
-            $eloquentUser = \App\Infrastructure\Auth\UserMapper::toEloquent($result->user);
-            Auth::login($eloquentUser, $dto->remember);
+            Auth::login($result->user, $dto->remember);
 
             return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
         } catch (\InvalidArgumentException $e) {
@@ -88,12 +87,9 @@ class AuthController extends Controller
      */
     public function logout(\Illuminate\Http\Request $request, LogoutUser $logoutUser)
     {
-        $user = $request->user(); // Eloquent user
+        $user = $request->user();
 
-        if ($user) {
-            // convert to domain or pass id
-            $logoutUser->execute($user->id); // LogoutUser will find domain user via repository
-        }
+        $logoutUser->execute($user);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

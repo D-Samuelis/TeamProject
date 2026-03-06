@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Domain\Business\Enums\BusinessStateEnum;
@@ -10,13 +11,14 @@ use App\Models\Auth\User;
 
 class Business extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
         'description',
         'state',
         'is_published',
+        'delete_after'
     ];
 
     protected $casts = [

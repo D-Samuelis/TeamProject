@@ -2,41 +2,55 @@
 
 namespace App\Policies;
 
-use App\Application\Auth\AuthorizationService;
+use App\Application\Auth\Services\BusinessAuthorizationService;
 use App\Models\Auth\User;
-use App\Domain\Business\Entities\Business;
+use App\Models\Business\Business;
 
 class BusinessPolicy
 {
-    public function __construct(private AuthorizationService $authService) {}
+    public function __construct(
+        private BusinessAuthorizationService $businessAuthService,
+    ) {}
 
-    // Can user create a branch for this business?
-    public function createBranch(User $user, int $businessId): bool
+    public function before(User $user, $ability, $model = null): ?bool
+    {
+        // $model may be null for global abilities
+        if ($model instanceof Business) {
+            try {
+                $this->businessAuthService->ensureCanUpdateBusiness($user, $model);
+                return true;
+            } catch (\DomainException) {
+                return false;
+            }
+        }
+
+        return null; // fallback to normal policy checks
+    }
+
+    public function update(User $user, Business $business): bool
     {
         try {
-            $this->authService->ensureCanCreateBranch($businessId, $user->id);
+            $this->businessAuthService->ensureCanUpdateBusiness($user, $business);
             return true;
         } catch (\DomainException) {
             return false;
         }
     }
 
-    // Can user manage this business (update, create service, etc.)
-    public function manage(User $user, Business $business): bool
+    public function destroy(User $user, Business $business): bool
     {
         try {
-            $this->authService->ensureCanManageBusiness($business->id, $user->id);
+            $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
             return true;
         } catch (\DomainException) {
             return false;
         }
     }
 
-    // Can user create a business?
-    public function create(User $user): bool
+    public function publish(User $user, Business $business): bool
     {
         try {
-            $this->authService->ensureCanCreateBusiness($user->id);
+            $this->businessAuthService->ensureCanPublishBusiness($user, $business);
             return true;
         } catch (\DomainException) {
             return false;

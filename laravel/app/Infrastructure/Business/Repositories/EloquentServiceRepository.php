@@ -2,61 +2,40 @@
 
 namespace App\Infrastructure\Business\Repositories;
 
+use Illuminate\Support\Collection;
+use App\Models\Business\Service;
 use App\Domain\Business\Repositories\ServiceRepositoryInterface;
-use App\Models\Business\Service as EloquentService;
-use App\Domain\Business\Entities\Service as DomainService;
 
 class EloquentServiceRepository implements ServiceRepositoryInterface
 {
-    public function findById(int $id): ?DomainService
+    public function findById(int $id): ?Service
     {
-        $service = EloquentService::find($id);
-        return $service ? $this->mapToDomain($service) : null;
+        return Service::find($id);
     }
 
-    public function findByBusinessId(int $business_id): array
+    public function findByBusinessId(int $businessId): Collection
     {
-        $services = EloquentService::where('business_id', $business_id)->get();
-        return $services->map(fn($s) => $this->mapToDomain($s))->all();
+        return Service::where('business_id', $businessId)->get();
     }
 
-    public function save(DomainService $data): DomainService
+    public function save(array $data): Service
     {
-        $service = EloquentService::create([
-            'business_id' => $data->business_id,
-            'name' => $data->name,
-            'description' => $data->description,
-            'duration_minutes' => $data->duration_minutes,
-            'price' => $data->price,
-            'location_type' => $data->location_type,
-            'is_active' => $data->is_active,
-        ]);
-        return $this->mapToDomain($service);
+        return Service::create($data);
     }
 
-    public function attachBranches(DomainService $service, array $branch_ids): void
+    public function delete(Service $service): void
     {
-        $eloquentService = EloquentService::findOrFail($service->id);
-        $eloquentService->branches()->sync($branch_ids);
+        $service->delete();       // requires SoftDeletes trait on Service model
     }
 
-    public function attachUsers(DomainService $service, array $userIdsWithRoles): void
+    public function attachBranches(Service $service, array $branchIds): void
     {
-        $eloquentService = EloquentService::findOrFail($service->id);
-        $eloquentService->users()->sync($userIdsWithRoles);
+        $service->branches()->sync($branchIds);
     }
 
-    private function mapToDomain(EloquentService $service): DomainService
+    public function attachUsers(Service $service, array $userIdsWithRoles): void
     {
-        return new DomainService(
-            id: $service->id,
-            business_id: $service->business_id,
-            name: $service->name,
-            description: $service->description,
-            duration_minutes: $service->duration_minutes,
-            price: $service->price,
-            location_type: $service->location_type,
-            is_active: $service->is_active,
-        );
+        // $userIdsWithRoles = [userId => ['role' => 'staff'], ...]
+        $service->users()->sync($userIdsWithRoles);
     }
 }

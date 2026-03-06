@@ -10,8 +10,8 @@ class ListBusinesses
         private readonly BusinessRepositoryInterface $businessRepository
     ) {}
 
-    public function execute()
+    public function execute(string $scope = 'active')
     {
-        return $this->businessRepository->allWithRelations();
+        return $this->businessRepository->allWithRelations($scope);
     }
 }

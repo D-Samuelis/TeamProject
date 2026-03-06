@@ -8,6 +8,7 @@ use App\Http\Requests\Business\StoreServiceRequest;
 
 use App\Application\Business\DTO\CreateServiceDTO;
 use App\Application\Business\UseCases\CreateService;
+use Illuminate\Support\Facades\Auth;
 
 class ServiceController extends Controller
 {
@@ -24,7 +25,7 @@ class ServiceController extends Controller
             $request->validated('branch_ids') ?? []
         );
 
-        $useCase->execute($dto, auth()->id());
+        $useCase->execute($dto, Auth::id());
 
         return back();
     }

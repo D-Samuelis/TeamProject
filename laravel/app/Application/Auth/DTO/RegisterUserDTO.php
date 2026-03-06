@@ -1,8 +1,7 @@
 <?php
-// app/Application/Auth/DTO/RegisterUserDTO.php
+
 namespace App\Application\Auth\DTO;
 
-// Purpose: typed data transfer objects that Application layer uses as input/output.
 final class RegisterUserDTO
 {
     public function __construct(
@@ -17,4 +16,20 @@ final class RegisterUserDTO
         public ?string $phone_number,
         public ?string $gender
     ) {}
+
+    public function toArray(): array
+    {
+        return [
+            'name'         => $this->name,
+            'email'        => $this->email,
+            'country'      => $this->country,
+            'city'         => $this->city,
+            'password'     => $this->password,
+            'title_prefix' => $this->title_prefix,
+            'birth_date'   => $this->birth_date,
+            'title_suffix' => $this->title_suffix,
+            'phone_number' => $this->phone_number,
+            'gender'       => $this->gender,
+        ];
+    }
 }

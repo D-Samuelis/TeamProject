@@ -1,26 +1,31 @@
 <?php
+
 namespace App\Domain\Business\Repositories;
 
 use \Illuminate\Support\Collection;
 
-use App\Domain\Business\Entities\Business as DomainBusiness;
+use App\Models\Business\Business;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 
 interface BusinessRepositoryInterface
 {
-    public function findById(int $id): ?DomainBusiness;
+    public function findById(int $id): ?Business;
 
-    public function findByUserId(int $userId): array;
+    public function findDeletedById(int $id): Business;
 
-    public function save(DomainBusiness $business): DomainBusiness;
+    public function findByUserId(int $userId): Collection;
 
-    public function update(DomainBusiness $business, array $data): DomainBusiness;
+    public function save(array $data): Business;
 
     public function existsOwner(int $userId): bool;
 
-    public function getOwners(int $businessId): array;
- 
-    public function allWithRelations(): Collection;
+    public function update(Business $business, array $data): Business;
 
-    public function attachUser(int $businessId, int $userId, BusinessRoleEnum $role): void;
+    public function delete(Business $business): void;
+
+    public function restore(Business $business): void;
+
+    public function allWithRelations(string $scope = 'active'): Collection;
+
+    public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void;
 }

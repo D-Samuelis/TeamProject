@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->string('state')->default('pending');
             $table->boolean('is_published')->default(false);
+            $table->timestamp('delete_after')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,17 +13,15 @@ return new class extends Migration {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
-
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('duration_minutes');
             $table->decimal('price', 10, 2);
-
             $table->string('location_type'); // branch | online | client_address | hybrid
-
             $table->boolean('is_active')->default(false);
-
+            $table->timestamp('delete_after')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

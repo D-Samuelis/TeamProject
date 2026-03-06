@@ -14,4 +14,18 @@ class CreateServiceDTO
         public bool $is_active = false,
         public array $branch_ids = []
     ) {}
+
+    public function toArray()
+    {
+        return [
+            'business_id' => $this->business_id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'duration_minutes' => $this->duration_minutes,
+            'price' => $this->price,
+            'location_type' => $this->location_type,
+            'is_active' => $this->is_active,
+            'branch_ids' => $this->branch_ids
+        ];
+    }
 }
