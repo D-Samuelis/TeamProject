@@ -37,31 +37,49 @@
     </aside>
 
     <main class="appointments__main">
-        <header class="timeline-header">
-            <div class="timeline-header-main">
-                <h2 class="timeline-header__title" id="selectedDateText">February 27, 2026</h2>
-                <div class="timeline-info">
-                    <div class="timeline-info__icon"> <i class="fa-regular fa-calendar-days"></i> </div>
-                    <div class="timeline-info__text"> Appointments:</div>
-                    <div class="timeline-info__count">4</div>
-                </div>
-            </div>
-            <div class="timeline-header-controls">
-                <div class="appointments__control-group">
-                    <button class="button button__toggle-left active" id="showTimeline"><i class="fa-solid fa-table-columns"></i></button>
-                    <button class="button button__toggle-right" id="showList"><i class="fa-solid fa-list"></i></button>
-                </div>
-            </div>
-        </header>
         <div id="timelineView">
             <div class="timeline" id="timelineContainer">
-                {{-- JS generated time slots --}}
+                {{-- JS generates: 
+                    View Switcher
+                    Column Headers
+                    Timeline
+                    Columns with timeslots
+                --}}
             </div>
         </div>
 
         <div id="listView" class="hidden">
-            <div id="listContainer">
-                This shit will be fatched later and dislayed as table...
+            <div class="appointments__control-group">
+                <button class="button button__toggle-left" id="showTimeline"><i class="fa-solid fa-table-columns"></i></button>
+                <button class="button button__toggle-right active" id="showList"><i class="fa-solid fa-list"></i></button>
+            </div>
+
+            <div class="list-view-header">
+                <div class="list-view-header__left">
+                    <h2 class="timeline-header__title" id="listDateText">February 27, 2026</h2>
+                    <div class="timeline-info">
+                        <i class="fa-solid fa-list-ul"></i>
+                        <span>Total Appointments:</span>
+                        <span id="listCount">4</span>
+                    </div>
+                </div>
+            </div>
+        
+            <div id="listContainer" class="list-container">
+                <table class="appointments-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listTableBody">
+                        {{-- JS generated rows --}}
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
