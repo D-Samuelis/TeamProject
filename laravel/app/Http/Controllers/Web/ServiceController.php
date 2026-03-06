@@ -29,4 +29,14 @@ class ServiceController extends Controller
 
         return back();
     }
+
+    public function update()
+    {
+        return back();
+    }
+
+    public function delete()
+    {
+        return back();
+    }
 }

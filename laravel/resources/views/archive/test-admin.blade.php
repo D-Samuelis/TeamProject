@@ -59,7 +59,6 @@
             @endforeach
         </select>
 
-        <!-- MULTIPLE BRANCHES -->
         <select name="branch_ids[]" multiple required>
             @foreach($businesses as $business)
             @foreach($business->branches as $branch)
@@ -89,30 +88,63 @@
 
             @foreach($businesses as $business)
             <div style="border:1px solid #ccc; padding:10px; margin-bottom:20px;">
-                <strong>Business:</strong> {{ $business->name }}
 
-                <br>
-                <strong>Description:</strong> {{ $business->description ?? '—' }}
+                <!-- Business info + edit/delete -->
+                <strong>Business:</strong> {{ $business->name }}<br>
+                <strong>Description:</strong> {{ $business->description ?? '—' }}<br><br>
 
-                <br><br>
-
-                <form method="POST" action="{{ route('business.delete', $business->id) }}"
+                <!-- Business CRUD -->
+                <form method="POST" action="{{ route('test.business.update', $business->id) }}">
+                    @csrf
+                    @method('PUT')
+                    <input type="text" name="name" value="{{ $business->name }}">
+                    <input type="text" name="description" value="{{ $business->description }}">
+                    <label>
+                        Published: <input type="checkbox" name="is_published" value="1"
+                            @if($business->is_published) checked @endif>
+                    </label>
+                    <button type="submit">Update Business</button>
+                </form>
+                <form method="POST" action="{{ route('test.business.delete', $business->id) }}"
                     onsubmit="return confirm('Delete this business?');">
                     @csrf
                     @method('DELETE')
-
                     <button type="submit" style="color:white;background:red;padding:6px 10px;border:none;">
                         Delete
                     </button>
                 </form>
 
+                <!-- Branches CRUD -->
                 <p><strong>Branches:</strong></p>
                 <ul>
                     @foreach($business->branches as $branch)
-                    <li>{{ $branch->name }} ({{ $branch->type }})</li>
+                    <li>
+                        {{ $branch->name }} ({{ $branch->type }})
+                        <form method="POST" action="{{ route('test.branch.update', $branch->id) }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="text" name="name" value="{{ $branch->name }}">
+                            <select name="type">
+                                <option value="physical" @if($branch->type=='physical') selected @endif>Physical</option>
+                                <option value="online" @if($branch->type=='online') selected @endif>Online</option>
+                                <option value="hybrid" @if($branch->type=='hybrid') selected @endif>Hybrid</option>
+                            </select>
+                            <label>
+                                Active: <input type="checkbox" name="is_active" value="1"
+                                    @if($branch->is_active) checked @endif>
+                            </label>
+                            <button type="submit">Update Branch</button>
+                        </form>
+                        <form method="POST" action="{{ route('test.branch.delete', $branch->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Delete branch?')">Delete Branch</button>
+                        </form>
+                    </li>
                     @endforeach
                 </ul>
 
+                <!-- Services CRUD -->
                 <p><strong>Services:</strong></p>
                 <ul>
                     @foreach($business->services as $service)
@@ -126,13 +158,39 @@
                         @foreach($service->branches as $branch)
                         <span>{{ $branch->name }} ({{ $branch->type }})</span>@if(!$loop->last), @endif
                         @endforeach
+
+                        <form method="POST" action="{{ route('test.service.update', $service->id) }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="text" name="name" value="{{ $service->name }}">
+                            <input type="number" name="duration_minutes" value="{{ $service->duration_minutes }}">
+                            <input type="number" step="0.01" name="price" value="{{ $service->price }}">
+                            <label>
+                                Active: <input type="checkbox" name="is_active" value="1"
+                                    @if($service->is_active) checked @endif>
+                            </label>
+                            <select name="branch_ids[]" multiple>
+                                @foreach($business->branches as $branch)
+                                <option value="{{ $branch->id }}"
+                                    @if($service->branches->contains($branch->id)) selected @endif>
+                                    {{ $branch->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <button type="submit">Update Service / Reassign Branches</button>
+                        </form>
+                        <form method="POST" action="{{ route('test.service.delete', $service->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Delete service?')">Delete Service</button>
+                        </form>
                     </li>
                     @endforeach
                 </ul>
+
             </div>
             @endforeach
         </div>
-
 
         <!-- ================= SOFT DELETED ================= -->
         <div style="flex:1;">
@@ -140,14 +198,10 @@
 
             @foreach($deletedBusinesses as $business)
             <div style="border:1px solid #f99; padding:10px; margin-bottom:20px; background:#fff5f5;">
-                <strong>Business:</strong> {{ $business->name }}
+                <strong>Business:</strong> {{ $business->name }}<br>
+                <strong>Description:</strong> {{ $business->description ?? '—' }}<br><br>
 
-                <br>
-                <strong>Description:</strong> {{ $business->description ?? '—' }}
-
-                <br><br>
-
-                <form method="POST" action="{{ route('business.restore', $business->id) }}">
+                <form method="POST" action="{{ route('test.business.restore', $business->id) }}">
                     @csrf
                     <button type="submit" style="color:white;background:green;padding:6px 10px;border:none;">
                         Restore

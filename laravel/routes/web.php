@@ -6,42 +6,76 @@ use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\BusinessController;
 use App\Http\Controllers\Web\ServiceController;
 
-/**
- * Public Routes
- */
-Route::prefix('/')->group(function () {
-    Route::view('/', 'pages.welcome')->name('home');
-    Route::view('dev', 'pages.dev');
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+|
+| Routes that do NOT require authentication
+|
+*/
 
-    Route::controller(AuthController::class)->group(function () {
-        Route::get('/login', [AuthController::class, 'showAuth'])->name('login');
-        Route::get('/register', [AuthController::class, 'showAuth'])->name('register');
+Route::view('/', 'pages.welcome')->name('home');
+Route::view('dev', 'pages.dev')->name('dev');
+Route::view('myAppointments', 'pages.myAppointments')->name('myAppointments');
 
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::post('/register', [AuthController::class, 'register']);
-    });
-    Route::view('myAppointments', 'pages.myAppointments');
+Route::controller(AuthController::class)->group(function () {
+    // Show login/register forms
+    Route::get('/login', 'showAuth')->name('login');
+    Route::get('/register', 'showAuth')->name('register');
+
+    // Handle login/register submission
+    Route::post('/login', 'login')->name('login.submit');
+    Route::post('/register', 'register')->name('register.submit');
 });
 
-/**
- * Protected Routes
- */
+
+/*
+|--------------------------------------------------------------------------
+| Protected Routes
+|--------------------------------------------------------------------------
+|
+| Routes that require the user to be authenticated
+|
+*/
 Route::middleware(['auth'])->group(function () {
+
+    // Dashboard
     Route::get('/dashboard', fn() => view('pages.dashboard'))->name('dashboard');
 
-    Route::prefix('test-admin')->group(function () {
-        Route::get('/', [BusinessController::class, 'index'])->name('test.index');
-        Route::post('/business', [BusinessController::class, 'store'])->name('test.business.store');
-
-        Route::delete('/business/{businessId}', [BusinessController::class, 'delete'])
-            ->name('business.delete');
-
-        Route::post('/business/{businessId}/restore', [BusinessController::class, 'restore'])
-            ->name('business.restore');
-
-        Route::post('/branch', [BranchController::class, 'store'])->name('test.branch.store');
-        Route::post('/service', [ServiceController::class, 'store'])->name('test.service.store');
-    });
-
+    // Logout
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Test Admin Routes (Businesses, Branches, Services)
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('test-admin')->name('test.')->middleware(['auth'])->group(function () {
+
+        // Root of test-admin
+        Route::get('/', [BusinessController::class, 'index'])->name('index');
+
+        // Businesses
+        Route::prefix('business')->name('business.')->controller(BusinessController::class)->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{businessId}', 'update')->name('update'); // Update
+            Route::delete('/{businessId}', 'delete')->name('delete'); // Delete
+            Route::post('/{businessId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+        });
+
+        // Branches
+        Route::prefix('branch')->name('branch.')->controller(BranchController::class)->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{branchId}', 'update')->name('update'); // Update
+            Route::delete('/{branchId}', 'delete')->name('delete'); // Delete
+        });
+
+        // Services
+        Route::prefix('service')->name('service.')->controller(ServiceController::class)->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{serviceId}', 'update')->name('update'); // Update
+            Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
+        });
+    });
 });

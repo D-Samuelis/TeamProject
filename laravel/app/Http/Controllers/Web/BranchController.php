@@ -38,4 +38,14 @@ class BranchController extends Controller
 
         return back()->with('success', "Branch '{$branch->name}' created successfully.");
     }
+
+    public function update()
+    {
+        return back();
+    }
+
+    public function delete()
+    {
+        return back();
+    }
 }

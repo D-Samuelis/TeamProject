@@ -38,6 +38,11 @@ class BusinessController extends Controller
         return back()->with('success', "Branch '{$business->name}' created successfully.");
     }
 
+    public function update()
+    {
+        return back();
+    }
+
     public function delete(
         int $businessId,
         BusinessRepositoryInterface $businessRepo,
