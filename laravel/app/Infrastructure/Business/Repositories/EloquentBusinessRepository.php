@@ -17,6 +17,11 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
         return Business::find($id);
     }
 
+    public function findDeletedById(int $id): Business
+    {
+        return Business::withTrashed()->find($id);
+    }
+
     public function findByUserId(int $userId): Collection
     {
         return Business::whereHas('users', fn($q) => $q->where('user_id', $userId))->get();
@@ -42,6 +47,12 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
         $business->delete();
     }
 
+    public function restore(Business $business): void
+    {
+        $business->update(['delete_after' => null]);
+        $business->restore();
+    }
+
     public function existsOwner(int $userId): bool
     {
         return Business::whereHas(
@@ -60,12 +71,15 @@ class EloquentBusinessRepository implements BusinessRepositoryInterface
             ->all();
     }
 
-    public function allWithRelations(): Collection
+    public function allWithRelations(string $scope = 'active'): Collection
     {
-        return Business::with([
-            'branches',
-            'services.branches'
-        ])->get();
+        $query = Business::with(['branches', 'services.branches']);
+
+        return match ($scope) {
+            'active' => $query->get(),
+            'deleted' => $query->onlyTrashed()->get(),
+            'all' => $query->withTrashed()->get(),
+        };
     }
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void

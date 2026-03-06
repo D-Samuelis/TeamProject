@@ -11,6 +11,8 @@ interface BusinessRepositoryInterface
 {
     public function findById(int $id): ?Business;
 
+    public function findDeletedById(int $id): Business;
+
     public function findByUserId(int $userId): Collection;
 
     public function save(array $data): Business;
@@ -21,7 +23,9 @@ interface BusinessRepositoryInterface
 
     public function delete(Business $business): void;
 
-    public function allWithRelations(): Collection;
+    public function restore(Business $business): void;
+
+    public function allWithRelations(string $scope = 'active'): Collection;
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void;
 }

@@ -32,8 +32,12 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('test-admin')->group(function () {
         Route::get('/', [BusinessController::class, 'index'])->name('test.index');
         Route::post('/business', [BusinessController::class, 'store'])->name('test.business.store');
-        Route::delete('/business/{business}', [BusinessController::class, 'destroy'])
-            ->name('business.destroy');
+
+        Route::delete('/business/{businessId}', [BusinessController::class, 'delete'])
+            ->name('business.delete');
+
+        Route::post('/business/{businessId}/restore', [BusinessController::class, 'restore'])
+            ->name('business.restore');
 
         Route::post('/branch', [BranchController::class, 'store'])->name('test.branch.store');
         Route::post('/service', [ServiceController::class, 'store'])->name('test.service.store');

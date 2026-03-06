@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Application\Business\DTO\CreateBranchDTO;
 use App\Application\Business\UseCases\CreateBranch;
 use App\Http\Requests\Business\StoreBranchRequest;
+use Illuminate\Support\Facades\Auth;
 
 class BranchController extends Controller
 {
@@ -33,7 +34,7 @@ class BranchController extends Controller
             $request->validated('country'),
         );
 
-        $branch = $useCase->execute($dto, auth()->id());
+        $branch = $useCase->execute($dto, Auth::id());
 
         return back()->with('success', "Branch '{$branch->name}' created successfully.");
     }

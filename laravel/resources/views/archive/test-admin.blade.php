@@ -81,52 +81,107 @@
     <!-- ================= DISPLAY DATA ================= -->
     <h2>Database Overview</h2>
 
-    @foreach($businesses as $business)
-    <div style="border:1px solid #ccc; padding:10px; margin-bottom:20px;">
-        <strong>Business:</strong> {{ $business->name }}
+    <div style="display:flex; gap:40px; align-items:flex-start;">
 
-        <br><br>
+        <!-- ================= NORMAL RECORDS ================= -->
+        <div style="flex:1;">
+            <h3>Active Businesses</h3>
 
-        <form method="POST" action="{{ route('business.destroy', $business->id) }}"
-            onsubmit="return confirm('Are you sure you want to delete this business?');">
-            @csrf
-            @method('DELETE')
-
-            <button type="submit" style="color:white;background:red;padding:6px 10px;border:none;">
-                Delete Business
-            </button>
-        </form>
-
-        <p><strong>Branches:</strong></p>
-        <ul>
-            @foreach($business->branches as $branch)
-            <li>
-                {{ $branch->name }} ({{ $branch->type }})
-            </li>
-            @endforeach
-        </ul>
-
-        <p><strong>Services:</strong></p>
-        <ul>
-            @foreach($business->services as $service)
-            <li>
-                <strong>{{ $service->name }}</strong>
-                — {{ $service->duration_minutes }} min
-                — ${{ $service->price }}
+            @foreach($businesses as $business)
+            <div style="border:1px solid #ccc; padding:10px; margin-bottom:20px;">
+                <strong>Business:</strong> {{ $business->name }}
 
                 <br>
-                Available at:
-                @foreach($service->branches as $branch)
-                <span>
-                    {{ $branch->name }} ({{ $branch->type }})
-                </span>@if(!$loop->last), @endif
-                @endforeach
-            </li>
-            @endforeach
-        </ul>
-    </div>
-    @endforeach
+                <strong>Description:</strong> {{ $business->description ?? '—' }}
 
+                <br><br>
+
+                <form method="POST" action="{{ route('business.delete', $business->id) }}"
+                    onsubmit="return confirm('Delete this business?');">
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit" style="color:white;background:red;padding:6px 10px;border:none;">
+                        Delete
+                    </button>
+                </form>
+
+                <p><strong>Branches:</strong></p>
+                <ul>
+                    @foreach($business->branches as $branch)
+                    <li>{{ $branch->name }} ({{ $branch->type }})</li>
+                    @endforeach
+                </ul>
+
+                <p><strong>Services:</strong></p>
+                <ul>
+                    @foreach($business->services as $service)
+                    <li>
+                        <strong>{{ $service->name }}</strong>
+                        — {{ $service->duration_minutes }} min
+                        — ${{ $service->price }}
+
+                        <br>
+                        Available at:
+                        @foreach($service->branches as $branch)
+                        <span>{{ $branch->name }} ({{ $branch->type }})</span>@if(!$loop->last), @endif
+                        @endforeach
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endforeach
+        </div>
+
+
+        <!-- ================= SOFT DELETED ================= -->
+        <div style="flex:1;">
+            <h3>Deleted Businesses</h3>
+
+            @foreach($deletedBusinesses as $business)
+            <div style="border:1px solid #f99; padding:10px; margin-bottom:20px; background:#fff5f5;">
+                <strong>Business:</strong> {{ $business->name }}
+
+                <br>
+                <strong>Description:</strong> {{ $business->description ?? '—' }}
+
+                <br><br>
+
+                <form method="POST" action="{{ route('business.restore', $business->id) }}">
+                    @csrf
+                    <button type="submit" style="color:white;background:green;padding:6px 10px;border:none;">
+                        Restore
+                    </button>
+                </form>
+
+                <p><strong>Branches:</strong></p>
+                <ul>
+                    @foreach($business->branches as $branch)
+                    <li>{{ $branch->name }} ({{ $branch->type }})</li>
+                    @endforeach
+                </ul>
+
+                <p><strong>Services:</strong></p>
+                <ul>
+                    @foreach($business->services as $service)
+                    <li>
+                        <strong>{{ $service->name }}</strong>
+                        — {{ $service->duration_minutes }} min
+                        — ${{ $service->price }}
+
+                        <br>
+                        Available at:
+                        @foreach($service->branches as $branch)
+                        <span>{{ $branch->name }} ({{ $branch->type }})</span>@if(!$loop->last), @endif
+                        @endforeach
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endforeach
+        </div>
+
+    </div>
 </body>
 
 </html>
