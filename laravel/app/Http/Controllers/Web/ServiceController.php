@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-
-use App\Http\Requests\Business\StoreServiceRequest;
-
-use App\Application\Business\DTO\CreateServiceDTO;
-use App\Application\Business\UseCases\CreateService;
+use App\Http\Requests\Service\StoreServiceRequest;
+use App\Application\Service\DTO\CreateServiceDTO;
+use App\Application\Service\UseCases\CreateService;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceController extends Controller
@@ -36,6 +34,11 @@ class ServiceController extends Controller
     }
 
     public function delete()
+    {
+        return back();
+    }
+
+    public function restore()
     {
         return back();
     }

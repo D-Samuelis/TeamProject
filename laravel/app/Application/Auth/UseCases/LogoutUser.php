@@ -3,9 +3,7 @@
 namespace App\Application\Auth\UseCases;
 
 use InvalidArgumentException;
-
-
-use App\Infrastructure\Auth\TokenServiceInterface;
+use App\Repositories\Auth\TokenServiceInterface;
 use App\Models\Auth\User;
 
 final class LogoutUser

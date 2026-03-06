@@ -6,8 +6,8 @@ use DomainException;
 
 use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\Business\Enums\BusinessStateEnum;
-use App\Domain\Business\Repositories\BusinessRepositoryInterface;
-use App\Domain\User\Repositories\UserRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
 
 use App\Models\Auth\User;
 use App\Models\Business\Business;

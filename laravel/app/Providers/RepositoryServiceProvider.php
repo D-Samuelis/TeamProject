@@ -10,28 +10,28 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
-            \App\Infrastructure\Auth\TokenServiceInterface::class,
-            \App\Infrastructure\Auth\SanctumTokenService::class
+            \App\Repositories\Auth\TokenServiceInterface::class,
+            \App\Repositories\Auth\SanctumTokenService::class
         );
 
         $this->app->bind(
-            \App\Domain\User\Repositories\UserRepositoryInterface::class,
-            \App\Infrastructure\User\Repositories\EloquentUserRepository::class
+            \App\Domain\User\Interfaces\UserRepositoryInterface::class,
+            \App\Repositories\User\UserRepository::class
         );
 
         $this->app->bind(
-            \App\Domain\Business\Repositories\BusinessRepositoryInterface::class,
-            \App\Infrastructure\Business\Repositories\EloquentBusinessRepository::class
+            \App\Domain\Business\Interfaces\BusinessRepositoryInterface::class,
+            \App\Repositories\Business\BusinessRepository::class
         );
 
         $this->app->bind(
-            \App\Domain\Business\Repositories\BranchRepositoryInterface::class,
-            \App\Infrastructure\Business\Repositories\EloquentBranchRepository::class
+            \App\Domain\Branch\Interfaces\BranchRepositoryInterface::class,
+            \App\Repositories\Branch\BranchRepository::class
         );
 
         $this->app->bind(
-            \App\Domain\Business\Repositories\ServiceRepositoryInterface::class,
-            \App\Infrastructure\Business\Repositories\EloquentServiceRepository::class
+            \App\Domain\Service\Interfaces\ServiceRepositoryInterface::class,
+            \App\Repositories\Service\ServiceRepository::class
         );
     }
 

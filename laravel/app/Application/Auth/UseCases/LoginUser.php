@@ -4,12 +4,11 @@ namespace App\Application\Auth\UseCases;
 
 use InvalidArgumentException;
 
-use App\Infrastructure\Auth\TokenServiceInterface;
+use App\Repositories\Auth\TokenServiceInterface;
 use App\Domain\User\Services\PasswordHasher;
-
 use App\Application\Auth\DTO\LoginUserDTO;
 use App\Application\Auth\DTO\RegisteredUserDTO;
-use App\Domain\User\Repositories\UserRepositoryInterface;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
 
 /**
  * Use case class to handle user login logic.

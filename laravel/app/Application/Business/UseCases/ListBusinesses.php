@@ -2,7 +2,7 @@
 
 namespace App\Application\Business\UseCases;
 
-use App\Domain\Business\Repositories\BusinessRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
 class ListBusinesses
 {

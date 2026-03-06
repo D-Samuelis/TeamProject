@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             \App\Domain\User\Services\PasswordHasher::class,
-            \App\Infrastructure\Auth\LaravelPasswordHasher::class
+            \App\Repositories\Auth\LaravelPasswordHasher::class
         );
     }
 

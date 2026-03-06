@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\Web;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-
 use App\Http\Requests\Business\StoreBusinessRequest;
-
 use App\Application\Business\DTO\CreateBusinessDTO;
 use App\Application\Business\UseCases\CreateBusiness;
 use App\Application\Business\UseCases\DeleteBusiness;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Business\UseCases\RestoreBusiness;
-use App\Domain\Business\Repositories\BusinessRepositoryInterface;
-use Illuminate\Support\Facades\Auth;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
 class BusinessController extends Controller
 {

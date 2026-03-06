@@ -3,13 +3,12 @@
 namespace App\Application\Auth\Services;
 
 use DomainException;
-
-use App\Domain\User\Entities\User as DomainUser;
-use App\Domain\Business\Entities\Business as DomainBusiness;
-use App\Domain\Business\Entities\Branch as DomainBranch;
-use App\Domain\Business\Enums\BranchRoleEnum;
+use App\Models\Auth\User;
+use App\Models\Business\Branch;
+use App\Models\Business\Business;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 use App\Domain\Business\Enums\BusinessRoleEnum;
-use App\Domain\User\Repositories\UserRepositoryInterface;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
 
 class BranchAuthorizationService
 {
@@ -17,7 +16,7 @@ class BranchAuthorizationService
         private UserRepositoryInterface $userRepo,
     ) {}
 
-    public function ensureCanCreateBranch(DomainUser $user, DomainBusiness $business): void
+    public function ensureCanCreateBranch(User $user, Business $business): void
     {
         if ($user->isAdmin()) {
             return;
@@ -30,7 +29,7 @@ class BranchAuthorizationService
         }
     }
 
-    public function ensureCanDeleteBranch(DomainUser $user, DomainBranch $branch): void
+    public function ensureCanDeleteBranch(User $user, Branch $branch): void
     {
         if ($user->isAdmin()) {
             return;
@@ -43,7 +42,7 @@ class BranchAuthorizationService
         }
     }
 
-    public function ensureCanUpdateBranch(DomainUser $user, DomainBranch $branch): void
+    public function ensureCanUpdateBranch(User $user, Branch $branch): void
     {
         if ($user->isAdmin()) {
             return;

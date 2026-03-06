@@ -3,9 +3,8 @@
 namespace App\Application\Business\UseCases;
 
 use Illuminate\Support\Facades\DB;
-
-use App\Domain\User\Repositories\UserRepositoryInterface;
-use App\Domain\Business\Repositories\BusinessRepositoryInterface;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Application\Auth\Services\BusinessAuthorizationService;
 
 class DeleteBusiness

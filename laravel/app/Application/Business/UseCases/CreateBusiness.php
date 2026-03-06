@@ -4,9 +4,8 @@ namespace App\Application\Business\UseCases;
 
 use App\Application\Business\DTO\CreateBusinessDTO;
 use Illuminate\Support\Facades\DB;
-
 use App\Domain\Business\Enums\BusinessRoleEnum;
-use App\Domain\Business\Repositories\BusinessRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Business\Business;
 
 class CreateBusiness

@@ -14,7 +14,6 @@ use App\Http\Controllers\Web\ServiceController;
 | Routes that do NOT require authentication
 |
 */
-
 Route::view('/', 'pages.welcome')->name('home');
 Route::view('dev', 'pages.dev')->name('dev');
 Route::view('myAppointments', 'pages.myAppointments')->name('myAppointments');
@@ -69,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', 'store')->name('store'); // Create
             Route::put('/{branchId}', 'update')->name('update'); // Update
             Route::delete('/{branchId}', 'delete')->name('delete'); // Delete
+            Route::post('/{branchId}/restore', 'restore')->name('restore'); // Restore soft-deleted
         });
 
         // Services
@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', 'store')->name('store'); // Create
             Route::put('/{serviceId}', 'update')->name('update'); // Update
             Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
+            Route::post('/{serviceId}/restore', 'restore')->name('restore'); // Restore soft-deleted
         });
     });
 });

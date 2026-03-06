@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 
-use App\Application\Business\DTO\CreateBranchDTO;
-use App\Application\Business\UseCases\CreateBranch;
-use App\Http\Requests\Business\StoreBranchRequest;
+use App\Application\Branch\DTO\CreateBranchDTO;
+use App\Application\Branch\UseCases\CreateBranch;
+use App\Http\Requests\Branch\StoreBranchRequest;
 use Illuminate\Support\Facades\Auth;
 
 class BranchController extends Controller
@@ -45,6 +45,11 @@ class BranchController extends Controller
     }
 
     public function delete()
+    {
+        return back();
+    }
+
+    public function restore()
     {
         return back();
     }
