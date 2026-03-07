@@ -12,33 +12,34 @@ interface BranchRepositoryInterface
      * PUBLIC: Search and find active branches.
      */
     public function findActive(int $id): Branch;
-    
+
     public function search(SearchDTO $dto): Collection;
 
+    public function findMultipleByIds(array $ids): Collection;
     /**
      * MANAGEMENT: Operations for owners/admins.
      */
     public function findForManagement(int $id): Branch;
-    
+
     public function findByBusinessId(int $businessId, string $scope = 'active'): Collection;
 
     /**
      * DATA PERSISTENCE
      */
     public function save(array $data): Branch;
-    
+
     public function update(Branch $branch, array $data): Branch;
-    
+
     public function delete(Branch $branch): void;
-    
+
     public function restore(Branch $branch): void;
 
     /**
      * RELATIONSHIPS & ASSIGNMENTS
      */
     public function attachServices(Branch $branch, array $serviceIds): void;
-    
+
     public function attachUsers(Branch $branch, array $userIdsWithRoles): void;
-    
+
     public function getAssignments(Branch $branch): array;
 }

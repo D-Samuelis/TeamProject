@@ -33,6 +33,11 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Domain\Service\Interfaces\ServiceRepositoryInterface::class,
             \App\Repositories\Service\ServiceRepository::class
         );
+
+        $this->app->bind(
+            \App\Domain\Asset\Interfaces\AssetRepositoryInterface::class,
+            \App\Repositories\Asset\AssetRepository::class
+        );
     }
 
     public function boot() {}

@@ -20,7 +20,12 @@ class ServiceRepository implements ServiceRepositoryInterface
             ->findOrFail($id);
     }
 
-    public function search(SearchDTO $dto): Collection
+    public function findMultipleByIds(array $ids): Collection
+    {
+        return Service::whereIn('id', $ids)->get();
+    }
+
+    public function findByBusinessId(int $businessId): Collection
     {
         $query = Service::query()
             ->where('is_active', true)

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\AssetController;
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\Business\BusinessController;
 use App\Http\Controllers\Web\Business\PublicBusinessController;
@@ -75,6 +76,14 @@ Route::middleware(['auth'])->group(function () {
                     Route::delete('/{serviceId}', 'delete')->name('delete');
                     Route::post('/{serviceId}/restore', 'restore')->name('restore');
                 });
+        });
+
+        // Asset
+        Route::prefix('asset')->name('asset.')->controller(AssetController::class)->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{serviceId}', 'update')->name('update'); // Update
+            Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
+            Route::post('/{serviceId}/restore', 'restore')->name('restore'); // Restore soft-deleted
         });
     });
 });
