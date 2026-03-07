@@ -17,7 +17,7 @@ export function initTimelineLayout(baseDate = new Date(), daysCount = 3) {
     container.appendChild(headerWrapper);
     container.appendChild(bodyWrapper);
 
-    renderCorner(headerWrapper, baseDate, daysCount);
+    renderCorner(headerWrapper);
     renderDayHeaders(headerWrapper, baseDate, daysCount);
     renderTimeAxis(bodyWrapper);
     renderDayColumns(bodyWrapper, daysCount);
@@ -50,32 +50,20 @@ function createWrapper(className, daysCount, hasScrollbarSpace, id = '') {
 /**
  * Renders the top-left corner with view switcher
  * @param {HTMLElement} parent
- * @param {Date} baseDate
- * @param {number} daysCount
  */
-function renderCorner(parent, baseDate, daysCount) {
+function renderCorner(parent) {
     const corner = document.createElement('div');
     corner.className = 'timeline__header-corner';
     corner.innerHTML = `
         <div class="view-switcher">
-            <button class="view-switcher__btn ${currentView === 'timeline' ? 'active' : ''}" id="showTimeline">
+            <button class="view-switcher__btn" id="showTimeline">
                 <i class="fa-solid fa-table-columns"></i> Columns
             </button>
-            <button class="view-switcher__btn ${currentView === 'list' ? 'active' : ''}" id="showList">
+            <button class="view-switcher__btn" id="showList">
                 <i class="fa-solid fa-list"></i> List
             </button>
         </div>
     `;
-
-    const toggle = (view) => {
-        if (currentView === view) return;
-        currentView = view;
-        if (window.toggleView) window.toggleView(view);
-        initTimelineLayout(baseDate, daysCount);
-    };
-
-    corner.querySelector('#showTimeline').onclick = () => toggle('timeline');
-    corner.querySelector('#showList').onclick = () => toggle('list');
     
     parent.appendChild(corner);
 }
