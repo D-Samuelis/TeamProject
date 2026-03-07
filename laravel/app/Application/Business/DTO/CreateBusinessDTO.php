@@ -2,18 +2,25 @@
 
 namespace App\Application\Business\DTO;
 
-use App\Domain\Business\Enums\BusinessStateEnum;
+use App\Http\Requests\Business\StoreBusinessRequest;
 
 class CreateBusinessDTO
 {
     public function __construct(
         public string $name,
         public ?string $description = null,
-        public ?BusinessStateEnum $state = BusinessStateEnum::PENDING,
-        public ?bool $isPublished = false,
     ) {}
 
-    public function toArray(){
-        return ['name'=> $this->name, 'description' => $this->description];
+    public static function fromRequest(StoreBusinessRequest $request): self
+    {
+        return new self(
+            name: $request->validated('name'),
+            description: $request->validated('description'),
+        );
+    }
+
+    public function toArray(): array
+    {
+        return ['name' => $this->name, 'description' => $this->description];
     }
 }

@@ -8,9 +8,14 @@ use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 
 class BranchRepository implements BranchRepositoryInterface
 {
-    public function findById(int $id): ?Branch
+    public function findById(int $id): Branch
     {
-        return Branch::find($id);
+        return Branch::findOrFail($id);
+    }
+
+    public function findDeletedById(int $id): Branch
+    {
+        return Branch::withTrashed()->findOrFail($id);
     }
 
     public function findByBusinessId(int $businessId): Collection
@@ -23,6 +28,24 @@ class BranchRepository implements BranchRepositoryInterface
         return Branch::create($data);
     }
 
+    public function update(int $id, array $data): Branch
+    {
+        $branch = $this->findById($id);
+        $branch->update($data);
+        return $branch;
+    }
+
+    public function delete(int $id): void
+    {
+        $this->findById($id)->delete();
+    }
+
+    public function restore(Branch $branch): void
+    {
+        $branch->update(['delete_after' => null]);
+        $branch->restore();
+    }
+
     public function attachServices(Branch $branch, array $serviceIds): void
     {
         $branch->services()->sync($serviceIds);
@@ -30,7 +53,6 @@ class BranchRepository implements BranchRepositoryInterface
 
     public function attachUsers(Branch $branch, array $userIdsWithRoles): void
     {
-        // $userIdsWithRoles = [userId => ['role' => 'manager'], ...]
         $branch->users()->sync($userIdsWithRoles);
     }
 

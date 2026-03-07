@@ -28,7 +28,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register')->name('register.submit');
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Protected Routes
@@ -38,7 +37,6 @@ Route::controller(AuthController::class)->group(function () {
 |
 */
 Route::middleware(['auth'])->group(function () {
-
     // Dashboard
     Route::get('/dashboard', fn() => view('pages.dashboard'))->name('dashboard');
 
@@ -47,36 +45,45 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Test Admin Routes (Businesses, Branches, Services)
+    | Businesses, Branches, Services Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('test-admin')->name('test.')->middleware(['auth'])->group(function () {
+    Route::prefix('businesses')
+        ->middleware(['auth'])
+        ->group(function () {
+            // 1. The Main Dashboard (Grid view)
+            Route::get('/', [BusinessController::class, 'index'])->name('business.index');
+            Route::post('/', [BusinessController::class, 'store'])->name('business.store');
 
-        // Root of test-admin
-        Route::get('/', [BusinessController::class, 'index'])->name('index');
+            // 2. The Business-Specific Context
+            Route::prefix('{businessId}')->group(function () {
+                // Single Business View & Actions
+                Route::get('/', [BusinessController::class, 'show'])->name('business.show');
+                Route::put('/', [BusinessController::class, 'update'])->name('business.update');
+                Route::delete('/', [BusinessController::class, 'delete'])->name('business.delete');
+                Route::post('/restore', [BusinessController::class, 'restore'])->name('business.restore');
 
-        // Businesses
-        Route::prefix('business')->name('business.')->controller(BusinessController::class)->group(function () {
-            Route::post('/', 'store')->name('store'); // Create
-            Route::put('/{businessId}', 'update')->name('update'); // Update
-            Route::delete('/{businessId}', 'delete')->name('delete'); // Delete
-            Route::post('/{businessId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+                // Nested Branches
+                Route::prefix('branches')
+                    ->name('branch.')
+                    ->controller(BranchController::class)
+                    ->group(function () {
+                        Route::post('/', 'store')->name('store');
+                        Route::put('/{branchId}', 'update')->name('update');
+                        Route::delete('/{branchId}', 'delete')->name('delete');
+                        Route::post('/{branchId}/restore', 'restore')->name('restore');
+                    });
+
+                // Nested Services
+                Route::prefix('services')
+                    ->name('service.')
+                    ->controller(ServiceController::class)
+                    ->group(function () {
+                        Route::post('/', 'store')->name('store');
+                        Route::put('/{serviceId}', 'update')->name('update');
+                        Route::delete('/{serviceId}', 'delete')->name('delete');
+                        Route::post('/{serviceId}/restore', 'restore')->name('restore');
+                    });
+            });
         });
-
-        // Branches
-        Route::prefix('branch')->name('branch.')->controller(BranchController::class)->group(function () {
-            Route::post('/', 'store')->name('store'); // Create
-            Route::put('/{branchId}', 'update')->name('update'); // Update
-            Route::delete('/{branchId}', 'delete')->name('delete'); // Delete
-            Route::post('/{branchId}/restore', 'restore')->name('restore'); // Restore soft-deleted
-        });
-
-        // Services
-        Route::prefix('service')->name('service.')->controller(ServiceController::class)->group(function () {
-            Route::post('/', 'store')->name('store'); // Create
-            Route::put('/{serviceId}', 'update')->name('update'); // Update
-            Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
-            Route::post('/{serviceId}/restore', 'restore')->name('restore'); // Restore soft-deleted
-        });
-    });
 });

@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Business;
 
-use App\Application\Business\DTO\UpdateBusinessDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Business;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
@@ -10,14 +9,14 @@ use App\Domain\Business\Enums\BusinessRoleEnum;
 
 class BusinessRepository implements BusinessRepositoryInterface
 {
-    public function findById(int $id): ?Business
+    public function findById(int $id): Business
     {
-        return Business::find($id);
+        return Business::findOrFail($id);
     }
 
     public function findDeletedById(int $id): Business
     {
-        return Business::withTrashed()->find($id);
+        return Business::withTrashed()->findOrFail($id);
     }
 
     public function findByUserId(int $userId): Collection
@@ -30,9 +29,11 @@ class BusinessRepository implements BusinessRepositoryInterface
         return Business::create($data);
     }
 
-    public function update(UpdateBusinessDTO $data): void
+    public function update(int $id, array $data): Business
     {
-        Business::find($data->id)->update($data->toArray());
+        $business = $this->findById($id);
+        $business->update($data);
+        return $business;
     }
 
     public function delete(Business $business): void
@@ -53,20 +54,12 @@ class BusinessRepository implements BusinessRepositoryInterface
 
     public function existsOwner(int $userId): bool
     {
-        return Business::whereHas(
-            'users',
-            fn($q) =>
-            $q->where('user_id', $userId)
-                ->wherePivot('role', BusinessRoleEnum::OWNER->value)
-        )->exists();
+        return Business::whereHas('users', fn($q) => $q->where('user_id', $userId)->wherePivot('role', BusinessRoleEnum::OWNER->value))->exists();
     }
 
     public function getOwners(Business $business): array
     {
-        return $business->users()
-            ->wherePivot('role', BusinessRoleEnum::OWNER->value)
-            ->pluck('user_id')
-            ->all();
+        return $business->users()->wherePivot('role', BusinessRoleEnum::OWNER->value)->pluck('user_id')->all();
     }
 
     public function allWithRelations(string $scope = 'active'): Collection
@@ -83,5 +76,13 @@ class BusinessRepository implements BusinessRepositoryInterface
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void
     {
         $business->users()->attach($userId, ['role' => $role->value]);
+    }
+
+    public function findByIdWithRelations(int $id): Business
+    {
+        // Eager load everything needed for the "Manage" page
+        return Business::with(['branches', 'services.branches'])
+            ->withTrashed() // Allow viewing even if it's in the 'grayed out' state
+            ->findOrFail($id);
     }
 }

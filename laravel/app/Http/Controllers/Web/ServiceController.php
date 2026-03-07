@@ -28,7 +28,7 @@ class ServiceController extends Controller
         return back();
     }
 
-    public function update()
+    public function update(int $businessId, int $serviceId/* , UpdateServiceRequest $request */)
     {
         return back();
     }

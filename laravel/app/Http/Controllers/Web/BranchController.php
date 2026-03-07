@@ -3,54 +3,39 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-
-use App\Application\Branch\DTO\CreateBranchDTO;
-use App\Application\Branch\UseCases\CreateBranch;
-use App\Http\Requests\Branch\StoreBranchRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Branch\StoreBranchRequest;
+use App\Http\Requests\Branch\UpdateBranchRequest;
+use App\Application\Branch\UseCases\CreateBranch;
+use App\Application\Branch\UseCases\UpdateBranch;
+use App\Application\Branch\UseCases\DeleteBranch;
+use App\Application\Business\UseCases\RestoreBranch;
+use App\Application\Branch\DTO\CreateBranchDTO;
+use App\Application\Branch\DTO\UpdateBranchDTO;
 
 class BranchController extends Controller
 {
-    public function store(
-        StoreBranchRequest $request,
-        CreateBranch $useCase
-    ) {
-        $this->authorize(
-            'create',
-            [
-                \App\Models\Business\Branch::class,
-                $request->validated('business_id')
-            ]
-        );
-
-        $dto = new CreateBranchDTO(
-            $request->validated('business_id'),
-            $request->validated('name'),
-            $request->validated('type'),
-            $request->validated('address_line_1'),
-            $request->validated('address_line_2'),
-            $request->validated('city'),
-            $request->validated('postal_code'),
-            $request->validated('country'),
-        );
-
-        $branch = $useCase->execute($dto, Auth::id());
-
-        return back()->with('success', "Branch '{$branch->name}' created successfully.");
+    public function store(int $businessId, StoreBranchRequest $request, CreateBranch $useCase)
+    {
+        $branch = $useCase->execute(CreateBranchDTO::fromRequest($businessId, $request), Auth::id());
+        return back()->with('success', "Branch '{$branch->name}' created.");
     }
 
-    public function update()
+    public function update(int $businessId, int $branchId, UpdateBranchRequest $request, UpdateBranch $useCase)
     {
-        return back();
+        $useCase->execute(UpdateBranchDTO::fromRequest($branchId, $request), Auth::id());
+        return back()->with('success', 'Branch updated successfully.');
     }
 
-    public function delete()
+    public function delete(int $businessId, int $branchId, DeleteBranch $useCase)
     {
-        return back();
+        $useCase->execute($branchId, Auth::id());
+        return back()->with('success', 'Branch moved to trash.');
     }
 
-    public function restore()
+    public function restore(int $businessId, int $branchId, RestoreBranch $useCase)
     {
-        return back();
+        $useCase->execute($branchId, Auth::id());
+        return back()->with('success', 'Branch restored.');
     }
 }

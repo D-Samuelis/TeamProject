@@ -3,18 +3,15 @@
 namespace App\Models\Auth;
 
 use Laravel\Sanctum\HasApiTokens;
-
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
-use App\Domain\Business\Entities\Branch;
-use App\Domain\Business\Entities\Business;
-use App\Domain\Business\Entities\Service;
-
-use App\Domain\Business\Enums\BranchRoleEnum;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 use App\Domain\Business\Enums\BusinessRoleEnum;
-
+use App\Models\Business\Branch;
+use App\Models\Business\Business;
+use App\Models\Business\Service;
 
 class User extends Authenticatable
 {
@@ -75,5 +72,10 @@ class User extends Authenticatable
     public function hasBranchRole($branchId, BranchRoleEnum $role): bool
     {
         return $this->branches()->where('branch_id', $branchId)->wherePivot('role', $role->value)->exists();
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin;
     }
 }
