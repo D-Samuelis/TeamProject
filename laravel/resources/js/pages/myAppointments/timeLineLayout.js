@@ -1,127 +1,173 @@
+let currentView = 'timeline';
+
+/**
+ * Main entry point for the timeline layout
+ * @param {Date} baseDate
+ * @param {number} daysCount
+ */
 export function initTimelineLayout(baseDate = new Date(), daysCount = 3) {
     const container = document.getElementById('timelineContainer');
     if (!container) return;
 
     container.innerHTML = '';
-    
-    // Konštanty pre šírku
-    const axisWidth = "100px";
-    const scrollbarWidth = "6px"; // Musí sedieť s CSS pre ::-webkit-scrollbar
 
-    // HLAVIČKA: Má o jeden stĺpec viac (os + dni + scrollbar_gap)
-    const headerGrid = `${axisWidth} repeat(${daysCount}, 1fr) ${scrollbarWidth}`;
-    
-    // TELO: Má len os + dni (scrollbar sa vykreslí "cez" container)
-    const bodyGrid = `${axisWidth} repeat(${daysCount}, 1fr)`;
-
-    const headerWrapper = document.createElement('div');
-    headerWrapper.className = 'timeline__header-wrapper';
-    headerWrapper.style.display = 'grid';
-    headerWrapper.style.gridTemplateColumns = headerGrid;
-    
-    const bodyWrapper = document.createElement('div');
-    bodyWrapper.className = 'timeline__body-wrapper';
-    bodyWrapper.id = 'timelineBody';
-    bodyWrapper.style.display = 'grid';
-    bodyWrapper.style.gridTemplateColumns = bodyGrid;
+    const headerWrapper = createWrapper('timeline__header-wrapper', daysCount, true);
+    const bodyWrapper = createWrapper('timeline__body-wrapper', daysCount, false, 'timelineBody');
 
     container.appendChild(headerWrapper);
     container.appendChild(bodyWrapper);
 
-    // 2. GENERÁVANIE HLAVIČKY (Do headerWrapper)
+    renderCorner(headerWrapper, baseDate, daysCount);
+    renderDayHeaders(headerWrapper, baseDate, daysCount);
+    renderTimeAxis(bodyWrapper);
+    renderDayColumns(bodyWrapper, daysCount);
+    renderNowIndicator(bodyWrapper);
+
+    setupAutoScroll(bodyWrapper);
+    initIndicatorLoop();
+}
+
+/**
+ * Creates grid wrappers for header and body
+ * @param {string} className
+ * @param {number} daysCount
+ * @param {boolean} hasScrollbarSpace
+ * @param {string} id
+ */
+function createWrapper(className, daysCount, hasScrollbarSpace, id = '') {
+    const el = document.createElement('div');
+    el.className = className;
+    if (id) el.id = id;
+    
+    const axisWidth = "100px";
+    const scrollbarSpace = hasScrollbarSpace ? "6px" : "";
+    el.style.display = 'grid';
+    el.style.gridTemplateColumns = `${axisWidth} repeat(${daysCount}, 1fr) ${scrollbarSpace}`;
+    
+    return el;
+}
+
+/**
+ * Renders the top-left corner with view switcher
+ * @param {HTMLElement} parent
+ * @param {Date} baseDate
+ * @param {number} daysCount
+ */
+function renderCorner(parent, baseDate, daysCount) {
     const corner = document.createElement('div');
     corner.className = 'timeline__header-corner';
     corner.innerHTML = `
-        <div class="appointments__control-group">
-            <button class="button button__toggle-left active" id="showTimeline"><i class="fa-solid fa-table-columns"></i></button>
-            <button class="button button__toggle-right" id="showList"><i class="fa-solid fa-list"></i></button>
+        <div class="view-switcher">
+            <button class="view-switcher__btn ${currentView === 'timeline' ? 'active' : ''}" id="showTimeline">
+                <i class="fa-solid fa-table-columns"></i> Columns
+            </button>
+            <button class="view-switcher__btn ${currentView === 'list' ? 'active' : ''}" id="showList">
+                <i class="fa-solid fa-list"></i> List
+            </button>
         </div>
     `;
-    headerWrapper.appendChild(corner);
 
+    const toggle = (view) => {
+        if (currentView === view) return;
+        currentView = view;
+        if (window.toggleView) window.toggleView(view);
+        initTimelineLayout(baseDate, daysCount);
+    };
+
+    corner.querySelector('#showTimeline').onclick = () => toggle('timeline');
+    corner.querySelector('#showList').onclick = () => toggle('list');
+    
+    parent.appendChild(corner);
+}
+
+/**
+ * Renders day headers with big background numbers
+ * @param {HTMLElement} parent
+ * @param {Date} baseDate
+ * @param {number} daysCount
+ */
+function renderDayHeaders(parent, baseDate, daysCount) {
     const dates = calculateDates(baseDate, daysCount);
-    dates.forEach(date => {
-        const isToday = new Date().toDateString() === date.toDateString();
+    dates.forEach(dateObj => {
+        const isToday = new Date().toDateString() === dateObj.toDateString();
         const header = document.createElement('div');
         header.className = `timeline__day-header ${isToday ? 'is-today' : ''}`;
         
-        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-        const dayDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+        const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
+        const dayNumber = dateObj.getDate().toString().padStart(2, '0');
 
         header.innerHTML = `
             <div class="column-info">
-                <span class="column-info__date">${dayName}, ${dayDate}</span>
+                <span class="column-info__date">${dayName}, ${monthName}</span>
                 <div class="column-info__stats">
                     <i class="fa-regular fa-calendar-check"></i>
-                    <span class="column-info__count">4</span>
+                    <span class="column-info__count">4 Appointments</span>
                 </div>
             </div>
+            <div class="column-date">${dayNumber}</div>
         `;
-        headerWrapper.appendChild(header);
+        parent.appendChild(header);
     });
+}
 
-    // 3. GENERÁVANIE TELA (Do bodyWrapper)
+/**
+ * Renders the vertical time axis (00:00 - 23:00)
+ * @param {HTMLElement} parent
+ */
+function renderTimeAxis(parent) {
     const timeAxis = document.createElement('div');
     timeAxis.className = 'timeline__axis';
+    timeAxis.style.paddingTop = '1.5rem';
+
     for (let i = 0; i < 24; i++) {
         const hour = `${i.toString().padStart(2, '0')}:00`;
-        const markerWrapper = document.createElement('div');
-        markerWrapper.className = 'timeline__marker-wrapper';
-        markerWrapper.innerHTML = `
+        const marker = document.createElement('div');
+        marker.className = 'timeline__marker-wrapper';
+        marker.innerHTML = `
             <div class="timeline__marker">
-                <div class="timeline__point">
-                    <div class="timeline__point-stick"></div>
-                    <div class="timeline__point-arrow"></div>
-                </div>
-                <div class="timeline__time">
-                    <div class="timeline__dot"></div>
-                    <div class="timeline__text">${hour}</div>
-                </div>
-            </div>
-        `;
-        timeAxis.appendChild(markerWrapper);
+                <div class="timeline__point"><div class="timeline__point-stick"></div><div class="timeline__point-arrow"></div></div>
+                <div class="timeline__time"><div class="timeline__dot"></div><div class="timeline__text">${hour}</div></div>
+            </div>`;
+        timeAxis.appendChild(marker);
     }
-    bodyWrapper.appendChild(timeAxis);
+    parent.appendChild(timeAxis);
+}
 
+/**
+ * Renders the grid columns for each day
+ * @param {HTMLElement} parent
+ * @param {number} daysCount
+ */
+function renderDayColumns(parent, daysCount) {
     for (let d = 0; d < daysCount; d++) {
         const dayCol = document.createElement('div');
         dayCol.className = 'timeline__day-column';
-        
         for (let i = 0; i < 24; i++) {
-            const slotBg = document.createElement('div');
-            slotBg.className = 'timeline__slot-grid-line';
-            slotBg.dataset.hour = i;
-            dayCol.appendChild(slotBg);
+            const slot = document.createElement('div');
+            slot.className = 'timeline__slot-grid-line';
+            slot.dataset.hour = i;
+            dayCol.appendChild(slot);
         }
-        bodyWrapper.appendChild(dayCol);
+        parent.appendChild(dayCol);
     }
-
-    // 4. PRIDANIE INDIKÁTORA (Teraz do bodyWrapper!)
-    const nowIndicator = document.createElement('div');
-    nowIndicator.className = 'timeline__now-indicator';
-    nowIndicator.innerHTML = `
-        <div class="timeline__now-time"></div>
-        <div class="timeline__now-line"></div>
-    `;
-    bodyWrapper.appendChild(nowIndicator);
-
-    // 5. SCROLL LOGIKA (Teraz na bodyWrapper)
-    setTimeout(() => {
-        const indicator = bodyWrapper.querySelector('.timeline__now-indicator');
-        if (bodyWrapper && indicator) {
-            const scrollPos = indicator.offsetTop - (bodyWrapper.clientHeight / 3);
-            bodyWrapper.scrollTo({ top: scrollPos, behavior: 'smooth' });
-        }
-    }, 200);
-
-    updateNowIndicator();
-    const delay = syncIndicatorToCurrentTime();
-    setTimeout(() => {
-        updateNowIndicator();
-        setInterval(updateNowIndicator, 60000);
-    }, delay);
 }
 
+/**
+ * Renders the "Now" time indicator
+ * @param {HTMLElement} parent
+ */
+function renderNowIndicator(parent) {
+    const indicator = document.createElement('div');
+    indicator.className = 'timeline__now-indicator';
+    indicator.innerHTML = `<div class="timeline__now-time"></div><div class="timeline__now-line"></div>`;
+    parent.appendChild(indicator);
+    updateNowIndicator();
+}
+
+/**
+ * Updates the position and text of the now indicator
+ */
 function updateNowIndicator() {
     const indicator = document.querySelector('.timeline__now-indicator');
     const timeLabel = document.querySelector('.timeline__now-time');
@@ -131,40 +177,58 @@ function updateNowIndicator() {
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    if (timeLabel) {
-        timeLabel.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    }
+    if (timeLabel) timeLabel.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
     const slotHeight = 80;
-    const topPosition = (hours * slotHeight) + (minutes * (slotHeight / 60));
-
+    const offset = 24; // Align with axis padding
+    const topPosition = (hours * slotHeight) + (minutes * (slotHeight / 60)) + offset;
     indicator.style.top = `${topPosition}px`;
 }
 
+/**
+ * Handles initial smooth scroll to current time
+ * @param {HTMLElement} bodyWrapper
+ */
+function setupAutoScroll(bodyWrapper) {
+    setTimeout(() => {
+        const indicator = bodyWrapper.querySelector('.timeline__now-indicator');
+        if (indicator) {
+            const scrollPos = indicator.offsetTop - (bodyWrapper.clientHeight / 3);
+            bodyWrapper.scrollTo({ top: scrollPos, behavior: 'smooth' });
+        }
+    }, 200);
+}
+
+/**
+ * Starts the interval loop for the now indicator
+ */
+function initIndicatorLoop() {
+    const delay = syncIndicatorToCurrentTime();
+    setTimeout(() => {
+        updateNowIndicator();
+        setInterval(updateNowIndicator, 60000);
+    }, delay);
+}
+
+/**
+ * Logic to sync indicator precisely with the next minute
+ */
 function syncIndicatorToCurrentTime() {
     const now = new Date();
     return ((60 - now.getSeconds()) * 1000) - now.getMilliseconds();
 }
 
 /**
- * Vypočíta pole dátumov pre stĺpce timeline
- * @param {Date} baseDate - Stredový dátum (vybraný v kalendári)
- * @param {number} count - Počet stĺpcov (1, 2 alebo 3)
- * @returns {Date[]} Pole objektov Date
+ * Calculates array of dates based on baseDate and count
+ * @param {Date} baseDate
+ * @param {number} count
+ * @returns {Date[]}
  */
 function calculateDates(baseDate, count) {
-    const dates = [];
-    
-    // Výpočet offsetu, aby baseDate bol v strede
-    // Ak count = 3, offset je -1 (vľavo), 0 (stred), +1 (vpravo)
-    // Ak count = 1, offset je len 0
     const startOffset = Math.floor((count - 1) / 2) * -1;
-
-    for (let i = 0; i < count; i++) {
+    return Array.from({ length: count }, (_, i) => {
         const d = new Date(baseDate);
         d.setDate(d.getDate() + startOffset + i);
-        dates.push(d);
-    }
-
-    return dates;
+        return d;
+    });
 }
