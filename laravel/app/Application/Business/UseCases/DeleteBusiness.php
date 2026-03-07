@@ -19,18 +19,10 @@ class DeleteBusiness
     {
         DB::transaction(function () use ($businessId, $userId) {
             $business = $this->businessRepo->findById($businessId);
-            if (!$business) {
-                throw new \DomainException('Business not found.');
-            }
             $user = $this->userRepo->findById($userId);
-            if (!$user) {
-                throw new \DomainException('User not found.');
-            }
 
-            // Authorization
             $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
 
-            // Delete
             $this->businessRepo->delete($business);
         });
     }

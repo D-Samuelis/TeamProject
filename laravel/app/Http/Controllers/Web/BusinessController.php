@@ -6,11 +6,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Application\Business\DTO\CreateBusinessDTO;
+use App\Application\Business\DTO\UpdateBusinessDTO;
 use App\Application\Business\UseCases\CreateBusiness;
 use App\Application\Business\UseCases\DeleteBusiness;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Business\UseCases\RestoreBusiness;
+
+use App\Application\Business\UseCases\UpdateBusiness;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Http\Requests\Business\UpdateBusinessRequest;
+use Illuminate\Http\Request;
 
 class BusinessController extends Controller
 {
@@ -36,9 +41,18 @@ class BusinessController extends Controller
         return back()->with('success', "Branch '{$business->name}' created successfully.");
     }
 
-    public function update()
+    public function update(int $businessId, UpdateBusinessRequest $request, UpdateBusiness $updateBusinessUseCase)
     {
-        return back();
+        $dto = new UpdateBusinessDTO(
+            $businessId,
+            $request->validated('name'),
+            $request->validated('description'),
+            $request->validated('is_published'),
+        );
+
+        $updateBusinessUseCase->execute($dto, Auth::id());
+
+        return back()->with('success', 'Business updated successfully!');
     }
 
     public function delete(

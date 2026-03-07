@@ -2,6 +2,7 @@
 
 namespace App\Domain\Business\Interfaces;
 
+use App\Application\Business\DTO\UpdateBusinessDTO;
 use \Illuminate\Support\Collection;
 
 use App\Models\Business\Business;
@@ -19,7 +20,7 @@ interface BusinessRepositoryInterface
 
     public function existsOwner(int $userId): bool;
 
-    public function update(Business $business, array $data): Business;
+    public function update(UpdateBusinessDTO $data): void;
 
     public function delete(Business $business): void;
 

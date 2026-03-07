@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Business;
 
+use App\Application\Business\DTO\UpdateBusinessDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Business;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
@@ -29,16 +30,16 @@ class BusinessRepository implements BusinessRepositoryInterface
         return Business::create($data);
     }
 
-    public function update(Business $business, array $data): Business
+    public function update(UpdateBusinessDTO $data): void
     {
-        $business->update($data);
-        return $business;
+        Business::find($data->id)->update($data->toArray());
     }
 
     public function delete(Business $business): void
     {
         $business->update([
             'delete_after' => now()->addDays(7),
+            'is_published' => false,
         ]);
 
         $business->delete();
