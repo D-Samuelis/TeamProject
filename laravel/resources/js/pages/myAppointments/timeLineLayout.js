@@ -131,6 +131,9 @@ function renderDayColumns(parent, daysCount) {
     for (let d = 0; d < daysCount; d++) {
         const dayCol = document.createElement('div');
         dayCol.className = 'timeline__day-column';
+        
+        dayCol.style.paddingTop = '1.5rem'; 
+
         for (let i = 0; i < 24; i++) {
             const slot = document.createElement('div');
             slot.className = 'timeline__slot-grid-line';
