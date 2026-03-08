@@ -112,6 +112,18 @@ function renderSearchBar(parent, allAppointments) {
     parent.appendChild(searchWrapper);
 }
 
+function getStatusClass(status) {
+    const s = status.toLowerCase();
+    const map = {
+        'confirmed': 'filter-item--green',
+        'reserved':  'filter-item--blue',
+        'pending':   'filter-item--yellow',
+        'cancelled': 'filter-item--red',
+        'completed': 'filter-item--black'
+    };
+    return map[s] || 'filter-item--black';
+}
+
 /**
  * Renders the table into the scrollable body
  */
@@ -141,12 +153,16 @@ function renderTable(parent, appointments) {
                 <tbody id="listTableBody">
                     ${appointments.map(app => `
                         <tr class="appointments-table__row">
-                            <td><div class="time-cell"><strong>${app.date}</strong></div></td>
-                            <td><div class="time-cell"><strong>${app.time}</strong></div></td>
-                            <td><div class="time-cell"><strong>${app.duration}</strong></div></td>
-                            <td><span class="service-badge">${app.service}</span></td>
-                            <td><span class="status-pill status--${app.status.toLowerCase()}">${app.status}</span></td>
-                            <td class="text-right">
+                            <td><div class="date-cell">${app.date}</div></td>
+                            <td><div class="time-cell">${app.time}</div></td>
+                            <td><div class="duration-cell">${app.duration}</div></td>
+                            <td><span class="service-cell">${app.service}</span></td>
+                            <td>
+                                <span class="status-cell ${getStatusClass(app.status)}">
+                                    ${app.status}
+                                </span>
+                            </td>
+                            <td class="controls-cell">
                                 <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
                                 <button class="btn-icon btn-icon--danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
                             </td>
