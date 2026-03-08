@@ -8,29 +8,26 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Auth\User;
 
-class Asset extends Model
+class Rule extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
+        'title',
         'description',
+        'valid_from',
+        'valid_to',
+        'rule_set',
+        'asset_id',
         'delete_after'
-        ];
+    ];
 
+    protected $casts = [
+        'rule_set' => 'array',
+    ];
 
-    public function services()
+    public function asset()
     {
-        return $this->belongsToMany(Service::class);
-    }
-
-    public function branches()
-    {
-        return $this->belongsToMany(Branch::class);
-    }
-
-    public function rules()
-    {
-        return $this->hasMany(Rule::class);
+        return $this->belongsTo(Asset::class, 'asset_id');
     }
 }

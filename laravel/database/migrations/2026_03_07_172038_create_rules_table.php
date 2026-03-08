@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('rules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->string('description');
             $table->dateTime('valid_from');
             $table->dateTime('valid_to');
             $table->json('rule_set');
+            $table->timestamp('delete_after')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

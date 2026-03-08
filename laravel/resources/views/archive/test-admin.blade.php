@@ -77,6 +77,7 @@
         <button type="submit">Create Service</button>
     </form>
 
+    <!-- ================= ASSET ================= -->
     <form method="POST" action="{{ route('test.asset.store') }}">
         @csrf
         <h2>Create Asset</h2>
@@ -111,6 +112,37 @@
         <textarea name="description" placeholder="Description"></textarea>
 
         <button type="submit">Create Asset</button>
+    </form>
+
+    <!-- ================= RULE ================= -->
+    <form method="POST" action="{{ route('test.rule.store') }}">
+        @csrf
+        <h2>Create rule</h2>
+
+        <label>Select Asset:</label>
+        <select name="asset_id" required>
+            @foreach($businesses as $business)
+                <optgroup label="{{ $business->name }}">
+                    @foreach($business->services as $service)
+                        <optgroup label="{{ $service->name }}">
+                            @foreach($service->assets as $asset)
+                                <option value="{{ $asset->id }}">
+                                    {{ $asset->name }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+
+        <input type="text" name="title" placeholder="Rule Title" required>
+        <textarea name="description" placeholder="Description"></textarea>
+        <input type="date" name="valid_from" placeholder="Rule Valid From" required>
+        <input type="date" name="valid_to" placeholder="Rule Valid To" required>
+        <input name="rule_set[break]" type="number">
+
+        <button type="submit">Create Rule</button>
     </form>
 
     <!-- ================= DISPLAY DATA ================= -->

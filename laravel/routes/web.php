@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\Branch\BranchController;
 use App\Http\Controllers\Web\Branch\PublicBranchController;
 use App\Http\Controllers\Web\Service\PublicServiceController;
 use App\Http\Controllers\Web\Service\ServiceController;
+use App\Http\Controllers\Web\RuleController;
 
 /**
  * Public Routes
@@ -80,6 +81,14 @@ Route::middleware(['auth'])->group(function () {
 
         // Asset
         Route::prefix('asset')->name('asset.')->controller(AssetController::class)->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{serviceId}', 'update')->name('update'); // Update
+            Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
+            Route::post('/{serviceId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+        });
+
+        // Rule
+        Route::prefix('rule')->name('rule.')->controller(RuleController::class)->group(function () {
             Route::post('/', 'store')->name('store'); // Create
             Route::put('/{serviceId}', 'update')->name('update'); // Update
             Route::delete('/{serviceId}', 'delete')->name('delete'); // Delete
