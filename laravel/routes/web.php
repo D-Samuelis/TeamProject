@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\BusinessController;
 use App\Http\Controllers\Web\ServiceController;
+use App\Http\Controllers\Web\ProfileController;
 
 /**
  * Public Routes
@@ -37,4 +38,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });

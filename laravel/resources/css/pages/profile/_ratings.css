@@ -1,0 +1,190 @@
+
+
+.rating-summary-wrap {
+    max-width: 100%;
+}
+
+.rating-summary {
+    display: grid;
+    grid-template-columns: 190px 240px 1fr;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.35rem 1.5rem;
+    border: .0625rem solid var(--color-border);
+    background: linear-gradient(
+        135deg,
+        var(--color-bg) 0%,
+        var(--color-bg-complement) 100%
+    );
+    border-radius: .5rem;
+    box-shadow: 0 .25rem 1rem var(--color-box-shadow);
+}
+
+.rating-summary__score-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .4rem;
+    padding-right: 1rem;
+    border-right: .0625rem solid var(--color-divider);
+}
+
+.rating-summary__score {
+    font-family: Inter-Bold, sans-serif;
+    font-size: 3.25rem;
+    letter-spacing: .08rem;
+    line-height: 1;
+    color: var(--color-primary);
+    text-shadow: 0 0 .75rem rgba(123, 88, 251, 0.08);
+}
+
+.rating-summary__label {
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant-dark);
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: .08rem;
+}
+
+.rating-summary__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: .5rem;
+}
+
+.rating-summary__stars {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    flex-wrap: wrap;
+    font-size: 1.05rem;
+    color: var(--color-primary);
+}
+
+.rating-summary__text {
+    margin-top: 0;
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    line-height: 1.45;
+}
+
+.rating-summary__extra {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .45rem;
+    padding: .25rem 0 .25rem 1.1rem;
+    border-left: .0625rem solid var(--color-divider);
+}
+
+.rating-summary__extra-title {
+    font-family: Inter-SemiBold, sans-serif;
+    letter-spacing: .06rem;
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+    text-transform: uppercase;
+}
+
+.rating-summary__extra-text {
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    line-height: 1.55;
+    max-width: 34rem;
+}
+
+.rating-list {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+}
+
+.rating-item {
+    padding: 1rem 1.1rem;
+    border: .0625rem solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: .5rem;
+    box-shadow: 0 .15rem .75rem var(--color-box-shadow);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.rating-item:hover {
+    transform: translateY(-.0625rem);
+    border-color: var(--color-primary);
+    box-shadow: 0 .35rem 1rem var(--color-box-shadow);
+}
+
+.rating-item__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.rating-item__name {
+    font-family: Inter-Bold, sans-serif;
+    letter-spacing: .04rem;
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+}
+
+.rating-item__date {
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant-dark);
+    white-space: nowrap;
+}
+
+.rating-item__stars {
+    display: flex;
+    align-items: center;
+    gap: .15rem;
+    margin-top: .5rem;
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+.rating-item__text {
+    margin-top: .65rem;
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .rating-summary {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .rating-summary__score-block {
+        padding-right: 0;
+        padding-bottom: .85rem;
+        border-right: none;
+        border-bottom: .0625rem solid var(--color-divider);
+        width: 100%;
+    }
+
+    .rating-summary__meta {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .rating-summary__extra {
+        width: 100%;
+        padding-left: 0;
+        padding-top: .85rem;
+        border-left: none;
+        border-top: .0625rem solid var(--color-divider);
+    }
+
+    .rating-item__top {
+        flex-direction: column;
+        gap: .35rem;
+    }
+
+    .rating-item__date {
+        white-space: normal;
+    }
+}
