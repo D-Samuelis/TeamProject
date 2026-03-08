@@ -1,9 +1,9 @@
 const statuses = [
     { id: 'reserved',  label: 'Reserved',  color: 'yellow', active: true },
-    { id: 'confirmed', label: 'Confirmed', color: 'blue',   active: true },
+    { id: 'confirmed', label: 'Confirmed', color: 'green',   active: true },
     { id: 'cancelled', label: 'Cancelled', color: 'red',    active: true },
     { id: 'noshow',    label: 'No Show',   color: 'black',  active: true },
-    { id: 'show',      label: 'Show',      color: 'green',  active: true },
+    { id: 'show',      label: 'Show',      color: 'blue',  active: true },
 ];
 
 export function initStatusFilters() {

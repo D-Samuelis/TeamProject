@@ -115,11 +115,11 @@ function renderSearchBar(parent, allAppointments) {
 function getStatusClass(status) {
     const s = status.toLowerCase();
     const map = {
-        'confirmed': 'filter-item--green',
-        'reserved':  'filter-item--blue',
-        'pending':   'filter-item--yellow',
-        'cancelled': 'filter-item--red',
-        'completed': 'filter-item--black'
+        'confirmed': 'filter-item--blue',
+        'reserved':  'filter-item--yellow',
+        'canceled':  'filter-item--red',
+        'no-show':   'filter-item--black',
+        'show':      'filter-item--green'
     };
     return map[s] || 'filter-item--black';
 }
