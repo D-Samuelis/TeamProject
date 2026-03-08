@@ -1,8 +1,21 @@
 <div class="page">
+    @if (session('error'))
+        <div id="error-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                <div class="flex items-center mb-4 text-red-600">
+                    <h3 class="text-lg font-bold">Access Denied</h3>
+                </div>
+                <p class="text-gray-600 mb-6">{{ session('error') }}</p>
+                <button onclick="document.getElementById('error-modal').remove()"
+                    class="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700">
+                    Understood
+                </button>
+            </div>
+        </div>
+    @endif
 
     <div class="header">
         <h1>Businesses</h1>
-
         <button onclick="toggleModal('create-business-modal')" class="create-btn">
             + New Business
         </button>
@@ -11,10 +24,8 @@
     <h2 class="section-title">Active Businesses</h2>
 
     <div class="business-grid">
-
         @foreach ($businesses as $business)
             <div class="business-card">
-
                 <div class="card-header">
                     <h2>{{ $business->name }}</h2>
                     <p>
@@ -31,31 +42,44 @@
                 </p>
 
                 <div class="actions">
+                    @can('update', $business)
+                        {{-- 1. The Route must include the ID from the loop --}}
+                        <form action="{{ route('business.update', $business->id) }}" method="POST"
+                            style="display:inline-block; margin-right: 10px;">
+                            @csrf
+                            @method('PUT')
 
-                    <a href="{{ route('business.show', $business->id) }}" class="manage-btn">
-                        Manage
-                    </a>
+                            {{-- 2. Pass existing data to satisfy validation --}}
+                            <input type="hidden" name="name" value="{{ $business->name }}">
+                            <input type="hidden" name="description" value="{{ $business->description }}">
 
-                    <form method="POST" action="{{ route('business.delete', $business->id) }}"
-                        onsubmit="return confirm('Archive this business?')">
-                        @csrf
-                        @method('DELETE')
+                            <label style="display:flex; align-items:center; cursor:pointer; gap:5px;">
+                                <input type="checkbox" name="is_published" value="1" onchange="this.style.opacity='0.5'; this.form.submit()"
+                                    {{ $business->is_published ? 'checked' : '' }}>
+                                <span style="font-size: 13px;">Published</span>
+                            </label>
+                        </form>
 
-                        <button type="submit" class="delete-btn">
-                            Delete
-                        </button>
-                    </form>
+                        <a href="{{ route('business.show', $business->id) }}" class="manage-btn">
+                            Manage
+                        </a>
+                    @endcan
 
+                    @can('delete', $business)
+                        <form method="POST" action="{{ route('business.delete', $business->id) }}"
+                            onsubmit="return confirm('Archive this business?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-btn">
+                                Delete
+                            </button>
+                        </form>
+                    @endcan
                 </div>
-
             </div>
         @endforeach
-
     </div>
 
-
-
-    {{-- DELETED BUSINESSES --}}
     @if ($deletedBusinesses->count())
         <h2 class="section-title deleted-section">Archived Businesses</h2>
 
@@ -75,7 +99,8 @@
 
                     <div class="actions">
 
-                        <form method="POST" action="{{ route('business.restore', $business->id) }}" style="width:100%">
+                        <form method="POST" action="{{ route('business.restore', $business->id) }}"
+                            style="width:100%">
                             @csrf
 
                             <button type="submit" class="restore-btn">

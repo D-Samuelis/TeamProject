@@ -2,17 +2,23 @@
 
 namespace App\Application\Business\UseCases;
 
+use App\Application\Auth\Services\BusinessAuthorizationService;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Models\Auth\User;
 use App\Models\Business\Business;
 
 class GetBusiness
 {
     public function __construct(
-        private BusinessRepositoryInterface $businessRepo
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly BusinessAuthorizationService $authService
     ) {}
 
-    public function execute(int $businessId): Business
+    public function execute(int $businessId, User $user): Business
     {
-        return $this->businessRepo->findByIdWithRelations($businessId);
+        $business = $this->businessRepo->findById($businessId, true);
+        $this->authService->ensureCanViewBusiness($user, $business);
+
+        return $business;
     }
 }

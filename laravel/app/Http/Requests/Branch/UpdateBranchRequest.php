@@ -14,6 +14,15 @@ class UpdateBranchRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'business_id' => $this->route('businessId'),
+            'id' => $this->route('branchId'),
+            'is_active' => $this->boolean('is_active'),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,12 +32,14 @@ class UpdateBranchRequest extends FormRequest
     {
         return [
             'business_id' => 'required|exists:businesses,id',
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:physical,online,hybrid',
+            'name' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:physical,online,hybrid',
             'address_line_1' => 'nullable|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:50',
             'country' => 'nullable|string|max:255',
+            'is_active' => 'nullable|boolean',
         ];
     }
 }

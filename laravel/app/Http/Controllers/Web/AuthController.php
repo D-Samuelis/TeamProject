@@ -19,8 +19,12 @@ class AuthController extends Controller
      */
     public function showAuth(\Illuminate\Http\Request $request)
     {
-        $mode = $request->route()->getName(); // 'login' or 'register'
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
 
+        $mode = $request->route()->getName();
+        
         return view('pages.auth', [
             'mode' => $mode === 'register' ? 'register' : 'login',
         ]);
@@ -63,11 +67,7 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request, LoginUser $loginUser)
     {
-        $dto = new LoginUserDTO(
-            $request->input('email'),
-            $request->input('password'),
-            $request->input('remember', false)
-        );
+        $dto = new LoginUserDTO($request->input('email'), $request->input('password'), $request->input('remember', false));
 
         try {
             $result = $loginUser->execute($dto);

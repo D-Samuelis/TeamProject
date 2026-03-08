@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Business\UseCases;
+namespace App\Application\Branch\UseCases;
 
 use Illuminate\Support\Facades\DB;
 use App\Application\Auth\Services\BranchAuthorizationService;
@@ -18,7 +18,7 @@ class RestoreBranch
     public function execute(int $businessId, int $userId): void
     {
         DB::transaction(function () use ($businessId, $userId) {
-            $branch = $this->branchRepo->findById($businessId);
+            $branch = $this->branchRepo->findById($businessId, true);
             $user = $this->userRepo->findById($userId);
 
             $this->branchAuthService->ensureCanUpdateBranch($user, $branch);

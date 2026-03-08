@@ -22,7 +22,6 @@ class DeleteBusiness
             $user = $this->userRepo->findById($userId);
 
             $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
-
             $this->businessRepo->delete($business);
         });
     }

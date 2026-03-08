@@ -55,29 +55,36 @@
         <div class="profile-menu__divider"></div>
 
         <div class="profile-menu__options">
-            <div class="profile-menu__option" id="lightModeOption">
-                <a href="/dev" class="profile-menu__link">
-                    <p class="debug-text">Dev</p>
-                </a>
-            </div>
+            @if (auth()->user()?->isAdmin())
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/dev" class="profile-menu__link">
+                        <p class="debug-text">Dev</p>
+                    </a>
+                </div>
+            @endif
+            {{-- What is this? Maybe remove? --}}
             <div class="profile-menu__option" id="lightModeOption">
                 <a href="/" class="profile-menu__link">Booking</a>
             </div>
-            <div class="profile-menu__option" id="lightModeOption">
-                <a href="/myAppointments" class="profile-menu__link">My Appointments</a>
-            </div>
-            <div class="profile-menu__option" id="lightModeOption">
-                <a href="/profile" class="profile-menu__link">My Profile</a>
-            </div>
-            <div class="profile-menu__option" id="lightModeOption">
-                <a href="/login" class="profile-menu__link">Sign-In</a>
-            </div>
-            <div class="profile-menu__option" id="darkModeOption">
-                <form method="POST" action="/logout" class="profile-menu__form">
-                    @csrf
-                    <button type="submit" class="profile-menu__logout-btn">Logout</button>
-                </form>
-            </div>
+            @auth
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/myAppointments" class="profile-menu__link">My Appointments</a>
+                </div>
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/profile" class="profile-menu__link">My Profile</a>
+                </div>
+                <div class="profile-menu__option" id="darkModeOption">
+                    <form method="POST" action="/logout" class="profile-menu__form">
+                        @csrf
+                        <button type="submit" class="profile-menu__logout-btn">Logout</button>
+                    </form>
+                </div>
+            @endauth
+            @guest
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/login" class="profile-menu__link">Sign-In</a>
+                </div>
+            @endguest
         </div>
     </div>
 </div>

@@ -10,6 +10,7 @@ class UpdateBusinessDTO
         public int $id,
         public ?string $name = null,
         public ?string $description = null,
+        public ?bool $is_published = null,
     ) {}
 
     /**
@@ -21,6 +22,7 @@ class UpdateBusinessDTO
             id: $businessId,
             name: $request->validated('name'),
             description: $request->validated('description'),
+            is_published: $request->has('is_published') ? $request->boolean('is_published') : null,
         );
     }
 
@@ -33,6 +35,7 @@ class UpdateBusinessDTO
         return array_filter([
             'name' => $this->name,
             'description' => $this->description,
+            'is_published' => $this->is_published,
         ], fn($value) => !is_null($value));
     }
 }

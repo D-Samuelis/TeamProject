@@ -20,8 +20,7 @@ class DeleteBranch
         $branch = $this->branchRepo->findById($branchId);
         $user = $this->userRepo->findById($userId);
 
-        $this->authService->ensureCanUpdateBranch($user, $branch);
-        
-        $this->branchRepo->delete($branchId);
+        $this->authService->ensureCanDeleteBranch($user, $branch);
+        $this->branchRepo->delete($branch);
     }
 }

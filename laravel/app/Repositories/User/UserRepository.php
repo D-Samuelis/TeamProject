@@ -2,12 +2,12 @@
 
 namespace App\Repositories\User;
 
+use App\Domain\Branch\Enums\BranchRoleEnum;
+use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
-use App\Domain\Business\Enums\BusinessRoleEnum;
-use App\Domain\Branch\Enums\BranchRoleEnum;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -33,13 +33,15 @@ class UserRepository implements UserRepositoryInterface
 
     public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum
     {
-        $pivot = $user->businesses()->where('business_id', $business->id)->first()?->pivot;
-        return $pivot?->role;
+        $member = $user->businesses()->withTrashed()->where('businesses.id', $business->id)->first();
+
+        return $member ? BusinessRoleEnum::tryFrom($member->pivot->role) : null;
     }
 
     public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum
     {
-        $pivot = $user->branches()->where('branch_id', $branch->id)->first()?->pivot;
-        return $pivot?->role;
+        $member = $user->branches()->withTrashed()->where('branches.id', $branch->id)->first();
+
+        return $member ? BranchRoleEnum::tryFrom($member->pivot->role) : null;
     }
 }

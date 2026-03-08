@@ -10,19 +10,18 @@ use App\Application\Auth\Services\BusinessAuthorizationService;
 class RestoreBusiness
 {
     public function __construct(
-        private UserRepositoryInterface $userRepo,
-        private BusinessAuthorizationService $businessAuthService,
-        private BusinessRepositoryInterface $businessRepo
+        private readonly UserRepositoryInterface $userRepo,
+        private readonly BusinessAuthorizationService $authService,
+        private readonly BusinessRepositoryInterface $businessRepo
     ) {}
 
     public function execute(int $businessId, int $userId): void
     {
         DB::transaction(function () use ($businessId, $userId) {
-            $business = $this->businessRepo->findDeletedById($businessId);
             $user = $this->userRepo->findById($userId);
+            $business = $this->businessRepo->findDeletedById($businessId);
 
-            $this->businessAuthService->ensureCanUpdateBusiness($user, $business);
-
+            $this->authService->ensureCanUpdateBusiness($user, $business);
             $this->businessRepo->restore($business);
         });
     }

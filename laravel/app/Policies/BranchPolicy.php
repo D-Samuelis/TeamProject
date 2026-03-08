@@ -2,12 +2,20 @@
 
 namespace App\Policies;
 
+use App\Application\Auth\Services\BranchAuthorizationService;
 use App\Models\Auth\User;
 use App\Models\Business\Branch;
-use Illuminate\Auth\Access\Response;
+use App\Models\Business\Business;
 
 class BranchPolicy
 {
+    public function __construct(private BranchAuthorizationService $authService) {}
+
+    public function before(User $user): ?bool
+    {
+        return $user->isAdmin() ? true : null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -27,9 +35,9 @@ class BranchPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Business $business): bool
     {
-        return true;
+        return $this->runCheck(fn() => $this->authService->ensureCanCreateBranch($user, $business));
     }
 
     /**
@@ -37,7 +45,7 @@ class BranchPolicy
      */
     public function update(User $user, Branch $branch): bool
     {
-        return true;
+        return $this->runCheck(fn() => $this->authService->ensureCanUpdateBranch($user, $branch));
     }
 
     /**
@@ -45,7 +53,7 @@ class BranchPolicy
      */
     public function delete(User $user, Branch $branch): bool
     {
-        return true;
+        return $this->runCheck(fn() => $this->authService->ensureCanDeleteBranch($user, $branch));
     }
 
     /**
@@ -62,5 +70,16 @@ class BranchPolicy
     public function forceDelete(User $user, Branch $branch): bool
     {
         return false;
+    }
+
+    private function runCheck(callable $check): bool
+    {
+        try {
+            $check();
+
+            return true;
+        } catch (\DomainException) {
+            return false;
+        }
     }
 }

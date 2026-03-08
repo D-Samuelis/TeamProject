@@ -12,7 +12,7 @@ interface BranchRepositoryInterface
     public function findByBusinessId(int $businessId): Collection;
     public function save(array $data): Branch;
     public function update(int $id, array $data): Branch;
-    public function delete(int $id): void;
+    public function delete(Branch $branch): void;
     public function restore(Branch $branch): void;
     public function attachServices(Branch $branch, array $serviceIds): void;
     public function attachUsers(Branch $branch, array $userIdsWithRoles): void;

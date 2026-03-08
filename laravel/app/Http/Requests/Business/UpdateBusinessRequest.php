@@ -22,16 +22,9 @@ class UpdateBusinessRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'is_published' => 'boolean'
+            'is_published' => 'sometimes|boolean'
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'is_published' => $this->boolean('is_published'),
-        ]);
     }
 }

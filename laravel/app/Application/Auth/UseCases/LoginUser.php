@@ -30,6 +30,7 @@ final class LoginUser
         }
 
         $token = $this->tokenService->createTokenFor($user);
+        
         return new RegisteredUserDTO($user, $token);
     }
 }

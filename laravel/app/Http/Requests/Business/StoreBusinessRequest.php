@@ -24,7 +24,7 @@ class StoreBusinessRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_published' => 'boolean||nullable'
+            'is_published' => 'boolean|nullable'
         ];
     }
 }

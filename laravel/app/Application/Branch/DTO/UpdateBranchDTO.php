@@ -33,7 +33,7 @@ class UpdateBranchDTO
             city: $request->validated('city'),
             postal_code: $request->validated('postal_code'),
             country: $request->validated('country'),
-            is_active: $request->has('is_active') ? $request->boolean('is_active') : null
+            is_active: $request->has('is_active') ? $request->boolean('is_active') : null,
         );
     }
 

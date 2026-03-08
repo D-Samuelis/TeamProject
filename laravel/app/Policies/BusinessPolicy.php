@@ -8,49 +8,38 @@ use App\Models\Business\Business;
 
 class BusinessPolicy
 {
-    public function __construct(
-        private BusinessAuthorizationService $businessAuthService,
-    ) {}
+    public function __construct(private BusinessAuthorizationService $authService) {}
 
-    public function before(User $user, $ability, $model = null): ?bool
+    public function before(User $user): ?bool
     {
-        // $model may be null for global abilities
-        if ($model instanceof Business) {
-            try {
-                $this->businessAuthService->ensureCanUpdateBusiness($user, $model);
-                return true;
-            } catch (\DomainException) {
-                return false;
-            }
-        }
+        return $user->isAdmin() ? true : null;
+    }
 
-        return null; // fallback to normal policy checks
+    public function view(User $user, Business $business): bool
+    {
+        return $this->runCheck(fn () => $this->authService->ensureCanViewBusiness($user, $business));
     }
 
     public function update(User $user, Business $business): bool
     {
-        try {
-            $this->businessAuthService->ensureCanUpdateBusiness($user, $business);
-            return true;
-        } catch (\DomainException) {
-            return false;
-        }
+        return $this->runCheck(fn () => $this->authService->ensureCanUpdateBusiness($user, $business));
     }
 
-    public function destroy(User $user, Business $business): bool
+    public function delete(User $user, Business $business): bool
     {
-        try {
-            $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
-            return true;
-        } catch (\DomainException) {
-            return false;
-        }
+        return $this->runCheck(fn () => $this->authService->ensureCanDeleteBusiness($user, $business));
     }
 
     public function publish(User $user, Business $business): bool
     {
+        return $this->runCheck(fn () => $this->authService->ensureCanPublishBusiness($user, $business));
+    }
+
+    private function runCheck(callable $check): bool
+    {
         try {
-            $this->businessAuthService->ensureCanPublishBusiness($user, $business);
+            $check();
+
             return true;
         } catch (\DomainException) {
             return false;

@@ -19,15 +19,17 @@ class BusinessController extends Controller
 {
     public function index(ListBusinesses $useCase)
     {
+        $user = Auth::user();
+
         return view('pages.business.index', [
-            'businesses' => $useCase->execute('active'),
-            'deletedBusinesses' => $useCase->execute('deleted'),
+            'businesses' => $useCase->execute($user, 'active'),
+            'deletedBusinesses' => $useCase->execute($user, 'deleted'),
         ]);
     }
 
     public function show(int $businessId, GetBusiness $useCase)
     {
-        $business = $useCase->execute($businessId);
+        $business = $useCase->execute($businessId, Auth::user());
         return view('pages.business.show', compact('business'));
     }
 

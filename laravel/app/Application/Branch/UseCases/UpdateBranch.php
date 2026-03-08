@@ -2,6 +2,7 @@
 
 namespace App\Application\Branch\UseCases;
 
+use Illuminate\Support\Facades\DB;
 use App\Application\Auth\Services\BranchAuthorizationService;
 use App\Application\Branch\DTO\UpdateBranchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
@@ -17,11 +18,12 @@ class UpdateBranch
 
     public function execute(UpdateBranchDTO $dto, int $userId): void
     {
-        $branch = $this->branchRepo->findById($dto->id);
-        $user = $this->userRepo->findById($userId);
+        DB::transaction(function () use ($dto, $userId) {
+            $branch = $this->branchRepo->findById($dto->id);
+            $user = $this->userRepo->findById($userId);
+            $this->authService->ensureCanUpdateBranch($user, $branch);
 
-        $this->authService->ensureCanUpdateBranch($user, $branch);
-        
-        $this->branchRepo->update($dto->id, $dto->toArray());
+            $this->branchRepo->update($dto->id, $dto->toArray());
+        });
     }
 }

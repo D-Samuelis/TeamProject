@@ -6,64 +6,45 @@ use App\Http\Controllers\Web\BranchController;
 use App\Http\Controllers\Web\BusinessController;
 use App\Http\Controllers\Web\ServiceController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-|
-| Routes that do NOT require authentication
-|
-*/
+/**
+ * Public Routes
+ */
 Route::view('/', 'pages.welcome')->name('home');
 Route::view('dev', 'pages.dev')->name('dev');
 Route::view('myAppointments', 'pages.myAppointments')->name('myAppointments');
 
-Route::controller(AuthController::class)->group(function () {
-    // Show login/register forms
+Route::controller(AuthController::class)->middleware('guest')->group(function () {
+    // Show forms
     Route::get('/login', 'showAuth')->name('login');
     Route::get('/register', 'showAuth')->name('register');
 
-    // Handle login/register submission
+    // Handle submission
     Route::post('/login', 'login')->name('login.submit');
     Route::post('/register', 'register')->name('register.submit');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Protected Routes
-|--------------------------------------------------------------------------
-|
-| Routes that require the user to be authenticated
-|
-*/
+/**
+ * Protected Routes
+ */
 Route::middleware(['auth'])->group(function () {
-    // Dashboard
     Route::get('/dashboard', fn() => view('pages.dashboard'))->name('dashboard');
-
-    // Logout
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Businesses, Branches, Services Routes
-    |--------------------------------------------------------------------------
-    */
+    
+    /**
+     * Businesses, Branches, Services Routes
+     */
     Route::prefix('businesses')
         ->middleware(['auth'])
         ->group(function () {
-            // 1. The Main Dashboard (Grid view)
             Route::get('/', [BusinessController::class, 'index'])->name('business.index');
             Route::post('/', [BusinessController::class, 'store'])->name('business.store');
 
-            // 2. The Business-Specific Context
             Route::prefix('{businessId}')->group(function () {
-                // Single Business View & Actions
                 Route::get('/', [BusinessController::class, 'show'])->name('business.show');
                 Route::put('/', [BusinessController::class, 'update'])->name('business.update');
                 Route::delete('/', [BusinessController::class, 'delete'])->name('business.delete');
                 Route::post('/restore', [BusinessController::class, 'restore'])->name('business.restore');
 
-                // Nested Branches
                 Route::prefix('branches')
                     ->name('branch.')
                     ->controller(BranchController::class)
@@ -74,7 +55,6 @@ Route::middleware(['auth'])->group(function () {
                         Route::post('/{branchId}/restore', 'restore')->name('restore');
                     });
 
-                // Nested Services
                 Route::prefix('services')
                     ->name('service.')
                     ->controller(ServiceController::class)

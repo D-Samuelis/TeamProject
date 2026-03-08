@@ -41,6 +41,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'birth_date' => 'date',
+        'is_admin' => 'boolean',
     ];
 
     /**
@@ -48,17 +49,23 @@ class User extends Authenticatable
      */
     public function businesses()
     {
-        return $this->belongsToMany(Business::class)->withPivot('role')->withTimestamps();
+        return $this->belongsToMany(Business::class, 'business_user')
+            ->withPivot('role')
+            ->withCasts(['role' => BusinessRoleEnum::class])
+            ->withTimestamps();
     }
 
     public function branches()
     {
-        return $this->belongsToMany(Branch::class)->withPivot('role')->withTimestamps();
+        return $this->belongsToMany(Branch::class, 'branch_user')
+            ->withPivot('role')
+            ->withCasts(['role' => BranchRoleEnum::class])
+            ->withTimestamps();
     }
 
     public function services()
     {
-        return $this->belongsToMany(Service::class)->withPivot('role')->withTimestamps();
+        return $this->belongsToMany(Service::class, 'service_user')->withPivot('role')->withTimestamps();
     }
 
     /**

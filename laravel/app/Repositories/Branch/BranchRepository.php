@@ -8,9 +8,13 @@ use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 
 class BranchRepository implements BranchRepositoryInterface
 {
-    public function findById(int $id): Branch
+    public function findById(int $id, bool $withTrashed = false): Branch
     {
-        return Branch::findOrFail($id);
+        $query = Branch::query();
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+        return $query->findOrFail($id);
     }
 
     public function findDeletedById(int $id): Branch
@@ -35,9 +39,13 @@ class BranchRepository implements BranchRepositoryInterface
         return $branch;
     }
 
-    public function delete(int $id): void
+    public function delete(Branch $branch): void
     {
-        $this->findById($id)->delete();
+        $branch->update([
+            'delete_after' => now()->addDays(7),
+            'is_active' => false,
+        ]);
+        $branch->delete();
     }
 
     public function restore(Branch $branch): void

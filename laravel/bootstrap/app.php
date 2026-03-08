@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -17,7 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })
-    ->create();
+    ->withExceptions(function (Exceptions $exceptions) {
+
+        $exceptions->render(function (DomainException $e, Request $request) {
+            // If it's a web request, redirect back with the error message
+            if (!$request->expectsJson()) {
+                return back()->withInput()->with('error', $e->getMessage());
+            }
+
+            return response()->json(['message' => $e->getMessage()], 422);
+        });
+    })->create();

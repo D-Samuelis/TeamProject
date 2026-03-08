@@ -9,7 +9,7 @@ use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Application\Branch\UseCases\CreateBranch;
 use App\Application\Branch\UseCases\UpdateBranch;
 use App\Application\Branch\UseCases\DeleteBranch;
-use App\Application\Business\UseCases\RestoreBranch;
+use App\Application\Branch\UseCases\RestoreBranch;
 use App\Application\Branch\DTO\CreateBranchDTO;
 use App\Application\Branch\DTO\UpdateBranchDTO;
 

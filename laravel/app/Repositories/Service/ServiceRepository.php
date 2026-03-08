@@ -3,8 +3,8 @@
 namespace App\Repositories\Service;
 
 use Illuminate\Support\Collection;
-use App\Models\Business\Service;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Models\Business\Service;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {
@@ -25,7 +25,7 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function delete(Service $service): void
     {
-        $service->delete();       // requires SoftDeletes trait on Service model
+        $service->delete();
     }
 
     public function attachBranches(Service $service, array $branchIds): void
@@ -35,7 +35,6 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function attachUsers(Service $service, array $userIdsWithRoles): void
     {
-        // $userIdsWithRoles = [userId => ['role' => 'staff'], ...]
         $service->users()->sync($userIdsWithRoles);
     }
 }

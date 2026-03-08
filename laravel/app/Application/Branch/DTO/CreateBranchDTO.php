@@ -15,19 +15,23 @@ class CreateBranchDTO
         public string $city,
         public string $postal_code,
         public string $country,
-        public ?bool $is_active = true
+        public ?bool $is_active = false
     ) {}
 
-    public static function fromRequest(int $businessId, StoreBranchRequest $request): self
-    {
+    public static function fromRequest(
+        int $businessId,
+        StoreBranchRequest $request
+    ): self {
         return new self(
             business_id: $businessId,
             name: $request->validated('name'),
             type: $request->validated('type'),
             address_line_1: $request->validated('address_line_1'),
+            address_line_2: $request->validated('address_line_2'),
             city: $request->validated('city'),
             postal_code: $request->validated('postal_code'),
-            country: $request->validated('country')
+            country: $request->validated('country'),
+            is_active: false,
         );
     }
 
@@ -42,7 +46,7 @@ class CreateBranchDTO
             'city' => $this->city,
             'postal_code' => $this->postal_code,
             'country' => $this->country,
-            'is_active' => $this->is_active
+            'is_active' => $this->is_active,
         ];
     }
 }

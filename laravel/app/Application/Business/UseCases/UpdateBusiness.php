@@ -21,7 +21,6 @@ class UpdateBusiness
         $user = $this->userRepo->findById($userId);
 
         $this->authService->ensureCanUpdateBusiness($user, $business);
-        
         $this->businessRepo->update($dto->id, $dto->toArray());
     }
 }
