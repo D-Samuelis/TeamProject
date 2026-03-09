@@ -1,6 +1,14 @@
+import { TableSorter } from '../../components/sort/sortTable.js';
+
+/**
+ * Global sorter instance to manage table state
+ * @type {TableSorter|null}
+ */
+let sorter = null;
+
 /**
  * Main entry point for the list layout
- * @param {Array} appointments
+ * @param {Array} appointments - Array of appointment objects
  */
 export function initListView(appointments = []) {
     const listView = document.getElementById('listView');
@@ -18,14 +26,21 @@ export function initListView(appointments = []) {
     listView.appendChild(headerWrapper);
     listView.appendChild(bodyWrapper);
 
+    sorter = new TableSorter(appointments, 'date', 'desc', (sortedData) => {
+        const body = document.getElementById('listBody');
+        renderTable(body, sortedData);
+    });
+
     renderCorner(headerWrapper);
     renderListHeaderInfo(headerWrapper, appointments.length);
     renderSearchBar(headerWrapper, appointments);
-    renderTable(bodyWrapper, appointments);
+
+    renderTable(bodyWrapper, sorter.getSortedData());
 }
 
 /**
  * Renders the top-left corner with view switcher
+ * @param {HTMLElement} parent
  */
 function renderCorner(parent) {
     const corner = document.createElement('div');
@@ -44,7 +59,9 @@ function renderCorner(parent) {
 }
 
 /**
- * Renders the date info in the header (Identical look to Columns)
+ * Renders the date info in the header
+ * @param {HTMLElement} parent
+ * @param {number} count
  */
 function renderListHeaderInfo(parent, count) {
     const info = document.createElement('div');
@@ -69,7 +86,9 @@ function renderListHeaderInfo(parent, count) {
 }
 
 /**
- * Renders the Search Bar on the right side
+ * Renders the Search Bar and handles filtering logic
+ * @param {HTMLElement} parent
+ * @param {Array} allAppointments
  */
 function renderSearchBar(parent, allAppointments) {
     const searchWrapper = document.createElement('div');
@@ -78,7 +97,7 @@ function renderSearchBar(parent, allAppointments) {
     searchWrapper.innerHTML = `
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="appointmentSearch" placeholder="Filter list...">
+            <input type="text" id="appointmentSearch" placeholder="Filter everything...">
         </div>
     `;
     
@@ -96,10 +115,10 @@ function renderSearchBar(parent, allAppointments) {
                 (app.duration && app.duration.toString().toLowerCase().includes(term))
             );
         });
-        
-        const bodyWrapper = document.getElementById('listBody');
-        bodyWrapper.innerHTML = ''; 
-        renderTable(bodyWrapper, filtered);
+
+        // Update the sorter data and re-render
+        sorter.data = filtered;
+        renderTable(document.getElementById('listBody'), sorter.getSortedData());
         
         const statsText = document.querySelector('#listCount');
         if (statsText) {
@@ -113,48 +132,82 @@ function renderSearchBar(parent, allAppointments) {
 }
 
 /**
+ * Maps status string to CSS class
+ * @param {string} status 
+ * @returns {string}
+ */
+function getStatusClass(status) {
+    const s = status.toLowerCase();
+    const map = {
+        'confirmed': 'filter-item--blue',
+        'reserved':  'filter-item--yellow',
+        'cancelled':  'filter-item--red',
+        'no-show':   'filter-item--black',
+        'show':      'filter-item--green'
+    };
+    return map[s] || 'filter-item--black';
+}
+
+/**
  * Renders the table into the scrollable body
+ * @param {HTMLElement} parent
+ * @param {Array} appointments - Sorted appointments
  */
 function renderTable(parent, appointments) {
+    parent.innerHTML = '';
     const tableContainer = document.createElement('div');
     tableContainer.className = 'list-view__table-container';
 
+    const todayStr = new Date().toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric' 
+    });
+
     if (appointments.length === 0) {
-        tableContainer.innerHTML = `
-            <div class="list-empty">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <p>No matches found</p>
-            </div>`;
+        tableContainer.innerHTML = `<div class="list-empty"><p>No matches found</p></div>`;
     } else {
         tableContainer.innerHTML = `
             <table class="appointments-table">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Duration</th>
-                        <th>Service</th>
-                        <th>Status</th>
+                        ${sorter.renderTh('Date', 'date')}
+                        ${sorter.renderTh('Time', 'time')}
+                        ${sorter.renderTh('Duration', 'duration')}
+                        ${sorter.renderTh('Service', 'service')}
+                        ${sorter.renderTh('Status', 'status')}
                         <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="listTableBody">
-                    ${appointments.map(app => `
-                        <tr class="appointments-table__row">
-                            <td><div class="time-cell"><strong>${app.date}</strong></div></td>
-                            <td><div class="time-cell"><strong>${app.time}</strong></div></td>
-                            <td><div class="time-cell"><strong>${app.duration}</strong></div></td>
-                            <td><span class="service-badge">${app.service}</span></td>
-                            <td><span class="status-pill status--${app.status.toLowerCase()}">${app.status}</span></td>
-                            <td class="text-right">
-                                <button class="btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn-icon btn-icon--danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `).join('')}
+                    ${appointments.map(app => {
+                        const isToday = app.date === todayStr;
+                        return `
+                            <tr class="appointments-table__row ${isToday ? 'is-today' : ''}">
+                                <td>
+                                    <div class="date-cell">
+                                        ${app.date}
+                                        ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                                    </div>
+                                </td>
+                                <td><div class="time-cell">${app.time}</div></td>
+                                <td><div class="duration-cell">${app.duration}</div></td>
+                                <td><span class="service-cell">${app.service}</span></td>
+                                <td><span class="status-cell ${getStatusClass(app.status)}">${app.status}</span></td>
+                                <td class="controls-cell text-right">
+                                    <button class="button-icon"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="button-icon button-icon--danger"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         `;
     }
     parent.appendChild(tableContainer);
+
+    parent.querySelectorAll('.sortable-th').forEach(th => {
+        th.addEventListener('click', () => {
+            sorter.handleSort(th.dataset.sort);
+        });
+    });
 }
