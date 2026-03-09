@@ -121,48 +121,47 @@ If you encounter permission issues, re-run the `chown` and `chmod` commands from
 
 ---
 
+
 ## 📡 MCP
 
-### MCP server
+### Architecture
 
-Run the following Artisan command to launch MCP Inspector.
+The MCP setup consists of **1 server** and **1 client**.
+
+### Environment Variables
+
+Add the following variables to your `.env` file to enable MCP client-server communication (check example.env for reference):
+
+```env
+MCP_SERVER=
+MCP_OLLAMA_URL=
+MCP_OLLAMA_MODEL=
+```
+### Running the MCP Server
+
+The MCP server starts automatically after `php artisan serve`. To test it in isolation, use the inspector command:
 
 ```bash
-php artisan mcp:inspector {route}
+php artisan mcp:inspector mcp
 ```
 
-MCP Inspector is a browser-based tool that helps you work with and test your MCP server. When you run this command, it will also start the MCP server on localhost, allowing MCP clients to use it.
+### Running the MCP Client
+<small>Make sure you run the LLM</small>
 
-#### Example
+The chat interface is currently implemented as a CLI command:
 
 ```bash
-php artisan mcp:inspector mcp/appointment
+php artisan mcp:client
 ```
 
-### MCP client
 
-Currently, we don't have MCP client set up. For now, we can use third party tools with MCP Client support.
+---
+<small>
 
-### Claude desktop setup
+⚠️ **Llama API Limitation:** The Llama chat/API does not support resources or prompts — **only tools** will be used during MCP communication.
 
-1. Download Claude Desktop - [https://claude.ai/download](https://claude.ai/download)
-2. Open Claude config file at
+⚠️ **Client implemented from scratch:** There is no good existing library for a PHP-based MCP client.
 
-```
-~\Claude\claude_desktop_config.json
-```
+ℹ️ **Orchestration** - Since we only use one server and one client, we are not implementing a full orchestration layer. Only tools will be orchestrated using token based orchestration.
 
-3. Add the MCP server into claude_desktop_config.json
-
-```json
-{
-  "mcpServers": {
-    "appointment": {
-      "command": "npx",
-      "args": ["mcp-remote", "http://localhost:8080/mcp/appointment"]
-    }
-  }
-}
-```
-
-4. Restart Claude Desktop
+</small>

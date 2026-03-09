@@ -16,6 +16,8 @@ class CreateAppointmentTool extends Tool
 
         The tool accepts description and time as input parameters.
         If they are not provided or do not meet the validation criteria, ask the user to provide more information.
+
+        todo better description
     MARKDOWN;
 
     public function handle(Request $request): Response
