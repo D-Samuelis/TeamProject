@@ -1,3 +1,5 @@
+import { GET_COLLAPSED_KEY } from '../../config/storageKeys.js';
+
 /**
  * Init collapsable list (Discord style)
  * @param {string} containerId
@@ -8,21 +10,30 @@ export function initCollapsibleList(containerId) {
 
     const header = list.previousElementSibling;
     
-    if (header && header.classList.contains('appointments__subtitle')) {
-        header.style.cursor = 'pointer';
-        header.style.userSelect = 'none';
+    const storageKey = GET_COLLAPSED_KEY(containerId);
+    
+    const isCollapsed = localStorage.getItem(storageKey) === 'true';
 
+    if (isCollapsed) {
+        list.classList.add('is-hidden');
+        list.style.display = 'none';
+        const icon = header?.querySelector('.fa-chevron-down');
+        if (icon) icon.style.transform = 'rotate(-90deg)';
+    }
+
+    if (header && header.classList.contains('appointments__subtitle')) {
         header.addEventListener('click', () => {
             const icon = header.querySelector('.fa-chevron-down');
+            const hidden = list.classList.toggle('is-hidden');
             
-            list.classList.toggle('is-hidden');
+            localStorage.setItem(storageKey, hidden);
             
-            if (list.classList.contains('is-hidden')) {
-                icon.style.transform = 'rotate(-90deg)';
+            if (hidden) {
+                if (icon) icon.style.transform = 'rotate(-90deg)';
                 list.style.display = 'none';
             } else {
-                icon.style.transform = 'rotate(0deg)';
-                list.style.display = 'block';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+                list.style.display = 'flex';
             }
         });
     }

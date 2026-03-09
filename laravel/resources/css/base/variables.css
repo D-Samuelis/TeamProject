@@ -24,6 +24,7 @@
 
     --color-border: #5a5a5a;
     --color-border-light: #dddddd;
+    --color-border-light-very: #f1f1f1;
     --color-border-hover:rgb(77, 77, 77);
     --color-box-shadow: rgba(0,0,0,0.12);
     --color-box-shadow-input: rgba(161, 171, 189, 0.3);
@@ -47,10 +48,33 @@
 
     --color-danger: #ff4221;
     --color-danger-text: #ff4221;
+
     --color-success: #29ff29;
     --color-success-text: #29ff29;
+
     --color-warning: #f8c82a;
     --color-warning-text: #e9a71a;
+
+    /* COLORS REFORMED (DONT TOUCH) */
+    --status-yellow: #e6c24d;
+    --status-yellow-hover: #cfaf44;
+    --status-yellow-text: #5e4a0a;
+
+    --status-blue: #8fa3eb;
+    --status-blue-hover: #7f91d3;
+    --status-blue-text: #2d3a6d;
+
+    --status-red: #da8686;
+    --status-red-hover: #bd7070;
+    --status-red-text: #6e2d2d;
+
+    --status-black: #94a3b8;
+    --status-black-hover: #8391a5;
+    --status-black-text: #1e293b;
+
+    --status-green: #89b889;
+    --status-green-hover: #76a176;
+    --status-green-text: #214427;
 }
 
 .theme-dark {
@@ -77,6 +101,27 @@
     --color-border-hover:rgb(99, 99, 99);
     --color-box-shadow: rgba(0,0,0,0.12);
     --color-box-shadow-input: rgba(11, 11, 12, 0.575);
+
+    /* COLORS REFORMED (DONT TOUCH) */
+    --status-yellow: #D4AF37;
+    --status-yellow-hover: #bd9c31;
+    --status-yellow-text: #f3e9c7;
+
+    --status-blue: #7289da;
+    --status-blue-hover: #5d70b6;
+    --status-blue-text: #dbeafe;
+
+    --status-red: #c26e6e;
+    --status-red-hover: #a05656;
+    --status-red-text: #fee2e2;
+
+    --status-black: #64748b;
+    --status-black-hover: #4c5a6d;
+    --status-black-text: #f1f5f9;
+
+    --status-green: #6b8e6b;
+    --status-green-hover: #557555;
+    --status-green-text: #dcfce7;
 }
 
 @font-face {
