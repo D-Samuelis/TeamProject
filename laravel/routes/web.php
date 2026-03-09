@@ -15,7 +15,7 @@ use App\Http\Controllers\Web\Service\ServiceController;
 Route::view('/', 'pages.welcome')->name('home');
 Route::view('dev', 'pages.dev')->name('dev');
 
-Route::prefix('manualBooking')->group(function () {
+Route::prefix('manual-booking')->group(function () {
     Route::get('/services', [PublicServiceController::class, 'index'])->name('public.services.index');
     Route::get('/locations', [PublicBranchController::class, 'index'])->name('public.branches.index');
 
