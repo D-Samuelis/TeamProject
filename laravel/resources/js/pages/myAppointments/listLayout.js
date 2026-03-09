@@ -141,7 +141,7 @@ function getStatusClass(status) {
     const map = {
         'confirmed': 'filter-item--blue',
         'reserved':  'filter-item--yellow',
-        'canceled':  'filter-item--red',
+        'cancelled':  'filter-item--red',
         'no-show':   'filter-item--black',
         'show':      'filter-item--green'
     };
@@ -158,12 +158,12 @@ function renderTable(parent, appointments) {
     const tableContainer = document.createElement('div');
     tableContainer.className = 'list-view__table-container';
 
+    const todayStr = new Date().toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric' 
+    });
+
     if (appointments.length === 0) {
-        tableContainer.innerHTML = `
-            <div class="list-empty">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <p>No matches found</p>
-            </div>`;
+        tableContainer.innerHTML = `<div class="list-empty"><p>No matches found</p></div>`;
     } else {
         tableContainer.innerHTML = `
             <table class="appointments-table">
@@ -173,30 +173,32 @@ function renderTable(parent, appointments) {
                         ${sorter.renderTh('Time', 'time')}
                         ${sorter.renderTh('Duration', 'duration')}
                         ${sorter.renderTh('Service', 'service')}
-                        ${sorter.renderTh('Business Name', 'business')}
                         ${sorter.renderTh('Status', 'status')}
                         <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="listTableBody">
-                    ${appointments.map(app => `
-                        <tr class="appointments-table__row">
-                            <td><div class="date-cell">${app.date}</div></td>
-                            <td><div class="time-cell">${app.time}</div></td>
-                            <td><div class="duration-cell">${app.duration}</div></td>
-                            <td><span class="service-cell">${app.service}</span></td>
-                            <td><span class="business-cell">${app.business}</span></td>
-                            <td>
-                                <span class="status-cell ${getStatusClass(app.status)}">
-                                    ${app.status}
-                                </span>
-                            </td>
-                            <td class="controls-cell text-right">
-                                <button class="button-icon" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                                <button class="button-icon button-icon--danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `).join('')}
+                    ${appointments.map(app => {
+                        const isToday = app.date === todayStr;
+                        return `
+                            <tr class="appointments-table__row ${isToday ? 'is-today' : ''}">
+                                <td>
+                                    <div class="date-cell">
+                                        ${app.date}
+                                        ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                                    </div>
+                                </td>
+                                <td><div class="time-cell">${app.time}</div></td>
+                                <td><div class="duration-cell">${app.duration}</div></td>
+                                <td><span class="service-cell">${app.service}</span></td>
+                                <td><span class="status-cell ${getStatusClass(app.status)}">${app.status}</span></td>
+                                <td class="controls-cell text-right">
+                                    <button class="button-icon"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="button-icon button-icon--danger"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         `;

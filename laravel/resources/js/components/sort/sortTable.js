@@ -63,10 +63,18 @@ export class TableSorter {
             let aVal = a[this.config.key] ?? '';
             let bVal = b[this.config.key] ?? '';
 
-            if (!isNaN(aVal) && !isNaN(bVal) && aVal !== '' && bVal !== '') {
+            // Sort for date
+            if (this.config.key === 'date') {
+                aVal = new Date(aVal).getTime();
+                bVal = new Date(bVal).getTime();
+            } 
+            // Sort for numbers
+            else if (!isNaN(aVal) && !isNaN(bVal) && aVal !== '' && bVal !== '') {
                 aVal = parseFloat(aVal);
                 bVal = parseFloat(bVal);
-            } else {
+            } 
+            // Abc sort for others
+            else {
                 aVal = aVal.toString().toLowerCase();
                 bVal = bVal.toString().toLowerCase();
             }
@@ -74,7 +82,8 @@ export class TableSorter {
             if (aVal < bVal) return this.config.direction === 'asc' ? -1 : 1;
             if (aVal > bVal) return this.config.direction === 'asc' ? 1 : -1;
             
-            if (this.config.key !== 'time' && a.time && b.time) {
+            // Secondary sort if dates are the same (we go by time)
+            if (this.config.key === 'date') {
                 return a.time.localeCompare(b.time);
             }
 

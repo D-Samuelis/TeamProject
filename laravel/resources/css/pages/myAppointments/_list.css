@@ -29,6 +29,7 @@
 
 .appointments-table__row td {
     border-bottom: 1px solid var(--color-border-light-very);
+    cursor: pointer;
 }
 
 .appointments-table th {
@@ -206,3 +207,32 @@
 
 .button-icon--danger i { color: var(--color-danger); }
 .button-icon--danger:hover i { color: var(--color-danger-hover); }
+
+.appointments-table__row.is-today {
+    background-color: color-mix(in srgb, var(--color-primary), transparent 98%);
+    position: relative;
+}
+
+.appointments-table__row.is-today:hover {
+    background-color: color-mix(in srgb, var(--color-primary), transparent 92%);
+}
+
+.appointments-table__row.is-today td:first-child {
+    box-shadow: inset 4px 0 0 0 var(--color-primary);
+}
+
+.today-badge {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    font-size: 0.6rem;
+    padding: .25rem .35rem;
+    border-radius: .15rem;
+    margin-left: .5rem;
+    text-transform: uppercase;
+    font-family: 'Inter-Bold';
+    vertical-align: middle;
+}
+
+.appointments-table__row.is-today .date-cell {
+    color: var(--color-primary);
+}
