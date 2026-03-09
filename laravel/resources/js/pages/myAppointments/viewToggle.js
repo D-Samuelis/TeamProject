@@ -21,8 +21,8 @@ export function initViewToggle() {
             window.dispatchEvent(new Event('resize'));
         } else {
             const mockAppointments = [
-                { date: 'Mar 7, 2026', time: '10:00', duration: '1h', service: 'Fade + Beard', status: 'Confirmed' },
-                { date: 'Mar 8, 2026', time: '11:30', duration: '1h 30m', service: 'Classic Cut', status: 'Reserved' }
+                { date: 'Mar 7, 2026', time: '10:00', duration: '1h', service: 'Fade + Beard', business: 'MMG-Barbers', status: 'Confirmed' },
+                { date: 'Mar 8, 2026', time: '11:30', duration: '1h 30m', service: 'Classic Cut', business: 'Salon Evelynn', status: 'Reserved' }
             ];
             initListView(mockAppointments); 
         }

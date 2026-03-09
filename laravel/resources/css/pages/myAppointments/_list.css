@@ -42,6 +42,19 @@
     font-size: 0.75rem;
     color: var(--color-border);
     text-transform: uppercase;
+    cursor: pointer;
+    transition: color .2s ease-in-out;
+    user-select: none;
+}
+
+.appointments-table th:hover {
+    color: var(--color-primary);
+}
+
+.sort-icon {
+    align-items: center;
+    margin-left: .25rem;
+    opacity: .35;
 }
 
 .appointments-table__row {
@@ -177,3 +190,19 @@
     padding: .25rem .75rem;
     border-radius: .25rem;
 }
+
+.button-icon {
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+}
+
+.button-icon i{
+    font-size: var(--font-size-base);
+    color: var(--color-primary);
+}
+
+.button-icon:hover i { color: var(--color-primary-hover); }
+
+.button-icon--danger i { color: var(--color-danger); }
+.button-icon--danger:hover i { color: var(--color-danger-hover); }
