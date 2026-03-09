@@ -20,26 +20,25 @@ class UpdateBranchDTO
 
     /**
      * Map the request data to the DTO.
-     * Note: We use $branchId from the route parameter.
      */
     public static function fromRequest(int $branchId, UpdateBranchRequest $request): self
     {
+        $validated = $request->validated();
         return new self(
             id: $branchId,
-            name: $request->validated('name'),
-            type: $request->validated('type'),
-            address_line_1: $request->validated('address_line_1'),
-            address_line_2: $request->validated('address_line_2'),
-            city: $request->validated('city'),
-            postal_code: $request->validated('postal_code'),
-            country: $request->validated('country'),
+            name: $validated['name'] ?? null,
+            type: $validated['type'] ?? null,
+            address_line_1: $validated['address_line_1'] ?? null,
+            address_line_2: $validated['address_line_2'] ?? null,
+            city: $validated['city'] ?? null,
+            postal_code: $validated['postal_code'] ?? null,
+            country: $validated['country'] ?? null,
             is_active: $request->has('is_active') ? $request->boolean('is_active') : null,
         );
     }
 
     /**
      * Convert to array, filtering out null values.
-     * This ensures we only update the fields provided in the request (Patch style).
      */
     public function toArray(): array
     {

@@ -9,18 +9,16 @@ use App\Domain\User\Interfaces\UserRepositoryInterface;
 
 class UpdateBusiness
 {
-    public function __construct(
-        private BusinessRepositoryInterface $businessRepo,
-        private UserRepositoryInterface $userRepo,
-        private BusinessAuthorizationService $authService
-    ) {}
+    public function __construct(private BusinessRepositoryInterface $businessRepo, private UserRepositoryInterface $userRepo, private BusinessAuthorizationService $authService) {}
 
     public function execute(UpdateBusinessDTO $dto, int $userId): void
     {
-        $business = $this->businessRepo->findById($dto->id);
         $user = $this->userRepo->findById($userId);
+        
+        $business = $this->businessRepo->findForManagement($dto->id);
 
         $this->authService->ensureCanUpdateBusiness($user, $business);
+
         $this->businessRepo->update($dto->id, $dto->toArray());
     }
 }

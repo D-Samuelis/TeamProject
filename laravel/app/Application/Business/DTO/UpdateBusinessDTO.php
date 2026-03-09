@@ -14,21 +14,21 @@ class UpdateBusinessDTO
     ) {}
 
     /**
-     * Map the request data and the route ID to the DTO.
+     * Map the request data to the DTO.
      */
     public static function fromRequest(int $businessId, UpdateBusinessRequest $request): self
     {
+        $validated = $request->validated();
         return new self(
             id: $businessId,
-            name: $request->validated('name'),
-            description: $request->validated('description'),
+            name: $validated['name'] ?? null,
+            description: $validated['description'] ?? null,
             is_published: $request->has('is_published') ? $request->boolean('is_published') : null,
         );
     }
 
     /**
-     * Convert to array, stripping out nulls to prevent 
-     * overwriting existing data with empty values.
+     * Convert to array, filtering out null values.
      */
     public function toArray(): array
     {

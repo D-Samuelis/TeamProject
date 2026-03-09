@@ -30,14 +30,25 @@ class BusinessAuthorizationService
     /**
      * Check if a user can view business details.
      */
-    public function ensureCanViewBusiness(User $user, Business $business): void
+    public function ensureCanViewBusiness(?User $user, Business $business): void
     {
+        // Public
+        if ($business->is_published) {
+            return;
+        }
+
+        // Private
+        if (!$user) {
+            throw new DomainException('This business is private.');
+        }
+
+        // Admin
         if ($user->isAdmin()) {
             return;
         }
 
+        // Roles
         $role = $this->userRepo->getBusinessRole($user, $business);
-
         if (!$role) {
             throw new DomainException('You do not have permission to view this business.');
         }

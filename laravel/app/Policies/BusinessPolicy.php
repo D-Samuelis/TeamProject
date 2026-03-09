@@ -17,22 +17,30 @@ class BusinessPolicy
 
     public function view(User $user, Business $business): bool
     {
-        return $this->runCheck(fn () => $this->authService->ensureCanViewBusiness($user, $business));
+        if ($business->is_published) {
+            return true;
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        return $this->runCheck(fn() => $this->authService->ensureCanViewBusiness($user, $business));
     }
 
     public function update(User $user, Business $business): bool
     {
-        return $this->runCheck(fn () => $this->authService->ensureCanUpdateBusiness($user, $business));
+        return $this->runCheck(fn() => $this->authService->ensureCanUpdateBusiness($user, $business));
     }
 
     public function delete(User $user, Business $business): bool
     {
-        return $this->runCheck(fn () => $this->authService->ensureCanDeleteBusiness($user, $business));
+        return $this->runCheck(fn() => $this->authService->ensureCanDeleteBusiness($user, $business));
     }
 
     public function publish(User $user, Business $business): bool
     {
-        return $this->runCheck(fn () => $this->authService->ensureCanPublishBusiness($user, $business));
+        return $this->runCheck(fn() => $this->authService->ensureCanPublishBusiness($user, $business));
     }
 
     private function runCheck(callable $check): bool

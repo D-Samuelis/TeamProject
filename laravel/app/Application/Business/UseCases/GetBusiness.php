@@ -9,16 +9,16 @@ use App\Models\Business\Business;
 
 class GetBusiness
 {
-    public function __construct(
-        private readonly BusinessRepositoryInterface $businessRepo,
-        private readonly BusinessAuthorizationService $authService
-    ) {}
+    public function __construct(private readonly BusinessRepositoryInterface $businessRepo, private readonly BusinessAuthorizationService $authService) {}
 
-    public function execute(int $businessId, User $user): Business
+    public function execute(int $businessId, ?User $user = null): Business
     {
-        $business = $this->businessRepo->findById($businessId, true);
-        $this->authService->ensureCanViewBusiness($user, $business);
+        if ($user) {
+            $business = $this->businessRepo->findForManagement($businessId);
+            $this->authService->ensureCanViewBusiness($user, $business);
+            return $business;
+        }
 
-        return $business;
+        return $this->businessRepo->findActive($businessId);
     }
 }

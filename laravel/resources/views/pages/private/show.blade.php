@@ -45,10 +45,13 @@
                                             method="POST">
                                             @csrf
                                             @method('PUT')
+
+                                            <input type="hidden" name="is_active" value="0">
+
                                             <label
                                                 style="display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;">
-                                                <input type="checkbox" name="is_active" onchange="this.form.submit()"
-                                                    {{ $branch->is_active ? 'checked' : '' }}>
+                                                <input type="checkbox" name="is_active" value="1"
+                                                    onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
                                                 <span style="font-size: 12px;">Active Status</span>
                                             </label>
                                         </form>
@@ -102,38 +105,83 @@
                         <h2 style="margin-bottom:20px;">Create Branch</h2>
 
                         <div style="display:flex; flex-direction:column; gap:12px;">
+                            {{-- Global Error Banner --}}
+                            @if ($errors->any())
+                                <div class="branch-error-banner"
+                                    style="background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                                    <strong>Whoops!</strong> Please check the form below.
+                                </div>
+                            @endif
+
                             <label style="font-size:14px; font-weight:500;">Name</label>
-                            <input type="text" name="name" placeholder="Branch Name" required>
+                            <input type="text" name="name" placeholder="Branch Name" required
+                                style="{{ $errors->has('name') ? 'border-color: #ef4444;' : '' }}"
+                                value="{{ old('name') }}">
+                            @error('name')
+                                <span class="branch-error-message"
+                                    style="color: #ef4444; font-size: 12px; margin-top: -8px;">{{ $message }}</span>
+                            @enderror
 
                             <label style="font-size:14px; font-weight:500;">Type</label>
                             <select name="type" required
-                                style="width:100%; padding:8px; border-radius:6px; border:1px solid #d1d5db;">
-                                <option value="physical">Physical</option>
-                                <option value="online">Online</option>
-                                <option value="hybrid">Hybrid</option>
+                                style="width:100%; padding:8px; border-radius:6px; border:1px solid {{ $errors->has('type') ? '#ef4444' : '#d1d5db' }};">
+                                <option value="physical" {{ old('type') == 'physical' ? 'selected' : '' }}>Physical
+                                </option>
+                                <option value="online" {{ old('type') == 'online' ? 'selected' : '' }}>Online</option>
+                                <option value="hybrid" {{ old('type') == 'hybrid' ? 'selected' : '' }}>Hybrid</option>
                             </select>
 
-                            {{-- Inside the Modal Form --}}
+                            <input type="hidden" name="is_active" value="0">
                             <label
                                 style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:500; margin-top:10px; cursor:pointer;">
-                                {{-- This is the ONLY element that should have the id "branch_is_active" --}}
                                 <input type="checkbox" name="is_active" id="branch_is_active" value="1">
                                 Active Status
                             </label>
 
-                            <label style="font-size:14px; font-weight:500;">Address Details</label>
-                            <input type="text" name="address_line_1" placeholder="Address Line 1">
-                            <input type="text" name="address_line_2" placeholder="Address Line 2">
+                            <label style="font-size:14px; font-weight:500; margin-top: 10px;">Address Details</label>
+
+                            <input type="text" name="address_line_1" placeholder="Address Line 1"
+                                style="{{ $errors->has('address_line_1') ? 'border-color: #ef4444;' : '' }}"
+                                value="{{ old('address_line_1') }}">
+                            @error('address_line_1')
+                                <span class="branch-error-message"
+                                    style="color: #ef4444; font-size: 12px; margin-top: -8px;">{{ $message }}</span>
+                            @enderror
+
+                            <input type="text" name="address_line_2" placeholder="Address Line 2"
+                                value="{{ old('address_line_2') }}">
 
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                                <input type="text" name="city" placeholder="City">
-                                <input type="text" name="postal_code" placeholder="Postal Code">
+                                <div>
+                                    <input type="text" name="city" placeholder="City"
+                                        style="width:100%; {{ $errors->has('city') ? 'border-color: #ef4444;' : '' }}"
+                                        value="{{ old('city') }}">
+                                    @error('city')
+                                        <span class="branch-error-message"
+                                            style="color: #ef4444; font-size: 11px;">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <input type="text" name="postal_code" placeholder="Postal Code"
+                                        style="width:100%; {{ $errors->has('postal_code') ? 'border-color: #ef4444;' : '' }}"
+                                        value="{{ old('postal_code') }}">
+                                    @error('postal_code')
+                                        <span class="branch-error-message"
+                                            style="color: #ef4444; font-size: 11px;">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <input type="text" name="country" placeholder="Country">
+                            <input type="text" name="country" placeholder="Country"
+                                style="{{ $errors->has('country') ? 'border-color: #ef4444;' : '' }}"
+                                value="{{ old('country') }}">
+                            @error('country')
+                                <span class="branch-error-message"
+                                    style="color: #ef4444; font-size: 12px; margin-top: -8px;">{{ $message }}</span>
+                            @enderror
 
                             <div style="margin-top:20px; display:flex; gap:12px;">
-                                <button type="submit" class="save-btn" style="flex:2;">Create Branch</button>
+                                <button type="submit" class="save-btn" style="flex:2;">Save Branch</button>
                                 <button type="button" onclick="toggleBranchModal()"
                                     style="flex:1; background:#f3f4f6; color:#374151; padding:8px 0; border:1px solid #d1d5db; border-radius:6px; cursor:pointer;">Cancel</button>
                             </div>
@@ -200,6 +248,73 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    function toggleBranchModal(branch = null) {
+        const modal = document.getElementById('branchModal');
+        const form = modal.querySelector('form');
+        const title = modal.querySelector('h2');
+        const submitBtn = modal.querySelector('.save-btn');
+        const methodInput = document.getElementById('methodOverride');
+        const activeCheckbox = document.getElementById('branch_is_active');
+
+        const isClosing = modal.style.display === 'flex';
+
+        if (isClosing) {
+            form.reset();
+
+            form.querySelectorAll('input, select, textarea').forEach(el => {
+                el.style.borderColor = '#d1d5db';
+            });
+
+            form.querySelectorAll('.branch-error-message').forEach(el => {
+                el.style.display = 'none';
+            });
+            const banner = form.querySelector('.branch-error-banner');
+            if (banner) banner.style.display = 'none';
+
+            modal.style.display = 'none';
+            return;
+        }
+
+        if (branch) {
+            title.innerText = 'Edit Branch';
+            submitBtn.innerText = 'Update Branch';
+            form.action = `/my-businesses/{{ $business->id }}/branches/${branch.id}`;
+            methodInput.value = 'PUT';
+
+            form.name.value = branch.name;
+            form.type.value = branch.type;
+            form.address_line_1.value = branch.address_line_1 || '';
+            form.address_line_2.value = branch.address_line_2 || '';
+            form.city.value = branch.city || '';
+            form.postal_code.value = branch.postal_code || '';
+            form.country.value = branch.country || '';
+            activeCheckbox.checked = branch.is_active == 1;
+        } else {
+            title.innerText = 'Create Branch';
+            submitBtn.innerText = 'Create Branch';
+            form.action = "{{ route('branch.store', ['businessId' => $business->id]) }}";
+            methodInput.value = 'POST';
+            form.reset();
+            activeCheckbox.checked = true;
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    @if ($errors->any())
+        window.onload = function() {
+            const branchErrorKeys = ['name', 'type', 'address_line_1', 'city', 'postal_code', 'country'];
+            const hasBranchErrors = @json($errors->keys()).some(key => branchErrorKeys.includes(key));
+
+            if (hasBranchErrors) {
+                toggleBranchModal();
+            }
+        };
+    @endif
+</script>
 
 
 <style>
@@ -421,40 +536,3 @@
         /* red-600 */
     }
 </style>
-
-
-<script>
-    function toggleBranchModal(branch = null) {
-        const modal = document.getElementById('branchModal');
-        const form = modal.querySelector('form');
-        const title = modal.querySelector('h2');
-        const submitBtn = modal.querySelector('.save-btn');
-        const methodInput = document.getElementById('methodOverride');
-        const activeCheckbox = document.getElementById('branch_is_active');
-
-        if (branch) {
-            title.innerText = 'Edit Branch';
-            submitBtn.innerText = 'Update Branch';
-            form.action = `/businesses/{{ $business->id }}/branches/${branch.id}`;
-            methodInput.value = 'PUT';
-
-            form.name.value = branch.name;
-            form.type.value = branch.type;
-            form.address_line_1.value = branch.address_line_1 || '';
-            form.address_line_2.value = branch.address_line_2 || '';
-            form.city.value = branch.city || '';
-            form.postal_code.value = branch.postal_code || '';
-            form.country.value = branch.country || '';
-            activeCheckbox.checked = branch.is_active == 1;
-        } else {
-            title.innerText = 'Create Branch';
-            submitBtn.innerText = 'Create Branch';
-            form.action = "{{ route('branch.store', ['businessId' => $business->id]) }}";
-            methodInput.value = 'POST';
-            form.reset();
-            activeCheckbox.checked = true;
-        }
-
-        modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'flex' : 'none';
-    }
-</script>

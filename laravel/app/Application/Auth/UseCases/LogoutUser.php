@@ -6,6 +6,9 @@ use InvalidArgumentException;
 use App\Repositories\Auth\TokenServiceInterface;
 use App\Models\Auth\User;
 
+/**
+ * Use case class to handle user logout logic.
+ */
 final class LogoutUser
 {
     public function __construct(

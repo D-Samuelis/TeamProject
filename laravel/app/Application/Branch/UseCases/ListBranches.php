@@ -10,8 +10,8 @@ class ListBranches
         private readonly BranchRepositoryInterface $branchRepository
     ) {}
 
-    public function execute(string $scope = 'active')
+    public function execute(int $businessId, string $scope = 'active')
     {
-        return $this->branchRepository->allWithRelations($scope);
+        return $this->branchRepository->findByBusinessId($businessId, $scope);
     }
 }

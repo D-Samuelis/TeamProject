@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Auth;
 
 use App\Application\Auth\DTO\LoginUserDTO;
 use App\Application\Auth\DTO\RegisterUserDTO;

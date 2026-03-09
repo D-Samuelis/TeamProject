@@ -3,7 +3,6 @@
 namespace App\Application\Branch\UseCases;
 
 use App\Application\Auth\Services\BranchAuthorizationService;
-use App\Application\Branch\DTO\UpdateBranchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
 
@@ -17,10 +16,12 @@ class DeleteBranch
 
     public function execute(int $branchId, int $userId): void
     {
-        $branch = $this->branchRepo->findById($branchId);
+        $branch = $this->branchRepo->findForManagement($branchId);
+
         $user = $this->userRepo->findById($userId);
 
         $this->authService->ensureCanDeleteBranch($user, $branch);
+        
         $this->branchRepo->delete($branch);
     }
 }

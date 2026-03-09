@@ -2,29 +2,60 @@
 
 namespace App\Repositories\Branch;
 
+use App\Application\Business\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 
 class BranchRepository implements BranchRepositoryInterface
 {
-    public function findById(int $id, bool $withTrashed = false): Branch
+    /**
+     * PUBLIC
+     */
+    public function findActive(int $id): Branch
     {
-        $query = Branch::query();
-        if ($withTrashed) {
-            $query->withTrashed();
-        }
-        return $query->findOrFail($id);
+        return Branch::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->findOrFail($id);
     }
 
-    public function findDeletedById(int $id): Branch
+    public function search(SearchDTO $dto): Collection
+    {
+        $query = Branch::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
+
+        if ($dto->businessId) $query->where('business_id', $dto->businessId);
+        if ($dto->city) $query->where('city', $dto->city);
+
+        if ($dto->query) {
+            $query->where(fn($q) => $q->where('name', 'like', "%{$dto->query}%")
+                ->orWhere('city', 'like', "%{$dto->query}%"));
+        }
+
+        return $query->with('business')->get();
+    }
+
+    /**
+     * MANAGEMENT
+     */
+    public function findForManagement(int $id): Branch
     {
         return Branch::withTrashed()->findOrFail($id);
     }
 
-    public function findByBusinessId(int $businessId): Collection
+    public function findByBusinessId(int $businessId, string $scope = 'active'): Collection
     {
-        return Branch::where('business_id', $businessId)->get();
+        $query = Branch::where('business_id', $businessId);
+
+        match ($scope) {
+            'deleted' => $query->onlyTrashed(),
+            'all'     => $query->withTrashed(),
+            default   => $query,
+        };
+
+        return $query->get();
     }
 
     public function save(array $data): Branch
@@ -32,9 +63,8 @@ class BranchRepository implements BranchRepositoryInterface
         return Branch::create($data);
     }
 
-    public function update(int $id, array $data): Branch
+    public function update(Branch $branch, array $data): Branch
     {
-        $branch = $this->findById($id);
         $branch->update($data);
         return $branch;
     }

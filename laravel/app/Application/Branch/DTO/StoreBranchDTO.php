@@ -4,7 +4,7 @@ namespace App\Application\Branch\DTO;
 
 use App\Http\Requests\Branch\StoreBranchRequest;
 
-class CreateBranchDTO
+class StoreBranchDTO
 {
     public function __construct(
         public int $business_id,
@@ -18,6 +18,9 @@ class CreateBranchDTO
         public ?bool $is_active = false
     ) {}
 
+    /**
+     * Map the request data to the DTO.
+     */
     public static function fromRequest(
         int $businessId,
         StoreBranchRequest $request
@@ -35,6 +38,9 @@ class CreateBranchDTO
         );
     }
 
+    /**
+     * Convert to array, filtering out null values.
+     */
     public function toArray(): array
     {
         return [

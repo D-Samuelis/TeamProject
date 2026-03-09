@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Business;
 
+use App\Application\Business\DTO\SearchDTO;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 use App\Domain\Business\Enums\BusinessRoleEnum;
@@ -10,37 +12,55 @@ use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
 class BusinessRepository implements BusinessRepositoryInterface
 {
-    protected array $defaultRelations = ['branches', 'services.branches'];
+    /**
+     * PUBLIC METHODS
+     */
 
-    public function findById(int $id, bool $withTrashed = false): Business
+    /**
+     * Find a business for the public profile.
+     * Strictly active and published only.
+     */
+    public function findActive(int $id): Business
     {
-        $query = Business::with([
-            'branches' => function ($query) {
-                $query->withTrashed();
-            },
-            'services' => function ($query) {
-                $query->withTrashed();
-            },
-        ]);
-
-        if ($withTrashed) {
-            $query->withTrashed();
-        }
-
-        return $query->findOrFail($id);
+        return Business::query()
+            ->where('is_published', true)
+            ->with([
+                'branches' => fn($q) => $q->where('is_active', true),
+                'services' => fn($q) => $q->where('is_active', true),
+            ])
+            ->findOrFail($id);
     }
 
-    public function findDeletedById(int $id): Business
+    /**
+     * The search engine.
+     * Keyword matching and parameter filtering.
+     */
+    public function search(SearchDTO $dto): Collection
     {
-        return Business::onlyTrashed()->with($this->defaultRelations)->findOrFail($id);
+        $query = Business::query()->where('is_published', true);
+
+        $this->applySearchFilters($query, $dto);
+
+        return $query
+            ->with([
+                // Ensure the public only sees active branches/services when browsing the business card
+                'branches' => fn($q) => $q->where('is_active', true),
+                'services' => fn($q) => $q->where('is_active', true),
+            ])
+            ->latest()
+            ->get();
     }
 
-    public function listForUser(User $user, string $scope = 'active', bool $loadRelations = false): Collection
+    /**
+     * MANAGEMENT METHODS
+     */
+
+    /**
+     * List businesses for the owner.
+     */
+    public function listForOwner(User $user, string $scope = 'active'): Collection
     {
         $query = Business::query();
-        if ($loadRelations) {
-            $query->with($this->defaultRelations);
-        }
 
         if (!$user->isAdmin()) {
             $query->whereHas('users', fn($q) => $q->where('user_id', $user->id));
@@ -49,10 +69,27 @@ class BusinessRepository implements BusinessRepositoryInterface
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
             'all' => $query->withTrashed(),
-            default => $query,
+            default => $query, // active
         };
 
-        return $query->latest()->get();
+        return $query
+            ->with(['branches', 'services'])
+            ->latest()
+            ->get();
+    }
+
+    /**
+     * Find for management.
+     * Includes trashed records.
+     */
+    public function findForManagement(int $id): Business
+    {
+        return Business::withTrashed()
+            ->with([
+                'branches' => fn($q) => $q->withTrashed(),
+                'services' => fn($q) => $q->withTrashed(),
+            ])
+            ->findOrFail($id);
     }
 
     public function save(array $data): Business
@@ -62,7 +99,7 @@ class BusinessRepository implements BusinessRepositoryInterface
 
     public function update(int $id, array $data): Business
     {
-        $business = $this->findById($id, true);
+        $business = $this->findForManagement($id);
         $business->update($data);
         return $business;
     }
@@ -92,5 +129,77 @@ class BusinessRepository implements BusinessRepositoryInterface
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void
     {
         $business->users()->attach($userId, ['role' => $role->value]);
+    }
+
+    /**
+     * -------------------------------------------------------------------------
+     * PRIVATE HELPERS
+     * -------------------------------------------------------------------------
+     */
+    private function applySearchFilters(Builder $query, SearchDTO $dto): void
+    {
+        // 1. Keyword Deep Search (query property)
+        if ($dto->query) {
+            $keyword = $dto->query;
+
+            $query->where(function ($sub) use ($keyword) {
+                // Check Business Name/Description
+                $sub->orWhere('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%");
+
+                // Check if any active branch matches city or name
+                $sub->orWhereHas(
+                    'branches',
+                    fn($b) =>
+                    $b->where('is_active', true)
+                        ->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")
+                            ->orWhere('city', 'like', "%{$keyword}%"))
+                );
+
+                // Check if any active service matches name or description
+                $sub->orWhereHas(
+                    'services',
+                    fn($s) =>
+                    $s->where('is_active', true)
+                        ->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")
+                            ->orWhere('description', 'like', "%{$keyword}%"))
+                );
+            });
+        }
+
+        // 2. Exact Column/Location Filters
+        if ($dto->city) {
+            $query->whereHas(
+                'branches',
+                fn($q) =>
+                $q->where('is_active', true)->where('city', $dto->city)
+            );
+        }
+
+        // 3. Price and Duration (matches against services)
+        if ($dto->maxPrice) {
+            $query->whereHas(
+                'services',
+                fn($q) =>
+                $q->where('is_active', true)->where('price', '<=', $dto->maxPrice)
+            );
+        }
+
+        if ($dto->maxDuration) {
+            $query->whereHas(
+                'services',
+                fn($q) =>
+                $q->where('is_active', true)->where('duration_minutes', '<=', $dto->maxDuration)
+            );
+        }
+
+        // 4. Service Location Types (branch, online, etc)
+        if (!empty($dto->locationTypes)) {
+            $query->whereHas(
+                'services',
+                fn($q) =>
+                $q->where('is_active', true)->whereIn('location_type', $dto->locationTypes)
+            );
+        }
     }
 }

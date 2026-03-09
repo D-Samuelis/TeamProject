@@ -8,8 +8,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-// use App\Jobs\TranscribeAudioJob; // optional if you want async processing
-
 class AudioController extends Controller
 {
     public function index()

@@ -15,10 +15,11 @@ class RestoreBranch
         private BranchRepositoryInterface $branchRepo
     ) {}
 
-    public function execute(int $businessId, int $userId): void
+    public function execute(int $branchId, int $userId): void
     {
-        DB::transaction(function () use ($businessId, $userId) {
-            $branch = $this->branchRepo->findById($businessId, true);
+        DB::transaction(function () use ($branchId, $userId) {
+            $branch = $this->branchRepo->findForManagement($branchId);
+            
             $user = $this->userRepo->findById($userId);
 
             $this->branchAuthService->ensureCanUpdateBranch($user, $branch);

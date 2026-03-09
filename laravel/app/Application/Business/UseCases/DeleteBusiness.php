@@ -9,19 +9,17 @@ use App\Application\Auth\Services\BusinessAuthorizationService;
 
 class DeleteBusiness
 {
-    public function __construct(
-        private UserRepositoryInterface $userRepo,
-        private BusinessAuthorizationService $businessAuthService,
-        private BusinessRepositoryInterface $businessRepo
-    ) {}
+    public function __construct(private UserRepositoryInterface $userRepo, private BusinessAuthorizationService $businessAuthService, private BusinessRepositoryInterface $businessRepo) {}
 
     public function execute(int $businessId, int $userId): void
     {
         DB::transaction(function () use ($businessId, $userId) {
-            $business = $this->businessRepo->findById($businessId);
             $user = $this->userRepo->findById($userId);
 
+            $business = $this->businessRepo->findForManagement($businessId);
+
             $this->businessAuthService->ensureCanDeleteBusiness($user, $business);
+            
             $this->businessRepo->delete($business);
         });
     }

@@ -19,11 +19,13 @@ class UpdateBranch
     public function execute(UpdateBranchDTO $dto, int $userId): void
     {
         DB::transaction(function () use ($dto, $userId) {
-            $branch = $this->branchRepo->findById($dto->id);
+            $branch = $this->branchRepo->findForManagement($dto->id);
+            
             $user = $this->userRepo->findById($userId);
+
             $this->authService->ensureCanUpdateBranch($user, $branch);
 
-            $this->branchRepo->update($dto->id, $dto->toArray());
+            $this->branchRepo->update($branch, $dto->toArray());
         });
     }
 }

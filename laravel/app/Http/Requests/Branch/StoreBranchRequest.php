@@ -33,12 +33,23 @@ class StoreBranchRequest extends FormRequest
             'business_id' => 'required|exists:businesses,id',
             'name' => 'required|string|max:255',
             'type' => 'required|in:physical,online,hybrid',
-            'address_line_1' => 'required|string|max:255',
+            'address_line_1' => ['nullable', 'string', 'max:255', 'required_if:type,physical,hybrid'],
+            'city' => ['nullable', 'string', 'max:255', 'required_if:type,physical,hybrid'],
+            'postal_code' => ['nullable', 'string', 'max:50', 'required_if:type,physical,hybrid'],
+            'country' => ['nullable', 'string', 'max:255', 'required_if:type,physical,hybrid'],
             'address_line_2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:255',
-            'postal_code' => 'required|string|max:50',
-            'country' => 'required|string|max:255',
             'is_active' => 'boolean',
+        ];
+    }
+
+    /**
+     * Custom error message
+     */
+    public function messages(): array
+    {
+        return [
+            'address_line_1.required_if' => 'An address is required for physical or hybrid locations.',
+            'city.required_if' => 'City is required for physical locations.',
         ];
     }
 }

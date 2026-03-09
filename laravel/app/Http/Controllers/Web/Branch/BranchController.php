@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Branch;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
-use App\Application\Branch\UseCases\CreateBranch;
+use App\Application\Branch\UseCases\StoreBranch;
 use App\Application\Branch\UseCases\UpdateBranch;
 use App\Application\Branch\UseCases\DeleteBranch;
 use App\Application\Branch\UseCases\RestoreBranch;
-use App\Application\Branch\DTO\CreateBranchDTO;
+use App\Application\Branch\DTO\StoreBranchDTO;
 use App\Application\Branch\DTO\UpdateBranchDTO;
 
 class BranchController extends Controller
 {
-    public function store(int $businessId, StoreBranchRequest $request, CreateBranch $useCase)
+    public function store(int $businessId, StoreBranchRequest $request, StoreBranch $useCase)
     {
-        $branch = $useCase->execute(CreateBranchDTO::fromRequest($businessId, $request), Auth::id());
+        $branch = $useCase->execute(StoreBranchDTO::fromRequest($businessId, $request), Auth::id());
         return back()->with('success', "Branch '{$branch->name}' created.");
     }
 

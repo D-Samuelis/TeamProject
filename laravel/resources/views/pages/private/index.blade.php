@@ -24,7 +24,7 @@
     <h2 class="section-title">Active Businesses</h2>
 
     <div class="business-grid">
-        @foreach ($businesses as $business)
+        @foreach ($activeBusinesses as $business)
             <div class="business-card">
                 <div class="card-header">
                     <h2>{{ $business->name }}</h2>
@@ -49,13 +49,13 @@
                             @csrf
                             @method('PUT')
 
-                            {{-- 2. Pass existing data to satisfy validation --}}
-                            <input type="hidden" name="name" value="{{ $business->name }}">
-                            <input type="hidden" name="description" value="{{ $business->description }}">
-
                             <label style="display:flex; align-items:center; cursor:pointer; gap:5px;">
-                                <input type="checkbox" name="is_published" value="1" onchange="this.style.opacity='0.5'; this.form.submit()"
+                                <input type="hidden" name="is_published" value="0">
+
+                                <input type="checkbox" name="is_published" value="1"
+                                    onchange="this.style.opacity='0.5'; this.form.submit()"
                                     {{ $business->is_published ? 'checked' : '' }}>
+
                                 <span style="font-size: 13px;">Published</span>
                             </label>
                         </form>

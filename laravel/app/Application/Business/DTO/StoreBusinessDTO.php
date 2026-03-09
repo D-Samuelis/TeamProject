@@ -4,7 +4,7 @@ namespace App\Application\Business\DTO;
 
 use App\Http\Requests\Business\StoreBusinessRequest;
 
-class CreateBusinessDTO
+class StoreBusinessDTO
 {
     public function __construct(
         public string $name,
@@ -12,6 +12,9 @@ class CreateBusinessDTO
         public ?bool $is_published = false,
     ) {}
 
+    /**
+     * Map the request data to the DTO.
+     */
     public static function fromRequest(StoreBusinessRequest $request): self
     {
         return new self(
@@ -21,6 +24,9 @@ class CreateBusinessDTO
         );
     }
 
+    /**
+     * Convert to array, filtering out null values.
+     */
     public function toArray(): array
     {
         return [

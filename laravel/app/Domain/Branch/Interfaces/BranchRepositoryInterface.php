@@ -4,17 +4,41 @@ namespace App\Domain\Branch\Interfaces;
 
 use App\Models\Business\Branch;
 use Illuminate\Support\Collection;
+use App\Application\Business\DTO\SearchDTO;
 
 interface BranchRepositoryInterface
 {
-    public function findById(int $id): Branch;
-    public function findDeletedById(int $id): Branch;
-    public function findByBusinessId(int $businessId): Collection;
+    /**
+     * PUBLIC: Search and find active branches.
+     */
+    public function findActive(int $id): Branch;
+    
+    public function search(SearchDTO $dto): Collection;
+
+    /**
+     * MANAGEMENT: Operations for owners/admins.
+     */
+    public function findForManagement(int $id): Branch;
+    
+    public function findByBusinessId(int $businessId, string $scope = 'active'): Collection;
+
+    /**
+     * DATA PERSISTENCE
+     */
     public function save(array $data): Branch;
-    public function update(int $id, array $data): Branch;
+    
+    public function update(Branch $branch, array $data): Branch;
+    
     public function delete(Branch $branch): void;
+    
     public function restore(Branch $branch): void;
+
+    /**
+     * RELATIONSHIPS & ASSIGNMENTS
+     */
     public function attachServices(Branch $branch, array $serviceIds): void;
+    
     public function attachUsers(Branch $branch, array $userIdsWithRoles): void;
+    
     public function getAssignments(Branch $branch): array;
 }

@@ -34,12 +34,22 @@ class UpdateBranchRequest extends FormRequest
             'business_id' => 'required|exists:businesses,id',
             'name' => 'sometimes|string|max:255',
             'type' => 'sometimes|in:physical,online,hybrid',
-            'address_line_1' => 'nullable|string|max:255',
+            'address_line_1' => ['nullable', 'string', 'max:255', 'required_if:type,physical'],
             'address_line_2' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:50',
-            'country' => 'nullable|string|max:255',
+            'city' => ['nullable', 'string', 'max:255', 'required_if:type,physical'],
+            'postal_code' => ['nullable', 'string', 'max:50', 'required_if:type,physical'],
+            'country' => ['nullable', 'string', 'max:255', 'required_if:type,physical'],
             'is_active' => 'nullable|boolean',
+        ];
+    }
+
+    /**
+     * Custom error message
+     */
+    public function messages(): array
+    {
+        return [
+            'address_line_1.required_if' => 'An address is required for physical locations.',
         ];
     }
 }
