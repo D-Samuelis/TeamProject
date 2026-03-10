@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Rule;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Rule\StoreRuleRequest;
 use App\Application\Rule\DTO\CreateRuleDTO;
 use App\Application\Rule\UseCases\CreateRule;
-
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Rule\StoreRuleRequest;
 use Illuminate\Support\Facades\Auth;
 
 class RuleController extends Controller

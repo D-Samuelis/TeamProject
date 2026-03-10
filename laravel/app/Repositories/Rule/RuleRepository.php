@@ -5,7 +5,6 @@ namespace App\Repositories\Rule;
 use Illuminate\Support\Collection;
 use App\Models\Business\Rule;
 use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
-use App\Application\Rule\DTO\UpdateRuleDTO;
 
 class RuleRepository implements RuleRepositoryInterface
 {

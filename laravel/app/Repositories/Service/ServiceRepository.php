@@ -20,6 +20,25 @@ class ServiceRepository implements ServiceRepositoryInterface
             ->findOrFail($id);
     }
 
+    public function search(SearchDTO $dto): Collection
+    {
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
+
+        if ($dto->businessId) $query->where('business_id', $dto->businessId);
+
+        if ($dto->query) {
+            $query->where(fn($q) => $q->where('name', 'like', "%{$dto->query}%")
+                ->orWhere('description', 'like', "%{$dto->query}%"));
+        }
+
+        if ($dto->maxPrice) $query->where('price', '<=', $dto->maxPrice);
+        if ($dto->locationTypes) $query->whereIn('location_type', $dto->locationTypes);
+
+        return $query->with('business')->latest()->get();
+    }
+
     public function findMultipleByIds(array $ids): Collection
     {
         return Service::whereIn('id', $ids)->get();

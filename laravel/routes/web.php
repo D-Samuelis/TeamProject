@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Web\AssetController;
+use App\Http\Controllers\Web\Asset\AssetController;
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\Business\BusinessController;
 use App\Http\Controllers\Web\Business\PublicBusinessController;
@@ -9,7 +9,7 @@ use App\Http\Controllers\Web\Branch\BranchController;
 use App\Http\Controllers\Web\Branch\PublicBranchController;
 use App\Http\Controllers\Web\Service\PublicServiceController;
 use App\Http\Controllers\Web\Service\ServiceController;
-use App\Http\Controllers\Web\RuleController;
+use App\Http\Controllers\Web\Rule\RuleController;
 
 /**
  * Public Routes

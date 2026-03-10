@@ -37,6 +37,11 @@ class BranchRepository implements BranchRepositoryInterface
         return $query->with('business')->get();
     }
 
+    public function findMultipleByIds(array $ids): Collection
+    {
+        return Branch::whereIn('id', $ids)->get();
+    }
+
     /**
      * MANAGEMENT
      */

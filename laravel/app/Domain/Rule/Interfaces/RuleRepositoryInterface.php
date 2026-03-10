@@ -4,7 +4,6 @@ namespace App\Domain\Rule\Interfaces;
 
 use Illuminate\Support\Collection;
 use App\Models\Business\Rule;
-use App\Application\Rule\DTO\UpdateAssetDTO;
 
 interface RuleRepositoryInterface
 {
