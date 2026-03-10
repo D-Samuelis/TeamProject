@@ -2,16 +2,18 @@
 
 namespace App\Application\Branch\UseCases;
 
+use App\Application\Business\DTO\SearchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 
 class ListBranches
 {
     public function __construct(
-        private readonly BranchRepositoryInterface $branchRepository
+        private readonly BranchRepositoryInterface $branchRepo
     ) {}
 
-    public function execute(int $businessId, string $scope = 'active')
+    public function execute(array $filters = [])
     {
-        return $this->branchRepository->findByBusinessId($businessId, $scope);
+        $dto = SearchDTO::fromArray($filters);
+        return $this->branchRepo->search($dto);
     }
 }

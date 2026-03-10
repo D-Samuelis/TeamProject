@@ -41,11 +41,12 @@
                             <div style="display:flex; gap:8px;">
                                 @if (!$branch->trashed())
                                     @can('update', $branch)
-                                        <form action="{{ route('branch.update', [$business->id, $branch->id]) }}"
+                                        <form action="{{ route('branch.update', $branch->id) }}"
                                             method="POST">
                                             @csrf
                                             @method('PUT')
 
+                                            <input type="hidden" name="business_id" value="{{ $business->id }}">
                                             <input type="hidden" name="is_active" value="0">
 
                                             <label
@@ -67,7 +68,7 @@
 
                                     {{-- Delete Permission --}}
                                     @can('delete', $branch)
-                                        <form action="{{ route('branch.delete', [$business->id, $branch->id]) }}"
+                                        <form action="{{ route('branch.delete', $branch->id) }}"
                                             method="POST" onsubmit="return confirm('Are you sure?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="branch-delete-btn">Delete</button>
@@ -75,7 +76,7 @@
                                     @endcan
                                 @else
                                     @can('update', $branch)
-                                        <form action="{{ route('branch.restore', [$business->id, $branch->id]) }}"
+                                        <form action="{{ route('branch.restore', $branch->id) }}"
                                             method="POST">
                                             @csrf
                                             <button type="submit"
@@ -101,6 +102,7 @@
                     <form method="POST" action="">
                         @csrf
                         <input type="hidden" name="_method" id="methodOverride" value="POST">
+                        <input type="hidden" name="business_id" value="{{ $business->id }}">
 
                         <h2 style="margin-bottom:20px;">Create Branch</h2>
 
@@ -198,50 +200,11 @@
 
                 @foreach ($business->services as $service)
                     <div class="service-card">
-                        <form action="{{ route('service.update', [$business->id, $service->id]) }}" method="POST">
-                            @csrf @method('PUT')
+                        <div class="service-header">
                             <div class="service-header">
-                                <input type="text" name="name" value="{{ $service->name }}">
-                                <button>Update Service</button>
+                                <a href="{{ route('service.show', $service->id) }}">{{ $service->name }}</a>
                             </div>
-
-                            <div class="service-grid">
-                                <div>
-                                    <label>Price</label>
-                                    $<input type="number" name="price" value="{{ $service->price }}">
-                                </div>
-                                <div>
-                                    <label>Duration</label>
-                                    <input type="number" name="duration_minutes"
-                                        value="{{ $service->duration_minutes }}"> min
-                                </div>
-                            </div>
-
-                            <div class="service-availability">
-                                <p
-                                    style="font-size:10px; font-weight:bold; color:#9ca3af; text-transform:uppercase; margin-bottom:8px;">
-                                    Available At:</p>
-                                <div class="flex-wrap">
-                                    @foreach ($business->branches as $branch)
-                                        @php
-                                            $checked = $service->branches->contains($branch->id);
-                                        @endphp
-
-                                        <div
-                                            class="flex items-center justify-between mb-2 p-2 border rounded-lg hover:bg-gray-50">
-                                            <label
-                                                class="flex items-center space-x-2 cursor-pointer {{ $checked ? 'text-blue-600 font-semibold' : '' }}">
-                                                <input type="checkbox" name="branch_ids[]"
-                                                    value="{{ $branch->id }}" {{ $checked ? 'checked' : '' }}
-                                                    onchange="this.form.submit()"
-                                                    class="form-checkbox h-4 w-4 text-blue-600">
-                                                <span>{{ $branch->name }}</span>
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 @endforeach
             </section>
@@ -281,7 +244,7 @@
         if (branch) {
             title.innerText = 'Edit Branch';
             submitBtn.innerText = 'Update Branch';
-            form.action = `/my-businesses/{{ $business->id }}/branches/${branch.id}`;
+            form.action = `/branches/${branch.id}`;
             methodInput.value = 'PUT';
 
             form.name.value = branch.name;
@@ -295,7 +258,7 @@
         } else {
             title.innerText = 'Create Branch';
             submitBtn.innerText = 'Create Branch';
-            form.action = "{{ route('branch.store', ['businessId' => $business->id]) }}";
+            form.action = "{{ route('branch.store') }}";
             methodInput.value = 'POST';
             form.reset();
             activeCheckbox.checked = true;

@@ -12,9 +12,12 @@ interface ServiceRepositoryInterface
      * PUBLIC
      */
     public function findActive(int $id): Service;
-    
+
     public function search(SearchDTO $dto): Collection;
 
+    public function findMultipleByIds(array $ids): Collection;
+
+    public function findByBusinessId(int $businessId): Collection;
     /**
      * MANAGEMENT
      */
@@ -24,17 +27,17 @@ interface ServiceRepositoryInterface
      * DATA PERSISTENCE
      */
     public function save(array $data): Service;
-    
+
     public function update(Service $service, array $data): Service;
-    
+
     public function delete(Service $service): void;
-    
+
     public function restore(Service $service): void;
 
     /**
      * RELATIONSHIPS
      */
     public function attachBranches(Service $service, array $branchIds): void;
-    
+
     public function attachUsers(Service $service, array $userIdsWithRoles): void;
 }

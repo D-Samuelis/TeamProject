@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\Asset\AssetController;
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\Business\BusinessController;
 use App\Http\Controllers\Web\Business\PublicBusinessController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Web\Branch\BranchController;
 use App\Http\Controllers\Web\Branch\PublicBranchController;
 use App\Http\Controllers\Web\Service\PublicServiceController;
 use App\Http\Controllers\Web\Service\ServiceController;
+use App\Http\Controllers\Web\Rule\RuleController;
 
 /**
  * Public Routes
@@ -46,35 +48,46 @@ Route::middleware(['auth'])->group(function () {
     /**
      * Owner/Admin Management Area
      */
-    Route::prefix('my-businesses')->group(function () {
+    Route::prefix('businesses')->group(function () {
         Route::get('/', [BusinessController::class, 'index'])->name('business.index');
         Route::post('/', [BusinessController::class, 'store'])->name('business.store');
+        Route::get('/{businessId}', [BusinessController::class, 'show'])->name('business.show');
+        Route::put('/{businessId}', [BusinessController::class, 'update'])->name('business.update');
+        Route::delete('/{businessId}', [BusinessController::class, 'delete'])->name('business.delete');
+        Route::post('/{businessId}/restore', [BusinessController::class, 'restore'])->name('business.restore');
+    });
 
-        Route::prefix('{businessId}')->group(function () {
-            Route::get('/', [BusinessController::class, 'show'])->name('business.show');
-            Route::put('/', [BusinessController::class, 'update'])->name('business.update');
-            Route::delete('/', [BusinessController::class, 'delete'])->name('business.delete');
-            Route::post('/restore', [BusinessController::class, 'restore'])->name('business.restore');
+    Route::prefix('branches')->name('branch.')->controller(BranchController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{branchId}', 'show')->name('show');
+        Route::put('/{branchId}', 'update')->name('update');
+        Route::delete('/{branchId}', 'delete')->name('delete');
+        Route::post('/{branchId}/restore', 'restore')->name('restore');
+    });
 
-            Route::prefix('branches')
-                ->name('branch.')
-                ->controller(BranchController::class)
-                ->group(function () {
-                    Route::post('/', 'store')->name('store');
-                    Route::put('/{branchId}', 'update')->name('update');
-                    Route::delete('/{branchId}', 'delete')->name('delete');
-                    Route::post('/{branchId}/restore', 'restore')->name('restore');
-                });
+    Route::prefix('services')->name('service.')->controller(ServiceController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{serviceId}', 'show')->name('show');
+        Route::put('/{serviceId}', 'update')->name('update');
+        Route::delete('/{serviceId}', 'delete')->name('delete');
+        Route::post('/{serviceId}/restore', 'restore')->name('restore');
+    });
 
-            Route::prefix('services')
-                ->name('service.')
-                ->controller(ServiceController::class)
-                ->group(function () {
-                    Route::post('/', 'store')->name('store');
-                    Route::put('/{serviceId}', 'update')->name('update');
-                    Route::delete('/{serviceId}', 'delete')->name('delete');
-                    Route::post('/{serviceId}/restore', 'restore')->name('restore');
-                });
-        });
+    Route::prefix('assets')->name('asset.')->controller(AssetController::class)->group(function () {
+        Route::get('/', 'index')->name('index'); // Create
+        Route::post('/', 'store')->name('store'); // Create
+        Route::get('/{assetId}', 'show')->name('show');
+        Route::put('/{assetId}', 'update')->name('update'); // Update
+        Route::delete('/{assetId}', 'delete')->name('delete'); // Delete
+        Route::post('/{assetId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+    });
+
+    Route::prefix('rules')->name('rule.')->controller(RuleController::class)->group(function () {
+        Route::post('/', 'store')->name('store'); // Create
+        Route::put('/{ruleId}', 'update')->name('update'); // Update
+        Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
+        Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
     });
 });

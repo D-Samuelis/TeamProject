@@ -77,6 +77,74 @@
         <button type="submit">Create Service</button>
     </form>
 
+    <!-- ================= ASSET ================= -->
+    <form method="POST" action="{{ route('test.asset.store') }}">
+        @csrf
+        <h2>Create Asset</h2>
+
+        <label>Select Branches:</label>
+        <select name="branch_ids[]" multiple required>
+            @foreach($businesses as $business)
+                <optgroup label="{{ $business->name }}">
+                    @foreach($business->branches as $branch)
+                        <option value="{{ $branch->id }}">
+                            {{ $branch->name }} ({{ $branch->type }})
+                        </option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+
+        <label>Select Services:</label>
+        <select name="service_ids[]" multiple required>
+            @foreach($businesses as $business)
+                <optgroup label="{{ $business->name }}">
+                    @foreach($business->services as $service)
+                        <option value="{{ $service->id }}">
+                            {{ $service->name }}
+                        </option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+
+        <input type="text" name="name" placeholder="Asset Name" required>
+        <textarea name="description" placeholder="Description"></textarea>
+
+        <button type="submit">Create Asset</button>
+    </form>
+
+    <!-- ================= RULE ================= -->
+    <form method="POST" action="{{ route('test.rule.store') }}">
+        @csrf
+        <h2>Create rule</h2>
+
+        <label>Select Asset:</label>
+        <select name="asset_id" required>
+            @foreach($businesses as $business)
+                <optgroup label="{{ $business->name }}">
+                    @foreach($business->services as $service)
+                        <optgroup label="{{ $service->name }}">
+                            @foreach($service->assets as $asset)
+                                <option value="{{ $asset->id }}">
+                                    {{ $asset->name }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+
+        <input type="text" name="title" placeholder="Rule Title" required>
+        <textarea name="description" placeholder="Description"></textarea>
+        <input type="date" name="valid_from" placeholder="Rule Valid From" required>
+        <input type="date" name="valid_to" placeholder="Rule Valid To" required>
+        <input name="rule_set[break]" type="number">
+
+        <button type="submit">Create Rule</button>
+    </form>
+
     <!-- ================= DISPLAY DATA ================= -->
     <h2>Database Overview</h2>
 
@@ -184,6 +252,51 @@
                             @method('DELETE')
                             <button type="submit" onclick="return confirm('Delete service?')">Delete Service</button>
                         </form>
+
+                        <ul>
+                            <h3>Assets</h3>
+                            @foreach($service->assets as $asset)
+                                <li>
+                                    <strong>{{ $asset->name }}</strong>
+                                    — {{ $asset->description }}
+
+                                    <br>
+                                    Available at:
+                                    @foreach($asset->services as $asset_service)
+                                        <span>{{ $asset_service->name }}</span>@if(!$loop->last), @endif
+                                    @endforeach
+
+                                    <form method="POST" action="{{ route('test.asset.update', $asset->id) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="text" name="name" value="{{ $asset->name }}">
+                                        <input type="text" name="description" value="{{ $asset->description }}">
+                                        <select name="branch_ids[]" multiple>
+                                            @foreach($business->branches as $branch)
+                                                <option value="{{ $branch->id }}"
+                                                        @if($asset->branches->contains($branch->id)) selected @endif>
+                                                    {{ $branch->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <select name="service_ids[]" multiple>
+                                            @foreach($business->services as $service)
+                                                <option value="{{ $service->id }}"
+                                                        @if($asset->services->contains($service->id)) selected @endif>
+                                                    {{ $service->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit">Update Asset</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('test.asset.delete', $asset->id) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" onclick="return confirm('Delete service?')">Delete Asset</button>
+                                    </form>
+                                </li>
+                            @endforeach
+                        </ul>
                     </li>
                     @endforeach
                 </ul>

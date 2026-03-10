@@ -18,7 +18,6 @@ class UpdateServiceRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'business_id' => $this->route('businessId'),
             'id' => $this->route('serviceId'),
             'is_active' => $this->has('is_active') ? $this->boolean('is_active') : null,
         ]);
@@ -46,7 +45,7 @@ class UpdateServiceRequest extends FormRequest
             'branch_ids.*' => [
                 'integer',
                 Rule::exists('branches', 'id')->where(function ($query) {
-                    $query->where('business_id', $this->route('businessId'));
+                    $query->where('business_id', $this->input('business_id'));
                 }),
             ],
         ];

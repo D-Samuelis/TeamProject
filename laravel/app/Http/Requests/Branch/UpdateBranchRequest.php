@@ -17,7 +17,6 @@ class UpdateBranchRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'business_id' => $this->route('businessId'),
             'id' => $this->route('branchId'),
             'is_active' => $this->boolean('is_active'),
         ]);
