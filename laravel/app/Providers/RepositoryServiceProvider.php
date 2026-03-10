@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-// Bind interfaces → implementations so DI works: when the app needs a UserRepository, it will get an EloquentUserRepository, etc.
 class RepositoryServiceProvider extends ServiceProvider
 {
     public function register()

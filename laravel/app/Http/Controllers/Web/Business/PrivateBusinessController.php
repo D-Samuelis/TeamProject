@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers\Web\Business;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+
+// Requests
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
+
+// DTOs
 use App\Application\Business\DTO\StoreBusinessDTO;
 use App\Application\Business\DTO\UpdateBusinessDTO;
+
+// Use Cases
 use App\Application\Business\UseCases\StoreBusiness;
 use App\Application\Business\UseCases\DeleteBusiness;
 use App\Application\Business\UseCases\GetBusiness;
@@ -15,7 +21,7 @@ use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Business\UseCases\RestoreBusiness;
 use App\Application\Business\UseCases\UpdateBusiness;
 
-class BusinessController extends Controller
+class PrivateBusinessController extends Controller
 {
     public function index(ListBusinesses $useCase)
     {

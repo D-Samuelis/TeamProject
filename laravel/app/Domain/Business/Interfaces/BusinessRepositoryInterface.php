@@ -49,4 +49,6 @@ interface BusinessRepositoryInterface
     public function existsOwner(int $userId): bool;
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void;
+
+    public function detachUser($business, $userId);
 }

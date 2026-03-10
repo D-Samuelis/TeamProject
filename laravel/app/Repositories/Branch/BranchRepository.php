@@ -3,6 +3,7 @@
 namespace App\Repositories\Branch;
 
 use App\Application\Business\DTO\SearchDTO;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
@@ -94,9 +95,14 @@ class BranchRepository implements BranchRepositoryInterface
         $branch->services()->sync($serviceIds);
     }
 
-    public function attachUsers(Branch $branch, array $userIdsWithRoles): void
+    public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void
     {
-        $branch->users()->sync($userIdsWithRoles);
+        $branch->users()->attach($userId, ['role' => $role->value]);
+    }
+
+    public function detachUser($branch, $userId): Branch
+    {
+        return $branch->users()->detach($userId);
     }
 
     public function getAssignments(Branch $branch): array

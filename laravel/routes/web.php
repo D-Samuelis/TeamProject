@@ -2,34 +2,43 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\Asset\AssetController;
+
+// Auth
 use App\Http\Controllers\Web\Auth\AuthController;
-use App\Http\Controllers\Web\Business\BusinessController;
+
+// Business
+use App\Http\Controllers\Web\Business\PrivateBusinessController;
 use App\Http\Controllers\Web\Business\PublicBusinessController;
+use App\Http\Controllers\Web\Business\BusinessAssignmentController;
+
+// Branch & Service
 use App\Http\Controllers\Web\Branch\BranchController;
 use App\Http\Controllers\Web\Branch\PublicBranchController;
-use App\Http\Controllers\Web\Service\PublicServiceController;
 use App\Http\Controllers\Web\Service\ServiceController;
+use App\Http\Controllers\Web\Service\PublicServiceController;
+
+// Notifications
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\Rule\RuleController;
 
 /**
- * Public Routes
+ * Public
  */
 Route::view('/', 'pages.welcome')->name('home');
-Route::view('dev', 'pages.dev')->name('dev');
+Route::view('/dev', 'pages.dev')->name('dev');
 
 Route::prefix('manual-booking')->group(function () {
+    Route::get('/', [PublicBusinessController::class, 'index'])->name('manualBooking.index');
     Route::get('/services', [PublicServiceController::class, 'index'])->name('public.services.index');
     Route::get('/locations', [PublicBranchController::class, 'index'])->name('public.branches.index');
-
-    Route::get('/', [PublicBusinessController::class, 'index'])->name('manualBooking.index');
     Route::get('/{id}', [PublicBusinessController::class, 'show'])->name('manualBooking.show');
 });
 
 /**
- * Guest Routes (Authentication)
+ * Guest
  */
-Route::controller(AuthController::class)
-    ->middleware('guest')
+Route::middleware('guest')
+    ->controller(AuthController::class)
     ->group(function () {
         Route::get('/login', 'showAuth')->name('login');
         Route::get('/register', 'showAuth')->name('register');
@@ -38,23 +47,36 @@ Route::controller(AuthController::class)
     });
 
 /**
- * Protected Routes
+ * Protected
  */
 Route::middleware(['auth'])->group(function () {
+    // User
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', fn() => view('pages.private.dashboard'))->name('dashboard');
     Route::get('/my-appointments', fn() => view('pages.myAppointments'))->name('myAppointments');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Notifications
+    Route::prefix('notifications')
+        ->name('notifications.')
+        ->controller(NotificationController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/mark-all-read', 'markAllRead')->name('markAllRead');
+            Route::post('/{id}/dismiss', 'dismiss')->name('dismiss');
+            Route::post('/{id}/read', 'markAsRead')->name('markRead');
+        });
 
     /**
      * Owner/Admin Management Area
      */
     Route::prefix('businesses')->group(function () {
-        Route::get('/', [BusinessController::class, 'index'])->name('business.index');
-        Route::post('/', [BusinessController::class, 'store'])->name('business.store');
-        Route::get('/{businessId}', [BusinessController::class, 'show'])->name('business.show');
-        Route::put('/{businessId}', [BusinessController::class, 'update'])->name('business.update');
-        Route::delete('/{businessId}', [BusinessController::class, 'delete'])->name('business.delete');
-        Route::post('/{businessId}/restore', [BusinessController::class, 'restore'])->name('business.restore');
+        Route::get('/', [PrivateBusinessController::class, 'index'])->name('business.index');
+        Route::post('/', [PrivateBusinessController::class, 'store'])->name('business.store');
+        Route::get('/{businessId}', [PrivateBusinessController::class, 'show'])->name('business.show');
+        Route::put('/{businessId}', [PrivateBusinessController::class, 'update'])->name('business.update');
+        Route::delete('/{businessId}', [PrivateBusinessController::class, 'delete'])->name('business.delete');
+        Route::post('/{businessId}/restore', [PrivateBusinessController::class, 'restore'])->name('business.restore');
     });
 
     Route::prefix('branches')->name('branch.')->controller(BranchController::class)->group(function () {
