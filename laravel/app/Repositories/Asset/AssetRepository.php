@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Asset;
 
+use App\Application\Business\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Asset;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
@@ -17,6 +18,18 @@ class AssetRepository implements AssetRepositoryInterface
     public function save(array $data): Asset
     {
         return Asset::create($data);
+    }
+
+    public function search(SearchDTO $dto): Collection
+    {
+        $query = Asset::query();
+
+        return $query->get();
+    }
+
+    public function findForManagement(int $id): Asset
+    {
+        return Asset::withTrashed()->findOrFail($id);
     }
 
     public function attachServices(Asset $asset, array $serviceIds): void

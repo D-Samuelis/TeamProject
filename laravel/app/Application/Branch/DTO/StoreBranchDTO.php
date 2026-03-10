@@ -10,11 +10,11 @@ class StoreBranchDTO
         public int $business_id,
         public string $name,
         public string $type,
-        public string $address_line_1,
+        public ?string $address_line_1 = null,
         public ?string $address_line_2 = null,
-        public string $city,
-        public string $postal_code,
-        public string $country,
+        public ?string $city = null,
+        public ?string $postal_code = null,
+        public ?string $country = null,
         public ?bool $is_active = false
     ) {}
 
@@ -22,11 +22,10 @@ class StoreBranchDTO
      * Map the request data to the DTO.
      */
     public static function fromRequest(
-        int $businessId,
         StoreBranchRequest $request
     ): self {
         return new self(
-            business_id: $businessId,
+            business_id: $request->validated('business_id'),
             name: $request->validated('name'),
             type: $request->validated('type'),
             address_line_1: $request->validated('address_line_1'),

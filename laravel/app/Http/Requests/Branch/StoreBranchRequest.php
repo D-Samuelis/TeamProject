@@ -17,7 +17,6 @@ class StoreBranchRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'business_id' => $this->route('businessId'),
             'is_active' => $this->boolean('is_active'),
         ]);
     }

@@ -10,6 +10,8 @@ use App\Application\Asset\DTO\UpdateAssetDTO;
 use App\Application\Asset\UseCases\CreateAsset;
 use App\Application\Asset\UseCases\DeleteAsset;
 use App\Application\Asset\UseCases\UpdateAsset;
+use App\Application\Asset\UseCases\GetAsset;
+use App\Application\Asset\UseCases\ListAssets;
 
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 
@@ -17,6 +19,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AssetController extends Controller
 {
+    public function index(ListAssets $useCase)
+    {
+        return view('pages.private.asset.index', [
+            'assets' => $useCase->execute(),
+        ]);
+    }
+
     public function store(StoreAssetRequest $request, CreateAsset $useCase)
     {
         $dto = new CreateAssetDTO(
@@ -29,6 +38,12 @@ class AssetController extends Controller
         $useCase->execute($dto, Auth::id());
 
         return back();
+    }
+
+    public function show(int $assetId, GetAsset $useCase)
+    {
+        $asset = $useCase->execute($assetId, Auth::user());
+        return view('pages.private.asset.show', compact('asset'));
     }
 
     public function update(int $assetId, UpdateAssetRequest $request, UpdateAsset $updateAssetUseCase)

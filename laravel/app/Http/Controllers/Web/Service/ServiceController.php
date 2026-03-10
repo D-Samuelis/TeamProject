@@ -11,18 +11,32 @@ use App\Application\Service\UseCases\StoreService;
 use App\Application\Service\UseCases\UpdateService;
 use App\Application\Service\UseCases\DeleteService;
 use App\Application\Service\UseCases\RestoreService;
+use App\Application\Service\UseCases\GetService;
+use App\Application\Service\UseCases\ListServices;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceController extends Controller
 {
+    public function index(ListServices $useCase)
+    {
+        return view('pages.private.service.index', [
+            'services' => $useCase->execute(),
+        ]);
+    }
+
     public function store(StoreServiceRequest $request, StoreService $useCase)
     {
         $useCase->execute(StoreServiceDTO::fromRequest($request), Auth::id());
         return back()->with('success', 'Service created successfully.');
     }
 
+    public function show(int $serviceId, GetService $useCase)
+    {
+        $service = $useCase->execute($serviceId, Auth::user());
+        return view('pages.private.service.show', compact('service'));
+    }
+
     public function update(
-        int $businessId,
         int $serviceId,
         UpdateServiceRequest $request,
         UpdateService $useCase
@@ -32,7 +46,6 @@ class ServiceController extends Controller
     }
 
     public function delete(
-        int $businessId,
         int $serviceId,
         DeleteService $useCase
     ) {
@@ -41,7 +54,6 @@ class ServiceController extends Controller
     }
 
     public function restore(
-        int $businessId,
         int $serviceId,
         RestoreService $useCase
     ) {

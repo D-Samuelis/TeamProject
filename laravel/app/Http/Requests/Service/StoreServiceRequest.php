@@ -17,7 +17,7 @@ class StoreServiceRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'business_id' => $this->route('businessId') ?? $this->input('business_id'),
+            'business_id' => $this->input('business_id'),
             'is_active' => $this->boolean('is_active'),
         ]);
     }

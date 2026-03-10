@@ -1,0 +1,3 @@
+<div>
+    {{ $asset->name }}
+</div>
