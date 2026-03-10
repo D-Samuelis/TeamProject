@@ -77,6 +77,12 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{businessId}', [PrivateBusinessController::class, 'update'])->name('business.update');
         Route::delete('/{businessId}', [PrivateBusinessController::class, 'delete'])->name('business.delete');
         Route::post('/{businessId}/restore', [PrivateBusinessController::class, 'restore'])->name('business.restore');
+
+        Route::controller(BusinessAssignmentController::class)->group(function () {
+        Route::post('/{businessId}/assign', 'store')->name('business.assign');
+        Route::patch('/{businessId}/users/{user}', 'update')->name('business.users.update');
+        Route::delete('/{businessId}/users/{user}', 'delete')->name('business.users.delete');
+    });
     });
 
     Route::prefix('branches')->name('branch.')->controller(BranchController::class)->group(function () {
