@@ -28,7 +28,7 @@ class Business extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)
+        return $this->morphToMany(User::class, 'model', 'model_has_users')
             ->withPivot('role')
             ->withTimestamps();
     }
@@ -41,15 +41,5 @@ class Business extends Model
     public function services()
     {
         return $this->hasMany(Service::class);
-    }
-
-    public function isOwner(int $userId): bool
-    {
-        return $this->owner_id === $userId;
-    }
-
-    public function canCreateBranch(int $userId): bool
-    {
-        return $this->isOwner($userId);
     }
 }

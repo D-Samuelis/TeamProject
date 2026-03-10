@@ -5,6 +5,7 @@ namespace App\Domain\Service\Interfaces;
 use Illuminate\Support\Collection;
 use App\Models\Business\Service;
 use App\Application\Business\DTO\SearchDTO;
+use App\Domain\Service\Enums\ServiceRoleEnum;
 
 interface ServiceRepositoryInterface
 {
@@ -38,6 +39,8 @@ interface ServiceRepositoryInterface
      * RELATIONSHIPS
      */
     public function attachBranches(Service $service, array $branchIds): void;
+    
+    public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void;
 
-    public function attachUsers(Service $service, array $userIdsWithRoles): void;
+    public function detachUser($service, $userId): Service;
 }

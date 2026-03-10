@@ -12,7 +12,15 @@ class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['business_id', 'name', 'description', 'duration_minutes', 'price', 'location_type', 'is_active'];
+    protected $fillable = [
+        'business_id',
+        'name',
+        'description',
+        'duration_minutes',
+        'price',
+        'location_type',
+        'is_active'
+    ];
 
     public function business()
     {
@@ -31,6 +39,8 @@ class Service extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
+        return $this->morphToMany(User::class, 'model', 'model_has_users')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Application\Business\UseCases;
 
-use App\Application\Auth\Services\BusinessAuthorizationService;
-use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+use App\Application\Auth\Services\BusinessAuthorizationService;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
 class GetBusiness
 {

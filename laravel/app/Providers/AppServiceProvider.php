@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-
-use App\Http\Middleware\CheckRole;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app['router']->aliasMiddleware('role', CheckRole::class);
+        Relation::morphMap([
+            'business' => \App\Models\Business\Business::class,
+            'branch'   => \App\Models\Business\Branch::class,
+            'service'  => \App\Models\Business\Service::class,
+        ]);
     }
 }

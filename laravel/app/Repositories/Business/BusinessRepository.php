@@ -43,7 +43,7 @@ class BusinessRepository implements BusinessRepositoryInterface
 
         return $query
             ->with([
-                // Ensure the public only sees active branches/services when browsing the business card
+                // Active only
                 'branches' => fn($q) => $q->where('is_active', true),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
@@ -92,6 +92,9 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->findOrFail($id);
     }
 
+    /**
+     * DATA PERSISTENCE
+     */
     public function save(array $data): Business
     {
         return Business::create($data);
@@ -119,16 +122,27 @@ class BusinessRepository implements BusinessRepositoryInterface
         $business->restore();
     }
 
-    public function existsOwner(int $userId): bool
+    public function existsOwner(int $userId, ?int $businessId = null): bool
     {
-        return Business::whereHas('users', function ($q) use ($userId) {
+        $query = Business::whereHas('users', function ($q) use ($userId) {
             $q->where('user_id', $userId)->wherePivot('role', BusinessRoleEnum::OWNER->value);
-        })->exists();
+        });
+
+        if ($businessId) {
+            $query->where('id', $businessId);
+        }
+
+        return $query->exists();
     }
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void
     {
         $business->users()->attach($userId, ['role' => $role->value]);
+    }
+
+    public function detachUser($business, $userId)
+    {
+        return $business->users()->detach($userId);
     }
 
     /**
@@ -138,68 +152,37 @@ class BusinessRepository implements BusinessRepositoryInterface
      */
     private function applySearchFilters(Builder $query, SearchDTO $dto): void
     {
-        // 1. Keyword Deep Search (query property)
+        // Keyword Deep Search
         if ($dto->query) {
             $keyword = $dto->query;
 
             $query->where(function ($sub) use ($keyword) {
                 // Check Business Name/Description
-                $sub->orWhere('name', 'like', "%{$keyword}%")
-                    ->orWhere('description', 'like', "%{$keyword}%");
+                $sub->orWhere('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%");
 
-                // Check if any active branch matches city or name
-                $sub->orWhereHas(
-                    'branches',
-                    fn($b) =>
-                    $b->where('is_active', true)
-                        ->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")
-                            ->orWhere('city', 'like', "%{$keyword}%"))
-                );
+                // Check if any ACTIVE branch matches city or name
+                $sub->orWhereHas('branches', fn($b) => $b->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('city', 'like', "%{$keyword}%")));
 
-                // Check if any active service matches name or description
-                $sub->orWhereHas(
-                    'services',
-                    fn($s) =>
-                    $s->where('is_active', true)
-                        ->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")
-                            ->orWhere('description', 'like', "%{$keyword}%"))
-                );
+                // Check if any ACTIVE service matches name or description
+                $sub->orWhereHas('services', fn($s) => $s->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%")));
             });
         }
 
-        // 2. Exact Column/Location Filters
+        // Other Exact Column Checks
         if ($dto->city) {
-            $query->whereHas(
-                'branches',
-                fn($q) =>
-                $q->where('is_active', true)->where('city', $dto->city)
-            );
+            $query->whereHas('branches', fn($q) => $q->where('is_active', true)->where('city', $dto->city));
         }
 
-        // 3. Price and Duration (matches against services)
         if ($dto->maxPrice) {
-            $query->whereHas(
-                'services',
-                fn($q) =>
-                $q->where('is_active', true)->where('price', '<=', $dto->maxPrice)
-            );
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('price', '<=', $dto->maxPrice));
         }
 
         if ($dto->maxDuration) {
-            $query->whereHas(
-                'services',
-                fn($q) =>
-                $q->where('is_active', true)->where('duration_minutes', '<=', $dto->maxDuration)
-            );
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('duration_minutes', '<=', $dto->maxDuration));
         }
 
-        // 4. Service Location Types (branch, online, etc)
         if (!empty($dto->locationTypes)) {
-            $query->whereHas(
-                'services',
-                fn($q) =>
-                $q->where('is_active', true)->whereIn('location_type', $dto->locationTypes)
-            );
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->whereIn('location_type', $dto->locationTypes));
         }
     }
 }

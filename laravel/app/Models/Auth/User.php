@@ -49,40 +49,40 @@ class User extends Authenticatable
      */
     public function businesses()
     {
-        return $this->belongsToMany(Business::class, 'business_user')
-            ->withPivot('role')
-            ->withCasts(['role' => BusinessRoleEnum::class])
-            ->withTimestamps();
+        return $this->morphedByMany(Business::class, 'model', 'model_has_users')
+            ->withPivot('role');
     }
 
     public function branches()
     {
-        return $this->belongsToMany(Branch::class, 'branch_user')
-            ->withPivot('role')
-            ->withCasts(['role' => BranchRoleEnum::class])
-            ->withTimestamps();
+        return $this->morphedByMany(Branch::class, 'model', 'model_has_users')
+            ->withPivot('role');
     }
 
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'service_user')->withPivot('role')->withTimestamps();
+        return $this->morphedByMany(Service::class, 'model', 'model_has_users')
+            ->withPivot('role');
     }
 
     /**
      * Helpers
      *  */
-    public function hasBusinessRole($businessId, BusinessRoleEnum $role): bool
+     public function isAdmin()
     {
-        return $this->businesses()->where('business_id', $businessId)->wherePivot('role', $role->value)->exists();
+        return $this->is_admin;
+    }
+    
+    /* public function hasBusinessRole($businessId, BusinessRoleEnum $role): bool
+    {
+        return $this->businesses()
+            ->where('model_id', $businessId)
+            ->wherePivot('role', $role->value)
+            ->exists();
     }
 
     public function hasBranchRole($branchId, BranchRoleEnum $role): bool
     {
         return $this->branches()->where('branch_id', $branchId)->wherePivot('role', $role->value)->exists();
-    }
-
-    public function isAdmin()
-    {
-        return $this->is_admin;
-    }
+    } */
 }

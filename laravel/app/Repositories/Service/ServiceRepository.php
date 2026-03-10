@@ -3,6 +3,7 @@
 namespace App\Repositories\Service;
 
 use App\Application\Business\DTO\SearchDTO;
+use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Business\Service;
@@ -118,8 +119,13 @@ class ServiceRepository implements ServiceRepositoryInterface
         $service->branches()->sync($branchIds);
     }
 
-    public function attachUsers(Service $service, array $userIdsWithRoles): void
+    public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void
     {
-        $service->users()->sync($userIdsWithRoles);
+        $service->users()->attach($userId, ['role' => $role->value]);
+    }
+
+    public function detachUser($service, $userId): Service
+    {
+        return $service->users()->detach($userId);
     }
 }

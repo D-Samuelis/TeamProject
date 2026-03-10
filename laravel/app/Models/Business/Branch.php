@@ -12,7 +12,17 @@ class Branch extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['business_id', 'name', 'type', 'address_line_1', 'address_line_2', 'city', 'postal_code', 'country', 'is_active'];
+    protected $fillable = [
+        'business_id',
+        'name',
+        'type',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'postal_code',
+        'country',
+        'is_active'
+    ];
 
     public function business()
     {
@@ -26,11 +36,8 @@ class Branch extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
-    }
-
-    public function isManager(int $userId): bool
-    {
-        return $this->managers()->where('user_id', $userId)->exists();
+        return $this->morphToMany(User::class, 'model', 'model_has_users')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }

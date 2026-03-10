@@ -5,6 +5,7 @@ namespace App\Domain\Branch\Interfaces;
 use App\Models\Business\Branch;
 use Illuminate\Support\Collection;
 use App\Application\Business\DTO\SearchDTO;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 
 interface BranchRepositoryInterface
 {
@@ -38,8 +39,10 @@ interface BranchRepositoryInterface
      * RELATIONSHIPS & ASSIGNMENTS
      */
     public function attachServices(Branch $branch, array $serviceIds): void;
+    
+    public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void;
 
-    public function attachUsers(Branch $branch, array $userIdsWithRoles): void;
-
+    public function detachUser($branch, $userId): Branch;
+    
     public function getAssignments(Branch $branch): array;
 }

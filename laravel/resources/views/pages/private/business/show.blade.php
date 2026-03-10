@@ -209,6 +209,74 @@
                 @endforeach
             </section>
         </div>
+
+        <div class="space-y-6">
+            <section class="card">
+                <h3>Team Management</h3>
+
+                <form action="{{ route('business.assign', $business->id) }}" method="POST"
+                    style="margin-bottom: 20px;">
+                    @csrf
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label style="font-size: 12px; font-weight: bold; color: #6b7280;">Add Member by Email</label>
+                        <input type="email" name="email" placeholder="staff@example.com" required>
+
+                        <select name="role">
+                            <option value="manager">Manager</option>
+                            <option value="staff">Staff</option>
+                        </select>
+
+                        <button class="save-btn" style="background: #2563eb;">Assign & Notify</button>
+                    </div>
+                </form>
+
+                <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+
+                <div class="member-list">
+                    <p style="font-size: 12px; font-weight: bold; color: #9ca3af; text-transform: uppercase;">Current
+                        Members</p>
+                    @foreach ($business->users as $user)
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6;">
+                            <div style="flex-grow: 1;">
+                                <p style="margin: 0; font-size: 14px; font-weight: 500;">{{ $user->name }}</p>
+
+                                @if ($user->pivot->role === 'owner')
+                                    <span style="font-size: 11px; color: #6b7280;">Owner</span>
+                                @else
+                                    {{-- Role Update Form --}}
+                                    <form action="{{ route('business.users.update', [$business->id, $user->id]) }}"
+                                        method="POST" style="display: inline-flex; align-items: center; gap: 5px;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="role" onchange="this.form.submit()"
+                                            style="font-size: 11px; padding: 2px 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                            <option value="manager"
+                                                {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager
+                                            </option>
+                                            <option value="staff"
+                                                {{ $user->pivot->role === 'staff' ? 'selected' : '' }}>Staff</option>
+                                        </select>
+                                    </form>
+                                @endif
+                            </div>
+
+                            @if ($user->pivot->role !== 'owner')
+                                <form action="{{ route('business.users.delete', [$business->id, $user->id]) }}"
+                                    method="POST" onsubmit="return confirm('Remove this user from the business?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        style="color: #ef4444; background: none; border: none; font-size: 12px; cursor: pointer; padding: 0;">
+                                        Remove
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        </div>
     </div>
 </div>
 
