@@ -60,11 +60,19 @@
                     <div class="timeline-info">
                         <i class="fa-solid fa-list-ul"></i>
                         <span>Total Appointments:</span>
-                        <span id="listCount">4</span>
+                        <span id="listCount">0</span>
+                    </div>
+                </div>
+
+                {{-- UNIVERZÁLNY SEARCH PRE TABUĽKU --}}
+                <div class="business__search-wrapper">
+                    <div class="business__search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
                     </div>
                 </div>
             </div>
-        
+
             <div id="listContainer" class="list-container">
                 <table class="appointments-table">
                     <thead>

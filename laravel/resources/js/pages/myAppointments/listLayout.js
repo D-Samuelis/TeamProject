@@ -1,4 +1,5 @@
 import { TableSorter } from '../../components/sort/sortTable.js';
+import { initListSearch } from '../../components/sort/searchBar.js';
 
 /**
  * Global sorter instance to manage table state
@@ -26,21 +27,30 @@ export function initListView(appointments = []) {
     listView.appendChild(headerWrapper);
     listView.appendChild(bodyWrapper);
 
+
     sorter = new TableSorter(appointments, 'date', 'desc', (sortedData) => {
         const body = document.getElementById('listBody');
         renderTable(body, sortedData);
+        applyCurrentSearch();
     });
 
     renderCorner(headerWrapper);
     renderListHeaderInfo(headerWrapper, appointments.length);
-    renderSearchBar(headerWrapper, appointments);
+    renderSearchBar(headerWrapper);
 
     renderTable(bodyWrapper, sorter.getSortedData());
 }
 
+
+function applyCurrentSearch() {
+    const input = document.getElementById('appointmentSearch');
+    if (input && input.value) {
+        input.dispatchEvent(new Event('input'));
+    }
+}
+
 /**
  * Renders the top-left corner with view switcher
- * @param {HTMLElement} parent
  */
 function renderCorner(parent) {
     const corner = document.createElement('div');
@@ -60,8 +70,6 @@ function renderCorner(parent) {
 
 /**
  * Renders the date info in the header
- * @param {HTMLElement} parent
- * @param {number} count
  */
 function renderListHeaderInfo(parent, count) {
     const info = document.createElement('div');
@@ -86,62 +94,36 @@ function renderListHeaderInfo(parent, count) {
 }
 
 /**
- * Renders the Search Bar and handles filtering logic
+ * Renders the Search Bar using the General Utility
  * @param {HTMLElement} parent
- * @param {Array} allAppointments
  */
-function renderSearchBar(parent, allAppointments) {
+function renderSearchBar(parent) {
     const searchWrapper = document.createElement('div');
     searchWrapper.className = 'list-view__search-wrapper';
     
     searchWrapper.innerHTML = `
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="appointmentSearch" placeholder="Filter everything...">
+            <input type="text" id="appointmentSearch" placeholder="Filter client, service, or date...">
         </div>
     `;
     
-    const input = searchWrapper.querySelector('#appointmentSearch');
-    input.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        
-        const filtered = allAppointments.filter(app => {
-            return (
-                (app.client && app.client.toLowerCase().includes(term)) ||
-                (app.service && app.service.toLowerCase().includes(term)) ||
-                (app.status && app.status.toLowerCase().includes(term)) ||
-                (app.date && app.date.toLowerCase().includes(term)) ||
-                (app.time && app.time.toLowerCase().includes(term)) ||
-                (app.duration && app.duration.toString().toLowerCase().includes(term))
-            );
-        });
-
-        // Update the sorter data and re-render
-        sorter.data = filtered;
-        renderTable(document.getElementById('listBody'), sorter.getSortedData());
-        
-        const statsText = document.querySelector('#listCount');
-        if (statsText) {
-            statsText.textContent = filtered.length === allAppointments.length 
-                ? `${filtered.length} Appointments` 
-                : `${filtered.length} Found`;
-        }
-    });
-
     parent.appendChild(searchWrapper);
+
+    setTimeout(() => {
+        initListSearch('#appointmentSearch', '.appointments-table__row', '.js-search-data');
+    }, 0);
 }
 
 /**
  * Maps status string to CSS class
- * @param {string} status 
- * @returns {string}
  */
 function getStatusClass(status) {
     const s = status.toLowerCase();
     const map = {
         'confirmed': 'filter-item--blue',
         'reserved':  'filter-item--yellow',
-        'cancelled':  'filter-item--red',
+        'cancelled': 'filter-item--red',
         'no-show':   'filter-item--black',
         'show':      'filter-item--green'
     };
@@ -163,7 +145,7 @@ function renderTable(parent, appointments) {
     });
 
     if (appointments.length === 0) {
-        tableContainer.innerHTML = `<div class="list-empty"><p>No matches found</p></div>`;
+        tableContainer.innerHTML = `<div class="list-empty"><p>No appointments found</p></div>`;
     } else {
         tableContainer.innerHTML = `
             <table class="appointments-table">
@@ -182,19 +164,25 @@ function renderTable(parent, appointments) {
                         const isToday = app.date === todayStr;
                         return `
                             <tr class="appointments-table__row ${isToday ? 'is-today' : ''}">
-                                <td>
+                                <td class="js-search-data">
                                     <div class="date-cell">
                                         ${app.date}
                                         ${isToday ? '<span class="today-badge">Today</span>' : ''}
                                     </div>
                                 </td>
-                                <td><div class="time-cell">${app.time}</div></td>
-                                <td><div class="duration-cell">${app.duration}</div></td>
-                                <td><span class="service-cell">${app.service}</span></td>
-                                <td><span class="status-cell ${getStatusClass(app.status)}">${app.status}</span></td>
+                                <td class="js-search-data"><div class="time-cell">${app.time}</div></td>
+                                <td class="js-search-data"><div class="duration-cell">${app.duration}</div></td>
+                                <td class="js-search-data"><span class="service-cell">${app.service}</span></td>
+                                <td>
+                                    <span class="status-cell ${getStatusClass(app.status)}">
+                                        ${app.status}
+                                    </span>
+                                </td>
                                 <td class="controls-cell text-right">
                                     <button class="button-icon"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="button-icon button-icon--danger"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="button-icon button-icon--danger">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `;

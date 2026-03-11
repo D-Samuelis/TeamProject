@@ -1,355 +1,171 @@
-<div class="page">
-    @if (session('error'))
-        <div id="error-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
-                <div class="flex items-center mb-4 text-red-600">
-                    <h3 class="text-lg font-bold">Access Denied</h3>
-                </div>
-                <p class="text-gray-600 mb-6">{{ session('error') }}</p>
-                <button onclick="document.getElementById('error-modal').remove()"
-                    class="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-700">
-                    Understood
+@extends('layouts.app')
+
+@section('title', 'Bexora | My Businesses')
+
+@section('content')
+<div class="business">
+    
+    {{-- SIDEBAR --}}
+    <aside class="business__sidebar">
+        <section class="business__group">
+            <h3 class="business__subtitle" data-collapse-trigger="managementList">
+                <i class="fa-solid fa-briefcase"></i>
+                Management
+            </h3>
+            <div id="managementList" class="dropdown__mini-list">
+                <a href="{{ route('business.index') }}" class="business__nav-link {{ request()->routeIs('business.index') ? 'is-active' : '' }}">
+                    <i class="fa-solid fa-list"></i>
+                    <span>All Businesses</span>
+                </a>
+                <button type="button" class="business__nav-link" data-modal-target="create-business-modal">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>New Business</span>
                 </button>
             </div>
-        </div>
-    @endif
+        </section>
+    </aside>
 
-    <div class="header">
-        <h1>Businesses</h1>
-        <button onclick="toggleModal('create-business-modal')" class="create-btn">
-            + New Business
-        </button>
-    </div>
-
-    <h2 class="section-title">Active Businesses</h2>
-
-    <div class="business-grid">
-        @foreach ($activeBusinesses as $business)
-            <div class="business-card">
-                <div class="card-header">
-                    <h2>{{ $business->name }}</h2>
-                    <p>
-                        @if ($business->is_published)
-                            Published
-                        @else
-                            Hidden
-                        @endif
-                    </p>
-                </div>
-
-                <p class="description">
-                    {{ $business->description ?? 'No description provided.' }}
-                </p>
-
-                <div class="actions">
-                    @can('update', $business)
-                        {{-- 1. The Route must include the ID from the loop --}}
-                        <form action="{{ route('business.update', $business->id) }}" method="POST"
-                            style="display:inline-block; margin-right: 10px;">
-                            @csrf
-                            @method('PUT')
-
-                            <label style="display:flex; align-items:center; cursor:pointer; gap:5px;">
-                                <input type="hidden" name="is_published" value="0">
-
-                                <input type="checkbox" name="is_published" value="1"
-                                    onchange="this.style.opacity='0.5'; this.form.submit()"
-                                    {{ $business->is_published ? 'checked' : '' }}>
-
-                                <span style="font-size: 13px;">Published</span>
-                            </label>
-                        </form>
-
-                        <a href="{{ route('business.show', $business->id) }}" class="manage-btn">
-                            Manage
-                        </a>
-                    @endcan
-
-                    @can('delete', $business)
-                        <form method="POST" action="{{ route('business.delete', $business->id) }}"
-                            onsubmit="return confirm('Archive this business?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="delete-btn">
-                                Delete
-                            </button>
-                        </form>
-                    @endcan
+    {{-- MAIN CONTENT --}}
+    <main class="business__main">
+        <header class="business__header-wrapper">
+            <div class="business__header-info">
+                <h2 class="timeline-header__title">My Businesses</h2>
+                <div class="timeline-info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Active Units: <strong>{{ $activeBusinesses->count() }}</strong></span>
                 </div>
             </div>
-        @endforeach
-    </div>
 
-    @if ($deletedBusinesses->count())
-        <h2 class="section-title deleted-section">Archived Businesses</h2>
-
-        <div class="business-grid">
-
-            @foreach ($deletedBusinesses as $business)
-                <div class="business-card deleted">
-
-                    <div class="card-header">
-                        <h2>{{ $business->name }}</h2>
-                        <span class="deleted-badge">Deleted</span>
-                    </div>
-
-                    <p class="description">
-                        {{ $business->description ?? 'No description provided.' }}
-                    </p>
-
-                    <div class="actions">
-
-                        <form method="POST" action="{{ route('business.restore', $business->id) }}"
-                            style="width:100%">
-                            @csrf
-
-                            <button type="submit" class="restore-btn">
-                                Restore
-                            </button>
-
-                        </form>
-
-                    </div>
-
+            <div class="business__search-wrapper">
+                <div class="business__search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="businessSearchInput" placeholder="Search businesses...">
                 </div>
-            @endforeach
+            </div>
+        </header>
 
+        <div class="business__body-wrapper">
+            @if (session('error'))
+                <div class="alert alert--danger mb-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            {{-- ACTIVE SECTION --}}
+            <h3 class="business__subtitle mb-3">Active Businesses</h3>
+            <div class="business-grid" id="activeBusinessGrid">
+                @forelse ($activeBusinesses as $business)
+                    <article class="business-card">
+                        <div class="business-card__header">
+                            {{-- Pridaná trieda js-search-data --}}
+                            <h4 class="business-card__title js-search-data">{{ $business->name }}</h4>
+                            
+                            {{-- Status IGNORUJEME (nemá triedu js-search-data) --}}
+                            <span class="status-cell {{ $business->is_published ? 'filter-item--green' : 'filter-item--black' }}">
+                                {{ $business->is_published ? 'Published' : 'Hidden' }}
+                            </span>
+                        </div>
+
+                        {{-- Pridaná trieda js-search-data --}}
+                        <p class="business-card__description js-search-data">
+                            {{ $business->description ?? 'No description provided.' }}
+                        </p>
+
+                        <div class="business-card__footer">
+                            <a href="{{ route('business.show', $business->id) }}" class="business-card__manage-btn">Manage</a>
+                            
+                            {{-- Visibility Toggle (Oko) --}}
+                            @can('update', $business)
+                                <form action="{{ route('business.update', $business->id) }}" method="POST" style="display: contents;">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="is_published" value="{{ $business->is_published ? '0' : '1' }}">
+                                    <button type="submit" class="button-icon {{ $business->is_published ? '' : 'button-icon--danger' }}" title="Toggle Visibility">
+                                        <i class="fa-solid {{ $business->is_published ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+                                    </button>
+                                </form>
+                            @endcan
+
+                            @can('delete', $business)
+                                <form method="POST" action="{{ route('business.delete', $business->id) }}" onsubmit="return confirm('Archive this business?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="button-icon button-icon--danger">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            @endcan
+                        </div>
+                    </article>
+                @empty
+                    <div class="business__empty">
+                        <p>No active businesses found.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            {{-- ARCHIVED SECTION --}}
+            @if ($deletedBusinesses->count())
+                <h3 class="business__subtitle mt-5 mb-3">Archived Businesses</h3>
+                <div class="business-grid">
+                    @foreach ($deletedBusinesses as $business)
+                        {{-- Celá karta má triedu .business-card, takže ju search.js uvidí --}}
+                        <article class="business-card business-card--archived">
+                            <div class="business-card__header">
+                                {{-- Pridaná js-search-data pre vyhľadávanie názvu --}}
+                                <h4 class="business-card__title js-search-data">{{ $business->name }}</h4>
+                                <span class="status-cell filter-item--red">Archived</span>
+                            </div>
+
+                            {{-- Pridaný popis s js-search-data, aby bol grid konzistentný --}}
+                            <p class="business-card__description js-search-data">
+                                {{ Str::limit($business->description ?? 'No description provided.', 80) }}
+                            </p>
+
+                            <div class="business-card__footer">
+                                <form method="POST" action="{{ route('business.restore', $business->id) }}" style="width: 100%">
+                                    @csrf
+                                    <button type="submit" class="business-card__restore-btn">
+                                        <i class="fa-solid fa-rotate-left"></i> Restore Business
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
         </div>
-    @endif
+    </main>
+</div>
 
-    <!-- ================= CREATE BUSINESS MODAL ================= -->
-    <div id="create-business-modal" class="modal hidden">
-        <div class="modal-overlay" onclick="toggleModal('create-business-modal')"></div>
-        <div class="modal-content">
-            <h2>Create New Business</h2>
-            <form method="POST" action="{{ route('business.store') }}">
-                @csrf
+{{-- MODAL --}}
+<div id="create-business-modal" class="business-modal hidden">
+    <div class="business-modal__overlay"></div>
+    <div class="business-modal__content">
+        <div class="business-modal__header mb-4">
+            <h2 class="timeline-header__title">Create New Business</h2>
+        </div>
+        <form method="POST" action="{{ route('business.store') }}">
+            @csrf
+            <div class="business__search-container mb-3" style="width: 100%">
                 <input type="text" name="name" placeholder="Business Name" required>
-                <textarea name="description" placeholder="Description"></textarea>
-                <button type="submit">Create Business</button>
-            </form>
-            <button class="close-btn" onclick="toggleModal('create-business-modal')">Close</button>
-        </div>
+            </div>
+            <div class="business__search-container mb-4" style="width: 100%; height: auto;">
+                <textarea name="description" placeholder="Description (optional)" style="width: 100%; border: none; background: transparent; outline: none; padding: 5px; min-height: 80px;"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="business__nav-link is-active" style="border: none; cursor: pointer;">
+                    Save Business
+                </button>
+                <button type="button" class="business__nav-link modal-close-trigger" style="border: none; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<style>
-    .page {
-        padding: 32px;
-        background: #f3f4f6;
-        min-height: 100vh;
-    }
+@vite('resources/js/pages/businesses/entry.js')
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-    }
-
-    .header h1 {
-        font-size: 24px;
-        font-weight: bold;
-    }
-
-    .create-btn {
-        background: #2563eb;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-    }
-
-    .create-btn:hover {
-        background: #1d4ed8;
-    }
-
-    /* dynamic grid */
-    .business-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-    }
-
-    /* card */
-    .business-card {
-        width: 320px;
-        display: flex;
-        flex-direction: column;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        background: white;
-        padding: 24px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    /* deleted card */
-    .business-card.deleted {
-        background: #fef2f2;
-        border-color: #fecaca;
-    }
-
-    /* card header */
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-    }
-
-    .card-header h2 {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .deleted-badge {
-        font-size: 12px;
-        background: #fecaca;
-        color: #b91c1c;
-        padding: 2px 6px;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* description */
-    .description {
-        color: #4b5563;
-        font-size: 14px;
-        margin-bottom: 24px;
-    }
-
-    /* actions */
-    .actions {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .actions form {
-        margin: 0;
-    }
-
-    .manage-btn {
-        flex: 1;
-        text-align: center;
-        background: #eff6ff;
-        color: #2563eb;
-        padding: 8px;
-        border-radius: 6px;
-        border: 1px solid #bfdbfe;
-        text-decoration: none;
-    }
-
-    .manage-btn:hover {
-        background: #dbeafe;
-    }
-
-    .delete-btn {
-        color: #ef4444;
-        background: none;
-        border: none;
-        cursor: pointer;
-        text-align: center;
-        padding: 8px;
-        border-radius: 6px;
-        border: 1px solid #ef4444;
-    }
-
-    .delete-btn:hover {
-        color: #b91c1c;
-    }
-
-    .restore-btn {
-        width: 100%;
-        background: #16a34a;
-        color: white;
-        padding: 8px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-    }
-
-    .restore-btn:hover {
-        background: #15803d;
-    }
-</style>
-
-<style>
-    /* Modal container */
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 50;
-    }
-
-    /* Hidden by default */
-    .hidden {
-        display: none;
-    }
-
-    /* Overlay */
-    .modal-overlay {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-    }
-
-    /* Modal content */
-    .modal-content {
-        position: relative;
-        background: white;
-        border-radius: 8px;
-        padding: 24px;
-        width: 400px;
-        max-width: 90%;
-        margin: 100px auto;
-        z-index: 100;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Inputs and button */
-    .modal-content input,
-    .modal-content textarea {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 12px;
-        border-radius: 6px;
-        border: 1px solid #d1d5db;
-    }
-
-    .modal-content button {
-        padding: 8px 16px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        background: #2563eb;
-        color: white;
-    }
-
-    .modal-content button:hover {
-        background: #1d4ed8;
-    }
-
-    .close-btn {
-        margin-top: 8px;
-        background: #ef4444;
-    }
-
-    .close-btn:hover {
-        background: #b91c1c;
-    }
-</style>
-
-<script>
-    function toggleModal(id) {
-        const modal = document.getElementById(id);
-        modal.classList.toggle('hidden');
-    }
-</script>
+@endsection
