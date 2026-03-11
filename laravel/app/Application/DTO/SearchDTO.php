@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Business\DTO;
+namespace App\Application\DTO;
 
 class SearchDTO
 {
@@ -12,6 +12,8 @@ class SearchDTO
         public readonly ?float $maxPrice = null,
         public readonly ?int $maxDuration = null,
         public readonly array $locationTypes = [],
+        public readonly int $perPage = 10,
+        public readonly int $page = 1,
     ) {}
 
     public static function fromRequest(array $data, string $defaultTarget = 'business'): self
@@ -24,6 +26,8 @@ class SearchDTO
             maxPrice: isset($data['max_price']) ? (float) $data['max_price'] : null,
             maxDuration: isset($data['max_duration']) ? (int) $data['max_duration'] : null,
             locationTypes: $data['location_types'] ?? [],
+            perPage: isset($data['per_page']) ? (int) $data['per_page'] : 10,
+            page: isset($data['page']) ? (int) $data['page'] : 1,
         );
     }
 
@@ -37,6 +41,8 @@ class SearchDTO
             maxPrice: isset($data['max_price']) ? (float) $data['max_price'] : null,
             maxDuration: isset($data['max_duration']) ? (int) $data['max_duration'] : null,
             locationTypes: $data['location_types'] ?? [],
+            perPage: isset($data['per_page']) ? (int) $data['per_page'] : 10,
+            page: isset($data['page']) ? (int) $data['page'] : 1,
         );
     }
 }

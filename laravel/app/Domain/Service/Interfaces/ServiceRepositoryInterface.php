@@ -4,7 +4,7 @@ namespace App\Domain\Service\Interfaces;
 
 use Illuminate\Support\Collection;
 use App\Models\Business\Service;
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 
 interface ServiceRepositoryInterface
@@ -14,11 +14,10 @@ interface ServiceRepositoryInterface
      */
     public function findActive(int $id): Service;
 
-    public function search(SearchDTO $dto): Collection;
+    public function search(SearchDTO $dto);
 
     public function findMultipleByIds(array $ids): Collection;
 
-    public function findByBusinessId(int $businessId): Collection;
     /**
      * MANAGEMENT
      */
@@ -43,4 +42,6 @@ interface ServiceRepositoryInterface
     public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void;
 
     public function detachUser($service, $userId): Service;
+
+    public function count(SearchDTO $dto): int;
 }

@@ -2,7 +2,7 @@
 
 namespace App\Application\Service\UseCases;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 
 class ListServices

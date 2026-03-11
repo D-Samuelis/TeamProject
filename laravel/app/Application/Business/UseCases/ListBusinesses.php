@@ -2,7 +2,7 @@
 
 namespace App\Application\Business\UseCases;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Auth\User;
 use Illuminate\Support\Collection;

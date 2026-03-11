@@ -2,7 +2,7 @@
 
 namespace App\Application\Asset\UseCases;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 
 class ListAssets
