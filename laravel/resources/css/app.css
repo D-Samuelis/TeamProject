@@ -13,10 +13,13 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+@import "./components/searchBar.css";
 @import "./components/buttons.css";
+@import "./components/miniLists.css";
 @import "./components/nav/index.css";
 
 @import "./pages/welcome/index.css";
 @import "./pages/myAppointments/index.css";
 @import "./pages/auth/index.css";
 @import "./pages/manualBooking/index.css";
+@import "./pages/businesses/index.css";

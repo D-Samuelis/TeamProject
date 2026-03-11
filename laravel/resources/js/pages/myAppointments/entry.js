@@ -2,7 +2,7 @@ import { initCalendar } from './calendar.js';
 import { initCalendarFilters } from './calendarFilter.js';
 import { initTimelineLayout } from './timeLineLayout.js';
 import { initViewToggle } from './viewToggle.js';
-import { initCollapsibleList } from './miniList.js';
+import { initCollapsibleList } from '../../components/miniLists/miniList.js';
 import { renderPendingAppointments } from './appointmentsRenderer.js';
 import { initStatusFilters } from './filters.js';
 

@@ -16,7 +16,7 @@
         </section>
 
         <section class="appointments__filters">
-            <h3 class="appointments__subtitle">
+            <h3 class="miniLists__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
                 Status Filters
             </h3>
@@ -26,7 +26,7 @@
         </section>
 
         <section class="appointments__pending">
-            <h3 class="appointments__subtitle">
+            <h3 class="miniLists__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
                 Pending Appointments
             </h3>
@@ -60,11 +60,19 @@
                     <div class="timeline-info">
                         <i class="fa-solid fa-list-ul"></i>
                         <span>Total Appointments:</span>
-                        <span id="listCount">4</span>
+                        <span id="listCount">0</span>
+                    </div>
+                </div>
+
+                {{-- UNIVERZÁLNY SEARCH PRE TABUĽKU --}}
+                <div class="business__search-wrapper">
+                    <div class="business__search-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
                     </div>
                 </div>
             </div>
-        
+
             <div id="listContainer" class="list-container">
                 <table class="appointments-table">
                     <thead>

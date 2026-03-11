@@ -7,38 +7,3 @@
     height: 100%;
     padding: 1rem;
 }
-
-.appointments__subtitle {
-    font-family: 'Inter-Regular', sans-serif;
-    font-size: .75rem;
-    letter-spacing: .05rem;
-    text-transform: uppercase;
-    margin-bottom: .25rem;
-    color: var(--color-text-unimportant);
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.appointments__subtitle i {
-    margin-right: .15rem;
-    font-size: .75rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.appointments__subtitle:hover {
-    color: var(--color-primary);
-}
-
-.appointments__subtitle:hover i {
-    transition: transform .2s ease-out;
-}
-
-.appointments__subtitle:active {
-    transform: scale(0.98);
-}
