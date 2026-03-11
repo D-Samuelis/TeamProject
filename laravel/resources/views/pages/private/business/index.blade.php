@@ -4,142 +4,46 @@
 
 @section('content')
 <div class="business">
-    
-    {{-- SIDEBAR --}}
+    {{-- SIDEBAR - Ostáva rovnaký --}}
     <aside class="business__sidebar">
-        <section class="business__group">
-            <h3 class="business__subtitle" data-collapse-trigger="managementList">
-                <i class="fa-solid fa-briefcase"></i>
-                Management
-            </h3>
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
             <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('business.index') }}" class="business__nav-link {{ request()->routeIs('business.index') ? 'is-active' : '' }}">
-                    <i class="fa-solid fa-list"></i>
-                    <span>All Businesses</span>
+                <a href="{{ route('business.index') }}" class="business__nav-link is-active">
+                    <i class="fa-solid fa-list"></i><span>All Businesses</span>
                 </a>
                 <button type="button" class="business__nav-link" data-modal-target="create-business-modal">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>New Business</span>
+                    <i class="fa-solid fa-plus"></i><span>New Business</span>
                 </button>
             </div>
         </section>
     </aside>
 
-    {{-- MAIN CONTENT --}}
     <main class="business__main">
         <header class="business__header-wrapper">
             <div class="business__header-info">
                 <h2 class="timeline-header__title">My Businesses</h2>
                 <div class="timeline-info">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Active Units: <strong>{{ $activeBusinesses->count() }}</strong></span>
+                    <span>Total Units: <strong id="businessTotalCount">0</strong></span>
                 </div>
             </div>
 
             <div class="business__search-wrapper">
-                <div class="business__search-container">
+                <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="businessSearchInput" placeholder="Search businesses...">
+                    <input type="text" id="businessSearchInput" placeholder="Search name, description or status...">
                 </div>
             </div>
         </header>
 
         <div class="business__body-wrapper">
-            @if (session('error'))
-                <div class="alert alert--danger mb-4">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            {{-- ACTIVE SECTION --}}
-            <h3 class="business__subtitle mb-3">Active Businesses</h3>
-            <div class="business-grid" id="activeBusinessGrid">
-                @forelse ($activeBusinesses as $business)
-                    <article class="business-card">
-                        <div class="business-card__header">
-                            {{-- Pridaná trieda js-search-data --}}
-                            <h4 class="business-card__title js-search-data">{{ $business->name }}</h4>
-                            
-                            {{-- Status IGNORUJEME (nemá triedu js-search-data) --}}
-                            <span class="status-cell {{ $business->is_published ? 'filter-item--green' : 'filter-item--black' }}">
-                                {{ $business->is_published ? 'Published' : 'Hidden' }}
-                            </span>
-                        </div>
-
-                        {{-- Pridaná trieda js-search-data --}}
-                        <p class="business-card__description js-search-data">
-                            {{ $business->description ?? 'No description provided.' }}
-                        </p>
-
-                        <div class="business-card__footer">
-                            <a href="{{ route('business.show', $business->id) }}" class="business-card__manage-btn">Manage</a>
-                            
-                            {{-- Visibility Toggle (Oko) --}}
-                            @can('update', $business)
-                                <form action="{{ route('business.update', $business->id) }}" method="POST" style="display: contents;">
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="is_published" value="{{ $business->is_published ? '0' : '1' }}">
-                                    <button type="submit" class="button-icon {{ $business->is_published ? '' : 'button-icon--danger' }}" title="Toggle Visibility">
-                                        <i class="fa-solid {{ $business->is_published ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                                    </button>
-                                </form>
-                            @endcan
-
-                            @can('delete', $business)
-                                <form method="POST" action="{{ route('business.delete', $business->id) }}" onsubmit="return confirm('Archive this business?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="button-icon button-icon--danger">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            @endcan
-                        </div>
-                    </article>
-                @empty
-                    <div class="business__empty">
-                        <p>No active businesses found.</p>
-                    </div>
-                @endforelse
-            </div>
-
-            {{-- ARCHIVED SECTION --}}
-            @if ($deletedBusinesses->count())
-                <h3 class="business__subtitle mt-5 mb-3">Archived Businesses</h3>
-                <div class="business-grid">
-                    @foreach ($deletedBusinesses as $business)
-                        {{-- Celá karta má triedu .business-card, takže ju search.js uvidí --}}
-                        <article class="business-card business-card--archived">
-                            <div class="business-card__header">
-                                {{-- Pridaná js-search-data pre vyhľadávanie názvu --}}
-                                <h4 class="business-card__title js-search-data">{{ $business->name }}</h4>
-                                <span class="status-cell filter-item--red">Archived</span>
-                            </div>
-
-                            {{-- Pridaný popis s js-search-data, aby bol grid konzistentný --}}
-                            <p class="business-card__description js-search-data">
-                                {{ Str::limit($business->description ?? 'No description provided.', 80) }}
-                            </p>
-
-                            <div class="business-card__footer">
-                                <form method="POST" action="{{ route('business.restore', $business->id) }}" style="width: 100%">
-                                    @csrf
-                                    <button type="submit" class="business-card__restore-btn">
-                                        <i class="fa-solid fa-rotate-left"></i> Restore Business
-                                    </button>
-                                </form>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            @endif
+            {{-- SEM SA VYKRESLÍ TABUĽKA --}}
+            <div id="businessTableContainer" class="list-view__body-wrapper"></div>
         </div>
     </main>
 </div>
 
-{{-- MODAL --}}
 <div id="create-business-modal" class="business-modal hidden">
     <div class="business-modal__overlay"></div>
     <div class="business-modal__content">
@@ -166,6 +70,18 @@
     </div>
 </div>
 
-@vite('resources/js/pages/businesses/entry.js')
+<script>
+    window.BE_DATA = {
+        businesses: @json($activeBusinesses->merge($deletedBusinesses)),
+        routes: {
+            restore: "{{ route('business.restore', ':id') }}",
+            delete: "{{ route('business.delete', ':id') }}",
+            update: "{{ route('business.update', ':id') }}",
+            show: "{{ route('business.show', ':id') }}"
+        },
+        csrf: "{{ csrf_token() }}"
+    };
+</script>
 
+@vite('resources/js/pages/businesses/entry.js')
 @endsection

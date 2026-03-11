@@ -1,16 +1,9 @@
-import { TableSorter } from '../../components/sort/sortTable.js';
-import { initListSearch } from '../../components/sort/searchBar.js';
+import { TableSorter } from '../../components/table/tableSorter.js';
+import { TableRenderer } from '../../components/table/tableRenderer.js';
 
-/**
- * Global sorter instance to manage table state
- * @type {TableSorter|null}
- */
 let sorter = null;
+let renderer = null;
 
-/**
- * Main entry point for the list layout
- * @param {Array} appointments - Array of appointment objects
- */
 export function initListView(appointments = []) {
     const listView = document.getElementById('listView');
     if (!listView) return;
@@ -27,10 +20,44 @@ export function initListView(appointments = []) {
     listView.appendChild(headerWrapper);
     listView.appendChild(bodyWrapper);
 
+    const tableConfig = {
+        searchId: '#appointmentSearch',
+        rowClass: 'appointments-table__row',
+        columns: [
+            { 
+                label: 'Date', key: 'date', sortable: true, searchable: true,
+                render: (val) => {
+                    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const isToday = val === todayStr;
+                    return `
+                        <div class="date-cell">
+                            ${val}
+                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                        </div>`;
+                }
+            },
+            { label: 'Time', key: 'time', sortable: true, searchable: true, render: (val) => `<div class="time-cell">${val}</div>` },
+            { label: 'Duration', key: 'duration', sortable: true, searchable: true, render: (val) => `<div class="duration-cell">${val}</div>` },
+            { label: 'Service', key: 'service', sortable: true, searchable: true, render: (val) => `<span class="service-cell">${val}</span>` },
+            { 
+                label: 'Status', key: 'status', sortable: true, 
+                render: (val) => `<span class="status-cell ${getStatusClass(val)}">${val}</span>` 
+            },
+        ],
+        renderActions: (app) => `
+            <button class="button-icon"><i class="fa-solid fa-pen"></i></button>
+            <button class="button-icon button-icon--danger"><i class="fa-solid fa-trash"></i></button>
+        `,
+        onRowRender: (tr, app) => {
+            const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (app.date === todayStr) tr.classList.add('is-today');
+        }
+    };
+
+    renderer = new TableRenderer(tableConfig);
 
     sorter = new TableSorter(appointments, 'date', 'desc', (sortedData) => {
-        const body = document.getElementById('listBody');
-        renderTable(body, sortedData);
+        renderer.render(document.getElementById('listBody'), sortedData, sorter);
         applyCurrentSearch();
     });
 
@@ -38,9 +65,8 @@ export function initListView(appointments = []) {
     renderListHeaderInfo(headerWrapper, appointments.length);
     renderSearchBar(headerWrapper);
 
-    renderTable(bodyWrapper, sorter.getSortedData());
+    renderer.render(bodyWrapper, sorter.getSortedData(), sorter);
 }
-
 
 function applyCurrentSearch() {
     const input = document.getElementById('appointmentSearch');
@@ -49,32 +75,21 @@ function applyCurrentSearch() {
     }
 }
 
-/**
- * Renders the top-left corner with view switcher
- */
 function renderCorner(parent) {
     const corner = document.createElement('div');
     corner.className = 'timeline__header-corner';
     corner.innerHTML = `
         <div class="view-switcher">
-            <button class="view-switcher__btn" id="showTimeline">
-                <i class="fa-solid fa-table-columns"></i> Columns
-            </button>
-            <button class="view-switcher__btn active" id="showList">
-                <i class="fa-solid fa-list"></i> List
-            </button>
+            <button class="view-switcher__btn" id="showTimeline"><i class="fa-solid fa-table-columns"></i> Columns</button>
+            <button class="view-switcher__btn active" id="showList"><i class="fa-solid fa-list"></i> List</button>
         </div>
     `;
     parent.appendChild(corner);
 }
 
-/**
- * Renders the date info in the header
- */
 function renderListHeaderInfo(parent, count) {
     const info = document.createElement('div');
     info.className = 'list-view__info-header';
-    
     const now = new Date();
     const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
     const monthName = now.toLocaleDateString('en-US', { month: 'short' });
@@ -93,31 +108,18 @@ function renderListHeaderInfo(parent, count) {
     parent.appendChild(info);
 }
 
-/**
- * Renders the Search Bar using the General Utility
- * @param {HTMLElement} parent
- */
 function renderSearchBar(parent) {
     const searchWrapper = document.createElement('div');
     searchWrapper.className = 'list-view__search-wrapper';
-    
     searchWrapper.innerHTML = `
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="appointmentSearch" placeholder="Filter client, service, or date...">
         </div>
     `;
-    
     parent.appendChild(searchWrapper);
-
-    setTimeout(() => {
-        initListSearch('#appointmentSearch', '.appointments-table__row', '.js-search-data');
-    }, 0);
 }
 
-/**
- * Maps status string to CSS class
- */
 function getStatusClass(status) {
     const s = status.toLowerCase();
     const map = {
@@ -128,74 +130,4 @@ function getStatusClass(status) {
         'show':      'filter-item--green'
     };
     return map[s] || 'filter-item--black';
-}
-
-/**
- * Renders the table into the scrollable body
- * @param {HTMLElement} parent
- * @param {Array} appointments - Sorted appointments
- */
-function renderTable(parent, appointments) {
-    parent.innerHTML = '';
-    const tableContainer = document.createElement('div');
-    tableContainer.className = 'list-view__table-container';
-
-    const todayStr = new Date().toLocaleDateString('en-US', { 
-        month: 'short', day: 'numeric', year: 'numeric' 
-    });
-
-    if (appointments.length === 0) {
-        tableContainer.innerHTML = `<div class="list-empty"><p>No appointments found</p></div>`;
-    } else {
-        tableContainer.innerHTML = `
-            <table class="appointments-table">
-                <thead>
-                    <tr>
-                        ${sorter.renderTh('Date', 'date')}
-                        ${sorter.renderTh('Time', 'time')}
-                        ${sorter.renderTh('Duration', 'duration')}
-                        ${sorter.renderTh('Service', 'service')}
-                        ${sorter.renderTh('Status', 'status')}
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="listTableBody">
-                    ${appointments.map(app => {
-                        const isToday = app.date === todayStr;
-                        return `
-                            <tr class="appointments-table__row ${isToday ? 'is-today' : ''}">
-                                <td class="js-search-data">
-                                    <div class="date-cell">
-                                        ${app.date}
-                                        ${isToday ? '<span class="today-badge">Today</span>' : ''}
-                                    </div>
-                                </td>
-                                <td class="js-search-data"><div class="time-cell">${app.time}</div></td>
-                                <td class="js-search-data"><div class="duration-cell">${app.duration}</div></td>
-                                <td class="js-search-data"><span class="service-cell">${app.service}</span></td>
-                                <td>
-                                    <span class="status-cell ${getStatusClass(app.status)}">
-                                        ${app.status}
-                                    </span>
-                                </td>
-                                <td class="controls-cell text-right">
-                                    <button class="button-icon"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="button-icon button-icon--danger">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        `;
-    }
-    parent.appendChild(tableContainer);
-
-    parent.querySelectorAll('.sortable-th').forEach(th => {
-        th.addEventListener('click', () => {
-            sorter.handleSort(th.dataset.sort);
-        });
-    });
 }

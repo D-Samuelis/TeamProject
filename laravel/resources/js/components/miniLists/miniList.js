@@ -21,7 +21,7 @@ export function initCollapsibleList(containerId) {
         if (icon) icon.style.transform = 'rotate(-90deg)';
     }
 
-    if (header && header.classList.contains('appointments__subtitle')) {
+    if (header && header.classList.contains('miniLists__subtitle')) {
         header.addEventListener('click', () => {
             const icon = header.querySelector('.fa-chevron-down');
             const hidden = list.classList.toggle('is-hidden');

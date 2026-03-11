@@ -16,7 +16,7 @@
         </section>
 
         <section class="appointments__filters">
-            <h3 class="appointments__subtitle">
+            <h3 class="miniLists__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
                 Status Filters
             </h3>
@@ -26,7 +26,7 @@
         </section>
 
         <section class="appointments__pending">
-            <h3 class="appointments__subtitle">
+            <h3 class="miniLists__subtitle">
                 <i class="fa-solid fa-chevron-down"></i>
                 Pending Appointments
             </h3>

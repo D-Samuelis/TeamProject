@@ -1,0 +1,34 @@
+.miniLists__subtitle {
+    font-family: 'Inter-Regular', sans-serif;
+    font-size: .75rem;
+    letter-spacing: .05rem;
+    text-transform: uppercase;
+    margin-bottom: .25rem;
+    color: var(--color-text-unimportant);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.miniLists__subtitle i {
+    margin-right: .15rem;
+    font-size: .75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.miniLists__subtitle:hover {
+    color: var(--color-primary);
+}
+
+.miniLists__subtitle:hover i {
+    transition: transform .2s ease-out;
+}
+
+.miniLists__subtitle:active {
+    transform: scale(0.98);
+}

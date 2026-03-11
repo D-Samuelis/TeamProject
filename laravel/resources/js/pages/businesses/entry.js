@@ -1,10 +1,10 @@
 import { initModals } from './modals.js';
-import { initListSearch } from '../../components/sort/searchBar.js';
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
+import { initBusinessListView } from './listView.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("business init")
     initModals();
-    initListSearch('#businessSearchInput', '.business-card', '.js-search-data');
     initCollapsibleList('managementList');
+
+    initBusinessListView(window.BE_DATA.businesses);
 });
