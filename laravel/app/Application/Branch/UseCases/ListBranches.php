@@ -2,7 +2,7 @@
 
 namespace App\Application\Branch\UseCases;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 
 class ListBranches

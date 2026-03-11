@@ -2,7 +2,8 @@
 
 namespace App\Repositories\Service;
 
-use App\Application\Business\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
@@ -15,29 +16,21 @@ class ServiceRepository implements ServiceRepositoryInterface
      */
     public function findActive(int $id): Service
     {
-        return Service::query()
-            ->where('is_active', true)
-            ->whereHas('business', fn($q) => $q->where('is_published', true))
-            ->findOrFail($id);
+        return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
     }
 
-    public function search(SearchDTO $dto): Collection
+    public function search(SearchDTO $dto)
     {
         $query = Service::query()
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
 
-        if ($dto->businessId) $query->where('business_id', $dto->businessId);
+        $this->applyServiceFilters($query, $dto);
 
-        if ($dto->query) {
-            $query->where(fn($q) => $q->where('name', 'like', "%{$dto->query}%")
-                ->orWhere('description', 'like', "%{$dto->query}%"));
-        }
-
-        if ($dto->maxPrice) $query->where('price', '<=', $dto->maxPrice);
-        if ($dto->locationTypes) $query->whereIn('location_type', $dto->locationTypes);
-
-        return $query->with('business')->latest()->get();
+        return $query
+            ->with('business')
+            ->latest()
+            ->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection
@@ -45,26 +38,9 @@ class ServiceRepository implements ServiceRepositoryInterface
         return Service::whereIn('id', $ids)->get();
     }
 
-    public function findByBusinessId(int $businessId): Collection
-    {
-        $query = Service::query()
-            ->where('is_active', true)
-            ->whereHas('business', fn($q) => $q->where('is_published', true));
-
-        if ($dto->businessId) $query->where('business_id', $dto->businessId);
-
-        if ($dto->query) {
-            $query->where(fn($q) => $q->where('name', 'like', "%{$dto->query}%")
-                ->orWhere('description', 'like', "%{$dto->query}%"));
-        }
-
-        if ($dto->maxPrice) $query->where('price', '<=', $dto->maxPrice);
-        if ($dto->locationTypes) $query->whereIn('location_type', $dto->locationTypes);
-
-        return $query->with('business')->latest()->get();
-    }
-
-    /** MANAGEMENT */
+    /**
+     * MANAGEMENT
+     */
     public function findForManagement(int $id): Service
     {
         return Service::withTrashed()->findOrFail($id);
@@ -99,7 +75,7 @@ class ServiceRepository implements ServiceRepositoryInterface
     {
         $service->update([
             'is_active' => false,
-            'delete_after' => now()->addDays(7)
+            'delete_after' => now()->addDays(7),
         ]);
         $service->delete();
     }
@@ -108,7 +84,7 @@ class ServiceRepository implements ServiceRepositoryInterface
     {
         $service->update([
             'delete_after' => null,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $service->restore();
@@ -127,5 +103,60 @@ class ServiceRepository implements ServiceRepositoryInterface
     public function detachUser($service, $userId): Service
     {
         return $service->users()->detach($userId);
+    }
+
+    public function count(SearchDTO $dto): int
+    {
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
+
+        $this->applyServiceFilters($query, $dto);
+
+        return $query->count();
+    }
+
+    /**
+     * PRIVATE HELPERS
+     */
+    private function applyServiceFilters(Builder $query, SearchDTO $dto): void
+    {
+        if ($dto->query) {
+            $keyword = $dto->query;
+            $query->where(function ($sub) use ($keyword) {
+                $sub->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhereHas(
+                        'business',
+                        fn($b) =>
+                        $b->where('name', 'like', "%{$keyword}%")
+                    )
+                    ->orWhereHas(
+                        'branches',
+                        fn($br) =>
+                        $br->where('city', 'like', "%{$keyword}%")
+                    );
+            });
+        }
+
+        if ($dto->city) {
+            $query->whereHas('branches', fn($q) => $q->where('city', $dto->city));
+        }
+
+        if ($dto->maxPrice) {
+            $query->where('price', '<=', $dto->maxPrice);
+        }
+
+        if ($dto->maxDuration) {
+            $query->where('duration_minutes', '<=', $dto->maxDuration);
+        }
+
+        if (!empty($dto->locationTypes)) {
+            $query->whereIn('location_type', $dto->locationTypes);
+        }
+
+        if ($dto->businessId) {
+            $query->where('business_id', $dto->businessId);
+        }
     }
 }

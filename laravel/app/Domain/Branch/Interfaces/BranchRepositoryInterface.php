@@ -4,7 +4,7 @@ namespace App\Domain\Branch\Interfaces;
 
 use App\Models\Business\Branch;
 use Illuminate\Support\Collection;
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Branch\Enums\BranchRoleEnum;
 
 interface BranchRepositoryInterface
@@ -14,7 +14,7 @@ interface BranchRepositoryInterface
      */
     public function findActive(int $id): Branch;
 
-    public function search(SearchDTO $dto): Collection;
+    public function search(SearchDTO $dto);
 
     public function findMultipleByIds(array $ids): Collection;
     /**
@@ -45,4 +45,6 @@ interface BranchRepositoryInterface
     public function detachUser($branch, $userId): Branch;
     
     public function getAssignments(Branch $branch): array;
+
+    public function count(SearchDTO $dto): int;
 }

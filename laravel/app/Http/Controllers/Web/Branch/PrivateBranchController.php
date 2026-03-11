@@ -15,7 +15,7 @@ use App\Application\Branch\UseCases\GetBranch;
 use App\Application\Branch\DTO\StoreBranchDTO;
 use App\Application\Branch\DTO\UpdateBranchDTO;
 
-class BranchController extends Controller
+class PrivateBranchController extends Controller
 {
     public function index(ListBranches $useCase)
     {
@@ -24,16 +24,16 @@ class BranchController extends Controller
         ]);
     }
 
-    public function store(StoreBranchRequest $request, StoreBranch $useCase)
-    {
-        $branch = $useCase->execute(StoreBranchDTO::fromRequest($request), Auth::id());
-        return back()->with('success', "Branch '{$branch->name}' created.");
-    }
-
     public function show(int $branchId, GetBranch $useCase)
     {
         $branch = $useCase->execute($branchId);
         return view('pages.private.branch.show', compact('branch'));
+    }
+
+    public function store(StoreBranchRequest $request, StoreBranch $useCase)
+    {
+        $branch = $useCase->execute(StoreBranchDTO::fromRequest($request), Auth::id());
+        return back()->with('success', "Branch '{$branch->name}' created.");
     }
 
     public function update(int $branchId, UpdateBranchRequest $request, UpdateBranch $useCase)

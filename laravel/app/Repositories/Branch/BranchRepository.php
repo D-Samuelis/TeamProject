@@ -2,7 +2,8 @@
 
 namespace App\Repositories\Branch;
 
-use App\Application\Business\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Application\DTO\SearchDTO;
 use App\Domain\Branch\Enums\BranchRoleEnum;
 use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
@@ -15,27 +16,22 @@ class BranchRepository implements BranchRepositoryInterface
      */
     public function findActive(int $id): Branch
     {
-        return Branch::query()
-            ->where('is_active', true)
-            ->whereHas('business', fn($q) => $q->where('is_published', true))
-            ->findOrFail($id);
+        return Branch::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
     }
 
-    public function search(SearchDTO $dto): Collection
+    public function search(SearchDTO $dto)
     {
         $query = Branch::query()
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
 
-        if ($dto->businessId) $query->where('business_id', $dto->businessId);
-        if ($dto->city) $query->where('city', $dto->city);
+        // Apply the branch-specific filters
+        $this->applyBranchFilters($query, $dto);
 
-        if ($dto->query) {
-            $query->where(fn($q) => $q->where('name', 'like', "%{$dto->query}%")
-                ->orWhere('city', 'like', "%{$dto->query}%"));
-        }
-
-        return $query->with('business')->get();
+        return $query
+            ->with('business')
+            ->latest()
+            ->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection
@@ -57,8 +53,8 @@ class BranchRepository implements BranchRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all'     => $query->withTrashed(),
-            default   => $query,
+            'all' => $query->withTrashed(),
+            default => $query,
         };
 
         return $query->get();
@@ -111,5 +107,47 @@ class BranchRepository implements BranchRepositoryInterface
             'services' => $branch->services()->pluck('id')->all(),
             'users' => $branch->users()->pluck('id')->all(),
         ];
+    }
+
+    public function count(SearchDTO $dto): int
+    {
+        $query = Branch::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
+
+        $this->applyBranchFilters($query, $dto);
+
+        return $query->count();
+    }
+
+    /**
+     * PRIVATE HELPERS
+     */
+    private function applyBranchFilters(Builder $query, SearchDTO $dto): void
+    {
+        if ($dto->query) {
+            $keyword = $dto->query;
+            $query->where(function ($sub) use ($keyword) {
+                $sub->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('city', 'like', "%{$keyword}%")
+                    ->orWhereHas(
+                        'business',
+                        fn($b) =>
+                        $b->where('name', 'like', "%{$keyword}%")
+                    );
+            });
+        }
+
+        if ($dto->city) {
+            $query->where('city', $dto->city);
+        }
+
+        if ($dto->businessId) {
+            $query->where('business_id', $dto->businessId);
+        }
+
+        if (!empty($dto->locationTypes)) {
+            $query->whereIn('type', $dto->locationTypes);
+        }
     }
 }

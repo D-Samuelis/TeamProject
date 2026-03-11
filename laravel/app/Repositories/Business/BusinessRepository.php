@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Business;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
@@ -15,11 +15,6 @@ class BusinessRepository implements BusinessRepositoryInterface
     /**
      * PUBLIC METHODS
      */
-
-    /**
-     * Find a business for the public profile.
-     * Strictly active and published only.
-     */
     public function findActive(int $id): Business
     {
         return Business::query()
@@ -31,32 +26,24 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->findOrFail($id);
     }
 
-    /**
-     * The search engine.
-     * Keyword matching and parameter filtering.
-     */
-    public function search(SearchDTO $dto): Collection
+    public function search(SearchDTO $dto)
     {
         $query = Business::query()->where('is_published', true);
 
+        // Use your helper to apply all the complex filters
         $this->applySearchFilters($query, $dto);
 
         return $query
             ->with([
-                // Active only
                 'branches' => fn($q) => $q->where('is_active', true),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
             ->latest()
-            ->get();
+            ->paginate($dto->perPage);
     }
 
     /**
      * MANAGEMENT METHODS
-     */
-
-    /**
-     * List businesses for the owner.
      */
     public function listForOwner(User $user, string $scope = 'active'): Collection
     {
@@ -78,10 +65,6 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->get();
     }
 
-    /**
-     * Find for management.
-     * Includes trashed records.
-     */
     public function findForManagement(int $id): Business
     {
         return Business::withTrashed()
@@ -145,10 +128,18 @@ class BusinessRepository implements BusinessRepositoryInterface
         return $business->users()->detach($userId);
     }
 
+    public function count(SearchDTO $dto): int
+    {
+        $query = Business::query()->where('is_published', true);
+
+        // Reuse the exact same filter logic
+        $this->applySearchFilters($query, $dto);
+
+        return $query->count();
+    }
+
     /**
-     * -------------------------------------------------------------------------
      * PRIVATE HELPERS
-     * -------------------------------------------------------------------------
      */
     private function applySearchFilters(Builder $query, SearchDTO $dto): void
     {
