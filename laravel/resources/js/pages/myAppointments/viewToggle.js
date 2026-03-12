@@ -1,5 +1,5 @@
 import { APP_VIEW_PREFERENCE_KEY } from '../../config/storageKeys.js';
-import { initListView } from './listLayout.js';
+import { initListView } from './listView.js';
 import { initTimelineLayout } from './timeLineLayout.js';
 
 export function initViewToggle() {

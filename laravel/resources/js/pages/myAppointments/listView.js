@@ -3,10 +3,13 @@ import { TableRenderer } from '../../components/table/tableRenderer.js';
 
 let sorter = null;
 let renderer = null;
+let originalAppointments = [];
 
 export function initListView(appointments = []) {
     const listView = document.getElementById('listView');
     if (!listView) return;
+
+    originalAppointments = [...appointments];
 
     listView.innerHTML = '';
     
@@ -66,6 +69,28 @@ export function initListView(appointments = []) {
     renderSearchBar(headerWrapper);
 
     renderer.render(bodyWrapper, sorter.getSortedData(), sorter);
+
+    window.addEventListener('filtersChanged', (event) => {
+        const statuses = event.detail;
+        
+        const activeStatusIds = statuses
+            .filter(s => s.active)
+            .map(s => s.id.toLowerCase());
+
+        const filtered = originalAppointments.filter(app => {
+            const normalizedStatus = app.status.toLowerCase().replace(/[^a-z]/g, '');
+            return activeStatusIds.includes(normalizedStatus);
+        });
+
+        sorter.setData(filtered);
+        
+        renderer.render(document.getElementById('listBody'), sorter.getSortedData(), sorter);
+        
+        const countEl = document.getElementById('listCount');
+        if (countEl) countEl.textContent = `${filtered.length} Appointments`;
+
+        applyCurrentSearch();
+    });
 }
 
 function applyCurrentSearch() {

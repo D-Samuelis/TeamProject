@@ -7,3 +7,7 @@
     height: 100%;
     padding: 1rem;
 }
+
+.appointments__sidebar section {
+    margin-bottom: 1rem;
+}

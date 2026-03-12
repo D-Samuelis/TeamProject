@@ -3,26 +3,31 @@ import { TableRenderer } from '../../components/table/tableRenderer.js';
 
 let sorter = null;
 let renderer = null;
+let originalData = [];
 
 export function initBusinessListView(data = []) {
     const container = document.getElementById('businessTableContainer');
     if (!container) return;
 
+    originalData = data;
+
+    updateCounts(originalData);
+
     const tableConfig = {
         searchId: '#businessSearchInput',
-        rowClass: 'appointments-table__row',
+        rowClass: 'business-table__row',
         columns: [
             { 
                 label: 'Business Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
-                    <div class="date-cell">
+                    <div class="name-cell">
                         <strong>${val}</strong>
                         ${item.deleted_at ? '<span class="today-badge" style="background: var(--color-red)">Archived</span>' : ''}
                     </div>`
             },
             { 
                 label: 'Description', key: 'description', sortable: false, searchable: true,
-                render: (val) => `<div class="duration-cell" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${val || 'No description'}</div>`
+                render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
             },
             { 
                 label: 'Status', key: 'is_published', sortable: true, 
@@ -58,11 +63,57 @@ export function initBusinessListView(data = []) {
     };
 
     renderer = new TableRenderer(tableConfig);
-    sorter = new TableSorter(data, 'name', 'asc', (sortedData) => {
+    
+    const initialData = originalData.filter(b => !b.deleted_at);
+    
+    sorter = new TableSorter(initialData, 'name', 'asc', (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
 
     renderer.render(container, sorter.getSortedData(), sorter);
-    
-    document.getElementById('businessTotalCount').textContent = data.length;
+
+    window.addEventListener('businessFiltersChanged', (event) => {
+        const statuses = event.detail.statuses;
+        
+        const activeFilters = statuses.reduce((acc, s) => {
+            acc[s.id] = s.active;
+            return acc;
+        }, {});
+
+        const filteredData = originalData.filter(item => {
+            if (item.deleted_at) return activeFilters.deleted;
+            if (item.is_published) return activeFilters.published;
+            return activeFilters.hidden;
+        });
+
+        sorter.setData(filteredData);
+        renderer.render(container, sorter.getSortedData(), sorter);
+        
+        const searchInput = document.querySelector(tableConfig.searchId);
+        if (searchInput && searchInput.value) {
+            searchInput.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+/**
+ * Update the counts in the header based on the current dataset
+ */
+function updateCounts(data) {
+    const stats = {
+        all: data.length,
+        published: data.filter(b => b.is_published && !b.deleted_at).length,
+        hidden: data.filter(b => !b.is_published && !b.deleted_at).length,
+        deleted: data.filter(b => b.deleted_at).length
+    };
+
+    updateStatElement('countAll', stats.all);
+    updateStatElement('countPublished', stats.published);
+    updateStatElement('countHidden', stats.hidden);
+    updateStatElement('countDeleted', stats.deleted);
+}
+
+function updateStatElement(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
 }
