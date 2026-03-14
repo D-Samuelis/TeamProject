@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Asset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Asset\StoreAssetRequest;
 use App\Http\Requests\Asset\UpdateAssetRequest;
+use App\Http\Requests\Asset\GetAssetRequest;
 use App\Application\Asset\DTO\CreateAssetDTO;
 use App\Application\Asset\DTO\UpdateAssetDTO;
 use App\Application\Asset\UseCases\CreateAsset;
@@ -12,6 +13,7 @@ use App\Application\Asset\UseCases\DeleteAsset;
 use App\Application\Asset\UseCases\UpdateAsset;
 use App\Application\Asset\UseCases\GetAsset;
 use App\Application\Asset\UseCases\ListAssets;
+use App\Application\Service\UseCases\GetService;
 
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 
@@ -79,5 +81,12 @@ class AssetController extends Controller
     public function restore()
     {
         return back();
+    }
+
+    public function book(GetAssetRequest $request, GetAsset $useCase, GetService $getService)
+    {
+        $asset = $useCase->execute($request->validated('asset_id'), Auth::user());
+        $service = $getService->execute($request->validated('service_id'), Auth::user());
+        return view('pages.public.asset.book', compact('asset', 'service'));
     }
 }

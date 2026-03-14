@@ -23,7 +23,9 @@ class Rule extends Model
     ];
 
     protected $casts = [
-        'rule_set' => 'array',
+        'rule_set'   => 'array',
+        'valid_from' => 'datetime',
+        'valid_to'   => 'datetime',
     ];
 
     public function asset()

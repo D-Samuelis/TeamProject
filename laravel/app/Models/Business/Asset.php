@@ -33,4 +33,9 @@ class Asset extends Model
     {
         return $this->hasMany(Rule::class);
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }
