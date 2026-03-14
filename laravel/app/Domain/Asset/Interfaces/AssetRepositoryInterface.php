@@ -2,7 +2,7 @@
 
 namespace App\Domain\Asset\Interfaces;
 
-use App\Application\Business\DTO\SearchDTO;
+use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Asset;
 use App\Application\Asset\DTO\UpdateAssetDTO;

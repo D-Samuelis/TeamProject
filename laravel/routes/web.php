@@ -1,25 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Web\Asset\AssetController;
 
-// Auth
+// Controllers
 use App\Http\Controllers\Web\Auth\AuthController;
-
-// Business
 use App\Http\Controllers\Web\Business\PrivateBusinessController;
-use App\Http\Controllers\Web\Business\PublicBusinessController;
 use App\Http\Controllers\Web\Business\BusinessAssignmentController;
-
-// Branch & Service
-use App\Http\Controllers\Web\Branch\BranchController;
-use App\Http\Controllers\Web\Branch\PublicBranchController;
-use App\Http\Controllers\Web\Service\ServiceController;
-use App\Http\Controllers\Web\Service\PublicServiceController;
-
-// Notifications
+use App\Http\Controllers\Web\Branch\PrivateBranchController;
+use App\Http\Controllers\Web\Service\PrivateServiceController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\Rule\RuleController;
+use App\Http\Controllers\Web\SearchController;
+use App\Http\Controllers\Web\Asset\AssetController;
+use App\Http\Controllers\Web\Appointment\AppointmentController;
 
 // Chatbot
 use App\Http\Controllers\Web\ChatbotController;
@@ -30,11 +23,26 @@ use App\Http\Controllers\Web\ChatbotController;
 Route::view('/', 'pages.welcome')->name('home');
 Route::view('/dev', 'pages.dev')->name('dev');
 
-Route::prefix('manual-booking')->group(function () {
-    Route::get('/', [PublicBusinessController::class, 'index'])->name('manualBooking.index');
-    Route::get('/services', [PublicServiceController::class, 'index'])->name('public.services.index');
-    Route::get('/locations', [PublicBranchController::class, 'index'])->name('public.branches.index');
-    Route::get('/{id}', [PublicBusinessController::class, 'show'])->name('manualBooking.show');
+Route::prefix('search')
+    ->controller(SearchController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('manualBooking.index');
+        Route::get('/services', 'index')->name('public.services.index');
+        Route::get('/locations', 'index')->name('public.branches.index');
+
+        Route::get('/{id}', 'show')->name('manualBooking.show');
+    });
+
+Route::prefix('business')->controller(PrivateBusinessController::class)->group(function () {
+    Route::get('/{businessId}/book', [PrivateBusinessController::class, 'book'])->name('business.book');
+});
+
+Route::prefix('service')->controller(PrivateServiceController::class)->group(function () {
+    Route::get('/{serviceId}/book', [PrivateServiceController::class, 'book'])->name('service.book');
+});
+
+Route::prefix('service')->group(function () {
+    Route::get('/{serviceId}/asset/{assetId}/book', [AssetController::class, 'book'])->name('asset.book');
 });
 
 /**
@@ -82,46 +90,65 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{businessId}/restore', [PrivateBusinessController::class, 'restore'])->name('business.restore');
 
         Route::controller(BusinessAssignmentController::class)->group(function () {
-        Route::post('/{businessId}/assign', 'store')->name('business.assign');
-        Route::patch('/{businessId}/users/{user}', 'update')->name('business.users.update');
-        Route::delete('/{businessId}/users/{user}', 'delete')->name('business.users.delete');
-    });
-    });
-
-    Route::prefix('branches')->name('branch.')->controller(BranchController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{branchId}', 'show')->name('show');
-        Route::put('/{branchId}', 'update')->name('update');
-        Route::delete('/{branchId}', 'delete')->name('delete');
-        Route::post('/{branchId}/restore', 'restore')->name('restore');
+            Route::post('/{businessId}/assign', 'store')->name('business.assign');
+            Route::patch('/{businessId}/users/{user}', 'update')->name('business.users.update');
+            Route::delete('/{businessId}/users/{user}', 'delete')->name('business.users.delete');
+        });
     });
 
-    Route::prefix('services')->name('service.')->controller(ServiceController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{serviceId}', 'show')->name('show');
-        Route::put('/{serviceId}', 'update')->name('update');
-        Route::delete('/{serviceId}', 'delete')->name('delete');
-        Route::post('/{serviceId}/restore', 'restore')->name('restore');
-    });
+    Route::prefix('branches')
+        ->name('branch.')
+        ->controller(PrivateBranchController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{branchId}', 'show')->name('show');
+            Route::put('/{branchId}', 'update')->name('update');
+            Route::delete('/{branchId}', 'delete')->name('delete');
+            Route::post('/{branchId}/restore', 'restore')->name('restore');
+        });
 
-    Route::prefix('assets')->name('asset.')->controller(AssetController::class)->group(function () {
-        Route::get('/', 'index')->name('index'); // Create
-        Route::post('/', 'store')->name('store'); // Create
-        Route::get('/{assetId}', 'show')->name('show');
-        Route::put('/{assetId}', 'update')->name('update'); // Update
-        Route::delete('/{assetId}', 'delete')->name('delete'); // Delete
-        Route::post('/{assetId}/restore', 'restore')->name('restore'); // Restore soft-deleted
-    });
+    Route::prefix('services')
+        ->name('service.')
+        ->controller(PrivateServiceController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{serviceId}', 'show')->name('show');
+            Route::put('/{serviceId}', 'update')->name('update');
+            Route::delete('/{serviceId}', 'delete')->name('delete');
+            Route::post('/{serviceId}/restore', 'restore')->name('restore');
+        });
 
-    Route::prefix('rules')->name('rule.')->controller(RuleController::class)->group(function () {
-        Route::post('/', 'store')->name('store'); // Create
-        Route::put('/{ruleId}', 'update')->name('update'); // Update
-        Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
-        Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
-    });
+    Route::prefix('assets')
+        ->name('asset.')
+        ->controller(AssetController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index'); // Create
+            Route::post('/', 'store')->name('store'); // Create
+            Route::get('/{assetId}', 'show')->name('show');
+            Route::put('/{assetId}', 'update')->name('update'); // Update
+            Route::delete('/{assetId}', 'delete')->name('delete'); // Delete
+            Route::post('/{assetId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+        });
 
     Route::get('/chatbot', [ChatbotController::class, 'index']);
 
+    Route::prefix('rules')
+        ->name('rule.')
+        ->controller(RuleController::class)
+        ->group(function () {
+            Route::post('/', 'store')->name('store'); // Create
+            Route::put('/{ruleId}', 'update')->name('update'); // Update
+            Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
+            Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+        });
+
+    Route::prefix('appointments')
+        ->name('appointment.')
+        ->controller(AppointmentController::class)
+        ->group(function () {
+            Route::get('/slots', 'slots')->name('slots');   // GET  /appointments/slots?...
+            Route::post('/', 'store')->name('store');        // POST /appointments
+        });
 });

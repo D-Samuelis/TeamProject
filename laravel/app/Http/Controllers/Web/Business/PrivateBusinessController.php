@@ -62,4 +62,10 @@ class PrivateBusinessController extends Controller
         $useCase->execute($businessId, Auth::id());
         return back()->with('success', 'Business restored successfully.');
     }
+
+    public function book(int $businessId, GetBusiness $useCase)
+    {
+        $business = $useCase->execute($businessId, Auth::user());
+        return view('pages.public.business.book', compact('business'));
+    }
 }

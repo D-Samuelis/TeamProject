@@ -15,7 +15,7 @@
                 target="_blank" class="btn-secondary">
                 Get Directions
             </a>
-            <a href="{{ route('manualBooking.show', $item->business->id) }}" class="btn-link">Visit Shop</a>
+            <a href="{{ route('business.book', $item->business->id) }}" class="btn-link">Visit Shop</a>
         </div>
     </div>
 </div>
