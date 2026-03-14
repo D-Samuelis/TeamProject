@@ -34,6 +34,11 @@ class Branch extends Model
         return $this->belongsToMany(Service::class);
     }
 
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class);
+    }
+
     public function users()
     {
         return $this->morphToMany(User::class, 'model', 'model_has_users')

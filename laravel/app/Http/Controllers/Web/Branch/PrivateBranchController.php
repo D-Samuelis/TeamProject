@@ -14,20 +14,29 @@ use App\Application\Branch\UseCases\ListBranches;
 use App\Application\Branch\UseCases\GetBranch;
 use App\Application\Branch\DTO\StoreBranchDTO;
 use App\Application\Branch\DTO\UpdateBranchDTO;
+use App\Application\Business\UseCases\ListBusinesses;
+use App\Application\Service\UseCases\ListServices;
 
 class PrivateBranchController extends Controller
 {
-    public function index(ListBranches $useCase)
+    public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
     {
         return view('pages.private.branch.index', [
-            'branches' => $useCase->execute(),
+            'branches'   => $listBranches->execute(),
+            'businesses' => $listBusinesses->execute(Auth::user()),
         ]);
     }
 
-    public function show(int $branchId, GetBranch $useCase)
+    public function show(int $branchId, GetBranch $getBranch, ListBusinesses $listBusinesses, ListServices $listServices)
     {
-        $branch = $useCase->execute($branchId);
-        return view('pages.private.branch.show', compact('branch'));
+        $branch = $getBranch->execute($branchId);
+        $branch->load('services', 'business', 'assets');
+
+        return view('pages.private.branch.show', [
+            'branch'     => $branch,
+            'businesses' => $listBusinesses->execute(Auth::user()),
+            'services'   => $listServices->execute(),
+        ]);
     }
 
     public function store(StoreBranchRequest $request, StoreBranch $useCase)
