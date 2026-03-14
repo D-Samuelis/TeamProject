@@ -4,7 +4,7 @@ namespace App\Http\Requests\Rule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRuleRequest extends FormRequest
+class UpdateRuleRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,7 +13,8 @@ class StoreRuleRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        // The JS builder sends rule_set as JSON string — decode it here
+        $this->merge(['id' => $this->route('ruleId')]);
+
         if ($this->has('rule_set') && is_string($this->rule_set)) {
             $this->merge(['rule_set' => json_decode($this->rule_set, true)]);
         }
@@ -22,7 +23,7 @@ class StoreRuleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'asset_id'    => 'required|integer|exists:assets,id',
+            'id'          => 'required|integer|exists:rules,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'valid_from'  => 'nullable|date',
@@ -31,15 +32,14 @@ class StoreRuleRequest extends FormRequest
             'rule_set.days'        => 'required|array',
             'rule_set.days.*'      => 'array',
             'rule_set.days.*.*.from_time' => 'nullable|date_format:H:i',
-            'rule_set.days.*.*.to_time'   => 'nullable|date_format:H:i|after:rule_set.days.*.*.from_time',
+            'rule_set.days.*.*.to_time'   => 'nullable|date_format:H:i',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'valid_to.after_or_equal'  => 'Valid to must be after or equal to valid from.',
-            'rule_set.days.required'   => 'The schedule must include day definitions.',
+            'valid_to.after_or_equal' => 'Valid to must be after or equal to valid from.',
         ];
     }
 }
