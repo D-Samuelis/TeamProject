@@ -81,8 +81,10 @@ class SlotGeneratorService
         foreach ($ranges as $range) {
             $start = $this->timeToMinutes($range['from']);
             $end   = $this->timeToMinutes($range['to']);
-            $cur   = $start;
 
+            if ($start >= $end) continue;
+
+            $cur   = $start;
             while ($cur + $duration <= $end) {
                 $slots[] = $this->minutesToTime($cur);
                 $cur += $step;
