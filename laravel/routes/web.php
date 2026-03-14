@@ -21,9 +21,8 @@ use App\Http\Controllers\Web\Service\PublicServiceController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\Rule\RuleController;
 
-use App\Http\Controllers\ChatbotController;
-
-Route::get('/chatbot', [ChatbotController::class, 'index']);
+// Chatbot
+use App\Http\Controllers\Web\ChatbotController;
 
 /**
  * Public
@@ -122,4 +121,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
         Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
     });
+
+    Route::get('/chatbot', [ChatbotController::class, 'index']);
+
 });

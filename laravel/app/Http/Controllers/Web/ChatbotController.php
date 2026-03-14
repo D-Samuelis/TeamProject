@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\Controller;
 
 class ChatbotController extends Controller
 {
