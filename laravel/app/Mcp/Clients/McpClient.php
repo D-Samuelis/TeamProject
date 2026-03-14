@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Clients;
 
+use App\Mcp\Servers\McpServer;
 use Illuminate\Support\Facades\Http;
 
 class McpClient
@@ -18,11 +19,14 @@ class McpClient
         $this->serverUrl = config('mcp.url');
         $this->ollamaUrl = config('mcp.ollama_url');
         $this->model     = config('mcp.ollama_model');
-        $this->tools = $this->initializeServer();
     }
 
     public function chat(string $message): string
     {
+        if (empty($this->tools)) {
+            $this->tools = $this->initializeServer();
+        }
+
         $messages = [
             ['role' => 'system', 'content' => 'You are a helpful assistant. Today is '.now()],
             ['role' => 'user', 'content' => $message],
@@ -109,6 +113,7 @@ class McpClient
 
         return $notification ? [] : ($response->json() ?? []);
     }
+
 
     private function headers(): array
     {
