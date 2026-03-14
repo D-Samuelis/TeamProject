@@ -14,6 +14,9 @@ use App\Http\Controllers\Web\SearchController;
 use App\Http\Controllers\Web\Asset\AssetController;
 use App\Http\Controllers\Web\Appointment\AppointmentController;
 
+// Chatbot
+use App\Http\Controllers\Web\ChatbotController;
+
 /**
  * Public
  */
@@ -128,6 +131,8 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{assetId}', 'delete')->name('delete'); // Delete
             Route::post('/{assetId}/restore', 'restore')->name('restore'); // Restore soft-deleted
         });
+
+    Route::get('/chatbot', [ChatbotController::class, 'index']);
 
     Route::prefix('rules')
         ->name('rule.')
