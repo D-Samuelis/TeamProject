@@ -13,18 +13,20 @@ use App\Application\Asset\UseCases\DeleteAsset;
 use App\Application\Asset\UseCases\UpdateAsset;
 use App\Application\Asset\UseCases\GetAsset;
 use App\Application\Asset\UseCases\ListAssets;
+use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Service\UseCases\ListServices;
 use App\Application\Service\UseCases\GetService;
-
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
-
 use Illuminate\Support\Facades\Auth;
 
 class AssetController extends Controller
 {
-    public function index(ListAssets $useCase)
+    public function index(ListAssets $listAssets, ListBranches $listBranches, ListServices $listServices)
     {
         return view('pages.private.asset.index', [
-            'assets' => $useCase->execute(),
+            'assets'   => $listAssets->execute(),
+            'branches' => $listBranches->execute(),
+            'services' => $listServices->execute(),
         ]);
     }
 
@@ -39,13 +41,19 @@ class AssetController extends Controller
 
         $useCase->execute($dto, Auth::id());
 
-        return back();
+        return back()->with('success', 'Asset created successfully.');
     }
 
-    public function show(int $assetId, GetAsset $useCase)
+    public function show(int $assetId, GetAsset $getAsset, ListBranches $listBranches, ListServices $listServices)
     {
-        $asset = $useCase->execute($assetId, Auth::user());
-        return view('pages.private.asset.show', compact('asset'));
+        $asset = $getAsset->execute($assetId, Auth::user());
+        $asset->load('branches', 'services');
+
+        return view('pages.private.asset.show', [
+            'asset'    => $asset,
+            'branches' => $listBranches->execute(),
+            'services' => $listServices->execute(),
+        ]);
     }
 
     public function update(int $assetId, UpdateAssetRequest $request, UpdateAsset $updateAssetUseCase)
@@ -63,19 +71,16 @@ class AssetController extends Controller
         return back()->with('success', 'Asset updated successfully!');
     }
 
-    public function delete(
-        int $assetId,
-        AssetRepositoryInterface $AssetRepo,
-        DeleteAsset $useCase
-    ) {
-        $asset = $AssetRepo->findById($assetId);
+    public function delete(int $assetId, AssetRepositoryInterface $assetRepo, DeleteAsset $useCase)
+    {
+        $asset = $assetRepo->findById($assetId);
         abort_if(!$asset, 404);
 
         $this->authorize('destroy', $asset);
 
         $useCase->execute($assetId, Auth::id());
 
-        return back()->with('success', "Asset '{$asset->name}' (soft) deleted successfully.");
+        return back()->with('success', "Asset '{$asset->name}' deleted successfully.");
     }
 
     public function restore()
@@ -85,7 +90,7 @@ class AssetController extends Controller
 
     public function book(GetAssetRequest $request, GetAsset $useCase, GetService $getService)
     {
-        $asset = $useCase->execute($request->validated('asset_id'), Auth::user());
+        $asset   = $useCase->execute($request->validated('asset_id'), Auth::user());
         $service = $getService->execute($request->validated('service_id'), Auth::user());
         return view('pages.public.asset.book', compact('asset', 'service'));
     }

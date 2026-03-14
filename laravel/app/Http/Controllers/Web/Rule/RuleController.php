@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Web\Rule;
 
 use App\Application\Rule\DTO\CreateRuleDTO;
+use App\Application\Rule\DTO\UpdateRuleDTO;
 use App\Application\Rule\UseCases\CreateRule;
+use App\Application\Rule\UseCases\UpdateRule;
+use App\Application\Rule\UseCases\DeleteRule;
+use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rule\StoreRuleRequest;
+use App\Http\Requests\Rule\UpdateRuleRequest;
 use Illuminate\Support\Facades\Auth;
 
 class RuleController extends Controller
@@ -13,16 +18,46 @@ class RuleController extends Controller
     public function store(StoreRuleRequest $request, CreateRule $useCase)
     {
         $dto = new CreateRuleDTO(
-            $request->validated('title'),
-            $request->validated('description'),
-            $request->validated('valid_from'),
-            $request->validated('valid_to'),
-            $request->validated('rule_set'),
-            $request->validated('asset_id')
+            title:       $request->validated('title'),
+            description: $request->validated('description'),
+            valid_from:  $request->validated('valid_from'),
+            valid_to:    $request->validated('valid_to'),
+            rule_set:    $request->validated('rule_set'),
+            asset_id:    $request->validated('asset_id'),
         );
 
         $useCase->execute($dto, Auth::id());
 
-        return back();
+        return back()->with('success', 'Rule created successfully.');
+    }
+
+    public function update(int $ruleId, UpdateRuleRequest $request, UpdateRule $useCase)
+    {
+        $dto = new UpdateRuleDTO(
+            id:          $ruleId,
+            title:       $request->validated('title'),
+            description: $request->validated('description'),
+            valid_from:  $request->validated('valid_from'),
+            valid_to:    $request->validated('valid_to'),
+            rule_set:    $request->validated('rule_set'),
+        );
+
+        $useCase->execute($dto, Auth::id());
+
+        return back()->with('success', 'Rule updated successfully.');
+    }
+
+    public function delete(int $ruleId, DeleteRule $useCase)
+    {
+        $useCase->execute($ruleId, Auth::id());
+        return back()->with('success', 'Rule deleted.');
+    }
+
+    public function restore(int $ruleId, RuleRepositoryInterface $ruleRepo)
+    {
+        $rule = $ruleRepo->findById($ruleId);
+        abort_if(!$rule, 404);
+        $ruleRepo->restore($rule);
+        return back()->with('success', 'Rule restored.');
     }
 }

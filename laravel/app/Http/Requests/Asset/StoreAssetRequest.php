@@ -3,30 +3,34 @@
 namespace App\Http\Requests\Asset;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ServicesBelongToBranches;
 
 class StoreAssetRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $branchIds = $this->input('branch_ids', []);
+
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'branch_ids.*' => 'exists:branches,id',
-            'service_ids.*' => 'exists:services,id',
+            'name'          => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'branch_ids'    => 'nullable|array',
+            'branch_ids.*'  => 'integer|exists:branches,id',
+            'service_ids'   => ['nullable', 'array', new ServicesBelongToBranches($branchIds)],
+            'service_ids.*' => 'integer|exists:services,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'branch_ids.*.exists'  => 'One or more selected branches do not exist.',
+            'service_ids.*.exists' => 'One or more selected services do not exist.',
         ];
     }
 }
