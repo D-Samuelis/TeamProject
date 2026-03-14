@@ -6,7 +6,7 @@
         </div>
 
         <p class="card-subtitle">
-            Provided by: <a href="{{ route('manualBooking.show', $item->business->id) }}">{{ $item->business->name }}</a>
+            Provided by: <a href="{{ route('business.book', $item->business->id) }}">{{ $item->business->name }}</a>
         </p>
 
         <div class="card-meta">
@@ -15,7 +15,7 @@
         </div>
 
         <div class="card-actions">
-            <a href="{{ route('manualBooking.show', $item->business->id) }}?service_id={{ $item->id }}"
+            <a href="{{ route('service.book', $item->id) }}"
                 class="btn-primary">
                 Book Now
             </a>

@@ -55,7 +55,7 @@
 
     <div>
         @foreach ($service->assets as $asset)
-            <a href="{{ route('asset.show', [$service->business->id, $service->id, $asset]) }}">{{ $asset->name }}</a>
+            <a href="{{ route('asset.show', $asset->id) }}">{{ $asset->name }}</a>
         @endforeach
     </div>
 </div>

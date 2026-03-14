@@ -42,6 +42,10 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Domain\Rule\Interfaces\RuleRepositoryInterface::class,
             \App\Repositories\Rule\RuleRepository::class
         );
+        $this->app->bind(
+            \App\Domain\Appointment\Interfaces\AppointmentRepositoryInterface::class,
+            \App\Repositories\Appointment\AppointmentRepository::class
+        );
     }
 
     public function boot() {}

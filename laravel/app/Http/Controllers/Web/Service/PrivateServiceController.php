@@ -60,4 +60,10 @@ class PrivateServiceController extends Controller
         $useCase->execute($serviceId, Auth::id());
         return back()->with('success', 'Service restored successfully.');
     }
+
+    public function book(int $serviceId, GetService $useCase)
+    {
+        $service = $useCase->execute($serviceId, Auth::user());
+        return view('pages.public.service.book', compact('service'));
+    }
 }

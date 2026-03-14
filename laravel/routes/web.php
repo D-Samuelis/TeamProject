@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\Rule\RuleController;
 use App\Http\Controllers\Web\SearchController;
 use App\Http\Controllers\Web\Asset\AssetController;
+use App\Http\Controllers\Web\Appointment\AppointmentController;
 
 /**
  * Public
@@ -19,7 +20,7 @@ use App\Http\Controllers\Web\Asset\AssetController;
 Route::view('/', 'pages.welcome')->name('home');
 Route::view('/dev', 'pages.dev')->name('dev');
 
-Route::prefix('manual-booking')
+Route::prefix('search')
     ->controller(SearchController::class)
     ->group(function () {
         Route::get('/', 'index')->name('manualBooking.index');
@@ -28,6 +29,18 @@ Route::prefix('manual-booking')
 
         Route::get('/{id}', 'show')->name('manualBooking.show');
     });
+
+Route::prefix('business')->controller(PrivateBusinessController::class)->group(function () {
+    Route::get('/{businessId}/book', [PrivateBusinessController::class, 'book'])->name('business.book');
+});
+
+Route::prefix('service')->controller(PrivateServiceController::class)->group(function () {
+    Route::get('/{serviceId}/book', [PrivateServiceController::class, 'book'])->name('service.book');
+});
+
+Route::prefix('service')->group(function () {
+    Route::get('/{serviceId}/asset/{assetId}/book', [AssetController::class, 'book'])->name('asset.book');
+});
 
 /**
  * Guest
@@ -124,5 +137,13 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{ruleId}', 'update')->name('update'); // Update
             Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
             Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+        });
+
+    Route::prefix('appointments')
+        ->name('appointment.')
+        ->controller(AppointmentController::class)
+        ->group(function () {
+            Route::get('/slots', 'slots')->name('slots');   // GET  /appointments/slots?...
+            Route::post('/', 'store')->name('store');        // POST /appointments
         });
 });

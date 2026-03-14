@@ -1,0 +1,27 @@
+[90m= [39m[34;4mApp\Models\Business\Asset[39;24m {#6216
+    [34mid[39m: [35m1[39m,
+    [34mname[39m: "[32mass[39m",
+    [34mdescription[39m: "[32msasd[39m",
+    [34mdelete_after[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2026-03-08 22:32:37[39m",
+    [34mupdated_at[39m: "[32m2026-03-08 22:32:37[39m",
+    [34mdeleted_at[39m: [36mnull[39m,
+    [34mrules[39m: [34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6640
+      [34mall[39m: [
+        [34;4mApp\Models\Business\Rule[39;24m {#6627
+          [34mid[39m: [35m1[39m,
+          [34masset_id[39m: [35m1[39m,
+          [34mtitle[39m: "[32mhkj[39m",
+          [34mdescription[39m: "[32mjhgjh[39m",
+          [34mvalid_from[39m: "[32m2025-01-09 00:00:00[39m",
+          [34mvalid_to[39m: "[32m2026-12-10 00:00:00[39m",
+          [34mrule_set[39m: "[32m{"days": {"0": [{"to_time": "12:00", "from_time": "08:00"}, {"to_time": "17:00", "from_time": "13:00"}], "1": [{"to_time": "12:00", "from_time": "08:00"}, {"to_time": "17:00", "from_time": "13:00"}], "2": [{"to_time": "12:00", "from_time": "08:00"}, {"to_time": "17:00", "from_time": "13:00"}], "3": [{"to_time": "12:00", "from_time": "08:00"}, {"to_time": "17:00", "from_time": "13:00"}], "4": [{"to_time": "12:00", "from_time": "08:00"}, {"to_time": "17:00", "from_time": "13:00"}], "5": [], "6": []}}[39m",
+          [34mdelete_after[39m: [36mnull[39m,
+          [34mdeleted_at[39m: [36mnull[39m,
+          [34mcreated_at[39m: "[32m2026-03-08 22:42:17[39m",
+          [34mupdated_at[39m: "[32m2026-03-08 22:42:17[39m",
+        },
+      ],
+    },
+  }
+
