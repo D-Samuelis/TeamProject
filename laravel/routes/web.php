@@ -24,7 +24,6 @@ use App\Http\Controllers\Web\Rule\RuleController;
 use App\Http\Controllers\ChatbotController;
 
 Route::get('/chatbot', [ChatbotController::class, 'index']);
-Route::post('/chatbot/message', [ChatbotController::class, 'message']);
 
 /**
  * Public
