@@ -36,6 +36,6 @@
 </div>
 
 
-@vite('resources/js/pages/chatbot/entry.js')
+@vite('resources/js/chatbot/main.js')
 
 @endsection
