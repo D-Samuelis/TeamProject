@@ -79,8 +79,8 @@
 
     --stat-item-all: var(--color-primary);
     --stat-item-all-hover: var(--color-primary-hover);
-    --stat-item-published: #58c758;
-    --stat-item-published-hover: #7ec57e;
+    --stat-item-published: #48af48;
+    --stat-item-published-hover: #3d9c3d;
     --stat-item-hidden: #dfb83a;
     --stat-item-hidden-hover: #cfaf44;
     --stat-item-deleted: #db4242;

@@ -18,6 +18,10 @@
     box-shadow: none;
 }
 
+.filter-item:active {
+    transform: scale(0.98);
+} 
+
 .filter-item .filter-item__label {
     color: var(--color-text-unimportant);
 }

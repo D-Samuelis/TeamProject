@@ -94,6 +94,7 @@
     window.BE_DATA = {
         businesses: @json($activeBusinesses->merge($deletedBusinesses)),
         routes: {
+            store: "{{ route('business.store') }}",
             restore: "{{ route('business.restore', ':id') }}",
             delete: "{{ route('business.delete', ':id') }}",
             update: "{{ route('business.update', ':id') }}",

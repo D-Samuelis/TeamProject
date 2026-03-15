@@ -18,6 +18,7 @@
 @import "./components/miniLists.css";
 @import "./components/sorter.css";
 @import "./components/nav/index.css";
+@import "./components/modal.css";
 
 @import "./pages/welcome/index.css";
 @import "./pages/myAppointments/index.css";
