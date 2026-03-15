@@ -132,8 +132,6 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/{assetId}/restore', 'restore')->name('restore'); // Restore soft-deleted
         });
 
-    Route::get('/chatbot', [ChatbotController::class, 'index']);
-
     Route::prefix('rules')
         ->name('rule.')
         ->controller(RuleController::class)
@@ -152,3 +150,4 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', 'store')->name('store');        // POST /appointments
         });
 });
+Route::get('/chatbot', [ChatbotController::class, 'index']);
