@@ -1,45 +1,24 @@
 :root {
     --color-bg: #F8F8F8;
     --color-bg-complement: #f0f0f0;
+
     --color-text: #080808;
     --color-text-white: #f3f3f3;
     --color-text-unimportant: rgb(126, 126, 126);
-    --color-text-unimportant-hover: rgb(85, 85, 85);
     --color-text-unimportant-dark: #646464;
-    --color-text-unimportant-dark-hover: #444444;
     --color-text-unimportant-light: rgb(189, 189, 189);
-
-    --color-secondary-button: #e9e9e9;
-    --color-secondary-button-hover: #d3d3d3;
 
     --color-primary: #7b58fb;
     --color-primary-hover: #6548e4;
-
     --color-primary-gradient-dark: #5034b6;
-
-    --color-red: #d43f3f;
-    --color-red-hover: rgb(165, 45, 45);
 
     --color-button-hover: #ebebeb;
 
     --color-border: #5a5a5a;
     --color-border-light: #dddddd;
     --color-border-light-very: #f1f1f1;
-    --color-border-hover:rgb(77, 77, 77);
     --color-box-shadow: rgba(0,0,0,0.12);
     --color-box-shadow-input: rgba(161, 171, 189, 0.3);
-    --color-border-timeline: #b8b8b8;
-
-    --color-placeholder: rgba(0,0,0,0.45);
-
-    --color-divider: #dcdcdc;
-
-    --color-theme-background-light: #F6F6F6;
-    --color-theme-foreground-light: #c2c2c2;
-    --color-theme-accent-light: #1b1b1b;
-    --color-theme-background-dark: #1a1a20;
-    --color-theme-foreground-dark: #28272c;
-    --color-theme-accent-dark: #d8d8d8;
 
     --font-size-logo: 1.5rem;
     --font-size-large: 1.25rem;
@@ -56,7 +35,6 @@
     --color-warning: #f8c82a;
     --color-warning-text: #e9a71a;
 
-    /* COLORS REFORMED (DONT TOUCH) */
     --status-yellow: #e6c24d;
     --status-yellow-hover: #cfaf44;
     --status-yellow-text: #5e4a0a;
@@ -79,7 +57,7 @@
 
     --stat-item-all: var(--color-primary);
     --stat-item-all-hover: var(--color-primary-hover);
-    --stat-item-published: #48af48;
+    --stat-item-published: #39a139;
     --stat-item-published-hover: #3d9c3d;
     --stat-item-hidden: #dfb83a;
     --stat-item-hidden-hover: #cfaf44;
@@ -90,48 +68,53 @@
 .theme-dark {
     --color-bg: #18181f;
     --color-bg-complement: #15151b;
+
     --color-text: #f0f0f0;
     --color-text-black: #131313;
     --color-text-unimportant: #c2c2c2;
-    --color-text-unimportant-hover: #d3d2d2;
     --color-text-unimportant-dark: #646464;
-    --color-text-unimportant-dark-hover: #444444;
     --color-text-unimportant-light: rgb(156, 156, 156);
 
-    --color-button-hover: #1d1d27;
+    --color-primary: #7b58fb;
+    --color-primary-hover: #6548e4;
+    --color-primary-gradient-dark: #5034b6;
 
-    --color-secondary-button: #e9e9e9;
-    --color-secondary-button-hover: #d3d3d3;
+    --color-button-hover: #191920;
 
-    --color-placeholder: rgba(107, 107, 107, 0.699);
-
-    --color-divider: #262530;
-
-    --color-border: #666666;
-    --color-border-hover:rgb(99, 99, 99);
+    --color-border: #66666e;
+    --color-border-light: #33333a;
+    --color-border-light-very: #282831;
     --color-box-shadow: rgba(0,0,0,0.12);
-    --color-box-shadow-input: rgba(11, 11, 12, 0.575);
+    --color-box-shadow-input: rgba(20, 20, 20, 0.3);
 
-    /* COLORS REFORMED (DONT TOUCH) */
     --status-yellow: #D4AF37;
     --status-yellow-hover: #bd9c31;
-    --status-yellow-text: #f3e9c7;
+    --status-yellow-text: #fff9e4;
 
     --status-blue: #7289da;
     --status-blue-hover: #5d70b6;
-    --status-blue-text: #dbeafe;
+    --status-blue-text: #e3efff;
 
     --status-red: #c26e6e;
     --status-red-hover: #a05656;
     --status-red-text: #fee2e2;
 
-    --status-black: #64748b;
-    --status-black-hover: #4c5a6d;
+    --status-black: #5b6572;
+    --status-black-hover: #464d57;
     --status-black-text: #f1f5f9;
 
     --status-green: #6b8e6b;
     --status-green-hover: #557555;
     --status-green-text: #dcfce7;
+
+    --stat-item-all: var(--color-primary);
+    --stat-item-all-hover: var(--color-primary-hover);
+    --stat-item-published: #39a139;
+    --stat-item-published-hover: #3d9c3d;
+    --stat-item-hidden: #dfb83a;
+    --stat-item-hidden-hover: #cfaf44;
+    --stat-item-deleted: #db4242;
+    --stat-item-deleted-hover: #d85d5d;
 }
 
 @font-face {
