@@ -18,7 +18,7 @@ class SlotGeneratorService
         int $durationMinutes,
         int $bufferMinutes = 0
     ): array {
-        // ISO day: Mon=1..Sun=7, minus 1 gives Mon=0..Sun=6
+        // ISO: Mon=1..Sun=7, minus 1 gives Mon=0..Sun=6
         $dayOfWeek = $date->dayOfWeekIso - 1;
 
         $ranges = $this->getRangesForDate($asset, $date, $dayOfWeek);
@@ -36,41 +36,41 @@ class SlotGeneratorService
         ));
     }
 
+    // ── Private helpers ───────────────────────────────────────────────────────
+
     private function getRangesForDate(Asset $asset, Carbon $date, int $dayOfWeek): array
     {
-        $ranges = [];
+        // Sort by priority ascending (1 = highest), take the first valid rule
+        $rule = $asset->rules
+            ->sortBy('priority')
+            ->first(function ($rule) use ($date) {
+                $validFrom = Carbon::parse($rule->valid_from)->startOfDay();
+                $validTo   = Carbon::parse($rule->valid_to)->endOfDay();
+                return $date->between($validFrom, $validTo);
+            });
 
-        foreach ($asset->rules as $rule) {
-            $validFrom = Carbon::parse($rule->valid_from)->startOfDay();
-            $validTo   = Carbon::parse($rule->valid_to)->endOfDay();
-
-            if (! $date->between($validFrom, $validTo)) {
-                continue;
-            }
-
-            $ruleSet = is_string($rule->rule_set)
-                ? json_decode($rule->rule_set, true)
-                : $rule->rule_set;
-
-            if (isset($ruleSet['days'])) {
-                $ruleSet = $ruleSet['days'];
-            }
-
-            $dayKey = (string) $dayOfWeek;
-
-            if (empty($ruleSet[$dayKey])) {
-                continue;
-            }
-
-            foreach ($ruleSet[$dayKey] as $range) {
-                $ranges[] = [
-                    'from' => $range['from_time'],
-                    'to'   => $range['to_time'],
-                ];
-            }
+        if (! $rule) {
+            return [];
         }
 
-        return $ranges;
+        $ruleSet = is_string($rule->rule_set)
+            ? json_decode($rule->rule_set, true)
+            : $rule->rule_set;
+
+        if (isset($ruleSet['days'])) {
+            $ruleSet = $ruleSet['days'];
+        }
+
+        $dayKey = (string) $dayOfWeek;
+
+        if (empty($ruleSet[$dayKey])) {
+            return []; // this rule says closed — no fallback
+        }
+
+        return array_map(fn($r) => [
+            'from' => $r['from_time'],
+            'to'   => $r['to_time'],
+        ], $ruleSet[$dayKey]);
     }
 
     private function buildSlots(array $ranges, int $duration, int $buffer): array
@@ -84,7 +84,7 @@ class SlotGeneratorService
 
             if ($start >= $end) continue;
 
-            $cur   = $start;
+            $cur = $start;
             while ($cur + $duration <= $end) {
                 $slots[] = $this->minutesToTime($cur);
                 $cur += $step;

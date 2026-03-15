@@ -7,10 +7,12 @@ use App\Application\Rule\DTO\UpdateRuleDTO;
 use App\Application\Rule\UseCases\CreateRule;
 use App\Application\Rule\UseCases\UpdateRule;
 use App\Application\Rule\UseCases\DeleteRule;
+use App\Application\Rule\UseCases\ReorderRule;
 use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rule\StoreRuleRequest;
 use App\Http\Requests\Rule\UpdateRuleRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RuleController extends Controller
@@ -53,11 +55,14 @@ class RuleController extends Controller
         return back()->with('success', 'Rule deleted.');
     }
 
-    public function restore(int $ruleId, RuleRepositoryInterface $ruleRepo)
+    public function reorder(int $ruleId, Request $request, ReorderRule $useCase)
     {
-        $rule = $ruleRepo->findById($ruleId);
-        abort_if(!$rule, 404);
-        $ruleRepo->restore($rule);
-        return back()->with('success', 'Rule restored.');
+        $request->validate([
+            'direction' => 'required|in:up,down',
+        ]);
+
+        $useCase->execute($ruleId, $request->input('direction'), Auth::id());
+
+        return back()->with('success', 'Rule order updated.');
     }
 }

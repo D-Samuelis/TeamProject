@@ -9,7 +9,7 @@ class RuleRepository implements RuleRepositoryInterface
 {
     public function findById(int $id): ?Rule
     {
-        return Rule::withTrashed()->find($id);
+        return Rule::find($id);
     }
 
     public function save(array $data): Rule
@@ -25,11 +25,39 @@ class RuleRepository implements RuleRepositoryInterface
 
     public function delete(Rule $rule): void
     {
-        $rule->delete(); // soft delete
+        $rule->delete();
     }
 
     public function restore(Rule $rule): void
     {
         $rule->restore();
+    }
+
+    public function getMaxPriority(int $assetId): int
+    {
+        return Rule::where('asset_id', $assetId)->max('priority') ?? 0;
+    }
+
+    public function findByPriorityAbove(int $assetId, int $currentPriority): ?Rule
+    {
+        return Rule::where('asset_id', $assetId)
+            ->where('priority', '<', $currentPriority)
+            ->orderByDesc('priority')
+            ->first();
+    }
+
+    public function findByPriorityBelow(int $assetId, int $currentPriority): ?Rule
+    {
+        return Rule::where('asset_id', $assetId)
+            ->where('priority', '>', $currentPriority)
+            ->orderBy('priority')
+            ->first();
+    }
+
+    public function renumberPriorities(int $assetId, int $deletedPriority): void
+    {
+        Rule::where('asset_id', $assetId)
+            ->where('priority', '>', $deletedPriority)
+            ->decrement('priority');
     }
 }

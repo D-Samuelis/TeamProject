@@ -2,7 +2,6 @@
 
 namespace App\Application\Rule\UseCases;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\Business\Rule;
 use App\Application\Rule\DTO\CreateRuleDTO;
@@ -18,9 +17,12 @@ class CreateRule
 
     public function execute(CreateRuleDTO $dto, int $userId): Rule
     {
-        return DB::transaction(function () use ($dto, $userId) {
+        return DB::transaction(function () use ($dto) {
+            $maxPriority = $this->ruleRepo->getMaxPriority($dto->asset_id);
+
             $data = $dto->toArray();
-            \Log::info('Saving rule', $data); // <-- log the data
+            $data['priority'] = $maxPriority + 1;
+
             return $this->ruleRepo->save($data);
         });
     }

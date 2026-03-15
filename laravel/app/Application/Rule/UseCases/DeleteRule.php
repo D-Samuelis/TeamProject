@@ -3,6 +3,7 @@
 namespace App\Application\Rule\UseCases;
 
 use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class DeleteRule
 {
@@ -14,6 +15,11 @@ class DeleteRule
     {
         $rule = $this->ruleRepo->findById($ruleId);
         abort_if(!$rule, 404);
-        $this->ruleRepo->delete($rule);
+
+        DB::transaction(function () use ($rule) {
+            $deletedPriority = $rule->priority;
+            $this->ruleRepo->delete($rule);
+            $this->ruleRepo->renumberPriorities($rule->asset_id, $deletedPriority);
+        });
     }
 }
