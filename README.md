@@ -130,38 +130,49 @@ The MCP setup consists of **1 server** and **1 client**.
 
 ### Environment Variables
 
-Add the following variables to your `.env` file to enable MCP client-server communication (check example.env for reference):
+Add the following variables to your `.env` file to enable MCP client-server communication:
 
 ```env
-MCP_SERVER=
-MCP_OLLAMA_URL=
-MCP_OLLAMA_MODEL=
+MCP_SERVER=http://localhost:8000/mcp            
+MCP_OLLAMA_URL=http://localhost:11434/api/chat  // If you run it locally
+MCP_OLLAMA_MODEL=qwen3:8b                       
+MCP_CLIENT_URL=http://127.0.0.1:8001            
 ```
 ### Running the MCP Server
 
-The MCP server starts automatically after `php artisan serve`. To test it in isolation, use the inspector command:
+The MCP server starts automatically after `php artisan serve`. 
+
+---
+
+To test server in isolation, use the inspector command:
 
 ```bash
 php artisan mcp:inspector mcp
 ```
+---
+Alternatively you can test the MCP server using any other MCP client.
 
-### Running the MCP Client
-<small>Make sure you run the LLM</small>
-
-The chat interface is currently implemented as a CLI command:
-
+To have it working on Claude desktop, put into `~\claude_desktop_config.json` following object:
 ```bash
-php artisan mcp:client
+"mcpServers": {
+    "mcpServer": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://127.0.0.1:8000/mcp"
+      ]
+    }
+  },
 ```
 
-
 ---
-<small>
 
-⚠️ **Llama API Limitation:** The Llama chat/API does not support resources or prompts — **only tools** will be used during MCP communication.
+### Running the MCP Client
+<small>Make sure you run the LLM, the client is currently set up to communicate to Ollama LLMs</small>
 
-⚠️ **Client implemented from scratch:** There is no good existing library for a PHP-based MCP client.
+To run the MCP Client be in `~/mcp-client` directory and use command 
 
-ℹ️ **Orchestration** - Since we only use one server and one client, we are not implementing a full orchestration layer. Only tools will be orchestrated using token based orchestration.
-
-</small>
+```bash
+uvicorn client:app --port 8001
+```
+---
