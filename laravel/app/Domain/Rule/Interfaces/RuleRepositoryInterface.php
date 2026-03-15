@@ -16,4 +16,12 @@ interface RuleRepositoryInterface
     public function delete(Rule $rule): void;
 
     public function restore(Rule $rule): void;
+
+    public function getMaxPriority(int $assetId): int;
+
+    public function findByPriorityAbove(int $assetId, int $currentPriority): ?Rule;
+
+    public function findByPriorityBelow(int $assetId, int $currentPriority): ?Rule;
+
+    public function renumberPriorities(int $assetId, int $deletedPriority): void;
 }

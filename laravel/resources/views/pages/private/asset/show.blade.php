@@ -44,24 +44,52 @@
 <div>
     <h2>Rules</h2>
 
-    @forelse($asset->rules as $rule)
+    @php $sortedRules = $asset->rules->sortBy('priority'); @endphp
+
+    @forelse($sortedRules as $rule)
         @php
             $rs = is_string($rule->rule_set) ? json_decode($rule->rule_set, true) : $rule->rule_set;
             $rs = $rs['days'] ?? $rs;
+            $isFirst = $loop->first;
+            $isLast  = $loop->last;
         @endphp
         <div style="border:1px solid #ddd;border-radius:6px;padding:1rem;margin-bottom:1rem;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div>
-                    <strong>{{ $rule->title }}</strong>
-                    @if($rule->description)
-                        <p style="color:#888;font-size:13px;margin:2px 0;">{{ $rule->description }}</p>
-                    @endif
-                    <p style="font-size:12px;color:#aaa;margin:4px 0 0;">
-                        {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
-                        →
-                        {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
-                    </p>
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                    {{-- Priority badge + up/down --}}
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
+                        <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                            @csrf
+                            <input type="hidden" name="direction" value="up">
+                            <button type="submit"
+                                    {{ $isFirst ? 'disabled' : '' }}
+                                    style="background:none;border:none;cursor:{{ $isFirst ? 'default' : 'pointer' }};color:{{ $isFirst ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▲</button>
+                        </form>
+                        <span style="font-size:11px;font-weight:600;color:#888;background:#f3f4f6;border-radius:4px;padding:1px 6px;">
+                            #{{ $rule->priority }}
+                        </span>
+                        <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                            @csrf
+                            <input type="hidden" name="direction" value="down">
+                            <button type="submit"
+                                    {{ $isLast ? 'disabled' : '' }}
+                                    style="background:none;border:none;cursor:{{ $isLast ? 'default' : 'pointer' }};color:{{ $isLast ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▼</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <strong>{{ $rule->title }}</strong>
+                        @if($rule->description)
+                            <p style="color:#888;font-size:13px;margin:2px 0;">{{ $rule->description }}</p>
+                        @endif
+                        <p style="font-size:12px;color:#aaa;margin:4px 0 0;">
+                            {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
+                            →
+                            {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
+                        </p>
+                    </div>
                 </div>
+
                 <div style="display:flex;gap:6px;flex-shrink:0;">
                     <button onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>Edit</button>
                     <form method="POST" action="{{ route('rule.delete', $rule->id) }}"
@@ -73,7 +101,7 @@
             </div>
 
             {{-- Schedule summary --}}
-            <div style="margin-top:0.75rem;font-size:13px;display:flex;flex-wrap:wrap;gap:8px;">
+            <div style="margin-top:0.75rem;font-size:13px;display:flex;flex-wrap:wrap;gap:8px;padding-left:34px;">
                 @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $i => $dayName)
                     <span>
                         <strong>{{ $dayName }}:</strong>
@@ -226,32 +254,32 @@
 
 {{-- ── JavaScript ───────────────────────────────────────────────────────── --}}
 <script>
-const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
-// ── Modal helpers ─────────────────────────────────────────────────────────
-function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    // ── Modal helpers ─────────────────────────────────────────────────────────
+    function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-document.querySelectorAll('.modal-backdrop').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.style.display = 'none'; });
-});
+    document.querySelectorAll('.modal-backdrop').forEach(el => {
+        el.addEventListener('click', e => { if (e.target === el) el.style.display = 'none'; });
+    });
 
-// ── Schedule builder ──────────────────────────────────────────────────────
+    // ── Schedule builder ──────────────────────────────────────────────────────
 
-function buildScheduleUI(containerId, initialData) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
+    function buildScheduleUI(containerId, initialData) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
 
-    const days = (initialData && initialData.days) ? initialData.days : {};
+        const days = (initialData && initialData.days) ? initialData.days : {};
 
-    DAY_NAMES.forEach((name, i) => {
-        const ranges = days[i] || [];
-        const isOpen = ranges.length > 0;
+        DAY_NAMES.forEach((name, i) => {
+            const ranges = days[i] || [];
+            const isOpen = ranges.length > 0;
 
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'schedule-day';
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'schedule-day';
 
-        dayDiv.innerHTML = `
+            dayDiv.innerHTML = `
             <div class="schedule-day-header">
                 <input type="checkbox" id="${containerId}_open_${i}" ${isOpen ? 'checked' : ''}
                     onchange="toggleDay('${containerId}', ${i})">
@@ -264,87 +292,87 @@ function buildScheduleUI(containerId, initialData) {
             <div class="ranges-list" id="${containerId}_ranges_${i}"></div>
         `;
 
-        container.appendChild(dayDiv);
+            container.appendChild(dayDiv);
 
-        if (isOpen) {
-            ranges.forEach(r => addRange(containerId, i, r.from_time, r.to_time));
-        }
-    });
-}
-
-function toggleDay(containerId, i) {
-    const cb     = document.getElementById(`${containerId}_open_${i}`);
-    const list   = document.getElementById(`${containerId}_ranges_${i}`);
-    const addBtn = document.getElementById(`${containerId}_add_${i}`);
-
-    if (cb.checked) {
-        addBtn.style.display = '';
-        addRange(containerId, i, '08:00', '17:00');
-    } else {
-        list.innerHTML      = '';
-        addBtn.style.display = 'none';
+            if (isOpen) {
+                ranges.forEach(r => addRange(containerId, i, r.from_time, r.to_time));
+            }
+        });
     }
-}
 
-function addRange(containerId, i, from = '08:00', to = '17:00') {
-    const list = document.getElementById(`${containerId}_ranges_${i}`);
-    const row  = document.createElement('div');
-    row.className = 'range-row';
-    row.innerHTML = `
+    function toggleDay(containerId, i) {
+        const cb     = document.getElementById(`${containerId}_open_${i}`);
+        const list   = document.getElementById(`${containerId}_ranges_${i}`);
+        const addBtn = document.getElementById(`${containerId}_add_${i}`);
+
+        if (cb.checked) {
+            addBtn.style.display = '';
+            addRange(containerId, i, '08:00', '17:00');
+        } else {
+            list.innerHTML      = '';
+            addBtn.style.display = 'none';
+        }
+    }
+
+    function addRange(containerId, i, from = '08:00', to = '17:00') {
+        const list = document.getElementById(`${containerId}_ranges_${i}`);
+        const row  = document.createElement('div');
+        row.className = 'range-row';
+        row.innerHTML = `
         <input type="time" value="${from}">
         <span style="font-size:12px;color:#aaa;">–</span>
         <input type="time" value="${to}">
         <button type="button" class="btn-del-range" onclick="this.parentElement.remove()">✕</button>
     `;
-    list.appendChild(row);
-}
+        list.appendChild(row);
+    }
 
-function serializeSchedule(prefix) {
-    const result = { days: {} };
+    function serializeSchedule(prefix) {
+        const result = { days: {} };
 
-    DAY_NAMES.forEach((_, i) => {
-        const cb = document.getElementById(`${prefix}_schedule_builder_open_${i}`);
-        if (!cb || !cb.checked) { result.days[i] = []; return; }
+        DAY_NAMES.forEach((_, i) => {
+            const cb = document.getElementById(`${prefix}_schedule_builder_open_${i}`);
+            if (!cb || !cb.checked) { result.days[i] = []; return; }
 
-        const rows = document.querySelectorAll(`#${prefix}_schedule_builder_ranges_${i} .range-row`);
-        result.days[i] = Array.from(rows)
-            .map(row => {
-                const t = row.querySelectorAll('input[type=time]');
-                return { from_time: t[0].value, to_time: t[1].value };
-            })
-            .filter(r => r.from_time && r.to_time && r.from_time < r.to_time);
+            const rows = document.querySelectorAll(`#${prefix}_schedule_builder_ranges_${i} .range-row`);
+            result.days[i] = Array.from(rows)
+                .map(row => {
+                    const t = row.querySelectorAll('input[type=time]');
+                    return { from_time: t[0].value, to_time: t[1].value };
+                })
+                .filter(r => r.from_time && r.to_time && r.from_time < r.to_time);
+        });
+
+        document.getElementById(`${prefix}_rule_set_input`).value = JSON.stringify(result);
+        return true;
+    }
+
+    // ── Open edit rule modal ──────────────────────────────────────────────────
+    function openEditRuleModal(ruleId, rule) {
+        document.getElementById('editRuleForm').action = `/rules/${ruleId}`;
+
+        document.getElementById('edit_title').value       = rule.title        ?? '';
+        document.getElementById('edit_description').value = rule.description  ?? '';
+        document.getElementById('edit_valid_from').value  = rule.valid_from   ? rule.valid_from.substring(0,10)  : '';
+        document.getElementById('edit_valid_to').value    = rule.valid_to     ? rule.valid_to.substring(0,10)    : '';
+
+        let rs = rule.rule_set;
+        if (typeof rs === 'string') rs = JSON.parse(rs);
+
+        buildScheduleUI('edit_schedule_builder', rs);
+        openModal('editRuleModal');
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        buildScheduleUI('create_schedule_builder', null);
     });
-
-    document.getElementById(`${prefix}_rule_set_input`).value = JSON.stringify(result);
-    return true;
-}
-
-// ── Open edit rule modal ──────────────────────────────────────────────────
-function openEditRuleModal(ruleId, rule) {
-    document.getElementById('editRuleForm').action = `/rules/${ruleId}`;
-
-    document.getElementById('edit_title').value       = rule.title        ?? '';
-    document.getElementById('edit_description').value = rule.description  ?? '';
-    document.getElementById('edit_valid_from').value  = rule.valid_from   ? rule.valid_from.substring(0,10)  : '';
-    document.getElementById('edit_valid_to').value    = rule.valid_to     ? rule.valid_to.substring(0,10)    : '';
-
-    let rs = rule.rule_set;
-    if (typeof rs === 'string') rs = JSON.parse(rs);
-
-    buildScheduleUI('edit_schedule_builder', rs);
-    openModal('editRuleModal');
-}
-
-// ── Init ──────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    buildScheduleUI('create_schedule_builder', null);
-});
 </script>
 
 {{-- Re-open correct modal on validation error --}}
 @if($errors->hasAny(['name','description','branch_ids','service_ids']))
-<script>openModal('editAssetModal');</script>
+    <script>openModal('editAssetModal');</script>
 @endif
 @if($errors->hasAny(['title','valid_from','valid_to','rule_set']))
-<script>openModal('createRuleModal');</script>
+    <script>openModal('createRuleModal');</script>
 @endif

@@ -3,14 +3,13 @@
 namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Auth\User;
 
 class Rule extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'title',
@@ -19,7 +18,8 @@ class Rule extends Model
         'valid_to',
         'rule_set',
         'asset_id',
-        'delete_after'
+        'delete_after',
+        'priority'
     ];
 
     protected $casts = [

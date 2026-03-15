@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', 'store')->name('store'); // Create
             Route::put('/{ruleId}', 'update')->name('update'); // Update
             Route::delete('/{ruleId}', 'delete')->name('delete'); // Delete
-            Route::post('/{ruleId}/restore', 'restore')->name('restore'); // Restore soft-deleted
+            Route::post('/{ruleId}/reorder',  'reorder')->name('reorder');
         });
 
     Route::prefix('appointments')
