@@ -1,3 +1,5 @@
+import { APPOINTMENT_FILTERS_KEY } from '../../config/storageKeys.js';
+
 const statuses = [
     { id: 'reserved',  label: 'Reserved',  color: 'yellow', active: true },
     { id: 'confirmed', label: 'Confirmed', color: 'green',   active: true },
@@ -9,6 +11,14 @@ const statuses = [
 export function initStatusFilters() {
     const container = document.getElementById('filterList');
     if (!container) return;
+
+    const savedFilters = localStorage.getItem(APPOINTMENT_FILTERS_KEY);
+    if (savedFilters) {
+        const activeIds = JSON.parse(savedFilters);
+        statuses.forEach(s => {
+            s.active = activeIds.includes(s.id);
+        });
+    }
 
     container.innerHTML = '';
 
@@ -27,9 +37,14 @@ export function initStatusFilters() {
             status.active = !status.active;
             filterItem.classList.toggle('is-active');
             
+            const activeIds = statuses.filter(s => s.active).map(s => s.id);
+            localStorage.setItem(APPOINTMENT_FILTERS_KEY, JSON.stringify(activeIds));
+            
             window.dispatchEvent(new CustomEvent('filtersChanged', { detail: statuses }));
         });
 
         container.appendChild(filterItem);
     });
+
+    window.dispatchEvent(new CustomEvent('filtersChanged', { detail: statuses }));
 }

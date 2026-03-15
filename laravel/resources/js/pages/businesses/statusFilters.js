@@ -1,6 +1,8 @@
+import { BUSINESS_FILTERS_KEY } from '../../config/storageKeys.js';
+
 const businessStatuses = [
     { id: 'published', label: 'Published', color: 'green', active: true },
-    { id: 'hidden',    label: 'Hidden',    color: 'black', active: true },
+    { id: 'hidden',    label: 'Hidden',    color: 'yellow', active: true },
     { id: 'deleted',   label: 'Archived',  color: 'red',   active: false }
 ];
 
@@ -8,11 +10,20 @@ export function initBusinessStatusFilters() {
     const container = document.getElementById('statusList');
     if (!container) return;
 
+    const savedFilters = localStorage.getItem(BUSINESS_FILTERS_KEY);
+    if (savedFilters) {
+        const activeIds = JSON.parse(savedFilters);
+        businessStatuses.forEach(s => {
+            s.active = activeIds.includes(s.id);
+        });
+    }
+
     container.innerHTML = '';
 
     businessStatuses.forEach(status => {
         const filterItem = document.createElement('div');
         filterItem.className = `filter-item filter-item--${status.color} ${status.active ? 'is-active' : ''}`;
+        
         filterItem.innerHTML = `
             <div class="filter-item__checkbox">
                 <i class="fa-solid fa-check"></i>
@@ -24,7 +35,11 @@ export function initBusinessStatusFilters() {
             status.active = !status.active;
             filterItem.classList.toggle('is-active');
             
-            // Odoslanie eventu, na ktorý bude počúvať listView
+            const activeIds = businessStatuses
+                .filter(s => s.active)
+                .map(s => s.id);
+            localStorage.setItem(BUSINESS_FILTERS_KEY, JSON.stringify(activeIds));
+            
             window.dispatchEvent(new CustomEvent('businessFiltersChanged', { 
                 detail: { statuses: businessStatuses } 
             }));
@@ -32,4 +47,8 @@ export function initBusinessStatusFilters() {
 
         container.appendChild(filterItem);
     });
+
+    window.dispatchEvent(new CustomEvent('businessFiltersChanged', { 
+        detail: { statuses: businessStatuses } 
+    }));
 }

@@ -6,7 +6,7 @@ import { initBusinessStatusFilters } from './statusFilters.js';
 document.addEventListener('DOMContentLoaded', () => {
     initModals();
     initCollapsibleList('managementList');
-    initBusinessStatusFilters();
     initBusinessListView(window.BE_DATA.businesses);
+    initBusinessStatusFilters();
     initCollapsibleList('statusList');
 });

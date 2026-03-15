@@ -4,7 +4,7 @@ import { initTimelineLayout } from './timeLineLayout.js';
 import { initViewToggle } from './viewToggle.js';
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
 import { renderPendingAppointments } from './appointmentsRenderer.js';
-import { initStatusFilters } from './filters.js';
+import { initStatusFilters } from './statusFilters.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     initCalendar();
