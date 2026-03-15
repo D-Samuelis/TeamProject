@@ -14,7 +14,6 @@
 }
 
 @import "./components/searchBar.css";
-@import "./components/buttons.css";
 @import "./components/miniLists.css";
 @import "./components/sorter.css";
 @import "./components/nav/index.css";

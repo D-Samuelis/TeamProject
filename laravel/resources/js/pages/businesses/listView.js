@@ -22,7 +22,7 @@ export function initBusinessListView(data = []) {
                 render: (val, item) => `
                     <div class="name-cell">
                         <strong>${val}</strong>
-                        ${item.deleted_at ? '<span class="today-badge" style="background: var(--color-red)">Archived</span>' : ''}
+                        ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ''}
                     </div>`
             },
             { 
