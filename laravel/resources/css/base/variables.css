@@ -76,6 +76,15 @@
     --status-green: #89b889;
     --status-green-hover: #76a176;
     --status-green-text: #214427;
+
+    --stat-item-all: var(--color-primary);
+    --stat-item-all-hover: var(--color-primary-hover);
+    --stat-item-published: #58c758;
+    --stat-item-published-hover: #7ec57e;
+    --stat-item-hidden: #dfb83a;
+    --stat-item-hidden-hover: #cfaf44;
+    --stat-item-deleted: #db4242;
+    --stat-item-deleted-hover: #d85d5d;
 }
 
 .theme-dark {

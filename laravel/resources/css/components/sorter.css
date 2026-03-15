@@ -1,0 +1,8 @@
+.sortable-th.is-active {
+    color: var(--color-primary);
+}
+
+.sortable-th.is-active .sort-icon {
+    opacity: 1;
+    transform: translateY(0);
+}

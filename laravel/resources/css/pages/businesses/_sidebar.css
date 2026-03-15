@@ -1,4 +1,4 @@
-.appointments__sidebar {
+.business__sidebar {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -8,6 +8,6 @@
     padding: 1rem;
 }
 
-.appointments__sidebar section {
+.business__sidebar section {
     margin-bottom: 1rem;
 }

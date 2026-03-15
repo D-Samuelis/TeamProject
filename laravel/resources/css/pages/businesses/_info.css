@@ -1,0 +1,28 @@
+.stat-item--all       { --stat-color: var(--stat-item-all);       --stat-text: var(--stat-item-all);       --stat-hover: var(--stat-item-all-hover); }
+.stat-item--published { --stat-color: var(--stat-item-published); --stat-text: var(--stat-item-published); --stat-hover: var(--stat-item-published-hover); }
+.stat-item--hidden    { --stat-color: var(--stat-item-hidden);    --stat-text: var(--stat-item-hidden);    --stat-hover: var(--stat-item-hidden-hover); }
+.stat-item--deleted   { --stat-color: var(--stat-item-deleted);   --stat-text: var(--stat-item-deleted);   --stat-hover: var(--stat-item-deleted-hover); }
+
+.business-info {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+    margin-top: .15rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: .875rem;
+    padding: .2rem .5rem;
+    color: var(--color-text-white);
+    background: color-mix(in srgb, var(--stat-color), transparent 20%);
+    gap: .25rem;
+    border-radius: .15rem;
+}
+
+.stat-item i {
+    margin-right: .25rem;
+    font-size: .75rem
+}

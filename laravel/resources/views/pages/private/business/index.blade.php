@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="business">
-    {{-- SIDEBAR - Ostáva rovnaký --}}
     <aside class="business__sidebar">
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
@@ -17,28 +16,49 @@
                 </button>
             </div>
         </section>
+        <section class="business__status-filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
+            <div id="statusList" class="dropdown__mini-list">
+                
+            </div>
+        </section>
     </aside>
 
     <main class="business__main">
         <header class="business__header-wrapper">
             <div class="business__header-info">
-                <h2 class="timeline-header__title">My Businesses</h2>
-                <div class="timeline-info">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Total Units: <strong id="businessTotalCount">0</strong></span>
+                <h2 class="business-header__title">My Businesses</h2>
+                
+                <div class="business-info">
+                    <div class="stat-item stat-item--all">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <div id="countAll">0</div> Total businesses
+                    </div>
+                    <div class="stat-item stat-item--published">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div id="countPublished">0</div> Published
+                    </div>
+                    <div class="stat-item stat-item--hidden">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        <div id="countHidden">0</div> Hidden
+                    </div>
+                    <div class="stat-item stat-item--deleted">
+                        <i class="fa-solid fa-trash"></i>
+                        <div id="countDeleted">0</div> Archived
+                    </div>
                 </div>
             </div>
 
             <div class="business__search-wrapper">
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="businessSearchInput" placeholder="Search name, description or status...">
+                    <input type="text" id="businessSearchInput" placeholder="Search businesses...">
                 </div>
             </div>
         </header>
 
         <div class="business__body-wrapper">
-            {{-- SEM SA VYKRESLÍ TABUĽKA --}}
+            {{-- JS GENERATED TABLE --}}
             <div id="businessTableContainer" class="list-view__body-wrapper"></div>
         </div>
     </main>
