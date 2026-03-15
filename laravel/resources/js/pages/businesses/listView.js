@@ -35,7 +35,7 @@ export function initBusinessListView(data = []) {
                     if (item.deleted_at) return `<span class="status-cell filter-item--red">Deleted</span>`;
                     return val 
                         ? `<span class="status-cell filter-item--green">Published</span>`
-                        : `<span class="status-cell filter-item--black">Hidden</span>`;
+                        : `<span class="status-cell filter-item--yellow">Hidden</span>`;
                 }
             }
         ],
@@ -47,13 +47,32 @@ export function initBusinessListView(data = []) {
                         <button type="submit" class="button-icon" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>
                     </form>`;
             }
+
+            const toggleIcon = item.is_published ? 'fa-eye' : 'fa-eye-slash';
+            const toggleTitle = item.is_published ? 'Hide Business' : 'Publish Business';
+            const nextStatus = item.is_published ? 0 : 1;
+
             return `
-                <div class="d-flex gap-2 justify-content-end">
-                    <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon"><i class="fa-solid fa-gear"></i></a>
-                    <form action="${window.BE_DATA.routes.delete.replace(':id', item.id)}" method="POST" onsubmit="return confirm('Archive?')">
+                <div class="business__actions">
+                    <form action="${window.BE_DATA.routes.update.replace(':id', item.id)}" method="POST">
+                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                        <input type="hidden" name="_method" value="PUT">
+                        <input type="hidden" name="is_published" value="${nextStatus}">
+                        <button type="submit" class="button-icon button-icon--warning" title="${toggleTitle}">
+                            <i class="fa-solid ${toggleIcon}" style="${!item.is_published ? 'opacity: 0.5' : ''}"></i>
+                        </button>
+                    </form>
+
+                    <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
+                        <i class="fa-solid fa-gear"></i>
+                    </a>
+                    
+                    <form action="${window.BE_DATA.routes.delete.replace(':id', item.id)}" method="POST" onsubmit="return confirm('Archive this business?')">
                         <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
                         <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="button-icon button-icon--danger"><i class="fa-solid fa-trash"></i></button>
+                        <button type="submit" class="button-icon button-icon--danger" title="Archive">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </form>
                 </div>`;
         },

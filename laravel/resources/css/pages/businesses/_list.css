@@ -1,0 +1,16 @@
+.business__actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: end;
+    align-items: center;
+}
+
+.business__actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-icon--warning i { color: var(--color-warning); }
+.button-icon--warning:hover i { color: var(--color-warning-hover); }
