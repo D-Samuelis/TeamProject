@@ -62,6 +62,10 @@
                 <div class="profile-menu__option" id="lightModeOption">
                     <a href="/my-appointments" class="profile-menu__link">My Appointments</a>
                 </div>
+                <!-- TODO: Maybe some condition if user acctually has some businesses ??? -->
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/businesses" class="profile-menu__link">My Businesses</a>
+                </div>
                 <div class="profile-menu__option" id="lightModeOption">
                     <a href="/profile" class="profile-menu__link">My Profile</a>
                 </div>
