@@ -6,17 +6,11 @@ use App\Mcp\Tools\Appointment\DeleteAppointmentTool;
 use App\Mcp\Tools\Appointment\GetAppointmentTool;
 use App\Mcp\Tools\Appointment\ListAppointmentsTool;
 use App\Mcp\Tools\Appointment\MakeAppointmentTool;
-use App\Mcp\Tools\Asset\GetAssetTool;
 use App\Mcp\Tools\Asset\ListAssetsTool;
-use App\Mcp\Tools\Branch\GetBranchTool;
 use App\Mcp\Tools\Branch\ListBranchesTool;
-use App\Mcp\Tools\Business\GetBusinessTool;
 use App\Mcp\Tools\Business\ListBusinessesTool;
-use App\Mcp\Tools\Service\GetServiceTool;
 use App\Mcp\Tools\Service\ListServiceTool;
 use Laravel\Mcp\Server;
-
-//use App\Mcp\Tools\GetBusinessTool;
 
 class McpServer extends Server
 {
@@ -41,19 +35,9 @@ class McpServer extends Server
         ListAppointmentsTool::class,
         DeleteAppointmentTool::class,
         MakeAppointmentTool::class,
-        //SearchServiceTool::class,
-        //SearchBranchTool::class,
-
-        GetBusinessTool::class,
         ListBusinessesTool::class,
-
-        GetBranchTool::class,
         ListBranchesTool::class,
-
-        GetServiceTool::class,
         ListServiceTool::class,
-
-        GetAssetTool::class,
         ListAssetsTool::class,
     ];
 

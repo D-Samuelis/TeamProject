@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools\Service;
 
+use App\Application\DTO\SearchDTO;
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Business\Service;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,78 +22,78 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListServiceTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Lists services with optional filters. Returns paginated results (50 per page).
+Lists services with optional filters.
 
-        Filters:
-        - business_id: get all services belonging to a specific business
-        - branch_id: get all services offered at a specific branch (queries junction table)
-        - location_type: filter by delivery method (e.g. "in_person", "remote")
-        - is_active: filter by active status
-        - max_price: only return services at or below this price
-        - cursor: last seen ID for pagination
+Filters:
+- query: keyword search (service name, description, business name, branch city)
+- city: filter by branch city
+- maxPrice: maximum service price
+- maxDuration: maximum service duration in minutes
+- businessId: filter by business
+- locationTypes: filter by service location types
+MARKDOWN;
 
-        Typical use: after GetBranchTool, call this with branch_id to see what it offers.
-        Or after GetBusinessTool, call this with business_id to see all its services.
-    MARKDOWN;
+    public function __construct(
+        private ServiceRepositoryInterface $repository
+    ) {}
 
     public function handle(Request $request): Response
     {
         $validated = $request->validate([
-            'business_id'   => 'nullable|integer',
-            'branch_id'     => 'nullable|integer',
-            'location_type' => 'nullable|string',
-            'is_active'     => 'nullable|boolean',
-            'max_price'     => 'nullable|numeric',
-            'cursor'        => 'nullable|integer',
+            'query' => 'nullable|string',
+            'city' => 'nullable|string',
+            'maxPrice' => 'nullable|numeric',
+            'maxDuration' => 'nullable|integer',
+            'businessId' => 'nullable|integer',
+            'locationTypes' => 'nullable|array',
+            'locationTypes.*' => 'string',
+            'perPage' => 'nullable|integer',
         ]);
 
-        $services = Service::query()
-            ->when(!empty($validated['business_id']), fn($q) =>
-            $q->where('business_id', $validated['business_id'])
-            )
-            ->when(!empty($validated['branch_id']), fn($q) =>
-            $q->whereHas('branches', fn($q2) =>
-            $q2->where('branches.id', $validated['branch_id'])
-            )
-            )
-            ->when(!empty($validated['location_type']), fn($q) =>
-            $q->where('location_type', $validated['location_type'])
-            )
-            ->when(isset($validated['is_active']), fn($q) =>
-            $q->where('is_active', $validated['is_active'])
-            )
-            ->when(!empty($validated['max_price']), fn($q) =>
-            $q->where('price', '<=', $validated['max_price'])
-            )
-            ->when(!empty($validated['cursor']), fn($q) =>
-            $q->where('id', '>', $validated['cursor'])
-            )
-            ->with('business:id,name')
-            ->orderBy('id')
-            ->limit(50)
-            ->get();
+        $dto = new SearchDTO(
+            query: $validated['query'] ?? null,
+            businessId: $validated['businessId'] ?? null,
+            city: $validated['city'] ?? null,
+            maxPrice: $validated['maxPrice'] ?? null,
+            maxDuration: $validated['maxDuration'] ?? null,
+            locationTypes: $validated['locationTypes'] ?? [],
+            perPage: $validated['perPage'] ?? 50
+        );
 
-        if ($services->isEmpty()) {
-            return Response::text('No services found matching your filters.');
-        }
+        $result = $this->repository->search($dto);
 
-        $result = [
-            'items'       => $services,
-            'next_cursor' => $services->count() === 50 ? $services->last()->id : null,
-        ];
-
-        return Response::text(json_encode($result));
+        return Response::text(json_encode([
+            'items' => collect($result->items())->map(fn($service) => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'description' => $service->description,
+                'price' => $service->price,
+                'duration_minutes' => $service->duration_minutes,
+                'location_type' => $service->location_type,
+                'business_id' => $service->business_id,
+                'business_name' => $service->business?->name,
+            ]),
+            'pagination' => [
+                'current_page' => $result->currentPage(),
+                'last_page' => $result->lastPage(),
+                'per_page' => $result->perPage(),
+                'total' => $result->total(),
+            ]
+        ]));
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
-            'business_id'   => $schema->integer()->description('Filter services by parent business ID.'),
-            'branch_id'     => $schema->integer()->description('Filter services offered at a specific branch ID.'),
-            'location_type' => $schema->string()->description('Delivery method e.g. "in_person", "remote".'),
-            'is_active'     => $schema->boolean()->description('Filter by active status.'),
-            'max_price'     => $schema->number()->description('Maximum price (inclusive).'),
-            'cursor'        => $schema->integer()->description('Last seen ID for pagination.'),
+            'query' => $schema->string()->description('Keyword search across service name, description, business name, or branch city.'),
+            'city' => $schema->string()->description('Filter services available in a specific city.'),
+            'maxPrice' => $schema->number()->description('Maximum service price.'),
+            'maxDuration' => $schema->integer()->description('Maximum duration in minutes.'),
+            'businessId' => $schema->integer()->description('Filter by business ID.'),
+            'locationTypes' => $schema->array(
+                $schema->string()
+            )->description('Filter by service location type.'),
+            'perPage' => $schema->integer()->description('Items per page (default 50).'),
         ];
     }
 }
