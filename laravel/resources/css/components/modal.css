@@ -80,6 +80,7 @@
     font-family: 'Inter-SemiBold';
     z-index: 10;
     pointer-events: none;
+    transition: top 0.2s ease-in-out, color 0.2s ease-in-out, background-color .1s ease-in;
 }
 
 .modal-form__label span{
@@ -97,11 +98,11 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.modal-form__group:focus-within .modal-form__label {
-    top: -1.5rem;
-    background-color: transparent;
-    color: var(--color-primary);
-    transition: top 0.2s ease-in-out, background-color .1s ease-in-out, color .2s ease-in-out;
+.modal-form__group:focus-within .modal-form__label,
+.modal-form__group:has(input:not(:placeholder-shown)) .modal-form__label,
+.modal-form__group:has(textarea:not(:placeholder-shown)) .modal-form__label {
+    top: -1.4rem;
+    font-size: var(--font-size-small);
 }
 
 .modal-form__input:focus {
@@ -190,9 +191,8 @@
     transition: all 0.2s ease;
     visibility: hidden;
     opacity: 0;
-}
-
-.modal-form__error {
+    height: 0;
+    overflow: hidden;
     color: var(--color-danger);
     background-color: color-mix(in srgb, var(--color-danger), transparent 92%);
 }
@@ -258,6 +258,8 @@
 }
 
 .modal-form__error.active {
+    height: auto;
+    margin-bottom: 0.5rem;
     visibility: visible;
     opacity: 1;
     animation: fieldErrorSlide 0.25s ease forwards;
@@ -289,13 +291,15 @@
     color: var(--color-danger);
 }
 
-.modal-form__group:focus-within .modal-form__label,
-.modal-form__group:has(input:not(:placeholder-shown)) .modal-form__label {
-    top: -1.4rem;
-    background-color: transparent;
+.modal-form__group:focus-within .modal-form__label {
     color: var(--color-primary);
+    background-color: transparent;
 }
 
-.modal-form__group:has(.input-error):focus-within .modal-form__label {
-    color: var(--color-danger);
+.modal-form__group:not(:focus-within):has(input:not(:placeholder-shown)) .modal-form__label {
+    color: var(--color-text-unimportant);
+}
+
+.modal-form__group:has(.input-error) .modal-form__label {
+    color: var(--color-danger) !important;
 }
