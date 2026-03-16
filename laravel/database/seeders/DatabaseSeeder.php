@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use function Laravel\Prompts\warning;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,5 +17,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AdminSeeder::class);
         $this->call(UsersBusinessesSeeder::class);
+        //$this->call(MockDataSeeder::class);
     }
 }

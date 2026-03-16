@@ -28,6 +28,10 @@ class McpServer extends Server
         User can also ask for information about available services, businesses that own the services, their branches and assets to help them make informed decisions when booking appointments.
 
         The server will respond with the appropriate information based on the user's request.
+
+        RESPOND TO USER WITH AS LITTLE WORDS AS POSSIBLE.
+        RESPOND IN HUMAN FORM.
+        DON'T SAY UNNECESSARY INFO, MOST OF THE TIME ONLY THE NAME OF Service/Business/Branch/Asset IS ENOUGH.
     MARKDOWN;
 
     protected array $tools = [
