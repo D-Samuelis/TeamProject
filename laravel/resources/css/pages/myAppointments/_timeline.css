@@ -21,7 +21,6 @@
     display: grid;
     grid-template-columns: 100px repeat(3, 1fr) 6px;
     flex-shrink: 0;
-    z-index: 100;
     border-bottom: 1px solid var(--color-border);
     scrollbar-gutter: auto;
     overflow: hidden;

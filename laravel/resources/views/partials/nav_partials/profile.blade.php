@@ -55,14 +55,6 @@
         <div class="profile-menu__divider"></div>
 
         <div class="profile-menu__options">
-            @if (auth()->user()?->isAdmin())
-                <div class="profile-menu__option" id="lightModeOption">
-                    <a href="/dev" class="profile-menu__link">
-                        <p class="debug-text">Dev</p>
-                    </a>
-                </div>
-            @endif
-            {{-- What is this? Maybe remove? --}}
             <div class="profile-menu__option" id="lightModeOption">
                 <a href="/" class="profile-menu__link">Booking</a>
             </div>
