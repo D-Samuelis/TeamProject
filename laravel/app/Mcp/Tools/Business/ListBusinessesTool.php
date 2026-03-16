@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools\Business;
 
+use App\Application\DTO\SearchDTO;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Business\Business;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -19,68 +21,58 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListBusinessesTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Lists businesses with optional filters. Returns paginated results (50 per page).
+        Lists businesses with optional filters.
 
         Filters:
-        - name: partial match search on business name
-        - state: filter by BusinessStateEnum value (e.g. "active", "suspended")
-        - is_published: filter by published status (true/false)
-        - cursor: last seen ID for pagination — use next_cursor from previous response
-
-        After finding a business, use GetBusinessTool with its ID for full details.
+        - query: keyword search (name, description, services, branches)
+        - city: filter by branch city
+        - maxPrice: maximum service price
+        - maxDuration: maximum service duration
     MARKDOWN;
+
+    public function __construct(
+        private BusinessRepositoryInterface $repository
+    ) {}
 
     public function handle(Request $request): Response
     {
         $validated = $request->validate([
-            'name'         => 'nullable|string',
-            'state'        => 'nullable|string',
-            'is_published' => 'nullable|boolean',
-            'cursor'       => 'nullable|integer',
-            'description'  => 'nullable|string',
+            'query'        => 'nullable|string',
+            'city'         => 'nullable|string',
+            'maxPrice'     => 'nullable|numeric',
+            'maxDuration'  => 'nullable|integer',
+            'perPage'      => 'nullable|integer',
         ]);
 
-        $businesses = Business::query()
-            ->when(!empty($validated['name']), fn($q) =>
-            $q->where('name', 'like', '%' . $validated['name'] . '%')
-            )
-            ->when(!empty($validated['description']), fn($q) =>
-            $q->where('description', 'like', '%' . $validated['description'] . '%')
-            )
-            ->when(isset($validated['state']), fn($q) =>
-            $q->where('state', $validated['state'])
-            )
-            ->when(isset($validated['is_published']), fn($q) =>
-            $q->where('is_published', $validated['is_published'])
-            )
-            ->when(!empty($validated['cursor']), fn($q) =>
-            $q->where('id', '>', $validated['cursor'])
-            )
-            ->withCount(['branches', 'services'])
-            ->orderBy('id')
-            ->limit(50)
-            ->get();
+        $dto = new SearchDTO(
+            query: $validated['query'] ?? null,
+            city: $validated['city'] ?? null,
+            maxPrice: $validated['maxPrice'] ?? null,
+            maxDuration: $validated['maxDuration'] ?? null,
+            perPage: $validated['perPage'] ?? 50,
+        );
 
-        if ($businesses->isEmpty()) {
-            return Response::text('No businesses found matching your filters.');
-        }
+        $result = $this->repository->search($dto);
 
-        $result = [
-            'items'       => $businesses,
-            'next_cursor' => $businesses->count() === 50 ? $businesses->last()->id : null,
-        ];
-
-        return Response::text(json_encode($result));
+        return Response::text(json_encode([
+            'items' => $result->items(),
+            'pagination' => [
+                'current_page' => $result->currentPage(),
+                'last_page' => $result->lastPage(),
+                'per_page' => $result->perPage(),
+                'total' => $result->total(),
+            ]
+        ]));
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
-            'name'         => $schema->string()->description('Partial name search.'),
-            'state'        => $schema->string()->description('BusinessStateEnum value e.g. "active", "suspended".'),
-            'is_published' => $schema->boolean()->description('Filter by published status.'),
-            'cursor'       => $schema->integer()->description('Last seen ID for pagination.'),
-            'description'  => $schema->string()->description('Business description.'),
+            'query' => $schema->string()->description('Keyword search.'),
+            'city' => $schema->string()->description('City of branch.'),
+            'maxPrice' => $schema->number()->description('Maximum service price.'),
+            'maxDuration' => $schema->integer()->description('Maximum service duration in minutes.'),
+            'perPage' => $schema->integer()->description('Items per page. Default 50.')
         ];
     }
 }

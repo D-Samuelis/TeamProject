@@ -2,6 +2,8 @@
 
 namespace App\Mcp\Tools\Asset;
 
+use App\Application\DTO\SearchDTO;
+use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 use App\Models\Business\Asset;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,67 +22,52 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListAssetsTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Lists assets with optional filters. Returns paginated results (50 per page).
+        Lists assets with optional filters.
 
         Filters:
-        - name: partial match search on asset name
-        - service_id: get all assets required by a specific service (queries junction table)
-        - branch_id: get all assets belonging to a specific branch (queries junction table)
-        - cursor: last seen ID for pagination — use next_cursor from previous response
-
-        Typical use: after GetServiceTool, call this with service_id to see what assets that service requires.
-        Or after GetBranchTool, call this with branch_id to see what assets are at that location.
+        - query: keyword search
+        - businessId: filter by business
+        - perPage: number of items per page
     MARKDOWN;
+
+    public function __construct(
+        private AssetRepositoryInterface $repository
+    ) {}
 
     public function handle(Request $request): Response
     {
         $validated = $request->validate([
-            'name'       => 'nullable|string',
-            'service_id' => 'nullable|integer',
-            'branch_id'  => 'nullable|integer',
-            'cursor'     => 'nullable|integer',
+            'query' => 'nullable|string',
+            'businessId' => 'nullable|integer',
+            'perPage' => 'nullable|integer',
         ]);
 
-        $assets = Asset::query()
-            ->when(!empty($validated['name']), fn($q) =>
-            $q->where('name', 'like', '%' . $validated['name'] . '%')
-            )
-            ->when(!empty($validated['service_id']), fn($q) =>
-            $q->whereHas('services', fn($q2) =>
-            $q2->where('services.id', $validated['service_id'])
-            )
-            )
-            ->when(!empty($validated['branch_id']), fn($q) =>
-            $q->whereHas('branches', fn($q2) =>
-            $q2->where('branches.id', $validated['branch_id'])
-            )
-            )
-            ->when(!empty($validated['cursor']), fn($q) =>
-            $q->where('id', '>', $validated['cursor'])
-            )
-            ->orderBy('id')
-            ->limit(50)
-            ->get();
+        $dto = new SearchDTO(
+            query: $validated['query'] ?? null,
+            businessId: $validated['businessId'] ?? null,
+            perPage: $validated['perPage'] ?? 50
+        );
 
-        if ($assets->isEmpty()) {
-            return Response::text('No assets found matching your filters.');
-        }
+        $assets = $this->repository->search($dto);
 
-        $result = [
-            'items'       => $assets,
-            'next_cursor' => $assets->count() === 50 ? $assets->last()->id : null,
-        ];
-
-        return Response::text(json_encode($result));
+        return Response::text(json_encode([
+            'items' => $assets->map(fn($asset) => [
+                'id' => $asset->id,
+                'name' => $asset->name ?? null,
+                'type' => $asset->type ?? null,
+                'url' => $asset->url ?? null,
+                'business_id' => $asset->business_id ?? null,
+                'created_at' => $asset->created_at,
+            ])
+        ]));
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
-            'name'       => $schema->string()->description('Partial name search.'),
-            'service_id' => $schema->integer()->description('Filter assets required by a specific service ID.'),
-            'branch_id'  => $schema->integer()->description('Filter assets belonging to a specific branch ID.'),
-            'cursor'     => $schema->integer()->description('Last seen ID for pagination.'),
+            'query' => $schema->string()->description('Keyword search for assets.'),
+            'businessId' => $schema->integer()->description('Filter by business ID.'),
+            'perPage' => $schema->integer()->description('Number of results per page (default 50).'),
         ];
     }
 }
