@@ -8,6 +8,9 @@ export function initCreateBranchModal() {
         Modal.showCustom({
             title:       'Create Branch',
             confirmText: 'Save Branch',
+            rules: {
+                branchName: { required: { value: true, message: 'Branch name is required' } },
+            },
             body: `
                 <form id="createBranchForm" method="POST" action="${window.BE_DATA.routes.branchStore}">
                     <input type="hidden" name="_token"       value="${window.BE_DATA.csrf}">
@@ -16,7 +19,7 @@ export function initCreateBranchModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input"
+                            <input type="text" name="branchName" class="modal-form__input"
                                 placeholder=" " required autofocus>
                         </div>
                     </div>

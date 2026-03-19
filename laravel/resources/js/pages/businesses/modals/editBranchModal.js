@@ -19,7 +19,7 @@ export function initEditBranchModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input"
+                            <input type="text" name="branchName" class="modal-form__input"
                                 value="${_esc(branch.name)}" placeholder=" " required autofocus>
                         </div>
                     </div>

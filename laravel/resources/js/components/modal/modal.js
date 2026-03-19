@@ -1,6 +1,6 @@
 export class Modal {
     static showCustom(options) {
-        const { title, body, confirmText = 'Save', cancelText = 'Cancel', onConfirm } = options;
+        const { title, body, confirmText = 'Save', cancelText = 'Cancel', onConfirm, rules = {} } = options;
 
         const modalHtml = `
             <div class="modal" id="dynamic-modal">
@@ -44,15 +44,15 @@ export class Modal {
             if (onConfirm) onConfirm(modal);
         };
 
-        this._attachValidation(modal);
+        this._attachValidation(modal, rules);
     }
 
-    static _attachValidation(modal) {
+    static _attachValidation(modal, customRules = {}) {
         const form = modal.querySelector('form');
         if (!form) return;
 
         const rules = {
-            name: { required: { value: true, message: 'Business name is required' } },
+            ...customRules
         };
 
         const inputs = form.querySelectorAll('input, textarea, select');
