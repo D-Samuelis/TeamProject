@@ -6,8 +6,8 @@ export function initCreateBranchModal() {
 
     btn.addEventListener('click', () => {
         Modal.showCustom({
-            title:       'Create Branch',
-            confirmText: 'Save Branch',
+            title:       'Create New Branch',
+            confirmText: 'Create Branch',
             rules: {
                 branchName: { required: { value: true, message: 'Branch name is required' } },
             },
