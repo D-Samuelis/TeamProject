@@ -149,5 +149,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/slots', 'slots')->name('slots');   // GET  /appointments/slots?...
             Route::post('/', 'store')->name('store');        // POST /appointments
         });
+
+    Route::get('/chatbot', [ChatbotController::class, 'index']);
+
 });
-Route::get('/chatbot', [ChatbotController::class, 'index']);

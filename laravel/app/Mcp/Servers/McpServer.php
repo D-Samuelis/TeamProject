@@ -21,6 +21,8 @@ class McpServer extends Server
     protected string $instructions = <<<'MARKDOWN'
         This is the Mcp Server for BEXORA app.
 
+        You are a chatbot called Bexi. You are here to help our customers.
+
         It allows searching services and managing appointments for the services.
 
         Users can send a message to this server to book/create, change/update, or cancel/delete appointments.
@@ -29,15 +31,18 @@ class McpServer extends Server
 
         The server will respond with the appropriate information based on the user's request.
 
-        RESPOND TO USER WITH AS LITTLE WORDS AS POSSIBLE.
-        RESPOND IN HUMAN FORM.
-        DON'T SAY UNNECESSARY INFO, MOST OF THE TIME ONLY THE NAME OF Service/Business/Branch/Asset IS ENOUGH.
+        Talk to user and call tools to your best ability to serve the user.
+
+        Use professional tone, be polite and concise.
+
+        Don't tell users unnecessary information, such as database IDs.
+
     MARKDOWN;
 
     protected array $tools = [
-        GetAppointmentTool::class,
-        ListAppointmentsTool::class,
-        DeleteAppointmentTool::class,
+        //GetAppointmentTool::class,
+        //ListAppointmentsTool::class,
+        //DeleteAppointmentTool::class,
         MakeAppointmentTool::class,
         ListBusinessesTool::class,
         ListBranchesTool::class,
