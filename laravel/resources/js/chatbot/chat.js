@@ -7,9 +7,9 @@ export async function handleMessage(sessionId, text, elements) {
     inputEl.value = "";
     sendBtn.disabled = true;
 
-    addMessage("user", text);
+    addMessage("You", text);
 
-    const thinkingMsg = addMessage("bot", "thinking…");
+    const thinkingMsg = addMessage("Bexi", "Let me think…");
 
     try {
         const data = await sendChat(sessionId, text);
@@ -20,17 +20,11 @@ export async function handleMessage(sessionId, text, elements) {
             addToolStep(step);
         }
 
-        addMessage("bot", data.reply);
+        addMessage("Bexi", data.reply);
 
-        setStatus(
-            statusEl,
-            data.steps?.length
-                ? `${data.steps.length} tool call(s)`
-                : "Ready"
-        );
     } catch (e) {
         messagesEl.removeChild(thinkingMsg);
-        addMessage("bot", "Error: " + e.message);
+        addMessage("Bexi", "Error: " + e.message);
         setStatus(statusEl, e.message, true);
     }
 

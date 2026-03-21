@@ -20,7 +20,9 @@ class ListBusinesses
     {
         if ($scope === 'public') {
             $dto = SearchDTO::fromArray($filters);
-            return $this->businessRepo->search($dto);
+            logger()->debug('ListBusinesses - SearchDTO::fromArray called', ['dto' => $dto]);
+
+            return $this->businessRepo->search($dto)->getCollection();
         }
 
         if (!$user) {

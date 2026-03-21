@@ -21,7 +21,7 @@ async function init() {
         toolsBadge.textContent =
             `${names.length} tool${names.length !== 1 ? "s" : ""}: ${names.join(", ")}`;
 
-        setStatus(statusEl, "Chatbot is ready");
+        setStatus(statusEl, "I'm ready!");
 
         sendBtn.disabled = false;
         inputEl.focus();

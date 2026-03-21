@@ -2,9 +2,7 @@
 
 namespace App\Mcp\Tools\Branch;
 
-use App\Application\DTO\SearchDTO;
-use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
-use App\Models\Business\Branch;
+use App\Application\Branch\UseCases\ListBranches;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -21,68 +19,71 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListBranchesTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Lists branches with optional filters.
+        This tool retrieves a list of branches from the system based on a search query.
 
-        Filters:
-        - query: keyword search (branch name, city, business name)
-        - city: filter by city
-        - businessId: filter branches belonging to a business
-        - locationTypes: filter by branch type
+        Branches represent places where the service is performed — usually physically, but can also be 'online'.
+
+        ## When to use
+        Use this tool when you need to find, look up, or browse branches.
+        Use this only after you know what business and service user wants.
+        - If you don't have this context, use other tools: ListBusinessesTool, ListServicesTool or ask user for more context.
+
+        ## Required parameters
+        - None.
+
+        ## Optional parameters
+        - `business_id`: The ID of the business whose branches to list.
+        - `q`: Search query to filter branches by name.
+        - `city`: Filter branches by city.
+        - `per_page`: Number of results per page (default: 10).
+        - `page`: Page number (default: 1).
+
+        ## Example use case
+        - User wants to book a haircut in Bratislava — after identifying the business and service,
+          use this tool with `business_id` and `city: "Bratislava"` to find the right branch.
     MARKDOWN;
 
     public function __construct(
-        private BranchRepositoryInterface $repository
+        private readonly ListBranches $listBranches,
     ) {}
 
     public function handle(Request $request): Response
     {
         $validated = $request->validate([
-            'query' => 'nullable|string',
-            'city' => 'nullable|string',
-            'businessId' => 'nullable|integer',
-            'locationTypes' => 'nullable|array',
-            'locationTypes.*' => 'string',
-            'perPage' => 'nullable|integer',
+            'business_id' => 'nullable|integer',
+            'q'           => 'nullable|string',
+            'city'        => 'nullable|string',
+            'per_page'    => 'nullable|integer|min:1|max:100',
+            'page'        => 'nullable|integer|min:1',
         ]);
 
-        $dto = new SearchDTO(
-            query: $validated['query'] ?? null,
-            businessId: $validated['businessId'] ?? null,
-            city: $validated['city'] ?? null,
-            locationTypes: $validated['locationTypes'] ?? [],
-            perPage: $validated['perPage'] ?? 50,
+        $branches = $this->listBranches->execute([
+            'target'      => 'branch',
+            'business_id' => $validated['business_id'] ?? null,
+            'q'           => $validated['q'] ?? null,
+            'city'        => $validated['city'] ?? null,
+            'per_page'    => $validated['per_page'] ?? 10,
+            'page'        => $validated['page'] ?? 1,
+        ]);
+
+        return Response::text(
+            $branches->map(function ($item) {
+                return "id: " . $item['id']
+                    . " name: " . $item['name']
+                    . " city: " . $item['city']
+                    . " address: " . $item['address_line_1'];
+            })
         );
-
-        $result = $this->repository->search($dto);
-
-        return Response::text(json_encode([
-            'items' => collect($result->items())->map(fn($branch) => [
-                'id' => $branch->id,
-                'name' => $branch->name,
-                'city' => $branch->city,
-                'business_id' => $branch->business_id,
-                'business_name' => $branch->business?->name,
-                'type' => $branch->type,
-            ]),
-            'pagination' => [
-                'current_page' => $result->currentPage(),
-                'last_page' => $result->lastPage(),
-                'per_page' => $result->perPage(),
-                'total' => $result->total(),
-            ]
-        ]));
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
-            'query' => $schema->string()->description('Keyword search across branch name, city, and business name.'),
-            'city' => $schema->string()->description('Filter by city.'),
-            'businessId' => $schema->integer()->description('Filter by business ID.'),
-            'locationTypes' => $schema->array(
-                $schema->string()
-            )->description('Branch types to filter by.'),
-            'perPage' => $schema->integer()->description('Items per page. Default 50.'),
+            'business_id' => $schema->integer('The ID of the business whose branches to list.'),
+            'q'           => $schema->string('Optional search query to filter branches by name.'),
+            'city'        => $schema->string('Optional city name to filter branches by location.'),
+            'per_page'    => $schema->integer('Number of results per page. Defaults to 10.'),
+            'page'        => $schema->integer('Page number for pagination. Defaults to 1.'),
         ];
     }
 }
