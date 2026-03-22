@@ -154,11 +154,6 @@
     }
 </style>
 
-<!-- Utter dogshit solution lmao, would need proxy in prod -->
-<script>
-    window.API_TOKEN = "{{ $token }}";
-</script>
-
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="container">
