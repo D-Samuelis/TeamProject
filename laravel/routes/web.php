@@ -151,5 +151,5 @@ Route::middleware(['auth'])->group(function () {
         });
 
     Route::get('/chatbot', [ChatbotController::class, 'index']);
-
+    Route::post('/chatbot/token', [ChatbotController::class, 'issueToken']);
 });

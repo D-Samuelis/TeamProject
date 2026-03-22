@@ -8,13 +8,16 @@ class ChatbotController extends Controller
 {
     public function index()
     {
+        return view('chatbot');
+    }
+
+    public function issueToken()
+    {
         $user = auth()->user();
-
         $user->tokens()->where('name', 'mcp-client')->delete();
-
         $token = $user->createToken('mcp-client')->plainTextToken;
 
-        return view('chatbot', compact('token'));
+        return response()->json(['token' => $token]);
     }
 }
 
