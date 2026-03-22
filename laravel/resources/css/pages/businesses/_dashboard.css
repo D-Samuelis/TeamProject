@@ -1,0 +1,88 @@
+/* Úprava gridu pre Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 22rem 1fr; /* Širší ľavý stĺpec pre formuláre */
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* Karty (Cards) */
+.dashboard-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-light);
+    border-radius: .4rem;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: color-mix(in srgb, var(--color-bg), var(--color-text) 2%);
+}
+
+.card-header h3 {
+    font-size: 0.9rem;
+    font-family: 'Inter-SemiBold';
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-body.no-padding { padding: 0; }
+
+/* Tím v sidebare */
+.team-member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--color-border-light-very);
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name { font-size: 0.85rem; font-weight: 600; }
+.member-role { font-size: 0.75rem; color: var(--color-text-unimportant); }
+
+/* Listy (pre Branches/Services) */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border-light-very);
+}
+
+.list-item:last-child { border-bottom: none; }
+
+/* Služby - Kartičky v mriežke */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.service-item-card {
+    border: 1px solid var(--color-border-light);
+    border-radius: .3rem;
+    padding: 1rem;
+    transition: transform 0.2s;
+}
+
+.service-item-card:hover {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary), transparent 98%);
+}

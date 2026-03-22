@@ -9,6 +9,9 @@ export function initCreateBusinessModal() {
         Modal.showCustom({
             title: 'Create New Business',
             confirmText: 'Create Business',
+            rules: {
+                businessName: { required: { value: true, message: 'Business name is required' } },
+            },
             body: `
                 <form id="modalForm" method="POST" action="${window.BE_DATA.routes.store}">
                     <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
@@ -16,7 +19,7 @@ export function initCreateBusinessModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Business Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input" placeholder=" " required autofocus>
+                            <input type="text" name="businessName" class="modal-form__input" placeholder=" " required autofocus>
                         </div>
                     </div>
 

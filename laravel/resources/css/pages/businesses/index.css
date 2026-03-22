@@ -2,3 +2,6 @@
 @import "./_info.css";
 @import "./_sidebar.css";
 @import "./_list.css";
+
+/* styling for view: show*/
+@import "./_dashboard.css"
