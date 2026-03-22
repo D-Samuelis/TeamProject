@@ -14,6 +14,9 @@
     <!-- Lineicons CSS -->
     <link rel="stylesheet" href="https://cdn.lineicons.com/3.0/lineicons.css">
 
+    <!-- Markdown parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
