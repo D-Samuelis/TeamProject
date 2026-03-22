@@ -9,7 +9,12 @@ export function addMessage(role, text) {
     label.textContent = role;
 
     const bubble = document.createElement("div");
-    bubble.textContent = text;
+
+    if (role === "Bexi") {
+        bubble.innerHTML = marked.parse(text);
+    } else {
+        bubble.textContent = text;
+    }
 
     wrap.appendChild(label);
     wrap.appendChild(bubble);
