@@ -25,107 +25,103 @@
         {{-- Business Metadata --}}
         <section class="business__filters">
             <h3 class="miniLists__subtitle">
-                <i class="fa-solid fa-info-circle"></i> Business Info
+                <i class="fa-solid fa-chevron-down"></i> Business Info
             </h3>
-            <div class="sidebar-info-card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-                    <div style="flex: 1; min-width: 0;">
-                        <p class="sidebar-info-card__name">{{ $business->name }}</p>
-                        <p class="sidebar-info-card__desc">
-                            {{ Str::limit($business->description, 80) }}
-                            @if(strlen($business->description) > 80)
-                                <a href="#" class="read-more-trigger" data-full="{{ e($business->description) }}">read more</a>
-                            @endif
-                        </p>
-                    </div>
+            <div id="businessInfo" class="dropdown__mini-list">
+                <div class="business-info-card">
+                    <span class="business-info-card__status filter-item--{{ $business->is_published ? 'green' : 'yellow' }}">
+                        {{ $business->is_published ? 'Published' : 'Hidden' }}
+                    </span>
+                    <p class="business-info-card__name">{{ $business->name }}</p>
+                    <p class="business-info-card__desc">
+                        {{ Str::limit($business->description, 80) }}
+                        @if(strlen($business->description) > 80)
+                            <a href="#" class="read-more-trigger" data-full="{{ e($business->description) }}">read more</a>
+                        @endif
+                    </p>
                     <button
-                        class="button-icon"
+                        class="business-info-card__edit-btn"
                         type="button"
                         data-modal-target="edit-business-modal"
                         title="Edit metadata">
-                        <i class="fa-solid fa-pen"></i>
+                        <i class="fa-solid fa-gear"></i> Manage
                     </button>
-                </div>
-                <div style="margin-top: 8px;">
-                    <span class="status-cell filter-item--{{ $business->is_published ? 'green' : 'yellow' }}">
-                        {{ $business->is_published ? 'Published' : 'Hidden' }}
-                    </span>
                 </div>
             </div>
         </section>
 
         {{-- Branches --}}
         <section class="business__filters">
-            <h3 class="miniLists__subtitle" style="display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fa-solid fa-code-branch"></i> Branches</span>
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branches</h3>
+            <div id="branchesList" class="dropdown__mini-list">
                 @can('create', [App\Models\Business\Branch::class, $business])
-                    <button class="button-icon" type="button"
+                    <button class="button-create-branch" type="button"
                         data-modal-target="create-branch-modal">
-                        <i class="fa-solid fa-plus"></i>
+                        <i class="fa-solid fa-plus"></i> New Branch
                     </button>
                 @endcan
-            </h3>
 
-            <div class="team-mini-list">
-                @foreach ($business->branches as $branch)
-                    <div class="team-member-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}">
-                        <div class="member-info">
-                            <span class="member-name">{{ $branch->name }}</span>
-                            <span class="member-role">
-                                {{ ucfirst($branch->type) }} • {{ $branch->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                        </div>
+                <div class="team-mini-list">
+                    @foreach ($business->branches as $branch)
+                        <div class="team-member-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}">
+                            <div class="member-info">
+                                <span class="member-name">{{ $branch->name }}</span>
+                                <span class="member-role">
+                                    {{ ucfirst($branch->type) }} • {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
 
-                        <div style="display: flex; gap: 4px; align-items: center;">
-                            @if (!$branch->trashed())
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                @if (!$branch->trashed())
 
-                                @can('update', $branch)
-                                    {{-- Active toggle --}}
-                                    <form action="{{ route('branch.update', $branch->id) }}" method="POST">
-                                        @csrf @method('PUT')
-                                        <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                        <input type="hidden" name="is_active" value="0">
-                                        <label class="toggle-label" title="Active Status">
-                                            <input type="checkbox" name="is_active" value="1"
-                                                onchange="this.form.submit()"
-                                                {{ $branch->is_active ? 'checked' : '' }}>
-                                            <span class="toggle-track"></span>
-                                        </label>
-                                    </form>
+                                    @can('update', $branch)
+                                        {{-- Active toggle --}}
+                                        <form action="{{ route('branch.update', $branch->id) }}" method="POST">
+                                            @csrf @method('PUT')
+                                            <input type="hidden" name="business_id" value="{{ $business->id }}">
+                                            <input type="hidden" name="is_active" value="0">
+                                            <label class="toggle-label" title="Active Status">
+                                                <input type="checkbox" name="is_active" value="1"
+                                                    onchange="this.form.submit()"
+                                                    {{ $branch->is_active ? 'checked' : '' }}>
+                                                <span class="toggle-track"></span>
+                                            </label>
+                                        </form>
 
-                                    {{-- Edit --}}
-                                    <button class="button-icon" type="button"
-                                        data-modal-target="edit-branch-modal"
-                                        data-branch='@json($branch)'>
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                @endcan
-
-                                @can('delete', $branch)
-                                    <form action="{{ route('branch.delete', $branch->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you sure?')">
-                                        @csrf @method('DELETE')
-                                        <button class="button-icon button-icon--danger" type="submit">
-                                            <i class="fa-solid fa-trash"></i>
+                                        {{-- Edit --}}
+                                        <button class="button-icon" type="button"
+                                            data-modal-target="edit-branch-modal"
+                                            data-branch='@json($branch)'>
+                                            <i class="fa-solid fa-pen"></i>
                                         </button>
-                                    </form>
-                                @endcan
+                                    @endcan
 
-                            @else
+                                    @can('delete', $branch)
+                                        <form action="{{ route('branch.delete', $branch->id) }}" method="POST"
+                                            onsubmit="return confirm('Are you sure?')">
+                                            @csrf @method('DELETE')
+                                            <button class="button-icon button-icon--danger" type="submit">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
 
-                                @can('update', $branch)
-                                    <form action="{{ route('branch.restore', $branch->id) }}" method="POST">
-                                        @csrf
-                                        <button class="button-icon button-icon--success" type="submit">
-                                            <i class="fa-solid fa-rotate-left"></i>
-                                        </button>
-                                    </form>
-                                @endcan
+                                @else
 
-                            @endif
+                                    @can('update', $branch)
+                                        <form action="{{ route('branch.restore', $branch->id) }}" method="POST">
+                                            @csrf
+                                            <button class="button-icon button-icon--success" type="submit">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </section>
 

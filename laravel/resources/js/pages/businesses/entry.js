@@ -18,4 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCreateBranchModal();
     initEditBranchModal();
+
+    initCollapsibleList('businessInfo');
+    initCollapsibleList('branchesList');
 });

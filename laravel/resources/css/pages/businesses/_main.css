@@ -162,3 +162,105 @@
     border-radius: .5rem;
     width: 450px;
 }
+
+.button-create-branch {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: .15rem;
+    cursor: pointer;
+}
+
+.button-create-branch:hover {
+    border-color: var(--color-primary-hover);
+    color: var(--color-primary-hover);
+    background-color: var(--color-border-light-very);
+}
+
+/* ── Business Info Card ─────────────────────────────────────────────────── */
+ 
+.business-info-card {
+    position: relative;
+    padding-top: .25rem;
+}
+ 
+.business-info-card__status {
+    position: absolute;
+    top: .75rem;
+    right: 0.5rem;
+    font-size: .6rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: .15rem .4rem;
+    border-radius: .15rem;
+    line-height: 1.6;
+    background-color: var(--color-bg);
+}
+
+.business-info-card__status.filter-item--green {
+    background: color-mix(in srgb, var(--stat-item-published), transparent 20%);
+}
+ 
+.business-info-card__status.filter-item--yellow {
+    background: color-mix(in srgb, var(--stat-item-hidden), transparent 20%);
+}
+ 
+.business-info-card__name {
+    font-family: 'Inter-Bold', sans-serif;
+    font-weight: 700;
+    margin: 0 0 5px;
+    padding-right: 5rem;
+    line-height: 1.35;
+    word-break: break-word;
+    padding: .5rem 0;
+    border-bottom: 1px solid var(--color-border-light);
+}
+ 
+.business-info-card__desc {
+    font-size: 12px;
+    margin: 0 0 10px;
+    line-height: 1.55;
+    word-break: break-word;
+    padding: .5rem 0;
+}
+ 
+.business-info-card__desc .read-more-trigger {
+    color: var(--color-primary);
+    text-decoration: none;
+    white-space: nowrap;
+}
+ 
+.business-info-card__desc .read-more-trigger:hover {
+    text-decoration: underline;
+}
+ 
+.business-info-card__edit-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: var(--color-text-white);
+    background: var(--color-primary);
+    padding: .35rem .8rem;
+    gap: .5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.business-info-card__edit-btn:hover {
+    color: var(--color-text-white)!important;
+    background: var(--color-primary-hover)!important;
+}
+
+.business-info-card__edit-btn i {
+    font-size: .75rem;
+    margin-top: .1rem;
+}
+ 
+.business-info-card__edit-btn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
