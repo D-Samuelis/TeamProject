@@ -23,6 +23,8 @@ interface ServiceRepositoryInterface
      */
     public function findForManagement(int $id): Service;
 
+    public function findWithinBusiness(int $serviceId, int $businessId): Service;
+
     /**
      * DATA PERSISTENCE
      */
