@@ -46,6 +46,13 @@ class ServiceRepository implements ServiceRepositoryInterface
         return Service::withTrashed()->findOrFail($id);
     }
 
+    public function findWithinBusiness(int $serviceId, int $businessId): Service
+    {
+        return Service::where('id', $serviceId)
+            ->where('business_id', $businessId)
+            ->firstOrFail();
+    }
+
     public function update(Service $service, array $data): Service
     {
         if (isset($data['branch_ids'])) {
