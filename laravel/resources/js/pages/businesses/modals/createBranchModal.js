@@ -45,31 +45,30 @@ export function initCreateBranchModal() {
                     </div>
 
                     <div class="modal-form__group">
-                        <label class="modal-form__label">Address Line 1</label>
+                        <label class="modal-form__label">Street Address</label>
                         <div class="input-wrapper">
-                            <input type="text" name="address_line_1" class="modal-form__input" placeholder=" ">
+                            <input type="text" name="address_line_1" class="modal-form__input" placeholder="Bajkalská 21">
                         </div>
                     </div>
 
                     <div class="modal-form__group">
-                        <label class="modal-form__label">Address Line 2</label>
+                        <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
                         <div class="input-wrapper">
-                            <input type="text" name="address_line_2" class="modal-form__input" placeholder=" ">
+                            <input type="text" name="address_line_2" class="modal-form__input" placeholder="2nd floor / door number 6">
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div class="modal-form__group">
-                            <label class="modal-form__label">City</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="city" class="modal-form__input" placeholder=" ">
-                            </div>
+                    <div class="modal-form__group">
+                        <label class="modal-form__label">City</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="city" class="modal-form__input" placeholder=" ">
                         </div>
-                        <div class="modal-form__group">
-                            <label class="modal-form__label">Postal Code</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="postal_code" class="modal-form__input" placeholder=" ">
-                            </div>
+                    </div>
+
+                    <div class="modal-form__group">
+                        <label class="modal-form__label">Postal Code</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="postal_code" class="modal-form__input" placeholder=" ">
                         </div>
                     </div>
 
@@ -81,8 +80,29 @@ export function initCreateBranchModal() {
                     </div>
                 </form>
             `,
-            onConfirm: (modal) => {
-                modal.querySelector('#createBranchForm').submit();
+            onConfirm: async (modal) => {
+                Modal.clearFieldErrors(modal);
+
+                const form = modal.querySelector('#createBranchForm');
+
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: new FormData(form),
+                });
+
+                if (res.ok) {
+                    window.location.reload();
+                    return;
+                }
+
+                if (res.status === 422) {
+                    const json = await res.json();
+                    Modal.showFieldErrors(modal, json.errors);
+                    return;
+                }
+
+                alert('Something went wrong. Please try again.');
             }
         });
     });

@@ -44,7 +44,7 @@
                         type="button"
                         data-modal-target="edit-business-modal"
                         title="Edit metadata">
-                        <i class="fa-solid fa-gear"></i> Manage
+                        <i class="fa-solid fa-gear"></i> Manage Business
                     </button>
                 </div>
             </div>

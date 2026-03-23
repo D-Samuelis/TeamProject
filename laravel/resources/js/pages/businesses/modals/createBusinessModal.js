@@ -31,8 +31,29 @@ export function initCreateBusinessModal() {
                     </div>
                 </form>
             `,
-            onConfirm: (modal) => {
-                modal.querySelector('#modalForm').submit();
+            onConfirm: async (modal) => {
+                Modal.clearFieldErrors(modal);
+
+                const form = modal.querySelector('#modalForm');
+
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: new FormData(form),
+                });
+
+                if (res.ok) {
+                    window.location.reload();
+                    return;
+                }
+
+                if (res.status === 422) {
+                    const json = await res.json();
+                    Modal.showFieldErrors(modal, json.errors);
+                    return;
+                }
+
+                alert('Something went wrong. Please try again.');
             }
         });
     });

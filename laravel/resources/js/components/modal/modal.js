@@ -37,7 +37,7 @@ export class Modal {
             if (form) {
                 const event = new Event('submit', { cancelable: true, bubbles: true });
                 form.dispatchEvent(event);
-                
+
                 if (event.defaultPrevented) return;
             }
 
@@ -47,13 +47,63 @@ export class Modal {
         this._attachValidation(modal, rules);
     }
 
+    /**
+     * Display BE validation errors (e.g. Laravel 422 response) inside the modal.
+     *
+     * @param {HTMLElement} modal  - The modal element passed in onConfirm.
+     * @param {Object}      errors - Laravel-style errors: { fieldName: ['message', ...] }
+     *
+     * @example
+     * if (res.status === 422) {
+     *     const json = await res.json();
+     *     Modal.showFieldErrors(modal, json.errors);
+     * }
+     */
+    static showFieldErrors(modal, errors) {
+        const form = modal.querySelector('form');
+        if (!form) return;
+
+        Object.entries(errors).forEach(([field, messages]) => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (!input) return;
+
+            const group    = input.closest('.modal-form__group');
+            const errorDiv = group?.querySelector('.invalid-input-field');
+
+            input.classList.add('input-error');
+
+            if (group) {
+                group.classList.remove('shake-it');
+                void group.offsetWidth;
+                group.classList.add('shake-it');
+            }
+
+            if (errorDiv) {
+                errorDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${messages[0]}</span>`;
+                errorDiv.classList.add('active');
+            }
+        });
+    }
+
+    /**
+     * Clear all field errors inside the modal (call before each fetch submit).
+     *
+     * @param {HTMLElement} modal
+     */
+    static clearFieldErrors(modal) {
+        const form = modal.querySelector('form');
+        if (!form) return;
+
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            this._clearField(input);
+        });
+    }
+
     static _attachValidation(modal, customRules = {}) {
         const form = modal.querySelector('form');
         if (!form) return;
 
-        const rules = {
-            ...customRules
-        };
+        const rules = { ...customRules };
 
         const inputs = form.querySelectorAll('input, textarea, select');
 
@@ -69,7 +119,9 @@ export class Modal {
 
             input.addEventListener('blur', () => this._validateField(input, rules, form));
             input.addEventListener('input', () => {
-                if (input.classList.contains('input-error')) this._validateField(input, rules, form);
+                // Always clear on input — handles both FE and BE errors
+                this._clearField(input);
+                if (rules[input.name]) this._validateField(input, rules, form);
             });
         });
 
@@ -87,10 +139,11 @@ export class Modal {
         if (!rules) return true;
 
         const value = input.value.trim();
-        const group = input.closest('.modal-form__group');
-        const errorDiv = group?.querySelector('.invalid-input-field');
 
         const show = (msg) => {
+            const group    = input.closest('.modal-form__group');
+            const errorDiv = group?.querySelector('.invalid-input-field');
+
             if (group) {
                 group.classList.remove('shake-it');
                 void group.offsetWidth;
@@ -98,20 +151,10 @@ export class Modal {
             }
 
             input.classList.add('input-error');
+
             if (errorDiv) {
                 errorDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${msg}</span>`;
                 errorDiv.classList.add('active');
-            }
-        };
-
-        const hide = () => {
-            input.classList.remove('input-error');
-            if (group) group.classList.remove('shake-it');
-            if (errorDiv) {
-                errorDiv.classList.remove('active');
-                setTimeout(() => {
-                    if (!errorDiv.classList.contains('active')) errorDiv.innerHTML = '';
-                }, 200);
             }
         };
 
@@ -120,7 +163,23 @@ export class Modal {
             return false;
         }
 
-        hide();
+        this._clearField(input);
         return true;
+    }
+
+    static _clearField(input) {
+        const group    = input.closest('.modal-form__group');
+        const errorDiv = group?.querySelector('.invalid-input-field');
+
+        input.classList.remove('input-error');
+
+        if (group) group.classList.remove('shake-it');
+
+        if (errorDiv) {
+            errorDiv.classList.remove('active');
+            setTimeout(() => {
+                if (!errorDiv.classList.contains('active')) errorDiv.innerHTML = '';
+            }, 200);
+        }
     }
 }
