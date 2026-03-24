@@ -140,15 +140,15 @@
         <div class="business__body-wrapper dashboard-grid">
 
             {{-- Team Management --}}
-            <div class="dashboard-column">
+            <div class="dashboard-column dashboard-column--team">
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3><i class="fa-solid fa-users"></i> Team Management</h3>
                     </div>
                     <div class="card-body">
 
-                        <form action="{{ route('business.assign', $business->id) }}" method="POST"
-                            style="margin-bottom: 1.25rem;">
+                        {{-- Add member form --}}
+                        <form class="manage-empleyees" action="{{ route('business.assign', $business->id) }}" method="POST">
                             @csrf
                             <div class="modal-form__group">
                                 <label class="modal-form__label">Add Member by Email</label>
@@ -166,50 +166,80 @@
                             </button>
                         </form>
 
-                        <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 1rem 0;">
+                        <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 0;">
 
-                        <p style="font-size: 11px; font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 8px;">
-                            Current Members
-                        </p>
-
-                        @foreach ($business->users as $user)
-                            <div class="team-member-item">
-                                <div class="member-info">
-                                    <span class="member-name">{{ $user->name }}</span>
-
-                                    @if ($user->pivot->role === 'owner')
+                        {{-- Owners --}}
+                        <div class="team-section">
+                            <p class="team-section__label">Owners</p>
+                            @foreach ($business->users->where('pivot.role', 'owner') as $user)
+                                <div class="team-member-item">
+                                    <div class="member-info">
+                                        <span class="member-name">{{ $user->name }}</span>
                                         <span class="member-role">Owner</span>
-                                    @else
-                                        <form action="{{ route('business.users.update', [$business->id, $user->id]) }}"
-                                            method="POST">
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Managers --}}
+                        <div class="team-section">
+                            <p class="team-section__label">Managers</p>
+                            @foreach ($business->users->where('pivot.role', 'manager') as $user)
+                                <div class="team-member-item">
+                                    <div class="member-info">
+                                        <span class="member-name">{{ $user->name }}</span>
+                                        <form action="{{ route('business.users.update', [$business->id, $user->id]) }}" method="POST">
                                             @csrf @method('PATCH')
                                             <select name="role" onchange="this.form.submit()" class="role-select-inline">
-                                                <option value="manager" {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager</option>
-                                                <option value="staff"   {{ $user->pivot->role === 'staff'   ? 'selected' : '' }}>Staff</option>
+                                                <option value="manager" selected>Manager</option>
+                                                <option value="staff">Staff</option>
                                             </select>
                                         </form>
-                                    @endif
-                                </div>
-
-                                @if ($user->pivot->role !== 'owner')
+                                    </div>
                                     <form action="{{ route('business.users.delete', [$business->id, $user->id]) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Remove this user from the business?')">
+                                        method="POST" onsubmit="return confirm('Remove this user?')">
                                         @csrf @method('DELETE')
                                         <button class="button-icon button-icon--danger" type="submit">
                                             <i class="fa-solid fa-xmark"></i>
                                         </button>
                                     </form>
-                                @endif
-                            </div>
-                        @endforeach
+                                </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Staff --}}
+                        <div class="team-section">
+                            <p class="team-section__label">Staff</p>
+                            @foreach ($business->users->where('pivot.role', 'staff') as $user)
+                                <div class="team-member-item">
+                                    <div class="member-info">
+                                        <span class="member-name">{{ $user->name }}</span>
+                                        <form action="{{ route('business.users.update', [$business->id, $user->id]) }}" method="POST">
+                                            @csrf @method('PATCH')
+                                            <select name="role" onchange="this.form.submit()" class="role-select-inline">
+                                                <option value="manager">Manager</option>
+                                                <option value="staff" selected>Staff</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                    <form action="{{ route('business.users.delete', [$business->id, $user->id]) }}"
+                                        method="POST" onsubmit="return confirm('Remove this user?')">
+                                        @csrf @method('DELETE')
+                                        <button class="button-icon button-icon--danger" type="submit">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endforeach
+                        </div>
 
                     </div>
                 </div>
             </div>
 
-            {{-- Services --}}
+            {{-- Right column --}}
             <div class="dashboard-column">
+                {{-- Services --}}
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3><i class="fa-solid fa-bell-concierge"></i> Services & Availability</h3>

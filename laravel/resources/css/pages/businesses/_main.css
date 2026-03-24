@@ -20,7 +20,6 @@
 .business__body-wrapper {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 1rem 1.5rem;
 }
 
 /* Sidebar & Header Elements */
@@ -263,4 +262,15 @@
     color: var(--color-primary);
     border-color: var(--color-primary);
     background: var(--color-primary-light);
+}
+
+.manage-empleyees {
+    max-width: 20rem;
+}
+
+.manage-empleyees input,
+.manage-empleyees select {
+    min-width: 12rem;
+    max-width: 20rem!important;
+    margin-bottom: .5rem;
 }

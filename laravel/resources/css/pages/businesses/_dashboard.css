@@ -1,52 +1,46 @@
-/* Úprava gridu pre Dashboard */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 22rem 1fr; /* Širší ľavý stĺpec pre formuláre */
+    grid-template-columns: 22rem 1fr;
     gap: 1.5rem;
     align-items: start;
 }
 
-/* Karty (Cards) */
 .dashboard-card {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border-light);
     border-radius: .4rem;
     overflow: hidden;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .card-header {
-    padding: 1rem 1.25rem;
+    padding: 1rem .5rem;
     border-bottom: 1px solid var(--color-border-light);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: color-mix(in srgb, var(--color-bg), var(--color-text) 2%);
 }
 
 .card-header h3 {
-    font-size: 0.9rem;
     font-family: 'Inter-SemiBold';
     margin: 0;
     display: flex;
     align-items: center;
+    font-size: var(--font-size-small);
+    text-transform: uppercase;
     gap: 0.5rem;
 }
 
 .card-body {
-    padding: 1.25rem;
+    padding-top: 1.5rem;
 }
 
 .card-body.no-padding { padding: 0; }
 
-/* Tím v sidebare */
 .team-member-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
     border-bottom: 1px solid var(--color-border-light-very);
+    background: linear-gradient(135deg, var(--color-bg-complement) 0%, var(--color-bg-complement-gradient) 100%);
 }
 
 .member-info {
@@ -57,7 +51,6 @@
 .member-name { font-size: 0.85rem; font-weight: 600; }
 .member-role { font-size: 0.75rem; color: var(--color-text-unimportant); }
 
-/* Listy (pre Branches/Services) */
 .list-item {
     display: flex;
     justify-content: space-between;
@@ -68,7 +61,6 @@
 
 .list-item:last-child { border-bottom: none; }
 
-/* Služby - Kartičky v mriežke */
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -85,4 +77,45 @@
 .service-item-card:hover {
     border-color: var(--color-primary);
     background: color-mix(in srgb, var(--color-primary), transparent 98%);
+}
+
+.dashboard-column--team {
+    position: sticky;
+    max-height: calc(100vh);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border);
+}
+
+.dashboard-column--team .dashboard-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.dashboard-column--team .card-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.team-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.team-section__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    padding: 0.5rem 0 0.25rem;
+    border-bottom: 1px solid var(--color-border-light-very);
+    margin-bottom: 0.25rem;
 }
