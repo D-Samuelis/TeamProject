@@ -60,6 +60,13 @@ class BranchRepository implements BranchRepositoryInterface
         return $query->get();
     }
 
+    public function findWithinBusiness(int $branchId, int $businessId): Branch
+    {
+        return Branch::where('id', $branchId)
+            ->where('business_id', $businessId)
+            ->firstOrFail();
+    }
+
     public function save(array $data): Branch
     {
         return Branch::create($data);

@@ -1,0 +1,50 @@
+/* ── Business View Switcher ─────────────────────────────────────────────── */
+
+.business__view-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: .25rem;
+    overflow: hidden;
+}
+
+.business__view-btn {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .4rem .85rem;
+    font-size: var(--font-size-small);
+    font-family: 'Inter-Medium', sans-serif;
+    background: transparent;
+    color: var(--color-text-unimportant);
+    border: none;
+    border-right: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.business__view-btn:last-child {
+    border-right: none;
+}
+
+.business__view-btn:hover {
+    background: color-mix(in srgb, var(--color-primary), transparent 92%);
+    color: var(--color-primary);
+}
+
+.business__view-btn.active {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+}
+
+/* ── Business Panel (view container) ───────────────────────────────────── */
+
+.business__panel {
+    height: 100%;
+}
+
+.business__panel.hidden {
+    display: none;
+}

@@ -24,6 +24,8 @@ interface BranchRepositoryInterface
 
     public function findByBusinessId(int $businessId, string $scope = 'active'): Collection;
 
+    public function findWithinBusiness(int $branchId, int $businessId): Branch;
+
     /**
      * DATA PERSISTENCE
      */
