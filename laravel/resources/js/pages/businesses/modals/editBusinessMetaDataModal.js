@@ -1,4 +1,4 @@
-import { Modal } from '../../../components/modal/modal.js';
+import { Modal } from '../../../components/displays/modal.js';
 
 export function initEditBusinessMetaDataModal() {
     console.log("DEBUG: initEditBranchModal sa spustil pri loade stránky.");
@@ -15,7 +15,7 @@ export function initEditBusinessMetaDataModal() {
             title: 'Edit Business Info',
             confirmText: 'Save Changes',
             rules: {
-                businessName: { required: { value: true, message: 'Business name is required' } },
+                name: { required: { value: true, message: 'Business name is required' } },
             },
             body: `
                 <form id="editBusinessForm" method="POST" action="${action}">
@@ -25,7 +25,7 @@ export function initEditBusinessMetaDataModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Business Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="businessName" class="modal-form__input"
+                            <input type="text" name="name" class="modal-form__input"
                                 value="${name}" placeholder=" " required autofocus>
                         </div>
                     </div>

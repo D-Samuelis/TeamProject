@@ -161,50 +161,54 @@
             </div>
 
             <div class="business__header-right">
-                <div id="branch-header-actions" style="display: none; align-items: center; gap: 6px;">
-                    @foreach ($business->branches as $branch)
-                        <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; align-items: center; gap: 6px;">
-                            @if (!$branch->trashed())
-                                @can('update', $branch)
-                                    <form action="{{ route('branch.update', $branch->id) }}" method="POST">
-                                        @csrf @method('PUT')
-                                        <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                        <label class="toggle-label" title="Active Status">
-                                            <input type="checkbox" name="is_active" value="1" onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
-                                            <span class="toggle-track"></span>
-                                        </label>
-                                    </form>
+                <div class="business__header-right-section_1">
+                    <div id="branch-header-actions" style="display: none; align-items: center; gap: 6px;">
+                        @foreach ($business->branches as $branch)
+                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; align-items: center; gap: 6px;">
+                                @if (!$branch->trashed())
+                                    @can('update', $branch)
+                                        <form action="{{ route('branch.update', $branch->id) }}" method="POST">
+                                            @csrf @method('PUT')
+                                            <input type="hidden" name="business_id" value="{{ $business->id }}">
+                                            <label class="toggle-label" title="Active Status">
+                                                <input type="checkbox" name="is_active" value="1" onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
+                                                <span class="toggle-track"></span>
+                                            </label>
+                                        </form>
 
-                                    <button class="button-icon js-edit-branch" type="button" data-modal-target="edit-branch-modal" data-branch='@json($branch)'>
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                @endcan
+                                        <button class="button-icon js-edit-branch" type="button" data-modal-target="edit-branch-modal" data-branch='@json($branch)'>
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                    @endcan
 
-                                @can('delete', $branch)
-                                    <form action="{{ route('branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                        @csrf @method('DELETE')
-                                        <button class="button-icon button-icon--danger" type="submit">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @endcan
-                            @else
-                                @can('update', $branch)
-                                    <form action="{{ route('branch.restore', $branch->id) }}" method="POST">
-                                        @csrf
-                                        <button class="button-icon button-icon--success" type="submit">
-                                            <i class="fa-solid fa-rotate-left"></i>
-                                        </button>
-                                    </form>
-                                @endcan
-                            @endif
-                        </div>
-                    @endforeach
+                                    @can('delete', $branch)
+                                        <form action="{{ route('branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                            @csrf @method('DELETE')
+                                            <button class="button-icon button-icon--danger" type="submit">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @else
+                                    @can('update', $branch)
+                                        <form action="{{ route('branch.restore', $branch->id) }}" method="POST">
+                                            @csrf
+                                            <button class="button-icon button-icon--success" type="submit">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="business__search-wrapper">
-                    <div class="business__search-container">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                <div class="business__header-right-section_2">
+                    <div class="list-view__search-wrapper">
+                        <div class="search-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -215,30 +219,27 @@
             <div id="businessTeamView" class="business__panel">
                 <div class="dashboard-column dashboard-column--team">
                     <div class="dashboard-card">
-                        <div class="card-header"><h3><i class="fa-solid fa-users"></i> Team Management</h3></div>
-                        <div class="card-body">
-                            @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
-                                <div class="team-section">
-                                    <p class="team-section__label">{{ $title }}</p>
-                                    @forelse ($collection as $user)
-                                        @php
-                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
-                                            $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
-                                        @endphp
-                                        <div class="team-member-item filterable-member" data-belongs-to="{{ $filterId }}">
-                                            <div class="member-info">
-                                                <span class="member-name">{{ $user->name }}</span>
-                                                <span class="member-role team-member__scope">
-                                                    <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
-                                                </span>
-                                            </div>
+                        @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
+                            <div class="team-section">
+                                <p class="team-section__label">{{ $title }}</p>
+                                @forelse ($collection as $user)
+                                    @php
+                                        [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                        $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
+                                    @endphp
+                                    <div class="team-member-item filterable-member" data-belongs-to="{{ $filterId }}">
+                                        <div class="member-info">
+                                            <span class="member-name">{{ $user->name }}</span>
+                                            <span class="member-role team-member__scope">
+                                                <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
+                                            </span>
                                         </div>
-                                    @empty
-                                        <p class="team-section__empty">No users.</p>
-                                    @endforelse
-                                </div>
-                            @endforeach
-                        </div>
+                                    </div>
+                                @empty
+                                    <p class="team-section__empty">No users.</p>
+                                @endforelse
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -266,16 +267,6 @@
     </main>
 </div>
 
-<style>
-    .branch-filter-item.active {
-        background: color-mix(in srgb, var(--color-primary), transparent 93%);
-        border-left: 5px solid var(--color-primary);
-    }
-    .branch-filter-item {
-        border-left: 5px solid var(--color-border-light);
-    }
-    .business__header-right { display: flex; align-items: center; gap: 12px; }
-</style>
 
 <script>
     function updateTargetFields(selectElement) {

@@ -122,17 +122,23 @@
 .business__header-right {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.branch-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .branch-action-group {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.business__header-right-section_1 {
+    border-right: 1px solid var(--color-border);
+    height: 6rem;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.branch-action-group {
+    display: flex;
+    flex-direction: column;
 }

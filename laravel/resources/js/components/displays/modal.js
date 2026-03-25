@@ -182,4 +182,8 @@ export class Modal {
             }, 200);
         }
     }
+
+    static close(modal) {
+        modal?.remove();
+    }
 }

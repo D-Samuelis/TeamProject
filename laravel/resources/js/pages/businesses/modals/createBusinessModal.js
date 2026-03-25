@@ -1,4 +1,4 @@
-import { Modal } from '../../../components/modal/modal.js';
+import { Modal } from '../../../components/displays/modal.js';
 
 export function initCreateBusinessModal() {
     const createBtn = document.querySelector('[data-modal-target="create-business-modal"]');
