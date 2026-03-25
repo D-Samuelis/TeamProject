@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCollapsibleList('businessInfo');
     initCollapsibleList('branchesList');
+    initCollapsibleList('manageEmployeesList');
 
     initBusinessViewSwitcher();
 });

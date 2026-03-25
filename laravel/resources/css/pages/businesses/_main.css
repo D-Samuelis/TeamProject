@@ -24,13 +24,24 @@
 
 /* Sidebar & Header Elements */
 .business__header-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 6rem;
-    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 100px 1fr auto 6px;
     flex-shrink: 0;
     border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+}
+
+.business__header-corner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.business__header-info {
+    padding: 0 1rem;
+    height: 6rem;
+    display: flex;
+    align-items: center;
 }
 
 .business__subtitle {
@@ -41,36 +52,6 @@
     display: flex;
     align-items: center;
     margin-bottom: .25rem;
-}
-
-.business__nav-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: .15rem;
-    text-decoration: none;
-    color: var(--color-text-unimportant);
-    background: transparent;
-    transition: all 0.2s ease;
-}
-
-.business__nav-link:hover { color: var(--color-primary); }
-.business__nav-link.is-active {
-    background-color: var(--color-primary);
-    color: var(--color-text-white);
-}
-
-.business__nav-link.new-business {
-    border: 1px solid var(--color-border);
-    color: var(--color-border);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.business__nav-link.new-business:hover {
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
 }
 
 /* Cards Grid */
@@ -242,8 +223,8 @@
     width: 100%;
     color: var(--color-text-white);
     background: var(--color-primary);
-    padding: .35rem .8rem;
-    gap: .5rem;
+    padding: .5rem .75rem;
+    gap: .75rem;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
@@ -254,23 +235,11 @@
 }
 
 .business-info-card__edit-btn i {
-    font-size: .75rem;
-    margin-top: .1rem;
+    font-size: var(--font-size-base);
 }
  
 .business-info-card__edit-btn:hover {
     color: var(--color-primary);
     border-color: var(--color-primary);
     background: var(--color-primary-light);
-}
-
-.manage-empleyees {
-    max-width: 20rem;
-}
-
-.manage-empleyees input,
-.manage-empleyees select {
-    min-width: 12rem;
-    max-width: 20rem!important;
-    margin-bottom: .5rem;
 }

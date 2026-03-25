@@ -14,3 +14,7 @@
 
 .button-icon--warning i { color: var(--color-warning); }
 .button-icon--warning:hover i { color: var(--color-warning-hover); }
+
+.business-table__row+.is-archived {
+    background: color-mix(in srgb, var(--color-danger), transparent 96%);
+}

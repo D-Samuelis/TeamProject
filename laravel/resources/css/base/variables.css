@@ -69,6 +69,7 @@
 .theme-dark {
     --color-bg: #18181f;
     --color-bg-complement: #15151b;
+    --color-bg-complement-gradient: #10101d;
 
     --color-text: #f0f0f0;
     --color-text-black: #131313;

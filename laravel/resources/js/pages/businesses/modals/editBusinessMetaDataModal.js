@@ -1,6 +1,8 @@
 import { Modal } from '../../../components/modal/modal.js';
 
 export function initEditBusinessMetaDataModal() {
+    console.log("DEBUG: initEditBranchModal sa spustil pri loade stránky.");
+    
     const btn = document.querySelector('[data-modal-target="edit-business-modal"]');
 
     if (!btn) return;
