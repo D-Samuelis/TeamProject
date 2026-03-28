@@ -23,5 +23,7 @@ interface UserRepositoryInterface
 
     public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum;
 
+    public function getAnyBranchRoleForBusiness(User $user, Business $business): ?BranchRoleEnum;
+
     public function getAssetRole(User $user, Asset $asset): ?string;
 }

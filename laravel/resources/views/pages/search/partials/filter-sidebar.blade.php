@@ -1,5 +1,5 @@
 <div class="filter-sidebar">
-    <form action="{{ route('manualBooking.index') }}" method="GET" class="filter-form">
+    <form action="{{ route('search.index') }}" method="GET" class="filter-form">
         <input type="hidden" name="target" value="{{ $filters->target }}">
 
         <div class="filter-group">
@@ -44,7 +44,7 @@
 
         <div class="filter-actions">
             <button type="submit" class="btn-primary">Apply Filters</button>
-            <a href="{{ route('manualBooking.index', ['target' => $filters->target]) }}" class="btn-reset">
+            <a href="{{ route('search.index', ['target' => $filters->target]) }}" class="btn-reset">
                 Reset Filters
             </a>
         </div>

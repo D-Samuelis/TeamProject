@@ -27,7 +27,7 @@ class AssetController extends Controller
         $user = Auth::user();
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
-        return view('pages.private.asset.index', [
+        return view('pages.asset.index', [
             'assets'   => $listAssets->execute([], $user),
             'branches' => $branches,
             'services' => $services,
@@ -55,7 +55,7 @@ class AssetController extends Controller
         $asset->load('branches.business', 'services');
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
-        return view('pages.private.asset.show', [
+        return view('pages.asset.show', [
             'asset'    => $asset,
             'branches' => $branches,
             'services' => $services,
@@ -106,8 +106,8 @@ class AssetController extends Controller
         ListBranches $listBranches,
         ListServices $listServices
     ): array {
-        $branches = $listBranches->execute();
-        $services = $listServices->execute();
+        $branches = $listBranches->execute($user);
+        $services = $listServices->execute($user);
 
         if (! $user->isAdmin()) {
             $user->loadMissing(['branches', 'services']);

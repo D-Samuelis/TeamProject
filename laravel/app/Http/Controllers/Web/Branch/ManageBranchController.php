@@ -17,49 +17,47 @@ use App\Application\Branch\DTO\UpdateBranchDTO;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Service\UseCases\ListServices;
 
-class PrivateBranchController extends Controller
+class ManageBranchController extends Controller
 {
     public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
     {
-        return view('pages.private.branch.index', [
-            'branches'   => $listBranches->execute(),
+        return view('pages.branch.index', [
+            'branches'   => $listBranches->execute(Auth::user()),
             'businesses' => $listBusinesses->execute(Auth::user()),
         ]);
     }
 
     public function show(int $branchId, GetBranch $getBranch, ListBusinesses $listBusinesses, ListServices $listServices)
     {
-        $branch = $getBranch->execute($branchId);
-        $branch->load('services', 'business', 'assets');
-
-        return view('pages.private.branch.show', [
+        $branch = $getBranch->execute($branchId, Auth::user());
+        return view('pages.branch.show', [
             'branch'     => $branch,
             'businesses' => $listBusinesses->execute(Auth::user()),
-            'services'   => $listServices->execute(),
+            'services'   => $listServices->execute(Auth::user(), $branch->business),
         ]);
     }
 
     public function store(StoreBranchRequest $request, StoreBranch $useCase)
     {
-        $branch = $useCase->execute(StoreBranchDTO::fromRequest($request), Auth::id());
+        $branch = $useCase->execute(StoreBranchDTO::fromRequest($request), Auth::user());
         return back()->with('success', "Branch '{$branch->name}' created.");
     }
 
     public function update(int $branchId, UpdateBranchRequest $request, UpdateBranch $useCase)
     {
-        $useCase->execute(UpdateBranchDTO::fromRequest($branchId, $request), Auth::id());
-        return back()->with('success', 'Branch updated successfully.');
+        $branch = $useCase->execute(UpdateBranchDTO::fromRequest($branchId, $request), Auth::user());
+        return back()->with('success', "Branch '{$branch->name}' updated successfully.");
     }
 
     public function delete(int $branchId, DeleteBranch $useCase)
     {
-        $useCase->execute($branchId, Auth::id());
+        $useCase->execute($branchId, Auth::user());
         return back()->with('success', 'Branch moved to trash.');
     }
 
     public function restore(int $branchId, RestoreBranch $useCase)
     {
-        $useCase->execute($branchId, Auth::id());
+        $useCase->execute($branchId, Auth::user());
         return back()->with('success', 'Branch restored.');
     }
 }

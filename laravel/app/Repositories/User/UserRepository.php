@@ -72,4 +72,14 @@ class UserRepository implements UserRepositoryInterface
 
         return null;
     }
+
+    public function getAnyBranchRoleForBusiness(User $user, Business $business): ?BranchRoleEnum
+    {
+        $branch = $user->branches()
+            ->withTrashed()
+            ->where('business_id', $business->id)
+            ->first();
+
+        return $branch ? BranchRoleEnum::tryFrom($branch->pivot->role) : null;
+    }
 }

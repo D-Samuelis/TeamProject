@@ -14,7 +14,7 @@
                 <button onclick="openModal('createRuleModal')">+ Add Rule</button>
             @endcan
             @can('destroy', $asset)
-                <form method="POST" action="{{ route('asset.delete', $asset->id) }}"
+                <form method="POST" action="{{ route('manage.asset.delete', $asset->id) }}"
                       onsubmit="return confirm('Delete this asset?')">
                     @csrf @method('DELETE')
                     <button type="submit" style="color:red;">Delete</button>
@@ -63,7 +63,7 @@
                     {{-- Priority badge + up/down --}}
                     <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
                         @can('update', $asset)
-                            <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
                                 @csrf
                                 <input type="hidden" name="direction" value="up">
                                 <button type="submit"
@@ -75,7 +75,7 @@
                             #{{ $rule->priority }}
                         </span>
                         @can('update', $asset)
-                            <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
                                 @csrf
                                 <input type="hidden" name="direction" value="down">
                                 <button type="submit"
@@ -103,7 +103,7 @@
                         <button onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>Edit</button>
                     @endcan
                     @can('update', $asset)
-                        <form method="POST" action="{{ route('rule.delete', $rule->id) }}"
+                        <form method="POST" action="{{ route('manage.rule.delete', $rule->id) }}"
                               onsubmit="return confirm('Delete this rule?')">
                             @csrf @method('DELETE')
                             <button type="submit" style="color:red;">Delete</button>
@@ -140,7 +140,7 @@
         <button class="modal-close" onclick="closeModal('editAssetModal')">&times;</button>
         <h2 style="margin-bottom:1.5rem;">Edit Asset</h2>
 
-        <form method="POST" action="{{ route('asset.update', $asset->id) }}">
+        <form method="POST" action="{{ route('manage.asset.update', $asset->id) }}">
             @csrf @method('PUT')
 
             <div style="margin-bottom:1rem;">
@@ -206,12 +206,12 @@
         <button class="modal-close" onclick="closeModal('createRuleModal')">&times;</button>
         <h2 style="margin-bottom:1.5rem;">New Rule</h2>
 
-        <form method="POST" action="{{ route('rule.store') }}" onsubmit="return serializeSchedule('create')">
+        <form method="POST" action="{{ route('manage.rule.store') }}" onsubmit="return serializeSchedule('create')">
             @csrf
             <input type="hidden" name="asset_id" value="{{ $asset->id }}">
             <input type="hidden" name="rule_set" id="create_rule_set_input">
 
-            @include('pages.private.asset.partials.rule-form', ['prefix' => 'create', 'rule' => null])
+            @include('pages.asset.partials.rule-form', ['prefix' => 'create', 'rule' => null])
 
             <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
                 <button type="button" onclick="closeModal('createRuleModal')" class="btn-secondary">Cancel</button>
@@ -234,7 +234,7 @@
             @csrf @method('PUT')
             <input type="hidden" name="rule_set" id="edit_rule_set_input">
 
-            @include('pages.private.asset.partials.rule-form', ['prefix' => 'edit', 'rule' => null])
+            @include('pages.asset.partials.rule-form', ['prefix' => 'edit', 'rule' => null])
 
             <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
                 <button type="button" onclick="closeModal('editRuleModal')" class="btn-secondary">Cancel</button>
@@ -361,7 +361,7 @@
 
     // ── Open edit rule modal ──────────────────────────────────────────────────
     function openEditRuleModal(ruleId, rule) {
-        document.getElementById('editRuleForm').action = `/rules/${ruleId}`;
+        document.getElementById('editRuleForm').action = `/manage/rules/${ruleId}`;
 
         document.getElementById('edit_title').value       = rule.title        ?? '';
         document.getElementById('edit_description').value = rule.description  ?? '';

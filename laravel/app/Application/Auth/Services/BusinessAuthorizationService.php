@@ -2,7 +2,7 @@
 
 namespace App\Application\Auth\Services;
 
-use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Domain\Business\Enums\BusinessStateEnum;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
@@ -11,7 +11,10 @@ use App\Models\Business\Business;
 
 class BusinessAuthorizationService
 {
-    public function __construct(private BusinessRepositoryInterface $businessRepo, private UserRepositoryInterface $userRepo) {}
+    public function __construct(
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly UserRepositoryInterface $userRepo
+    ) {}
 
     /**
      * Check if a user is allowed to create a new business.
@@ -23,7 +26,7 @@ class BusinessAuthorizationService
         }
 
         if ($this->businessRepo->existsOwner($user->id)) {
-            throw new DomainException('You already own a business and cannot create another one.');
+            throw new AuthorizationException('You already own a business and cannot create another one.');
         }
     }
 
@@ -39,7 +42,7 @@ class BusinessAuthorizationService
 
         // Private
         if (!$user) {
-            throw new DomainException('This business is private.');
+            throw new AuthorizationException('This business is private.');
         }
 
         // Admin
@@ -50,7 +53,7 @@ class BusinessAuthorizationService
         // Roles
         $role = $this->userRepo->getBusinessRole($user, $business);
         if (!$role) {
-            throw new DomainException('You do not have permission to view this business.');
+            throw new AuthorizationException('You do not have permission to view this business.');
         }
     }
 
@@ -66,7 +69,7 @@ class BusinessAuthorizationService
         $role = $this->userRepo->getBusinessRole($user, $business);
 
         if (!$role || !$role->canUpdate()) {
-            throw new DomainException('Only the owner or managers can update the business.');
+            throw new AuthorizationException('Only the owner or managers can update the business.');
         }
     }
 
@@ -82,7 +85,7 @@ class BusinessAuthorizationService
         $role = $this->userRepo->getBusinessRole($user, $business);
 
         if (!$role || !$role->canDelete()) {
-            throw new DomainException('Only the owner can delete the business.');
+            throw new AuthorizationException('Only the owner can delete the business.');
         }
     }
 
@@ -98,7 +101,7 @@ class BusinessAuthorizationService
         $role = $this->userRepo->getBusinessRole($user, $business);
 
         if (!$role || !$role->canPublish()) {
-            throw new DomainException('Only the owner or managers can publish the business.');
+            throw new AuthorizationException('Only the owner can publish the business.');
         }
     }
 
@@ -108,7 +111,7 @@ class BusinessAuthorizationService
     public function ensureBusinessIsApproved(Business $business): void
     {
         if ($business->state !== BusinessStateEnum::APPROVED) {
-            throw new DomainException('Business must be approved to perform this action.');
+            throw new AuthorizationException('Business must be approved to perform this action.');
         }
     }
 }

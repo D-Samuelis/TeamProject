@@ -4,7 +4,7 @@
         <div class="business-modal__header mb-4">
             <h2 class="timeline-header__title">Create New Business</h2>
         </div>
-        <form method="POST" action="{{ route('business.store') }}">
+        <form method="POST" action="{{ route('manage.business.store') }}">
             @csrf
             <div class="business__search-container mb-3" style="width: 100%">
                 <input type="text" name="name" placeholder="Business Name" required>
