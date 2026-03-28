@@ -1,4 +1,4 @@
-{{-- resources/views/pages/private/branch/show.blade.php --}}
+manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
 
 @if (session('success'))
     <p style="color:green;">{{ session('success') }}</p>
@@ -20,7 +20,7 @@
     <div style="display:flex;gap:8px;">
         @if ($branch->trashed())
             @can('restore', $branch)
-                <form method="POST" action="{{ route('branch.restore', $branch->id) }}">
+                <form method="POST" action="{{ route('manage.branch.restore', $branch->id) }}">
                     @csrf @method('PATCH')
                     <button type="submit"
                         style="background:#2563eb;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">
@@ -33,7 +33,7 @@
                 <button onclick="openModal('editBranchModal')">Edit</button>
             @endcan
             @can('delete', $branch)
-                <form method="POST" action="{{ route('branch.delete', $branch->id) }}"
+                <form method="POST" action="{{ route('manage.branch.delete', $branch->id) }}"
                     onsubmit="return confirm('Delete this branch?')">
                     @csrf @method('DELETE')
                     <button type="submit" style="color:red;background:none;border:none;cursor:pointer;">Delete</button>
@@ -59,7 +59,7 @@
 
 <div style="margin-top:1rem;">
     <strong>Business:</strong><a
-        href="{{ route('business.show', $branch->business->id) }}">{{ $branch->business->name }}</a>
+        href="{{ route('manage.business.show', $branch->business->id) }}">{{ $branch->business->name }}</a>
 </div>
 
 {{-- Services --}}
@@ -67,9 +67,9 @@
     <strong>Services:</strong>
     @forelse($branch->services as $s)
         <span>
-            <a href="{{ route('service.show', $s->id) }}">{{ $s->name }}</a>
+            <a href="{{ route('manage.service.show', $s->id) }}">{{ $s->name }}</a>
             @can('assign', [$s, $branch])
-                <form method="POST" action="{{ route('service.branch.unassign', [$s->id, $branch->id]) }}"
+                <form method="POST" action="{{ route('manage.service.branch.unassign', [$s->id, $branch->id]) }}"
                     style="display:inline;" onsubmit="return confirm('Remove this service from branch?')">
                     @csrf @method('DELETE')
                     <button type="submit"
@@ -92,7 +92,7 @@
         <strong>Assign service:</strong>
         @foreach ($assignableServices as $s)
             @can('assign', [$s, $branch])
-                <form method="POST" action="{{ route('service.branch.assign', [$s->id, $branch->id]) }}"
+                <form method="POST" action="{{ route('manage.service.branch.assign', [$s->id, $branch->id]) }}"
                     style="display:inline;">
                     @csrf
                     <button type="submit"
@@ -109,7 +109,7 @@
 <div style="margin-top:0.5rem;">
     <strong>Assets:</strong>
     @forelse($branch->assets as $a)
-        <a href="{{ route('asset.show', $a->id) }}">{{ $a->name }}</a>
+        <a href="{{ route('manage.asset.show', $a->id) }}">{{ $a->name }}</a>
         @unless ($loop->last)
             ,
         @endunless
@@ -127,9 +127,9 @@
         <button class="modal-close" onclick="closeModal('editBranchModal')">&times;</button>
         <h2 style="margin-bottom:1.5rem;">Edit Branch</h2>
 
-        <form method="POST" action="{{ route('branch.update', $branch->id) }}">
+        <form method="POST" action="{{ route('manage.branch.update', $branch->id) }}">
             @csrf @method('PUT')
-            @include('pages.private.branch.partials.branch-form', [
+            @include('pages.branch.partials.branch-form', [
                 'prefix' => 'edit',
                 'branch' => $branch,
                 'businesses' => $businesses,
@@ -143,7 +143,7 @@
     </div>
 </div>
 
-@include('pages.private.branch.partials.modal-styles-scripts')
+@include('pages.branch.partials.modal-styles-scripts')
 
 @if ($errors->any())
     <script>

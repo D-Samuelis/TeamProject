@@ -106,8 +106,8 @@ class AssetController extends Controller
         ListBranches $listBranches,
         ListServices $listServices
     ): array {
-        $branches = $listBranches->execute();
-        $services = $listServices->execute();
+        $branches = $listBranches->execute($user);
+        $services = $listServices->execute($user);
 
         if (! $user->isAdmin()) {
             $user->loadMissing(['branches', 'services']);
