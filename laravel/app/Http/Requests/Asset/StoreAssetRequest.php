@@ -19,9 +19,9 @@ class StoreAssetRequest extends FormRequest
         return [
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
-            'branch_ids'    => 'nullable|array',
+            'branch_ids'    => 'required_without:service_ids|array',
             'branch_ids.*'  => 'integer|exists:branches,id',
-            'service_ids'   => ['nullable', 'array', new ServicesBelongToBranches($branchIds)],
+            'service_ids'   => ['required_without:branch_ids', 'array', new ServicesBelongToBranches($branchIds)],
             'service_ids.*' => 'integer|exists:services,id',
         ];
     }
@@ -31,6 +31,8 @@ class StoreAssetRequest extends FormRequest
         return [
             'branch_ids.*.exists'  => 'One or more selected branches do not exist.',
             'service_ids.*.exists' => 'One or more selected services do not exist.',
+            'branch_ids.required_without'  => 'At least one branch or service must be selected.',
+            'service_ids.required_without' => 'At least one branch or service must be selected.',
         ];
     }
 }
