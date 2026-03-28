@@ -30,7 +30,7 @@ interface BusinessRepositoryInterface
     /**
      * MANAGEMENT: List businesses owned by a specific user.
      */
-    public function listForOwner(User $user, string $scope = 'active'): Collection;
+    public function listForUser(User $user, string $scope = 'active'): Collection;
 
     /**
      * DATA PERSISTENCE
@@ -50,7 +50,7 @@ interface BusinessRepositoryInterface
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void;
 
-    public function detachUser($business, $userId);
+    public function detachUser(Business $business, int $userId): int;
 
     public function count(SearchDTO $dto): int;
 }

@@ -7,6 +7,8 @@ use App\Application\DTO\SearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Models\Auth\User;
+use App\Models\Business\Business;
 use App\Models\Business\Service;
 
 class ServiceRepository implements ServiceRepositoryInterface
@@ -21,16 +23,11 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function search(SearchDTO $dto)
     {
-        $query = Service::query()
-            ->where('is_active', true)
-            ->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
-        return $query
-            ->with('business')
-            ->latest()
-            ->paginate($dto->perPage);
+        return $query->with('business')->latest()->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection
@@ -41,16 +38,43 @@ class ServiceRepository implements ServiceRepositoryInterface
     /**
      * MANAGEMENT
      */
+    public function listForUser(User $user, ?Business $business = null, string $scope = 'active'): Collection
+    {
+        $query = Service::query();
+
+        if (!$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('business.branches.users', fn($q) => $q->where('user_id', $user->id));
+            });
+        }
+
+        if ($business) {
+            $query->where('business_id', $business->id);
+        }
+
+        match ($scope) {
+            'deleted' => $query->onlyTrashed(),
+            'all' => $query->withTrashed(),
+            default => $query,
+        };
+
+        return $query
+            ->with(['business', 'branches', 'assets'])
+            ->latest()
+            ->get();
+    }
+
     public function findForManagement(int $id): Service
     {
-        return Service::withTrashed()->findOrFail($id);
+        return Service::withTrashed()
+            ->with(['business', 'branches', 'assets'])
+            ->findOrFail($id);
     }
 
     public function findWithinBusiness(int $serviceId, int $businessId): Service
     {
-        return Service::where('id', $serviceId)
-            ->where('business_id', $businessId)
-            ->firstOrFail();
+        return Service::where('id', $serviceId)->where('business_id', $businessId)->firstOrFail();
     }
 
     public function update(Service $service, array $data): Service
@@ -107,16 +131,14 @@ class ServiceRepository implements ServiceRepositoryInterface
         $service->users()->attach($userId, ['role' => $role->value]);
     }
 
-    public function detachUser($service, $userId): Service
+    public function detachUser(Service $service, int $userId): int
     {
         return $service->users()->detach($userId);
     }
 
     public function count(SearchDTO $dto): int
     {
-        $query = Service::query()
-            ->where('is_active', true)
-            ->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
@@ -133,16 +155,8 @@ class ServiceRepository implements ServiceRepositoryInterface
             $query->where(function ($sub) use ($keyword) {
                 $sub->where('name', 'like', "%{$keyword}%")
                     ->orWhere('description', 'like', "%{$keyword}%")
-                    ->orWhereHas(
-                        'business',
-                        fn($b) =>
-                        $b->where('name', 'like', "%{$keyword}%")
-                    )
-                    ->orWhereHas(
-                        'branches',
-                        fn($br) =>
-                        $br->where('city', 'like', "%{$keyword}%")
-                    );
+                    ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$keyword}%"))
+                    ->orWhereHas('branches', fn($br) => $br->where('city', 'like', "%{$keyword}%"));
             });
         }
 

@@ -2,27 +2,24 @@
 
 namespace App\Application\Service\UseCases;
 
-use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
-use App\Application\Auth\Services\ServiceAuthorizationService;
 use Illuminate\Support\Facades\DB;
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Application\Auth\Services\ServiceAuthorizationService;
+use App\Models\Auth\User;
 
 class RestoreService
 {
     public function __construct(
-        private ServiceRepositoryInterface $serviceRepo,
-        private UserRepositoryInterface $userRepo,
-        //private ServiceAuthorizationService $authService
+        private readonly ServiceRepositoryInterface $serviceRepo,
+        private readonly ServiceAuthorizationService $authService
     ) {}
 
-    public function execute(int $serviceId, int $userId): void
+    public function execute(int $serviceId, User $user): void
     {
-        DB::transaction(function () use ($serviceId, $userId) {
+        DB::transaction(function () use ($serviceId, $user) {
             $service = $this->serviceRepo->findForManagement($serviceId);
-            
-            $user = $this->userRepo->findById($userId);
 
-            //$this->authService->ensureCanUpdateService($user, $service);
+            $this->authService->ensureCanUpdateService($user, $service);
 
             $this->serviceRepo->restore($service);
         });

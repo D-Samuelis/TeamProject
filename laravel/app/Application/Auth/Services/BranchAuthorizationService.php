@@ -2,17 +2,17 @@
 
 namespace App\Application\Auth\Services;
 
-use DomainException;
 use App\Models\Auth\User;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
-use App\Domain\Branch\Enums\BranchRoleEnum;
-use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class BranchAuthorizationService
 {
-    public function __construct(private UserRepositoryInterface $userRepo) {}
+    public function __construct(
+        private readonly UserRepositoryInterface $userRepo
+    ) {}
 
     public function ensureCanCreateBranch(User $user, Business $business): void
     {
@@ -22,30 +22,9 @@ class BranchAuthorizationService
 
         $role = $this->userRepo->getBusinessRole($user, $business);
 
-        if (!in_array($role, [BusinessRoleEnum::OWNER])) {
-            throw new DomainException('Only the business owner can create branches.');
+        if (!$role || !$role->canUpdate()) {
+            throw new AuthorizationException('You do not have permission to create branches.');
         }
-    }
-
-    public function ensureCanDeleteBranch(User $user, Branch $branch): void
-    {
-        if ($user->isAdmin()) {
-            return;
-        }
-
-        $businessRole = $this->userRepo->getBusinessRole($user, $branch->business);
-
-        if ($businessRole && in_array($businessRole, [BusinessRoleEnum::OWNER])) {
-            return;
-        }
-
-        $branchRole = $this->userRepo->getBranchRole($user, $branch);
-
-        if ($branchRole && in_array($branchRole, [BranchRoleEnum::MANAGER])) {
-            return;
-        }
-
-        throw new DomainException('You do not have permission to delete this branch.');
     }
 
     public function ensureCanUpdateBranch(User $user, Branch $branch): void
@@ -59,11 +38,61 @@ class BranchAuthorizationService
             return;
         }
 
-        $branchRole = $this->userRepo->getBranchRole($user, $branch);
-        if ($branchRole && in_array($branchRole, [BranchRoleEnum::MANAGER])) {
+        throw new AuthorizationException('You do not have permission to update this branch.');
+    }
+
+    public function ensureCanDeleteBranch(User $user, Branch $branch): void
+    {
+        if ($user->isAdmin()) {
             return;
         }
 
-        throw new DomainException('Only business owners or branch managers can update this branch.');
+        $businessRole = $this->userRepo->getBusinessRole($user, $branch->business);
+        if ($businessRole && $businessRole->canUpdate()) {
+            return;
+        }
+
+        throw new AuthorizationException('You do not have permission to delete this branch.');
+    }
+
+    public function ensureCanManageBranchStaff(User $user, Branch $branch): void
+    {
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $businessRole = $this->userRepo->getBusinessRole($user, $branch->business);
+        if ($businessRole && $businessRole->canManageStaff()) {
+            return;
+        }
+
+        $branchRole = $this->userRepo->getBranchRole($user, $branch);
+        if ($branchRole && $branchRole->canManageStaff()) {
+            return;
+        }
+
+        throw new AuthorizationException('You are not authorized to manage staff for this branch.');
+    }
+
+    /**
+     * Check if a user can view branch details.
+     */
+    public function ensureCanViewBranch(?User $user, Branch $branch): void
+    {
+        if ($branch->is_active) return;
+
+        if (!$user) {
+            throw new AuthorizationException('This branch is private.');
+        }
+
+        if ($user->isAdmin()) return;
+
+        $businessRole = $this->userRepo->getBusinessRole($user, $branch->business);
+        if ($businessRole) return;
+
+        $branchRole = $this->userRepo->getBranchRole($user, $branch);
+        if ($branchRole) return;
+
+        throw new AuthorizationException('You do not have permission to view this branch.');
     }
 }

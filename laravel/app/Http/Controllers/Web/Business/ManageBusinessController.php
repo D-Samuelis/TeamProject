@@ -21,13 +21,13 @@ use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Business\UseCases\RestoreBusiness;
 use App\Application\Business\UseCases\UpdateBusiness;
 
-class PrivateBusinessController extends Controller
+class ManageBusinessController extends Controller
 {
     public function index(ListBusinesses $useCase)
     {
         $user = Auth::user();
 
-        return view('pages.private.business.index', [
+        return view('pages.business.index', [
             'activeBusinesses' => $useCase->execute($user, 'active'),
             'deletedBusinesses' => $useCase->execute($user, 'deleted'),
         ]);
@@ -36,36 +36,36 @@ class PrivateBusinessController extends Controller
     public function show(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId, Auth::user());
-        return view('pages.private.business.show', compact('business'));
+        return view('pages.business.show', compact('business'));
     }
 
     public function store(StoreBusinessRequest $request, StoreBusiness $useCase)
     {
-        $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::id());
+        $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
         return back()->with('success', "Business '{$business->name}' created successfully.");
     }
 
     public function update(int $businessId, UpdateBusinessRequest $request, UpdateBusiness $useCase)
     {
-        $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::id());
+        $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
         return back()->with('success', 'Business updated successfully!');
     }
 
     public function delete(int $businessId, DeleteBusiness $useCase)
     {
-        $useCase->execute($businessId, Auth::id());
+        $useCase->execute($businessId, Auth::user());
         return back()->with('success', 'Business deleted successfully.');
     }
 
     public function restore(int $businessId, RestoreBusiness $useCase)
     {
-        $useCase->execute($businessId, Auth::id());
+        $useCase->execute($businessId, Auth::user());
         return back()->with('success', 'Business restored successfully.');
     }
 
     public function book(int $businessId, GetBusiness $useCase)
     {
-        $business = $useCase->execute($businessId, Auth::user());
+        $business = $useCase->execute($businessId);
         return view('pages.public.business.book', compact('business'));
     }
 }

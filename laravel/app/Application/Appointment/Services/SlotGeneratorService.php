@@ -44,9 +44,12 @@ class SlotGeneratorService
         $rule = $asset->rules
             ->sortBy('priority')
             ->first(function ($rule) use ($date) {
-                $validFrom = Carbon::parse($rule->valid_from)->startOfDay();
-                $validTo   = Carbon::parse($rule->valid_to)->endOfDay();
-                return $date->between($validFrom, $validTo);
+                $validFrom = $rule->valid_from ? Carbon::parse($rule->valid_from)->startOfDay() : null;
+                $validTo   = $rule->valid_to   ? Carbon::parse($rule->valid_to)->endOfDay()     : null;
+
+                if ($validFrom && $date->lt($validFrom)) return false;
+                if ($validTo   && $date->gt($validTo))   return false;
+                return true;
             });
 
         if (! $rule) {

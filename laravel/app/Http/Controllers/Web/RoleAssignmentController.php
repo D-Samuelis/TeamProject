@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web\Business;
+namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,7 +9,7 @@ use App\Application\UseCases\AssignUser;
 use App\Application\UseCases\RemoveUser;
 use App\Application\UseCases\UpdateUserRole;
 
-class BusinessAssignmentController extends Controller
+class RoleAssignmentController extends Controller
 {
     public function store(Request $request, int $businessId, AssignUser $useCase)
     {

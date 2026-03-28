@@ -20,12 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
-        $exceptions->render(function (DomainException $e, Request $request) {
-            // If it's a web request, redirect back with the error message
+        // Domain/business rule violations (not auth-related)
+        $exceptions->render(function (\DomainException $e, Request $request) {
             if (!$request->expectsJson()) {
                 return back()->withInput()->with('error', $e->getMessage());
             }
-
             return response()->json(['message' => $e->getMessage()], 422);
         });
+
+        // AuthorizationException is already handled by Laravel as 403
+        // — no need to register it here
     })->create();

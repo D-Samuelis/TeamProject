@@ -9,7 +9,7 @@ use App\Models\Business\Business;
 
 class BranchPolicy
 {
-    public function __construct(private BranchAuthorizationService $authService) {}
+    public function __construct(private readonly BranchAuthorizationService $authService) {}
 
     public function before(User $user): ?bool
     {
@@ -29,7 +29,7 @@ class BranchPolicy
      */
     public function view(User $user, Branch $branch): bool
     {
-        return false;
+        return $this->runCheck(fn() => $this->authService->ensureCanViewBranch($user, $branch));
     }
 
     /**
@@ -61,7 +61,7 @@ class BranchPolicy
      */
     public function restore(User $user, Branch $branch): bool
     {
-        return true;
+        return $this->runCheck(fn() => $this->authService->ensureCanUpdateBranch($user, $branch));
     }
 
     /**
@@ -78,7 +78,7 @@ class BranchPolicy
             $check();
 
             return true;
-        } catch (\DomainException) {
+        } catch (\Exception) {
             return false;
         }
     }

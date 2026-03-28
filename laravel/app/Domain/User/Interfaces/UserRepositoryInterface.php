@@ -3,6 +3,7 @@
 namespace App\Domain\User\Interfaces;
 
 use App\Models\Auth\User;
+use App\Models\Business\Asset;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
 use App\Domain\Branch\Enums\BranchRoleEnum;
@@ -21,4 +22,8 @@ interface UserRepositoryInterface
     public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum;
 
     public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum;
+
+    public function getAnyBranchRoleForBusiness(User $user, Business $business): ?BranchRoleEnum;
+
+    public function getAssetRole(User $user, Asset $asset): ?string;
 }

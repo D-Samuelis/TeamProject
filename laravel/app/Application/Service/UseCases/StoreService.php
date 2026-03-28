@@ -2,41 +2,43 @@
 
 namespace App\Application\Service\UseCases;
 
+use App\Application\Auth\Services\ServiceAuthorizationService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Business\Service;
 use App\Application\Service\DTO\StoreServiceDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Models\Auth\User;
 
 class StoreService
 {
     public function __construct(
-        private BusinessRepositoryInterface $businessRepo,
-        private BranchRepositoryInterface $branchRepo,
-        private ServiceRepositoryInterface $serviceRepo,
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly BranchRepositoryInterface $branchRepo,
+        private readonly ServiceRepositoryInterface $serviceRepo,
+        private readonly ServiceAuthorizationService $authService
     ) {}
 
-    public function execute(StoreServiceDTO $dto, int $userId): Service
+    public function execute(StoreServiceDTO $dto, User $user): Service
     {
-        return DB::transaction(function () use ($dto, $userId) {
-            $business = $this->businessRepo->findActive($dto->business_id);
-            if (!$business) {
-                throw new \DomainException('Business not found.');
-            }
+        return DB::transaction(function () use ($dto, $user) {
+            $business = $this->businessRepo->findForManagement($dto->business_id);
 
-            //$this->authService->ensureCanManageBusiness($business, $userId);
-
-            $service = $this->serviceRepo->save($dto->toArray());
+            $this->authService->ensureCanCreateService($user, $business);
 
             if (!empty($dto->branch_ids)) {
-                $validBranchIds = $this->branchRepo->findByBusinessId($business->id);
-                $validBranchIds = array_intersect($dto->branch_ids, array_column($validBranchIds->toArray(), 'id'));
+                $validBranches = $this->branchRepo->findByBusinessId($business->id);
+                $validIds = $validBranches->pluck('id')->toArray();
 
-                $this->serviceRepo->attachBranches($service, $validBranchIds);
+                $dto->branch_ids = array_values(array_intersect($dto->branch_ids, $validIds));
+
+                foreach ($validBranches->whereIn('id', $dto->branch_ids) as $branch) {
+                    $this->authService->ensureCanAssignServiceToBranch($user, $business, $branch);
+                }
             }
 
-            return $service;
+            return $this->serviceRepo->save($dto->toArray());
         });
     }
 }

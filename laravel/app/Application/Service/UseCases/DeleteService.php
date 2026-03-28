@@ -2,26 +2,26 @@
 
 namespace App\Application\Service\UseCases;
 
+use Illuminate\Support\Facades\DB;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
 use App\Application\Auth\Services\ServiceAuthorizationService;
+use App\Models\Auth\User;
 
 class DeleteService
 {
     public function __construct(
-        private ServiceRepositoryInterface $serviceRepo,
-        private UserRepositoryInterface $userRepo,
-        //private ServiceAuthorizationService $authService
+        private readonly ServiceRepositoryInterface $serviceRepo,
+        private readonly ServiceAuthorizationService $authService
     ) {}
 
-    public function execute(int $serviceId, int $userId): void
+    public function execute(int $serviceId, User $user): void
     {
-        $service = $this->serviceRepo->findForManagement($serviceId);
-        
-        $user = $this->userRepo->findById($userId);
+        DB::transaction(function () use ($serviceId, $user) {
+            $service = $this->serviceRepo->findForManagement($serviceId);
 
-        //$this->authService->ensureCanDeleteService($user, $service);
-        
-        $this->serviceRepo->delete($service);
+            $this->authService->ensureCanDeleteService($user, $service);
+
+            $this->serviceRepo->delete($service);
+        });
     }
 }

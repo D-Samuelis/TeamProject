@@ -2,28 +2,29 @@
 
 namespace App\Application\Business\UseCases;
 
+use Illuminate\Support\Facades\DB;
 use App\Application\Auth\Services\BusinessAuthorizationService;
 use App\Application\Business\DTO\StoreBusinessDTO;
-use Illuminate\Support\Facades\DB;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
+use App\Models\Auth\User;
 use App\Models\Business\Business;
 
 class StoreBusiness
 {
-    public function __construct(private readonly BusinessRepositoryInterface $businessRepo, private readonly UserRepositoryInterface $userRepo, private readonly BusinessAuthorizationService $authService) {}
+    public function __construct(
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly BusinessAuthorizationService $authService
+    ) {}
 
-    public function execute(StoreBusinessDTO $dto, int $userId): Business
+    public function execute(StoreBusinessDTO $dto, User $user): Business
     {
-        return DB::transaction(function () use ($dto, $userId) {
-            $user = $this->userRepo->findById($userId);
-
+        return DB::transaction(function () use ($dto, $user) {
             $this->authService->ensureCanCreateBusiness($user);
 
             $business = $this->businessRepo->save($dto->toArray());
-            
-            $this->businessRepo->attachUser($business, $userId, BusinessRoleEnum::OWNER);
+
+            $this->businessRepo->attachUser($business, $user->id, BusinessRoleEnum::OWNER);
 
             return $business;
         });

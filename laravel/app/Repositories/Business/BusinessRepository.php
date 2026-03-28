@@ -30,7 +30,6 @@ class BusinessRepository implements BusinessRepositoryInterface
     {
         $query = Business::query()->where('is_published', true);
 
-        // Use your helper to apply all the complex filters
         $this->applySearchFilters($query, $dto);
 
         return $query
@@ -45,7 +44,7 @@ class BusinessRepository implements BusinessRepositoryInterface
     /**
      * MANAGEMENT METHODS
      */
-    public function listForOwner(User $user, string $scope = 'active'): Collection
+    public function listForUser(User $user, string $scope = 'active'): Collection
     {
         $query = Business::query();
 
@@ -55,8 +54,8 @@ class BusinessRepository implements BusinessRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all' => $query->withTrashed(),
-            default => $query, // active
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query
@@ -123,7 +122,7 @@ class BusinessRepository implements BusinessRepositoryInterface
         $business->users()->attach($userId, ['role' => $role->value]);
     }
 
-    public function detachUser($business, $userId)
+    public function detachUser(Business $business, int $userId): int
     {
         return $business->users()->detach($userId);
     }

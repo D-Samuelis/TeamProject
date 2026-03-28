@@ -8,7 +8,7 @@ use App\Models\Business\Business;
 
 class BusinessPolicy
 {
-    public function __construct(private BusinessAuthorizationService $authService) {}
+    public function __construct(private readonly BusinessAuthorizationService $authService) {}
 
     public function before(User $user): ?bool
     {

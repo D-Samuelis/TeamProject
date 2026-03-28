@@ -10,18 +10,19 @@ use App\Application\Auth\Services\AssetAuthorizationService;
 class DeleteAsset
 {
     public function __construct(
-        private UserRepositoryInterface $userRepo,
-        private AssetAuthorizationService $assetAuthService,
-        private AssetRepositoryInterface $assetRepo
+        private UserRepositoryInterface    $userRepo,
+        private AssetAuthorizationService  $authService,
+        private AssetRepositoryInterface   $assetRepo,
     ) {}
 
     public function execute(int $assetId, int $userId): void
     {
         DB::transaction(function () use ($assetId, $userId) {
             $asset = $this->assetRepo->findById($assetId);
-            $user = $this->userRepo->findById($userId);
+            abort_if(! $asset, 404);
 
-            $this->assetAuthService->ensureCanDeleteAsset($user, $asset);
+            $user = $this->userRepo->findById($userId);
+            $this->authService->ensureCanDeleteAsset($user, $asset);
 
             $this->assetRepo->delete($asset);
         });

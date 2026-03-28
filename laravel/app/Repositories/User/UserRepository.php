@@ -6,6 +6,7 @@ use App\Domain\Branch\Enums\BranchRoleEnum;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
 use App\Models\Auth\User;
+use App\Models\Business\Asset;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
 
@@ -43,5 +44,42 @@ class UserRepository implements UserRepositoryInterface
         $member = $user->branches()->withTrashed()->where('branches.id', $branch->id)->first();
 
         return $member ? BranchRoleEnum::tryFrom($member->pivot->role) : null;
+    }
+
+    public function getAssetRole(User $user, Asset $asset): ?string
+    {
+        $asset->load(['branches.business', 'services']);
+
+        foreach ($asset->branches as $branch) {
+            if ($branch->business) {
+                $businessRole = $this->getBusinessRole($user, $branch->business);
+                if ($businessRole === BusinessRoleEnum::OWNER)   return 'owner';
+                if ($businessRole === BusinessRoleEnum::MANAGER) return 'manager';
+            }
+
+            $branchRole = $this->getBranchRole($user, $branch);
+            if ($branchRole === BranchRoleEnum::MANAGER) return 'manager';
+            if ($branchRole === BranchRoleEnum::STAFF)   return 'staff';
+        }
+
+        foreach ($asset->services as $service) {
+            $member = $user->services()
+                ->where('services.id', $service->id)
+                ->first();
+
+            if ($member) return 'staff';
+        }
+
+        return null;
+    }
+
+    public function getAnyBranchRoleForBusiness(User $user, Business $business): ?BranchRoleEnum
+    {
+        $branch = $user->branches()
+            ->withTrashed()
+            ->where('business_id', $business->id)
+            ->first();
+
+        return $branch ? BranchRoleEnum::tryFrom($branch->pivot->role) : null;
     }
 }
