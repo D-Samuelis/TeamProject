@@ -12,35 +12,30 @@ class AssetPolicy
         private AssetAuthorizationService $assetAuthService,
     ) {}
 
-    public function before(User $user, $ability, $model = null): ?bool
+    public function before(User $user): ?bool
     {
-        // $model may be null for global abilities
-        if ($model instanceof Asset) {
-            try {
-                $this->assetAuthService->ensureCanUpdateAsset($user, $model);
-                return true;
-            } catch (\DomainException) {
-                return false;
-            }
-        }
+        return $user->isAdmin() ? true : null;
+    }
 
-        return null; // fallback to normal policy checks
+    public function view(User $user, Asset $asset): bool
+    {
+        return $this->runCheck(fn() => $this->assetAuthService->ensureCanViewAsset($user, $asset));
     }
 
     public function update(User $user, Asset $asset): bool
     {
-        try {
-            $this->assetAuthService->ensureCanUpdateAsset($user, $asset);
-            return true;
-        } catch (\DomainException) {
-            return false;
-        }
+        return $this->runCheck(fn() => $this->assetAuthService->ensureCanUpdateAsset($user, $asset));
     }
 
     public function destroy(User $user, Asset $asset): bool
     {
+        return $this->runCheck(fn() => $this->assetAuthService->ensureCanDeleteAsset($user, $asset));
+    }
+
+    private function runCheck(callable $check): bool
+    {
         try {
-            $this->assetAuthService->ensureCanDeleteAsset($user, $asset);
+            $check();
             return true;
         } catch (\DomainException) {
             return false;

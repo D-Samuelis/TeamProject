@@ -17,16 +17,20 @@ use App\Application\Branch\UseCases\ListBranches;
 use App\Application\Service\UseCases\ListServices;
 use App\Application\Service\UseCases\GetService;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
+use App\Models\Auth\User;
 use Illuminate\Support\Facades\Auth;
 
 class AssetController extends Controller
 {
     public function index(ListAssets $listAssets, ListBranches $listBranches, ListServices $listServices)
     {
+        $user = Auth::user();
+        [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
+
         return view('pages.private.asset.index', [
-            'assets'   => $listAssets->execute(),
-            'branches' => $listBranches->execute(),
-            'services' => $listServices->execute(),
+            'assets'   => $listAssets->execute([], $user),
+            'branches' => $branches,
+            'services' => $services,
         ]);
     }
 
@@ -46,13 +50,15 @@ class AssetController extends Controller
 
     public function show(int $assetId, GetAsset $getAsset, ListBranches $listBranches, ListServices $listServices)
     {
-        $asset = $getAsset->execute($assetId, Auth::user());
-        $asset->load('branches', 'services');
+        $user     = Auth::user();
+        $asset = $getAsset->execute($assetId, $user);
+        $asset->load('branches.business', 'services');
+        [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
         return view('pages.private.asset.show', [
             'asset'    => $asset,
-            'branches' => $listBranches->execute(),
-            'services' => $listServices->execute(),
+            'branches' => $branches,
+            'services' => $services,
         ]);
     }
 
@@ -93,5 +99,51 @@ class AssetController extends Controller
         $asset   = $useCase->execute($request->validated('asset_id'), Auth::user());
         $service = $getService->execute($request->validated('service_id'), Auth::user());
         return view('pages.public.asset.book', compact('asset', 'service'));
+    }
+
+    private function getAssociatedBranchesAndServices(
+        User $user,
+        ListBranches $listBranches,
+        ListServices $listServices
+    ): array {
+        $branches = $listBranches->execute();
+        $services = $listServices->execute();
+
+        if (! $user->isAdmin()) {
+            $user->loadMissing(['branches', 'services']);
+
+            $userBranchIds  = $user->branches->pluck('id');
+            $userServiceIds = $user->services->pluck('id');
+
+            $managedBranchIds = $branches
+                ->filter(function ($branch) use ($user) {
+                    $role = app(\App\Domain\User\Interfaces\UserRepositoryInterface::class)
+                        ->getBusinessRole($user, $branch->business);
+                    return in_array($role, [
+                        \App\Domain\Business\Enums\BusinessRoleEnum::OWNER,
+                        \App\Domain\Business\Enums\BusinessRoleEnum::MANAGER,
+                    ]);
+                })
+                ->pluck('id');
+
+            $allBranchIds = $userBranchIds->merge($managedBranchIds)->unique();
+
+            $branches = $branches->filter(fn($b) => $allBranchIds->contains($b->id));
+            $services = $services->filter(function ($s) use ($user, $userServiceIds, $allBranchIds) {
+                // Only include direct service assignment if user is manager (not staff)
+                if ($userServiceIds->contains($s->id)) {
+                    $member = $user->services->firstWhere('id', $s->id);
+                    if ($member && $member->pivot->role === 'staff') {
+                        return false; // staff on service — exclude from create form
+                    }
+                    return true;
+                }
+
+                // Include if service belongs to a branch the user manages
+                return $s->branches->pluck('id')->intersect($allBranchIds)->isNotEmpty();
+            });
+        }
+
+        return [$branches, $services];
     }
 }

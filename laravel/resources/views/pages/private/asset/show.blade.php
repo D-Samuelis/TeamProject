@@ -9,13 +9,17 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <h1>{{ $asset->name }}</h1>
         <div style="display:flex;gap:8px;">
-            <button onclick="openModal('editAssetModal')">Edit</button>
-            <button onclick="openModal('createRuleModal')">+ Add Rule</button>
-            <form method="POST" action="{{ route('asset.delete', $asset->id) }}"
-                  onsubmit="return confirm('Delete this asset?')">
-                @csrf @method('DELETE')
-                <button type="submit" style="color:red;">Delete</button>
-            </form>
+            @can('update', $asset)
+                <button onclick="openModal('editAssetModal')">Edit</button>
+                <button onclick="openModal('createRuleModal')">+ Add Rule</button>
+            @endcan
+            @can('destroy', $asset)
+                <form method="POST" action="{{ route('asset.delete', $asset->id) }}"
+                      onsubmit="return confirm('Delete this asset?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" style="color:red;">Delete</button>
+                </form>
+            @endcan
         </div>
     </div>
 
@@ -58,23 +62,27 @@
                 <div style="display:flex;align-items:flex-start;gap:10px;">
                     {{-- Priority badge + up/down --}}
                     <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
-                        <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
-                            @csrf
-                            <input type="hidden" name="direction" value="up">
-                            <button type="submit"
-                                    {{ $isFirst ? 'disabled' : '' }}
-                                    style="background:none;border:none;cursor:{{ $isFirst ? 'default' : 'pointer' }};color:{{ $isFirst ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▲</button>
-                        </form>
+                        @can('update', $asset)
+                            <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                                @csrf
+                                <input type="hidden" name="direction" value="up">
+                                <button type="submit"
+                                        {{ $isFirst ? 'disabled' : '' }}
+                                        style="background:none;border:none;cursor:{{ $isFirst ? 'default' : 'pointer' }};color:{{ $isFirst ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▲</button>
+                            </form>
+                        @endcan
                         <span style="font-size:11px;font-weight:600;color:#888;background:#f3f4f6;border-radius:4px;padding:1px 6px;">
                             #{{ $rule->priority }}
                         </span>
-                        <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
-                            @csrf
-                            <input type="hidden" name="direction" value="down">
-                            <button type="submit"
-                                    {{ $isLast ? 'disabled' : '' }}
-                                    style="background:none;border:none;cursor:{{ $isLast ? 'default' : 'pointer' }};color:{{ $isLast ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▼</button>
-                        </form>
+                        @can('update', $asset)
+                            <form method="POST" action="{{ route('rule.reorder', $rule->id) }}">
+                                @csrf
+                                <input type="hidden" name="direction" value="down">
+                                <button type="submit"
+                                        {{ $isLast ? 'disabled' : '' }}
+                                        style="background:none;border:none;cursor:{{ $isLast ? 'default' : 'pointer' }};color:{{ $isLast ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▼</button>
+                            </form>
+                        @endcan
                     </div>
 
                     <div>
@@ -91,12 +99,16 @@
                 </div>
 
                 <div style="display:flex;gap:6px;flex-shrink:0;">
-                    <button onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>Edit</button>
-                    <form method="POST" action="{{ route('rule.delete', $rule->id) }}"
-                          onsubmit="return confirm('Delete this rule?')">
-                        @csrf @method('DELETE')
-                        <button type="submit" style="color:red;">Delete</button>
-                    </form>
+                    @can('update', $asset)
+                        <button onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>Edit</button>
+                    @endcan
+                    @can('update', $asset)
+                        <form method="POST" action="{{ route('rule.delete', $rule->id) }}"
+                              onsubmit="return confirm('Delete this rule?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="color:red;">Delete</button>
+                        </form>
+                    @endcan
                 </div>
             </div>
 
