@@ -13,7 +13,7 @@
             </h3>
             <div class="dropdown__mini-list"> {{-- Tvoja trieda z myAppointments --}}
                 @foreach (['business' => 'Shops', 'branch' => 'Locations', 'service' => 'Services'] as $key => $label)
-                    <a href="{{ route('manualBooking.index', array_merge(request()->query(), ['target' => $key])) }}"
+                    <a href="{{ route('search.index', array_merge(request()->query(), ['target' => $key])) }}"
                        class="booking__nav-link {{ $filters->target === $key ? 'is-active' : '' }}">
                         <i class="fa-solid @if($key == 'business') fa-shop @elseif($key == 'branch') fa-location-dot @else fa-scissors @endif"></i>
                         <span>{{ $label }}</span>
@@ -28,7 +28,7 @@
                 Filters
             </h3>
             <div class="booking__filter-wrapper">
-                @include('pages.public.manualBooking.partials.filter-sidebar')
+                @include('pages.search.partials.filter-sidebar')
             </div>
         </section>
     </aside>
@@ -60,8 +60,7 @@
             @else
                 <div class="booking-grid">
                     @foreach ($results as $item)
-                        {{-- Toto je kľúčový riadok, ktorý tam chýbal --}}
-                        @include('pages.public.manualBooking.partials.cards.' . $filters->target, [
+                        @include('pages.search.partials.cards.' . $filters->target, [
                             'item' => $item
                         ])
                     @endforeach

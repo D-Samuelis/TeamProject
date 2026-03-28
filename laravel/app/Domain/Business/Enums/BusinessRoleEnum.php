@@ -18,13 +18,13 @@ enum BusinessRoleEnum: string
         return $this === self::OWNER;
     }
 
+    public function canManageStaff(): bool
+    {
+        return in_array($this, [self::OWNER, self::MANAGER]);
+    }
+
     public function canPublish(): bool
     {
         return in_array($this, [self::OWNER]);
-    }
-
-    public function canManageStaff(): bool
-    {
-        return $this === self::OWNER;
     }
 }

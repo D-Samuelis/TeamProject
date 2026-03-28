@@ -1,5 +1,5 @@
 <div class="container">
-    <a href="{{ route('manualBooking.index') }}">&larr; Back to Explore</a>
+    <a href="{{ route('search.index') }}">&larr; Back to Explore</a>
 
     <header class="business-header">
         <h1>{{ $business->name }} [{{ ucfirst($business->state->value) }}]</h1>

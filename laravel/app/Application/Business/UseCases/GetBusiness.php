@@ -9,7 +9,10 @@ use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
 class GetBusiness
 {
-    public function __construct(private readonly BusinessRepositoryInterface $businessRepo, private readonly BusinessAuthorizationService $authService) {}
+    public function __construct(
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly BusinessAuthorizationService $authService
+    ) {}
 
     public function execute(int $businessId, ?User $user = null): Business
     {
