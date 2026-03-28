@@ -31,6 +31,10 @@
     background: var(--color-bg);
 }
 
+.business__header-wrapper--simple {
+    grid-template-columns: 0px 1fr auto 6px;
+}
+
 .business__header-corner {
     display: flex;
     align-items: center;
@@ -42,6 +46,7 @@
     height: 6rem;
     display: flex;
     align-items: center;
+    gap: 3rem;
 }
 
 .business__subtitle {
@@ -100,23 +105,7 @@
 }
 
 /* Search Container Styling */
-.business__search-container {
-    display: flex;
-    align-items: center;
-    background: color-mix(in srgb, var(--color-border-light-very), transparent 60%);
-    border-radius: .3rem;
-    padding: 0.4rem 0.8rem;
-    width: 240px;
-    border: 1px solid var(--color-border-light-very);
-}
 
-.business__search-container input {
-    border: none;
-    background: transparent;
-    outline: none;
-    color: var(--color-text);
-    width: 100%;
-}
 
 /* Modal Styling */
 .business-modal {
@@ -159,8 +148,6 @@
     color: var(--color-primary-hover);
     background-color: var(--color-border-light-very);
 }
-
-/* ── Business Info Card ─────────────────────────────────────────────────── */
  
 .business-info-card {
     position: relative;
