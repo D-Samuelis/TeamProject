@@ -112,7 +112,10 @@ class AssetController extends Controller
         if (! $user->isAdmin()) {
             $user->loadMissing(['branches', 'services']);
 
-            $userBranchIds  = $user->branches->pluck('id');
+            $userBranchIds = $user->branches
+                ->filter(fn($b) => $b->pivot->role !== 'staff')
+                ->pluck('id');
+
             $userServiceIds = $user->services->pluck('id');
 
             $managedBranchIds = $branches
