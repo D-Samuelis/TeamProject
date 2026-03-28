@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('businesses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('state')->default('pending');
             $table->boolean('is_published')->default(false);
             $table->timestamp('delete_after')->nullable();
