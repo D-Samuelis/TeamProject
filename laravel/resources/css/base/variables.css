@@ -3,6 +3,9 @@
     --color-bg-complement: #f0f0f0;
     --color-bg-complement-gradient: #e7e7e7;
 
+    --color-bg-complement-hover: #e2e2e2;
+    --color-bg-complement-gradient-hover: #dddddd;
+
     --color-text: #080808;
     --color-text-white: #f3f3f3;
     --color-text-unimportant: rgb(126, 126, 126);
@@ -70,6 +73,9 @@
     --color-bg: #18181f;
     --color-bg-complement: #15151b;
     --color-bg-complement-gradient: #10101d;
+
+    --color-bg-complement-hover: #191920;
+    --color-bg-complement-gradient-hover: #111122;
 
     --color-text: #f0f0f0;
     --color-text-black: #131313;

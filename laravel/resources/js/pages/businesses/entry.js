@@ -6,6 +6,7 @@ import { initEditBusinessMetaDataModal } from './modals/editBusinessMetaDataModa
 import { initCreateBranchModal } from './modals/createBranchModal.js';
 import { initEditBranchModal } from './modals/editBranchModal.js';
 import { initBusinessViewSwitcher } from './viewToggle.js';
+import { initAssignEmployeeModal } from './modals/assignEmployeeModal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');
@@ -25,4 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('manageEmployeesList');
 
     initBusinessViewSwitcher();
+
+    initAssignEmployeeModal();
 });

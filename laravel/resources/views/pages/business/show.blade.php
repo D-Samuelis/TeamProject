@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+{{-- 1. DATA LAYER (Musí byť pred Vite skriptom) --}}
 <script>
     window.BE_DATA = {
         business: @json($business),
@@ -19,6 +20,7 @@
 </script>
 
 @php
+    // Logika pre zoznam členov
     $allMembers = collect($business->users);
     foreach ($business->branches as $branch) {
         $allMembers = $allMembers->concat($branch->users);
@@ -31,13 +33,16 @@
     $owners   = $allMembers->filter(fn($u) => $u->pivot->role === 'owner');
     $managers = $allMembers->filter(fn($u) => $u->pivot->role === 'manager');
     $staff    = $allMembers->filter(fn($u) => $u->pivot->role === 'staff');
+
+    // Helper funkcia definovaná nižšie
 @endphp
 
 <div class="business">
 
     {{-- SIDEBAR --}}
     <aside class="business__sidebar">
-        {{-- Business Metadata --}}
+        
+        {{-- Business Info Section --}}
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Business Info</h3>
             <div id="businessInfo" class="dropdown__mini-list">
@@ -52,24 +57,21 @@
                             <a href="#" class="read-more-trigger" data-full="{{ e($business->description) }}">read more</a>
                         @endif
                     </p>
-                    <button
-                        class="business-info-card__edit-btn"
-                        type="button"
-                        data-modal-target="edit-business-modal"
-                        title="Edit metadata">
+                    <button class="business-info-card__edit-btn" type="button" data-modal-target="edit-business-modal">
                         <i class="fa-solid fa-gear"></i> Manage Business
                     </button>
                 </div>
             </div>
         </section>
 
+        {{-- Branches Section --}}
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branches</h3>
             <div id="branchesList" class="dropdown__mini-list">
                 <div class="team-member-item branch-filter-item active" data-filter="all" data-branch-id="" style="cursor: pointer;">
                     <div class="member-info">
                         <span class="member-name">Summary</span>
-                        <span class="member-role">View all branches in one place</span>
+                        <span class="member-role">View all branches</span>
                     </div>
                 </div>
 
@@ -95,53 +97,21 @@
             </div>
         </section>
 
+        {{-- Employee Management Section --}}
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Manage Employees</h3>
             <div id="manageEmployeesList" class="dropdown__mini-list">
-                <form class="manage-empleyees" action="{{ route('manage.business.assign', $business->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-form__group employees-group">
-                        <label class="modal-form__label">Assign To</label>
-                        <select id="target-selector" class="modal-form__input"
-                            onchange="updateTargetFields(this)">
-                            <option value="business" data-id="{{ $business->id }}">Entire Business</option>
-                            <optgroup label="Branches">
-                                @foreach ($business->branches as $branch)
-                                    <option value="branch" data-id="{{ $branch->id }}">{{ $branch->name }}</option>
-                                @endforeach
-                            </optgroup>
-                            <optgroup label="Services">
-                                @foreach ($business->services as $service)
-                                    <option value="service" data-id="{{ $service->id }}">{{ $service->name }}</option>
-                                @endforeach
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <input type="hidden" name="target_type" id="hidden-target-type" value="business">
-                    <input type="hidden" name="target_id"   id="hidden-target-id"   value="{{ $business->id }}">
-
-                    <div class="modal-form__group employees-group">
-                        <label class="modal-form__label">Member Email</label>
-                        <input type="email" name="email" class="modal-form__input"
-                            placeholder="staff@example.com" required>
-                    </div>
-                    <div class="modal-form__group employees-group">
-                        <label class="modal-form__label">Role</label>
-                        <select name="role" class="modal-form__input">
-                            <option value="manager">Manager</option>
-                            <option value="staff">Staff</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="business__nav-link is-active" style="width: 100%;">
-                        <i class="fa-solid fa-user-plus"></i> Assign & Notify
-                    </button>
-                </form>
+                <button type="button" 
+                        class="business__nav-link is-active" 
+                        style="width: 100%; border: none; cursor: pointer; text-align: left; padding: 10px;" 
+                        data-modal-target="assign-employee-modal">
+                    <i class="fa-solid fa-user-plus"></i> Assign & Notify
+                </button>
             </div>
         </section>
     </aside>
 
-    {{-- MAIN --}}
+    {{-- MAIN CONTENT --}}
     <main class="business__main">
         <header class="business__header-wrapper">
             <div class="business__header-corner">
@@ -164,41 +134,59 @@
                 <div class="business__header-right-section_1">
                     <div id="branch-header-actions" style="display: none; align-items: center; gap: 6px;">
                         @foreach ($business->branches as $branch)
-                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; align-items: center; gap: 6px;">
+                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; width: 100%;">
+                                
                                 @if (!$branch->trashed())
-                                    @can('update', $branch)
-                                        <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
-                                            @csrf @method('PUT')
-                                            <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                            <label class="toggle-label" title="Active Status">
-                                                <input type="checkbox" name="is_active" value="1" onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
-                                                <span class="toggle-track"></span>
-                                            </label>
-                                        </form>
+                                    <div class="branch-actions-grid">
+                                        {{-- 1. STATUS & TOGGLE (Vľavo) --}}
+                                        <div class="grid-cell status-zone">
+                                            <div class="status-text">
+                                                <p class="status-label">Status:</p>
+                                            </div>
+                                            
+                                            @can('update', $branch)
+                                                <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
+                                                    @csrf @method('PUT')
+                                                    <input type="hidden" name="business_id" value="{{ $business->id }}">
+                                                    <input type="hidden" name="is_active" value="{{ $branch->is_active ? 0 : 1 }}">
+                                                    <button type="submit" class="button-action button-action--toggle {{ $branch->is_active ? 'button-action--success' : 'button-action--warning' }}">
+                                                        {{ $branch->is_active ? 'ACTIVE' : 'INACTIVE' }}
+                                                    </button>
+                                                </form>
+                                            @endcan
+                                        </div>
 
-                                        <button class="button-icon js-edit-branch" type="button" data-modal-target="edit-branch-modal" data-branch='@json($branch)'>
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-                                    @endcan
+                                        {{-- 2. ACTIONS (Vpravo) --}}
+                                        <div class="grid-cell action-zone">
+                                            @can('update', $branch)
+                                                <button class="button-action button-action--primary js-edit-branch" type="button" 
+                                                        data-modal-target="edit-branch-modal" 
+                                                        data-branch='@json($branch)'>
+                                                    Edit Branch
+                                                </button>
+                                            @endcan
 
-                                    @can('delete', $branch)
-                                        <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                            @csrf @method('DELETE')
-                                            <button class="button-icon button-icon--danger" type="submit">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    @endcan
+                                            @can('delete', $branch)
+                                                <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="button-action button-action--danger">
+                                                        Delete Branch
+                                                    </button>
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    </div>
                                 @else
-                                    @can('update', $branch)
+                                    {{-- RESTORE VIEW (Pre zmazané pobočky) --}}
+                                    <div class="restore-zone">
+                                        <p>This branch is archived.</p>
                                         <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button class="button-icon button-icon--success" type="submit">
-                                                <i class="fa-solid fa-rotate-left"></i>
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="btn-grid btn-grid--restore">
+                                                <i class="fa-solid fa-rotate-left"></i> Restore Branch
                                             </button>
                                         </form>
-                                    @endcan
+                                    </div>
                                 @endif
                             </div>
                         @endforeach
@@ -208,7 +196,7 @@
                     <div class="list-view__search-wrapper">
                         <div class="search-container">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                            <input type="text" id="appointmentSearchInput" placeholder="Search team...">
                         </div>
                     </div>
                 </div>
@@ -237,7 +225,7 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="team-section__empty">No users.</p>
+                                    <p class="team-section__empty">No {{ strtolower($title) }} found.</p>
                                 @endforelse
                             </div>
                         @endforeach
@@ -268,14 +256,10 @@
     </main>
 </div>
 
+{{-- 2. SCRIPTS --}}
+@vite('resources/js/pages/businesses/entry.js')
 
 <script>
-    function updateTargetFields(selectElement) {
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        document.getElementById('hidden-target-type').value = selectedOption.value;
-        document.getElementById('hidden-target-id').value   = selectedOption.getAttribute('data-id');
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
         const filterItems   = document.querySelectorAll('#branchesList .branch-filter-item');
         const members       = document.querySelectorAll('.filterable-member');
@@ -283,7 +267,6 @@
         const titleHeader   = document.getElementById('dynamic-title');
         const headerActions = document.getElementById('branch-header-actions');
         const actionGroups  = document.querySelectorAll('.branch-action-group');
-        const targetSelector = document.getElementById('target-selector');
 
         filterItems.forEach(item => {
             item.addEventListener('click', function () {
@@ -312,21 +295,10 @@
                     s.style.display = (filter === 'all' || belongs === 'all' || belongs.split(' ').includes(filter))
                         ? 'block' : 'none';
                 });
-
-                // Sync Target Selector
-                if (filter !== 'all' && targetSelector) {
-                    const option = Array.from(targetSelector.options).find(o => o.value === 'branch' && o.getAttribute('data-id') === branchId);
-                    if (option) {
-                        targetSelector.value = 'branch';
-                        updateTargetFields(targetSelector);
-                    }
-                }
             });
         });
     });
 </script>
-
-@vite('resources/js/pages/businesses/entry.js')
 
 @php
 function _resolveAssignment($user, $business): array {
