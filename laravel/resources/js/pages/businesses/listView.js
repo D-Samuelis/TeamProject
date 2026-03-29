@@ -44,6 +44,7 @@ export function initBusinessListView(data = []) {
                 return `
                     <form action="${window.BE_DATA.routes.restore.replace(':id', item.id)}" method="POST">
                         <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                        <input type="hidden" name="_method" value="PATCH">
                         <button type="submit" class="button-icon" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>
                     </form>`;
             }

@@ -6,6 +6,8 @@ use App\Models\Business\Branch;
 use Illuminate\Support\Collection;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Branch\Enums\BranchRoleEnum;
+use App\Models\Auth\User;
+use App\Models\Business\Business;
 
 interface BranchRepositoryInterface
 {
@@ -20,6 +22,8 @@ interface BranchRepositoryInterface
     /**
      * MANAGEMENT: Operations for owners/admins.
      */
+    public function listForUser(User $user, ?Business $business = null, string $scope = 'active'): Collection;
+
     public function findForManagement(int $id): Branch;
 
     public function findByBusinessId(int $businessId, string $scope = 'active'): Collection;
@@ -44,7 +48,7 @@ interface BranchRepositoryInterface
     
     public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void;
 
-    public function detachUser($branch, $userId): Branch;
+    public function detachUser($branch, $userId): int;
     
     public function getAssignments(Branch $branch): array;
 

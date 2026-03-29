@@ -8,6 +8,8 @@ use App\Domain\Branch\Enums\BranchRoleEnum;
 use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+use App\Models\Auth\User;
+use App\Models\Business\Business;
 
 class BranchRepository implements BranchRepositoryInterface
 {
@@ -42,9 +44,38 @@ class BranchRepository implements BranchRepositoryInterface
     /**
      * MANAGEMENT
      */
+    public function listForUser(User $user, ?Business $business = null, string $scope = 'active'): Collection
+    {
+        $query = Branch::query();
+
+        if (!$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('users', fn($q) => $q->where('user_id', $user->id));
+            });
+        }
+
+        if ($business) {
+            $query->where('business_id', $business->id);
+        }
+
+        match ($scope) {
+            'deleted' => $query->onlyTrashed(),
+            'all'     => $query->withTrashed(),
+            default   => $query,
+        };
+
+        return $query
+            ->with(['business', 'services', 'assets'])
+            ->latest()
+            ->get();
+    }
+
     public function findForManagement(int $id): Branch
     {
-        return Branch::withTrashed()->findOrFail($id);
+        return Branch::withTrashed()
+            ->with(['business', 'services', 'assets'])
+            ->findOrFail($id);
     }
 
     public function findByBusinessId(int $businessId, string $scope = 'active'): Collection
@@ -103,7 +134,7 @@ class BranchRepository implements BranchRepositoryInterface
         $branch->users()->attach($userId, ['role' => $role->value]);
     }
 
-    public function detachUser($branch, $userId): Branch
+    public function detachUser($branch, $userId): int
     {
         return $branch->users()->detach($userId);
     }

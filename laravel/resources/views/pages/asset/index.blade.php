@@ -15,7 +15,7 @@
 
     @forelse($assets as $asset)
         <div>
-            <a href="{{ route('asset.show', $asset->id) }}">{{ $asset->name }}</a>
+            <a href="{{ route('manage.asset.show', $asset->id) }}">{{ $asset->name }}</a>
             <span style="color: #888;">{{ $asset->description }}</span>
         </div>
     @empty
@@ -36,7 +36,7 @@
 
         <h2 style="margin-bottom:1.5rem;">New Asset</h2>
 
-        <form method="POST" action="{{ route('asset.store') }}">
+        <form method="POST" action="{{ route('manage.asset.store') }}">
             @csrf
 
             {{-- Name --}}

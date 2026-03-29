@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
             $table->string('title');
-            $table->string('description');
-            $table->dateTime('valid_from');
-            $table->dateTime('valid_to');
+            $table->string('description')->nullable();
+            $table->dateTime('valid_from')->nullable();
+            $table->dateTime('valid_to')->nullable();
             $table->json('rule_set');
             $table->timestamp('delete_after')->nullable();
             $table->softDeletes();

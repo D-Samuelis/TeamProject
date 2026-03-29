@@ -6,6 +6,8 @@ use Illuminate\Support\Collection;
 use App\Models\Business\Service;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
+use App\Models\Auth\User;
+use App\Models\Business\Business;
 
 interface ServiceRepositoryInterface
 {
@@ -21,6 +23,8 @@ interface ServiceRepositoryInterface
     /**
      * MANAGEMENT
      */
+    public function listForUser(User $user, ?Business $business = null, string $scope = 'active'): Collection;
+
     public function findForManagement(int $id): Service;
 
     public function findWithinBusiness(int $serviceId, int $businessId): Service;
@@ -43,7 +47,7 @@ interface ServiceRepositoryInterface
     
     public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void;
 
-    public function detachUser($service, $userId): Service;
+    public function detachUser(Service $service, int $userId): int;
 
     public function count(SearchDTO $dto): int;
 }

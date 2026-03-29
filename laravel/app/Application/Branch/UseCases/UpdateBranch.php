@@ -6,26 +6,24 @@ use Illuminate\Support\Facades\DB;
 use App\Application\Auth\Services\BranchAuthorizationService;
 use App\Application\Branch\DTO\UpdateBranchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
+use App\Models\Auth\User;
+use App\Models\Business\Branch;
 
 class UpdateBranch
 {
     public function __construct(
-        private BranchRepositoryInterface $branchRepo,
-        private UserRepositoryInterface $userRepo,
-        private BranchAuthorizationService $authService
+        private readonly BranchRepositoryInterface $branchRepo,
+        private readonly BranchAuthorizationService $authService
     ) {}
 
-    public function execute(UpdateBranchDTO $dto, int $userId): void
+    public function execute(UpdateBranchDTO $dto, User $user): Branch
     {
-        DB::transaction(function () use ($dto, $userId) {
+        return DB::transaction(function () use ($dto, $user) {
             $branch = $this->branchRepo->findForManagement($dto->id);
-            
-            $user = $this->userRepo->findById($userId);
 
             $this->authService->ensureCanUpdateBranch($user, $branch);
 
-            $this->branchRepo->update($branch, $dto->toArray());
+            return $this->branchRepo->update($branch, $dto->toArray());
         });
     }
 }
