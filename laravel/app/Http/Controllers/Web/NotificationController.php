@@ -10,7 +10,7 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Auth::user()->notifications()->paginate(15);
-        return view('pages.private.notifications.index', compact('notifications'));
+        return view('pages.notifications.index', compact('notifications'));
     }
 
     // NEW: Standard redirect method for marking one as read
