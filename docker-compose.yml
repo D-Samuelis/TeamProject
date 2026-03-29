@@ -48,6 +48,17 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - AUDIO_DIR=/tmp/audio
 
+  mcp-client:
+    build: ./mcp-client
+    ports:
+      - "8002:8001"
+    environment:
+      - MCP_SERVER=http://host.docker.internal:8000/mcp
+      - MCP_OLLAMA_URL=http://host.docker.internal:11434/api/chat
+      - MCP_OLLAMA_MODEL=qwen3:8b
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   mysql_data:
   whisper-audio:
