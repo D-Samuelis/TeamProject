@@ -8,6 +8,7 @@ use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Business\Business;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -56,43 +57,53 @@ class ListBusinessesTool extends Tool
 
     public function handle(Request $request): Response
     {
-        $user =  Auth::user();
+        try {
+            $user = Auth::user();
 
-        logger()->debug('User: ', ['$user' => $user]);
+            logger()->debug('User: ', ['$user' => $user]);
 
-        $validated = $request->validate([
-            'q'                => 'nullable|string',
-            'city'             => 'nullable|string',
-            'max_price'        => 'nullable|numeric|min:0',
-            'max_duration'     => 'nullable|integer|min:1',
-            'location_types'   => 'nullable|array',
-            'location_types.*' => 'string',
-            'per_page'         => 'nullable|integer|min:1|max:100',
-            'page'             => 'nullable|integer|min:1',
-        ]);
+            $validated = $request->validate([
+                'q'                => 'nullable|string',
+                'city'             => 'nullable|string',
+                'max_price'        => 'nullable|numeric|min:0',
+                'max_duration'     => 'nullable|integer|min:1',
+                'location_types'   => 'nullable|array',
+                'location_types.*' => 'string',
+                'per_page'         => 'nullable|integer|min:1|max:100',
+                'page'             => 'nullable|integer|min:1',
+            ]);
 
-        $businesses = $this->listBusinesses->execute(
-            null,
-            'public',
-            [
-                'target'         => 'business',
-                'q'              => $validated['q'] ?? null,
-                'city'           => $validated['city'] ?? null,
-                'max_price'      => $validated['max_price'] ?? null,
-                'max_duration'   => $validated['max_duration'] ?? null,
-                'location_types' => $validated['location_types'] ?? [],
-                'per_page'       => $validated['per_page'] ?? 10,
-                'page'           => $validated['page'] ?? 1,
-            ]
-        );
+            $businesses = $this->listBusinesses->execute(
+                user: null,
+                scope: 'public',
+                filters: [
+                    'target'         => 'business',
+                    'q'              => $validated['q'] ?? null,
+                    'city'           => $validated['city'] ?? null,
+                    'max_price'      => $validated['max_price'] ?? null,
+                    'max_duration'   => $validated['max_duration'] ?? null,
+                    'location_types' => $validated['location_types'] ?? [],
+                    'per_page'       => $validated['per_page'] ?? 10,
+                    'page'           => $validated['page'] ?? 1,
+                ]
+            );
 
-        return Response::text(
-            $businesses->map(function ($item) {
-                return "id: " . $item['id']
-                    . " name: " . $item['name']
-                    . " description: " . $item['description'];
-            })
-        );
+            return Response::text(
+                $businesses->map(function ($item) {
+                    return "id: " . $item['id']
+                        . " name: " . $item['name']
+                        . " description: " . $item['description'];
+                })
+            );
+        } catch (ValidationException $e) {
+            logger()->warning('ListBusinessesTool validation failed', ['errors' => $e->errors()]);
+
+            return Response::text('Invalid input: ' . implode(' ', array_merge(...array_values($e->errors()))));
+        } catch (\Throwable $e) {
+            logger()->error('ListBusinessesTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return Response::text('Failed to retrieve businesses. Please try again later.');
+        }
     }
 
     public function schema(JsonSchema $schema): array
