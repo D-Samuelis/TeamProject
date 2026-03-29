@@ -136,43 +136,15 @@ Add the following variables to your `.env` file to enable MCP client-server comm
 MCP_SERVER=http://localhost:8000/mcp            
 MCP_OLLAMA_URL=http://localhost:11434/api/chat  // If you run it locally
 MCP_OLLAMA_MODEL=qwen3:8b                       
-MCP_CLIENT_URL=http://127.0.0.1:8001            
+MCP_CLIENT_URL=http://127.0.0.1:8002
+VITE_MCP_CLIENT_URL=http://127.0.0.1:8002           
 ```
 ### Running the MCP Server
 
 The MCP server starts automatically after `php artisan serve`. 
 
----
-
-To test server in isolation, use the inspector command:
-
-```bash
-php artisan mcp:inspector mcp
-```
----
-Alternatively you can test the MCP server using any other MCP client.
-
-To have it working on Claude desktop, put into `~\claude_desktop_config.json` following object:
-```bash
-"mcpServers": {
-    "mcpServer": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "http://127.0.0.1:8000/mcp"
-      ]
-    }
-  },
-```
-
----
-
 ### Running the MCP Client
+MCP client runs in docker.
+
 <small>Make sure you run the LLM, the client is currently set up to communicate to Ollama LLMs</small>
 
-To run the MCP Client be in `~/mcp-client` directory and use command 
-
-```bash
-uvicorn client:app --port 8001
-```
----
