@@ -4,6 +4,7 @@ namespace App\Mcp\Tools\Asset;
 
 use App\Application\Asset\UseCases\ListAssets;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -50,26 +51,38 @@ class ListAssetsTool extends Tool
 
     public function handle(Request $request): Response
     {
-        $validated = $request->validate([
-            'business_id' => 'nullable|integer',
-            'q'           => 'nullable|string',
-            'per_page'    => 'nullable|integer|min:1|max:100',
-            'page'        => 'nullable|integer|min:1',
-        ]);
+        try {
+            $validated = $request->validate([
+                'business_id' => 'nullable|integer',
+                'q'           => 'nullable|string',
+                'per_page'    => 'nullable|integer|min:1|max:100',
+                'page'        => 'nullable|integer|min:1',
+            ]);
 
-        $assets = $this->listAssets->execute([
-            'target'      => 'asset',
-            'business_id' => $validated['business_id'] ?? null,
-            'q'           => $validated['q'] ?? null,
-            'per_page'    => $validated['per_page'] ?? 10,
-            'page'        => $validated['page'] ?? 1,
-        ]);
+            $assets = $this->listAssets->execute(
+                filters: [
+                    'target'      => 'asset',
+                    'business_id' => $validated['business_id'] ?? null,
+                    'q'           => $validated['q'] ?? null,
+                    'per_page'    => $validated['per_page'] ?? 10,
+                    'page'        => $validated['page'] ?? 1,
+                ],
+                user: null);
 
-        return Response::text(
-            $assets->map(function ($item) {
-                return "id: " . $item['id'] . " name: " . $item['name'] . " description: " . $item['description'];
-            })
-        );
+            return Response::text(
+                $assets->map(function ($item) {
+                    return "id: " . $item['id'] . " name: " . $item['name'] . " description: " . $item['description'];
+                })
+            );
+        } catch (ValidationException $e) {
+            logger()->warning('ListAssetsTool validation failed', ['errors' => $e->errors()]);
+
+            return Response::text('Invalid input: ' . implode(' ', array_merge(...array_values($e->errors()))));
+        } catch (\Throwable $e) {
+            logger()->error('ListAssetsTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return Response::text('Failed to retrieve assets. Please try again later.');
+        }
     }
 
     public function schema(JsonSchema $schema): array

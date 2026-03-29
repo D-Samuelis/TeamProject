@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Business\Asset;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
+use App\Models\Business\Rule;
 use App\Models\Business\Service;
 use Illuminate\Database\Seeder;
 
@@ -425,5 +426,252 @@ class MockDataSeeder extends Seeder
 
         $b5s1->assets()->attach([$b5a1->id, $b5a2->id]);
         $b5s2->assets()->attach([$b5a3->id, $b5a4->id]);
+
+        $standardWeekdayRanges  = [['from_time' => '11:00', 'to_time' => '22:00']];
+        $standardWeekendRanges  = [['from_time' => '10:00', 'to_time' => '23:00']];
+
+        $b1WeekdayRule = [
+            'days' => [
+                0 => $standardWeekdayRanges,
+                1 => $standardWeekdayRanges,
+                2 => $standardWeekdayRanges,
+                3 => $standardWeekdayRanges,
+                4 => $standardWeekdayRanges,
+                5 => $standardWeekendRanges,
+                6 => $standardWeekendRanges,
+            ]
+        ];
+
+        foreach ([$b1b1a1, $b1b1a2, $b1b1a3, $b1b1a4, $b1b1a5] as $i => $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Standard Opening Hours',
+                'description' => 'Regular weekly schedule for Konn Food Bar – Old Town',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($b1WeekdayRule),
+            ]);
+        }
+
+        $b1SummerRule = [
+            'days' => [
+                0 => [['from_time' => '10:00', 'to_time' => '23:00']],
+                1 => [['from_time' => '10:00', 'to_time' => '23:00']],
+                2 => [['from_time' => '10:00', 'to_time' => '23:00']],
+                3 => [['from_time' => '10:00', 'to_time' => '23:00']],
+                4 => [['from_time' => '10:00', 'to_time' => '23:00']],
+                5 => [['from_time' => '09:00', 'to_time' => '00:00']],
+                6 => [['from_time' => '09:00', 'to_time' => '00:00']],
+            ]
+        ];
+
+        foreach ([$b1b2a1, $b1b2a2, $b1b2a3] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Summer Extended Hours',
+                'description' => 'Extended opening hours during summer season',
+                'valid_from'  => '2025-06-01',
+                'valid_to'    => '2025-08-31',
+                'priority'    => 1,
+                'rule_set'    => json_encode($b1SummerRule),
+            ]);
+
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Standard Opening Hours',
+                'description' => 'Regular weekly schedule for Konn Food Bar – Eurovea',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 2,
+                'rule_set'    => json_encode($b1WeekdayRule),
+            ]);
+        }
+
+        $envaWeekdayRanges = [
+            ['from_time' => '09:00', 'to_time' => '12:00'],
+            ['from_time' => '13:00', 'to_time' => '18:00'],
+        ];
+
+        $envaRule = [
+            'days' => [
+                0 => $envaWeekdayRanges,
+                1 => $envaWeekdayRanges,
+                2 => $envaWeekdayRanges,
+                3 => $envaWeekdayRanges,
+                4 => $envaWeekdayRanges,
+                5 => [['from_time' => '09:00', 'to_time' => '13:00']],
+            ]
+        ];
+
+        foreach ([$b2b1a1, $b2b1a2] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Clinic Hours',
+                'description' => 'Standard clinic schedule with lunch break, closed Sundays',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($envaRule),
+            ]);
+        }
+
+        $avionRule = [
+            'days' => [
+                0 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                1 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                2 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                3 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                4 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                5 => [['from_time' => '09:00', 'to_time' => '21:00']],
+                6 => [['from_time' => '10:00', 'to_time' => '20:00']],
+            ]
+        ];
+
+        foreach ([$b3b1a1, $b3b1a2, $b3b1a3] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Mall Hours',
+                'description' => 'AVION Shopping Park opening hours',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($avionRule),
+            ]);
+        }
+
+        $baCentrumRule = [
+            'days' => [
+                0 => [['from_time' => '08:00', 'to_time' => '19:00']],
+                1 => [['from_time' => '08:00', 'to_time' => '19:00']],
+                2 => [['from_time' => '08:00', 'to_time' => '19:00']],
+                3 => [['from_time' => '08:00', 'to_time' => '19:00']],
+                4 => [['from_time' => '08:00', 'to_time' => '19:00']],
+                5 => [['from_time' => '09:00', 'to_time' => '16:00']],
+                // Sunday closed
+            ]
+        ];
+
+        foreach ([$b3b2a1, $b3b2a2, $b3b2a3, $b3b2a4, $b3b2a5] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Standard Hours',
+                'description' => 'BA Centrum standard weekly hours',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($baCentrumRule),
+            ]);
+        }
+
+        $tornalaRule = [
+            'days' => [
+                0 => [['from_time' => '09:00', 'to_time' => '17:00']],
+                1 => [['from_time' => '09:00', 'to_time' => '17:00']],
+                2 => [['from_time' => '09:00', 'to_time' => '17:00']],
+                3 => [['from_time' => '09:00', 'to_time' => '17:00']],
+                4 => [['from_time' => '09:00', 'to_time' => '17:00']],
+                5 => [['from_time' => '09:00', 'to_time' => '12:00']],
+                // Sunday closed
+            ]
+        ];
+
+        foreach ([$b3b3a1, $b3b3a2] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Standard Hours',
+                'description' => 'Tornaľa branch standard weekly hours',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($tornalaRule),
+            ]);
+        }
+
+        $advisorStandardRule = [
+            'days' => [
+                0 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                1 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                2 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                3 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                4 => [['from_time' => '08:00', 'to_time' => '16:00']],
+            ]
+        ];
+
+        $advisorPremiumWindowRule = [
+            'days' => [
+                0 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                1 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                2 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                3 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                4 => [['from_time' => '07:00', 'to_time' => '18:00']],
+            ]
+        ];
+
+        Rule::create([
+            'asset_id'    => $b4a1->id,
+            'title'       => 'Q2 Extended Availability',
+            'description' => 'Extended advisory hours during Q2 peak season',
+            'valid_from'  => '2025-04-01',
+            'valid_to'    => '2025-06-30',
+            'priority'    => 1,
+            'rule_set'    => json_encode($advisorPremiumWindowRule),
+        ]);
+
+        Rule::create([
+            'asset_id'    => $b4a1->id,
+            'title'       => 'Standard Advisory Hours',
+            'description' => 'Regular availability, early Friday finish',
+            'valid_from'  => null,
+            'valid_to'    => null,
+            'priority'    => 2,
+            'rule_set'    => json_encode($advisorStandardRule),
+        ]);
+
+        $plumberRule = [
+            'days' => [
+                0 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                1 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                2 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                3 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                4 => [['from_time' => '07:00', 'to_time' => '18:00']],
+                5 => [['from_time' => '07:00', 'to_time' => '15:00']],
+                6 => [['from_time' => '08:00', 'to_time' => '13:00']],
+            ]
+        ];
+
+        foreach ([$b5a1, $b5a2] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Plumber Schedule',
+                'description' => 'Mon–Sat full day, Sunday emergency morning window',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($plumberRule),
+            ]);
+        }
+
+        $installerRule = [
+            'days' => [
+                0 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                1 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                2 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                3 => [['from_time' => '08:00', 'to_time' => '17:00']],
+                4 => [['from_time' => '08:00', 'to_time' => '17:00']],
+            ]
+        ];
+
+        foreach ([$b5a3, $b5a4] as $asset) {
+            Rule::create([
+                'asset_id'    => $asset->id,
+                'title'       => 'Installer Schedule',
+                'description' => 'Weekdays only — installation jobs require full-day access',
+                'valid_from'  => null,
+                'valid_to'    => null,
+                'priority'    => 1,
+                'rule_set'    => json_encode($installerRule),
+            ]);
+        }
     }
 }
