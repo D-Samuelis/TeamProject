@@ -9,7 +9,7 @@ export function initCreateBranchModal() {
             title:       'Create New Branch',
             confirmText: 'Create Branch',
             rules: {
-                branchName: { required: { value: true, message: 'Branch name is required' } },
+                name: { required: { value: true, message: 'Branch name is required' } },
             },
             body: `
                 <form id="createBranchForm" method="POST" action="${window.BE_DATA.routes.branchStore}">
@@ -19,7 +19,7 @@ export function initCreateBranchModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="branchName" class="modal-form__input"
+                            <input type="text" name="name" class="modal-form__input"
                                 placeholder=" " required autofocus>
                         </div>
                     </div>
@@ -84,11 +84,15 @@ export function initCreateBranchModal() {
                 Modal.clearFieldErrors(modal);
 
                 const form = modal.querySelector('#createBranchForm');
+                const formData = new FormData(form);
 
                 const res = await fetch(form.action, {
                     method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: new FormData(form),
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData,
                 });
 
                 if (res.ok) {

@@ -8,7 +8,7 @@
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
             <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('business.index') }}" class="business__nav-link is-active">
+                <a href="{{ route('manage.business.index') }}" class="business__nav-link is-active">
                     <i class="fa-solid fa-list"></i><span>All Businesses</span>
                 </a>
                 <button type="button" class="business__nav-link" data-modal-target="create-business-modal">
@@ -29,26 +29,24 @@
             <div class="business__header-corner"></div>
 
             <div class="business__header-info">
-                <div class="business__header-info">
-                    <h2 class="business-header__title">My Businesses</h2>
-                    
-                    <div class="business-info">
-                        <div class="stat-item stat-item--all">
-                            <i class="fa-solid fa-layer-group"></i>
-                            <div id="countAll">0</div> Total businesses
-                        </div>
-                        <div class="stat-item stat-item--published">
-                            <i class="fa-solid fa-circle-check"></i>
-                            <div id="countPublished">0</div> Published
-                        </div>
-                        <div class="stat-item stat-item--hidden">
-                            <i class="fa-solid fa-eye-slash"></i>
-                            <div id="countHidden">0</div> Hidden
-                        </div>
-                        <div class="stat-item stat-item--deleted">
-                            <i class="fa-solid fa-trash"></i>
-                            <div id="countDeleted">0</div> Archived
-                        </div>
+                <h2 class="business-header__title">My Businesses</h2>
+                
+                <div class="business-info">
+                    <div class="stat-item stat-item--all">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <div id="countAll">0</div> Total businesses
+                    </div>
+                    <div class="stat-item stat-item--published">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div id="countPublished">0</div> Published
+                    </div>
+                    <div class="stat-item stat-item--hidden">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        <div id="countHidden">0</div> Hidden
+                    </div>
+                    <div class="stat-item stat-item--deleted">
+                        <i class="fa-solid fa-trash"></i>
+                        <div id="countDeleted">0</div> Archived
                     </div>
                 </div>
             </div>
@@ -78,7 +76,7 @@
         <div class="business-modal__header mb-4">
             <h2 class="timeline-header__title">Create New Business</h2>
         </div>
-        <form method="POST" action="{{ route('business.store') }}">
+        <form method="POST" action="{{ route('manage.business.store') }}">
             @csrf
             <div class="business__search-container mb-3" style="width: 100%">
                 <input type="text" name="name" placeholder="Business Name" required>
@@ -102,15 +100,16 @@
     window.BE_DATA = {
         businesses: @json($activeBusinesses->merge($deletedBusinesses)),
         routes: {
-            store: "{{ route('business.store') }}",
-            restore: "{{ route('business.restore', ':id') }}",
-            delete: "{{ route('business.delete', ':id') }}",
-            update: "{{ route('business.update', ':id') }}",
-            show: "{{ route('business.show', ':id') }}"
+            store: "{{ route('manage.business.store') }}",
+            restore: "{{ route('manage.business.restore', ':id') }}",
+            delete: "{{ route('manage.business.delete', ':id') }}",
+            update: "{{ route('manage.business.update', ':id') }}",
+            show: "{{ route('manage.business.show', ':id') }}"
         },
         csrf: "{{ csrf_token() }}"
     };
 </script>
+
 
 @vite('resources/js/pages/businesses/entry.js')
 @endsection

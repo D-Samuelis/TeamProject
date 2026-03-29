@@ -5,12 +5,14 @@ export function initCreateBusinessModal() {
 
     if (!createBtn) return;
 
-    createBtn.addEventListener('click', () => {
+    createBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
         Modal.showCustom({
             title: 'Create New Business',
             confirmText: 'Create Business',
             rules: {
-                businessName: { required: { value: true, message: 'Business name is required' } },
+                name: { required: { value: true, message: 'Business name is required' } },
             },
             body: `
                 <form id="modalForm" method="POST" action="${window.BE_DATA.routes.store}">
@@ -19,7 +21,7 @@ export function initCreateBusinessModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Business Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="businessName" class="modal-form__input" placeholder=" " required autofocus>
+                            <input type="text" name="name" class="modal-form__input" placeholder=" " required autofocus>
                         </div>
                     </div>
 
@@ -32,28 +34,38 @@ export function initCreateBusinessModal() {
                 </form>
             `,
             onConfirm: async (modal) => {
-                Modal.clearFieldErrors(modal);
-
                 const form = modal.querySelector('#modalForm');
+                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
+                
+                if (submitBtn) submitBtn.disabled = true;
 
-                const res = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: new FormData(form),
-                });
+                try {
+                    const res = await fetch(window.BE_DATA.routes.store, {
+                        method: 'POST',
+                        headers: { 
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: new FormData(form),
+                    });
 
-                if (res.ok) {
-                    window.location.reload();
-                    return;
+                    if (res.ok) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    if (res.status === 422) {
+                        const json = await res.json();
+                        Modal.showFieldErrors(modal, json.errors);
+                    } else {
+                        alert('Server error. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    alert('Network error. Check your connection.');
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
                 }
-
-                if (res.status === 422) {
-                    const json = await res.json();
-                    Modal.showFieldErrors(modal, json.errors);
-                    return;
-                }
-
-                alert('Something went wrong. Please try again.');
             }
         });
     });

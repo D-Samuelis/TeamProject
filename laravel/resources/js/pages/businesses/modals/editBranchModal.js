@@ -22,7 +22,7 @@ export function initEditBranchModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="branchName" class="modal-form__input"
+                            <input type="text" name="name" class="modal-form__input"
                                 value="${_esc(branch.name)}" placeholder=" " required autofocus>
                         </div>
                     </div>
@@ -94,11 +94,12 @@ export function initEditBranchModal() {
             onConfirm: async (modal) => {
                 const form = modal.querySelector('#editBranchForm');
                 const formData = new FormData(form);
+                const data = new URLSearchParams(formData);
 
                 const res = await fetch(form.action, {
                     method: 'POST',
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: formData,
+                    body: data,
                 });
 
                 if (res.ok) {

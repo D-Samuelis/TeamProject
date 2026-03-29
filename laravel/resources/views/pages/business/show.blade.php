@@ -5,14 +5,14 @@
     window.BE_DATA = {
         business: @json($business),
         routes: {
-            update:        "{{ route('business.update', $business->id) }}",
-            branchStore:   "{{ route('branch.store') }}",
-            branchUpdate:  "{{ route('branch.update', ':id') }}",
-            branchDelete:  "{{ route('branch.delete', ':id') }}",
-            branchRestore: "{{ route('branch.restore', ':id') }}",
-            assignUser:    "{{ route('business.assign', $business->id) }}",
-            updateUser:    "{{ route('business.users.update', [$business->id, ':id']) }}",
-            deleteUser:    "{{ route('business.users.delete', [$business->id, ':id']) }}",
+            update:        "{{ route('manage.business.update', $business->id) }}",
+            branchStore:   "{{ route('manage.branch.store') }}",
+            branchUpdate:  "{{ route('manage.branch.update', ':id') }}",
+            branchDelete:  "{{ route('manage.branch.delete', ':id') }}",
+            branchRestore: "{{ route('manage.branch.restore', ':id') }}",
+            assignUser:    "{{ route('manage.business.assign', $business->id) }}",
+            updateUser:    "{{ route('manage.business.users.update', [$business->id, ':id']) }}",
+            deleteUser:    "{{ route('manage.business.users.delete', [$business->id, ':id']) }}",
         },
         csrf: "{{ csrf_token() }}"
     };
@@ -98,7 +98,7 @@
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Manage Employees</h3>
             <div id="manageEmployeesList" class="dropdown__mini-list">
-                <form class="manage-empleyees" action="{{ route('business.assign', $business->id) }}" method="POST">
+                <form class="manage-empleyees" action="{{ route('manage.business.assign', $business->id) }}" method="POST">
                     @csrf
                     <div class="modal-form__group employees-group">
                         <label class="modal-form__label">Assign To</label>
@@ -154,7 +154,7 @@
             <div class="business__header-info">
                 <div class="business__header-info-text">
                     <div class="breadcrumbs">
-                        <a href="{{ route('business.index') }}">Dashboard</a> / {{ $business->name }}
+                        <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $business->name }}
                     </div>
                     <h2 class="business-header__title" id="dynamic-title">Business Overview</h2>
                 </div>
@@ -167,7 +167,7 @@
                             <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; align-items: center; gap: 6px;">
                                 @if (!$branch->trashed())
                                     @can('update', $branch)
-                                        <form action="{{ route('branch.update', $branch->id) }}" method="POST">
+                                        <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
                                             @csrf @method('PUT')
                                             <input type="hidden" name="business_id" value="{{ $business->id }}">
                                             <label class="toggle-label" title="Active Status">
@@ -182,7 +182,7 @@
                                     @endcan
 
                                     @can('delete', $branch)
-                                        <form action="{{ route('branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                        <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                             @csrf @method('DELETE')
                                             <button class="button-icon button-icon--danger" type="submit">
                                                 <i class="fa-solid fa-trash"></i>
@@ -191,8 +191,9 @@
                                     @endcan
                                 @else
                                     @can('update', $branch)
-                                        <form action="{{ route('branch.restore', $branch->id) }}" method="POST">
+                                        <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
                                             @csrf
+                                            @method('PATCH')
                                             <button class="button-icon button-icon--success" type="submit">
                                                 <i class="fa-solid fa-rotate-left"></i>
                                             </button>
@@ -255,7 +256,7 @@
                                     data-belongs-to="{{ $service->branches->pluck('id')->map(fn($id) => 'branch-'.$id)->implode(' ') ?: 'all' }}">
                                     <div class="service-item-card__header"><strong>{{ $service->name }}</strong></div>
                                     <div class="service-item-card__footer">
-                                        <a href="{{ route('service.show', $service->id) }}">Edit Schedule</a>
+                                        <a href="{{ route('manage.service.show', $service->id) }}">Edit Schedule</a>
                                     </div>
                                 </div>
                             @endforeach
