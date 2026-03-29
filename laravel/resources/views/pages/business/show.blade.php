@@ -1,104 +1,188 @@
 @extends('layouts.app')
 
 @section('content')
-    <script>
-        window.BE_DATA = {
-            business: @json($business),
-            routes: {
-                update: "{{ route('manage.business.update', $business->id) }}",
-                branchStore: "{{ route('manage.branch.store') }}",
-                branchUpdate: "{{ route('manage.branch.update', ':id') }}",
-                branchDelete: "{{ route('manage.branch.delete', ':id') }}",
-                branchRestore: "{{ route('manage.branch.restore', ':id') }}",
-                assignUser: "{{ route('manage.business.assign', $business->id) }}",
-                updateUser: "{{ route('manage.business.users.update', [$business->id, ':id']) }}",
-                deleteUser: "{{ route('manage.business.users.delete', [$business->id, ':id']) }}",
-            },
-            csrf: "{{ csrf_token() }}"
-        };
-    </script>
+<script>
+    window.BE_DATA = {
+        business: @json($business),
+        routes: {
+            update:        "{{ route('manage.business.update', $business->id) }}",
+            branchStore:   "{{ route('manage.branch.store') }}",
+            branchUpdate:  "{{ route('manage.branch.update', ':id') }}",
+            branchDelete:  "{{ route('manage.branch.delete', ':id') }}",
+            branchRestore: "{{ route('manage.branch.restore', ':id') }}",
+            assignUser:    "{{ route('manage.business.assign', $business->id) }}",
+            updateUser:    "{{ route('manage.business.users.update', [$business->id, ':id']) }}",
+            deleteUser:    "{{ route('manage.business.users.delete', [$business->id, ':id']) }}",
+        },
+        csrf: "{{ csrf_token() }}"
+    };
+</script>
 
-    <div class="business">
-        <aside class="business__sidebar">
+@php
+    $allMembers = collect($business->users);
+    foreach ($business->branches as $branch) {
+        $allMembers = $allMembers->concat($branch->users);
+    }
+    foreach ($business->services as $service) {
+        $allMembers = $allMembers->concat($service->users);
+    }
+    $allMembers = $allMembers->sortBy('name');
 
-            {{-- Business Metadata --}}
-            <section class="business__filters">
-                <h3 class="miniLists__subtitle">
-                    <i class="fa-solid fa-info-circle"></i> Business Info
-                </h3>
-                <div class="sidebar-info-card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-                        <div style="flex: 1; min-width: 0;">
-                            <p class="sidebar-info-card__name">{{ $business->name }}</p>
-                            <p class="sidebar-info-card__desc">
-                                {{ Str::limit($business->description, 80) }}
-                                @if (strlen($business->description) > 80)
-                                    <a href="#" class="read-more-trigger"
-                                        data-full="{{ e($business->description) }}">read more</a>
-                                @endif
-                            </p>
-                        </div>
-                        @can('update', $business)
-                            <button class="button-icon" type="button" data-modal-target="edit-business-modal"
-                                title="Edit metadata">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                        @endcan
-                    </div>
-                    <div style="margin-top: 8px;">
-                        <span class="status-cell filter-item--{{ $business->is_published ? 'green' : 'yellow' }}">
-                            {{ $business->is_published ? 'Published' : 'Hidden' }}
-                        </span>
+    $owners   = $allMembers->filter(fn($u) => $u->pivot->role === 'owner');
+    $managers = $allMembers->filter(fn($u) => $u->pivot->role === 'manager');
+    $staff    = $allMembers->filter(fn($u) => $u->pivot->role === 'staff');
+@endphp
+
+<div class="business">
+
+    {{-- SIDEBAR --}}
+    <aside class="business__sidebar">
+        {{-- Business Metadata --}}
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Business Info</h3>
+            <div id="businessInfo" class="dropdown__mini-list">
+                <div class="business-info-card">
+                    <span class="business-info-card__status filter-item--{{ $business->is_published ? 'green' : 'yellow' }}">
+                        {{ $business->is_published ? 'Published' : 'Hidden' }}
+                    </span>
+                    <p class="business-info-card__name">{{ $business->name }}</p>
+                    <p class="business-info-card__desc">
+                        {{ Str::limit($business->description, 80) }}
+                        @if(strlen($business->description) > 80)
+                            <a href="#" class="read-more-trigger" data-full="{{ e($business->description) }}">read more</a>
+                        @endif
+                    </p>
+                    <button
+                        class="business-info-card__edit-btn"
+                        type="button"
+                        data-modal-target="edit-business-modal"
+                        title="Edit metadata">
+                        <i class="fa-solid fa-gear"></i> Manage Business
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branches</h3>
+            <div id="branchesList" class="dropdown__mini-list">
+                <div class="team-member-item branch-filter-item active" data-filter="all" data-branch-id="" style="cursor: pointer;">
+                    <div class="member-info">
+                        <span class="member-name">Summary</span>
+                        <span class="member-role">View all branches in one place</span>
                     </div>
                 </div>
-            </section>
 
-            {{-- Branches --}}
-            <section class="business__filters">
-                <h3 class="miniLists__subtitle" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-code-branch"></i> Branches</span>
-                    @can('create', [App\Models\Business\Branch::class, $business])
-                        <button class="button-icon" type="button" data-modal-target="create-branch-modal">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    @endcan
-                </h3>
+                @can('create', [App\Models\Business\Branch::class, $business])
+                    <button class="button-create-branch" type="button" data-modal-target="create-branch-modal">
+                        <i class="fa-solid fa-plus"></i> New Branch
+                    </button>
+                @endcan
 
-                <div class="team-mini-list">
-                    @foreach ($business->branches as $branch)
-                        <div class="team-member-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}">
-                            <div class="member-info">
-                                <span class="member-name">{{ $branch->name }}</span>
-                                <span class="member-role">
-                                    {{ ucfirst($branch->type) }} • {{ $branch->is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                            </div>
+                @foreach ($business->branches as $branch)
+                    <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}"
+                         data-filter="branch-{{ $branch->id }}"
+                         data-branch-id="{{ $branch->id }}"
+                         style="cursor: pointer;">
+                        <div class="member-info">
+                            <span class="member-name">{{ $branch->name }}</span>
+                            <span class="member-role">
+                                {{ ucfirst($branch->type) }} • {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
 
-                            <div style="display: flex; gap: 4px; align-items: center;">
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Manage Employees</h3>
+            <div id="manageEmployeesList" class="dropdown__mini-list">
+                <form class="manage-empleyees" action="{{ route('manage.business.assign', $business->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-form__group employees-group">
+                        <label class="modal-form__label">Assign To</label>
+                        <select id="target-selector" class="modal-form__input"
+                            onchange="updateTargetFields(this)">
+                            <option value="business" data-id="{{ $business->id }}">Entire Business</option>
+                            <optgroup label="Branches">
+                                @foreach ($business->branches as $branch)
+                                    <option value="branch" data-id="{{ $branch->id }}">{{ $branch->name }}</option>
+                                @endforeach
+                            </optgroup>
+                            <optgroup label="Services">
+                                @foreach ($business->services as $service)
+                                    <option value="service" data-id="{{ $service->id }}">{{ $service->name }}</option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <input type="hidden" name="target_type" id="hidden-target-type" value="business">
+                    <input type="hidden" name="target_id"   id="hidden-target-id"   value="{{ $business->id }}">
+
+                    <div class="modal-form__group employees-group">
+                        <label class="modal-form__label">Member Email</label>
+                        <input type="email" name="email" class="modal-form__input"
+                            placeholder="staff@example.com" required>
+                    </div>
+                    <div class="modal-form__group employees-group">
+                        <label class="modal-form__label">Role</label>
+                        <select name="role" class="modal-form__input">
+                            <option value="manager">Manager</option>
+                            <option value="staff">Staff</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="business__nav-link is-active" style="width: 100%;">
+                        <i class="fa-solid fa-user-plus"></i> Assign & Notify
+                    </button>
+                </form>
+            </div>
+        </section>
+    </aside>
+
+    {{-- MAIN --}}
+    <main class="business__main">
+        <header class="business__header-wrapper">
+            <div class="business__header-corner">
+                <div class="view-switcher">
+                    <button class="view-switcher__btn active" id="showTeam"><i class="fa-solid fa-users"></i> Team</button>
+                    <button class="view-switcher__btn" id="showServices"><i class="fa-solid fa-bell-concierge"></i> Services</button>
+                </div>
+            </div>
+
+            <div class="business__header-info">
+                <div class="business__header-info-text">
+                    <div class="breadcrumbs">
+                        <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $business->name }}
+                    </div>
+                    <h2 class="business-header__title" id="dynamic-title">Business Overview</h2>
+                </div>
+            </div>
+
+            <div class="business__header-right">
+                <div class="business__header-right-section_1">
+                    <div id="branch-header-actions" style="display: none; align-items: center; gap: 6px;">
+                        @foreach ($business->branches as $branch)
+                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; align-items: center; gap: 6px;">
                                 @if (!$branch->trashed())
                                     @can('update', $branch)
-                                        {{-- Active toggle --}}
                                         <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
                                             @csrf @method('PUT')
                                             <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                            <input type="hidden" name="is_active" value="0">
                                             <label class="toggle-label" title="Active Status">
-                                                <input type="checkbox" name="is_active" value="1"
-                                                    onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
+                                                <input type="checkbox" name="is_active" value="1" onchange="this.form.submit()" {{ $branch->is_active ? 'checked' : '' }}>
                                                 <span class="toggle-track"></span>
                                             </label>
                                         </form>
 
-                                        {{-- Edit --}}
-                                        <button class="button-icon" type="button" data-modal-target="edit-branch-modal"
-                                            data-branch='@json($branch)'>
+                                        <button class="button-icon js-edit-branch" type="button" data-modal-target="edit-branch-modal" data-branch='@json($branch)'>
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
                                     @endcan
 
                                     @can('delete', $branch)
-                                        <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST"
-                                            onsubmit="return confirm('Are you sure?')">
+                                        <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                             @csrf @method('DELETE')
                                             <button class="button-icon button-icon--danger" type="submit">
                                                 <i class="fa-solid fa-trash"></i>
@@ -108,7 +192,8 @@
                                 @else
                                     @can('update', $branch)
                                         <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
-                                            @csrf @method("PATCH")
+                                            @csrf
+                                            @method('PATCH')
                                             <button class="button-icon button-icon--success" type="submit">
                                                 <i class="fa-solid fa-rotate-left"></i>
                                             </button>
@@ -116,272 +201,143 @@
                                     @endcan
                                 @endif
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-
-        </aside>
-
-        <main class="business__main">
-            <header class="business__header-wrapper">
-                <div class="business__header-info">
-                    <div class="breadcrumbs">
-                        <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $business->name }}
+                        @endforeach
                     </div>
-                    <h2 class="business-header__title">Business Overview</h2>
                 </div>
-            </header>
+                <div class="business__header-right-section_2">
+                    <div class="list-view__search-wrapper">
+                        <div class="search-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-            <div class="business__body-wrapper dashboard-grid">
-
-                {{-- Team Management --}}
-                @can('update', $business)
-                    <div class="dashboard-column">
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h3><i class="fa-solid fa-users"></i> Team Management</h3>
-                            </div>
-                            <div class="card-body">
-
-                                <form action="{{ route('manage.business.assign', $business->id) }}" method="POST"
-                                    style="margin-bottom: 1.25rem;">
-                                    @csrf
-
-                                    <div class="modal-form__group">
-                                        <label class="modal-form__label">Assign To</label>
-                                        <select id="target-selector" class="modal-form__input"
-                                            onchange="updateTargetFields(this)">
-                                            <option value="business" data-id="{{ $business->id }}">Entire Business</option>
-
-                                            <optgroup label="Branches">
-                                                @foreach ($business->branches as $branch)
-                                                    <option value="branch" data-id="{{ $branch->id }}">{{ $branch->name }}
-                                                    </option>
-                                                @endforeach
-                                            </optgroup>
-
-                                            <optgroup label="Services">
-                                                @foreach ($business->services as $service)
-                                                    <option value="service" data-id="{{ $service->id }}">{{ $service->name }}
-                                                    </option>
-                                                @endforeach
-                                            </optgroup>
-                                        </select>
-                                    </div>
-
-                                    <input type="hidden" name="target_type" id="hidden-target-type" value="business">
-                                    <input type="hidden" name="target_id" id="hidden-target-id" value="{{ $business->id }}">
-
-                                    <div class="modal-form__group">
-                                        <label class="modal-form__label">Member Email</label>
-                                        <input type="email" name="email" class="modal-form__input"
-                                            placeholder="staff@example.com" required>
-                                    </div>
-
-                                    <div class="modal-form__group">
-                                        <label class="modal-form__label">Role</label>
-                                        <select name="role" class="modal-form__input">
-                                            <option value="manager">Manager</option>
-                                            <option value="staff">Staff</option>
-                                        </select>
-                                    </div>
-
-                                    <button type="submit" class="business__nav-link is-active" style="width: 100%;">
-                                        <i class="fa-solid fa-user-plus"></i> Assign & Notify
-                                    </button>
-                                </form>
-
-                                <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 1rem 0;">
-
-                                <p
-                                    style="font-size: 11px; font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 8px;">
-                                    Current Members
-                                </p>
-
-                                @php
-                                    $allMembers = collect($business->users);
-                                    foreach ($business->branches as $branch) {
-                                        $allMembers = $allMembers->concat($branch->users);
-                                    }
-                                    foreach ($business->services as $service) {
-                                        $allMembers = $allMembers->concat($service->users);
-                                    }
-                                    $allMembers = $allMembers->sortBy('name');
-                                @endphp
-
-                                @foreach ($allMembers as $user)
-                                    <div class="team-member-item">
+        <div class="business__body-wrapper">
+            {{-- TEAM VIEW --}}
+            <div id="businessTeamView" class="business__panel">
+                <div class="dashboard-column dashboard-column--team">
+                    <div class="dashboard-card">
+                        @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
+                            <div class="team-section">
+                                <p class="team-section__label">{{ $title }}</p>
+                                @forelse ($collection as $user)
+                                    @php
+                                        [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                        $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
+                                    @endphp
+                                    <div class="team-member-item filterable-member" data-belongs-to="{{ $filterId }}">
                                         <div class="member-info">
                                             <span class="member-name">{{ $user->name }}</span>
-
-                                            <span class="member-role"
-                                                style="font-size: 10px; opacity: 0.7; display: block; margin-bottom: 4px;">
-                                                <i class="fa-solid fa-layer-group"></i>
-                                                @php
-                                                    $modelName = class_basename($user->pivot->model_type);
-
-                                                    // Logic to find the actual name of the Branch or Service
-                                                    $displayName = 'Entire Business';
-                                                    if ($modelName === 'branch') {
-                                                        $displayName =
-                                                            $business->branches->firstWhere(
-                                                                'id',
-                                                                $user->pivot->model_id,
-                                                            )->name ?? 'Unknown Branch';
-                                                    } elseif ($modelName === 'service') {
-                                                        $displayName =
-                                                            $business->services->firstWhere(
-                                                                'id',
-                                                                $user->pivot->model_id,
-                                                            )->name ?? 'Unknown Service';
-                                                    }
-                                                @endphp
-                                                {{ $modelName }}: <strong>{{ $displayName }}</strong>
+                                            <span class="member-role team-member__scope">
+                                                <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
                                             </span>
-
-                                            @if ($user->pivot->role === 'owner')
-                                                <span class="member-role">Owner</span>
-                                            @else
-                                                <form
-                                                    action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}"
-                                                    method="POST">
-                                                    @csrf @method('PATCH')
-                                                    <input type="hidden" name="target_type"
-                                                        value="{{ strtolower(class_basename($user->pivot->model_type)) }}">
-                                                    <input type="hidden" name="target_id"
-                                                        value="{{ $user->pivot->model_id }}">
-
-                                                    <select name="role" onchange="this.form.submit()"
-                                                        class="role-select-inline">
-                                                        <option value="manager"
-                                                            {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager
-                                                        </option>
-                                                        <option value="staff"
-                                                            {{ $user->pivot->role === 'staff' ? 'selected' : '' }}>Staff
-                                                        </option>
-                                                    </select>
-                                                </form>
-                                            @endif
                                         </div>
-
-                                        @if ($user->pivot->role !== 'owner')
-                                            <form action="{{ route('manage.business.users.delete', [$business->id, $user->id]) }}"
-                                                method="POST" onsubmit="return confirm('Remove this user assignment?')">
-                                                @csrf @method('DELETE')
-                                                <input type="hidden" name="target_type"
-                                                    value="{{ strtolower(class_basename($user->pivot->model_type)) }}">
-                                                <input type="hidden" name="target_id" value="{{ $user->pivot->model_id }}">
-
-                                                <button class="button-icon button-icon--danger" type="submit">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </button>
-                                            </form>
-                                        @endif
                                     </div>
-                                @endforeach
-
+                                @empty
+                                    <p class="team-section__empty">No users.</p>
+                                @endforelse
                             </div>
-                        </div>
+                        @endforeach
                     </div>
-                @endcan
+                </div>
+            </div>
 
-                {{-- Services --}}
-                <div class="dashboard-column">
-                    <div class="dashboard-card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-bell-concierge"></i> Services & Availability</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="services-grid">
-                                @foreach ($business->services as $service)
-                                    <div class="service-item-card">
-                                        <div class="service-item-card__header">
-                                            <strong>{{ $service->name }}</strong>
-                                        </div>
-                                        <div class="service-item-card__footer">
-                                            <a href="{{ route('manage.service.show', $service->id) }}">Edit Schedule</a>
-                                            <i class="fa-solid fa-chevron-right"></i>
-                                        </div>
+            {{-- SERVICES VIEW --}}
+            <div id="businessServicesView" class="business__panel hidden">
+                <div class="dashboard-card">
+                    <div class="card-header"><h3><i class="fa-solid fa-bell-concierge"></i> Services</h3></div>
+                    <div class="card-body">
+                        <div class="services-grid">
+                            @foreach ($business->services as $service)
+                                <div class="service-item-card filterable-service"
+                                    data-belongs-to="{{ $service->branches->pluck('id')->map(fn($id) => 'branch-'.$id)->implode(' ') ?: 'all' }}">
+                                    <div class="service-item-card__header"><strong>{{ $service->name }}</strong></div>
+                                    <div class="service-item-card__footer">
+                                        <a href="{{ route('manage.service.show', $service->id) }}">Edit Schedule</a>
                                     </div>
-                                @endforeach
-                            </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
-
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
 
-    @vite('resources/js/pages/businesses/entry.js')
 
-    <style>
-        .sidebar-info-card__name {
-            font-weight: 600;
-            font-size: 14px;
-            margin: 0 0 4px;
-            color: var(--color-text-primary);
-        }
+<script>
+    function updateTargetFields(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        document.getElementById('hidden-target-type').value = selectedOption.value;
+        document.getElementById('hidden-target-id').value   = selectedOption.getAttribute('data-id');
+    }
 
-        .sidebar-info-card__desc {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-            margin: 0;
-            line-height: 1.5;
-            word-break: break-word;
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterItems   = document.querySelectorAll('#branchesList .branch-filter-item');
+        const members       = document.querySelectorAll('.filterable-member');
+        const services      = document.querySelectorAll('.filterable-service');
+        const titleHeader   = document.getElementById('dynamic-title');
+        const headerActions = document.getElementById('branch-header-actions');
+        const actionGroups  = document.querySelectorAll('.branch-action-group');
+        const targetSelector = document.getElementById('target-selector');
 
-        .sidebar-info-card__desc .read-more-trigger {
-            color: var(--color-text-info);
-            text-decoration: none;
-            white-space: nowrap;
-        }
+        filterItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const filter     = this.getAttribute('data-filter');
+                const branchId   = this.getAttribute('data-branch-id');
+                const branchName = this.querySelector('.member-name').innerText;
 
-        .sidebar-info-card__desc .read-more-trigger:hover {
-            text-decoration: underline;
-        }
+                filterItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
 
-        .team-member-item--trashed {
-            opacity: 0.6;
-            border-style: dashed !important;
-            background: var(--color-background-danger);
-        }
+                titleHeader.innerText = filter === 'all' ? 'Business Overview' : 'Branch: ' + branchName;
 
-        .role-select-inline {
-            font-size: 11px;
-            padding: 2px 4px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            background: transparent;
-            color: inherit;
-        }
+                // Toggle Header Actions
+                headerActions.style.display = (filter === 'all') ? 'none' : 'flex';
+                actionGroups.forEach(g => {
+                    g.style.display = g.getAttribute('data-branch-id') === branchId ? 'flex' : 'none';
+                });
 
-        .form-error {
-            color: #ef4444;
-            font-size: 12px;
-            margin-top: -4px;
-            display: block;
-        }
+                // Filter Members & Services
+                members.forEach(m => {
+                    const belongs = m.getAttribute('data-belongs-to');
+                    m.style.display = (filter === 'all' || belongs === filter || belongs === 'all') ? 'flex' : 'none';
+                });
+                services.forEach(s => {
+                    const belongs = s.getAttribute('data-belongs-to') ?? '';
+                    s.style.display = (filter === 'all' || belongs === 'all' || belongs.split(' ').includes(filter))
+                        ? 'block' : 'none';
+                });
 
-        .modal-form__input.is-invalid {
-            border-color: #ef4444;
-        }
+                // Sync Target Selector
+                if (filter !== 'all' && targetSelector) {
+                    const option = Array.from(targetSelector.options).find(o => o.value === 'branch' && o.getAttribute('data-id') === branchId);
+                    if (option) {
+                        targetSelector.value = 'branch';
+                        updateTargetFields(targetSelector);
+                    }
+                }
+            });
+        });
+    });
+</script>
 
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-    </style>
+@vite('resources/js/pages/businesses/entry.js')
 
-    <script>
-        function updateTargetFields(selectElement) {
-            const selectedOption = selectElement.options[selectElement.selectedIndex];
-
-            document.getElementById('hidden-target-type').value = selectedOption.value;
-            document.getElementById('hidden-target-id').value = selectedOption.getAttribute('data-id');
-        }
-    </script>
+@php
+function _resolveAssignment($user, $business): array {
+    $modelName   = strtolower(class_basename($user->pivot->model_type));
+    $displayName = 'Entire Business';
+    if ($modelName === 'branch') {
+        $displayName = $business->branches->firstWhere('id', $user->pivot->model_id)?->name ?? 'Unknown Branch';
+    } elseif ($modelName === 'service') {
+        $displayName = $business->services->firstWhere('id', $user->pivot->model_id)?->name ?? 'Unknown Service';
+    }
+    return [$modelName, $displayName];
+}
+@endphp
 @endsection

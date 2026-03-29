@@ -107,7 +107,8 @@ class BusinessRepository implements BusinessRepositoryInterface
     public function existsOwner(int $userId, ?int $businessId = null): bool
     {
         $query = Business::whereHas('users', function ($q) use ($userId) {
-            $q->where('user_id', $userId)->wherePivot('role', BusinessRoleEnum::OWNER->value);
+            $q->where('model_has_users.user_id', $userId)
+            ->where('model_has_users.role', BusinessRoleEnum::OWNER->value);
         });
 
         if ($businessId) {
