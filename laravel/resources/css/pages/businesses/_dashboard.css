@@ -57,7 +57,7 @@
     border-left: 5px solid var(--color-border-light);
 }
 
-.team-member-item:hover.branch-filter-item{
+.team-member-item:not(.active):hover.branch-filter-item {
     border-left: 5px solid color-mix(in srgb, var(--color-primary), transparent 50%);
 }
 
@@ -125,6 +125,13 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    padding: 1rem 0;
+}
+
+.team-section__members {
+    display: flex;
+    flex-direction: row;
+    gap: .25rem;
 }
 
 .team-section__label {
@@ -166,15 +173,13 @@
 * Branch Actions Grid Layout 
 */
 
-/* Hlavný kontajner mriežky */
 .branch-actions-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dva rovnaké stĺpce */
-    gap: 0.5rem; /* Medzera medzi bunkami */
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
     width: 100%;
 }
 
-/* Bunky mriežky - zarovnanie obsahu */
 .grid-cell {
     display: flex;
     flex-direction: column;
@@ -182,7 +187,6 @@
     justify-content: space-between;
 }
 
-/* Informačný text nad tlačidlom */
 .status-label {
     font-size: 0.75rem;
     margin-left: 0.1rem;
@@ -208,7 +212,6 @@
     letter-spacing: 0.5px;
 }
 
-/* Tvoje farebné schémy ostávajú zachované */
 .button-action--primary {
     background-color: var(--color-primary);
     color: var(--color-text-white);
@@ -240,10 +243,3 @@
     color: var(--status-blue-text);
 }
 .button-action--restore:hover { background-color: var(--status-blue-hover); }
-
-/* Responzivita: Ak je málo miesta (napr. mobil), dajú sa pod seba */
-@media (max-width: 400px) {
-    .branch-actions-grid {
-        grid-template-columns: 1fr;
-    }
-}

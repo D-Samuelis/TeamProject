@@ -105,7 +105,7 @@
                         class="business__nav-link is-active" 
                         style="width: 100%; border: none; cursor: pointer; text-align: left; padding: 10px;" 
                         data-modal-target="assign-employee-modal">
-                    <i class="fa-solid fa-user-plus"></i> Assign & Notify
+                    <i class="fa-solid fa-user-plus"></i> Assign Employee
                 </button>
             </div>
         </section>
@@ -138,7 +138,7 @@
                                 
                                 @if (!$branch->trashed())
                                     <div class="branch-actions-grid">
-                                        {{-- 1. STATUS & TOGGLE (Vľavo) --}}
+                                        {{-- 1. STATUS & TOGGLE --}}
                                         <div class="grid-cell status-zone">
                                             <div class="status-text">
                                                 <p class="status-label">Status:</p>
@@ -156,7 +156,7 @@
                                             @endcan
                                         </div>
 
-                                        {{-- 2. ACTIONS (Vpravo) --}}
+                                        {{-- 2. ACTIONS --}}
                                         <div class="grid-cell action-zone">
                                             @can('update', $branch)
                                                 <button class="button-action button-action--primary js-edit-branch" type="button" 
@@ -211,24 +211,58 @@
                         @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
                             <div class="team-section">
                                 <p class="team-section__label">{{ $title }}</p>
-                                @forelse ($collection as $user)
-                                    @php
-                                        [$modelName, $displayName] = _resolveAssignment($user, $business);
-                                        $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
-                                    @endphp
-                                    <div class="team-member-item filterable-member" data-belongs-to="{{ $filterId }}">
-                                        <div class="member-info">
-                                            <span class="member-name">{{ $user->name }}</span>
-                                            <span class="member-role team-member__scope">
-                                                <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
-                                            </span>
+                                
+                                <div class="team-section__members">
+                                    @forelse ($collection as $user)
+                                        @php
+                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                            $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
+                                            $isOwner = ($title === 'Owners' || $user->pivot->role === 'owner');
+                                        @endphp
+
+                                        <div class="team-employee-card filterable-member" data-belongs-to="{{ $filterId }}">
+                                            <div class="employee-info">
+                                                <div class="employee-info__main">
+                                                    <span class="employee-name">{{ $user->name }}</span>
+
+                                                    @if (!$isOwner)
+                                                        <div class="team-employee-actions">
+                                                            <form action="{{ route('manage.business.users.delete', [$business->id, $user->id]) }}" 
+                                                                method="POST" 
+                                                                onsubmit="return confirm('Remove {{ $user->name }} from the business?')">
+                                                                @csrf @method('DELETE')
+                                                                <button class="button-icon button-icon--danger" type="submit" title="Remove Member">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    @if (!$isOwner)
+                                                        <form action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}" method="POST" class="inline-role-form">
+                                                            @csrf @method('PATCH')
+                                                            <select name="role" onchange="this.form.submit()" class="role-select-inline">
+                                                                <option value="manager" {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager</option>
+                                                                <option value="staff"   {{ $user->pivot->role === 'staff'   ? 'selected' : '' }}>Staff</option>
+                                                            </select>
+                                                        </form>
+                                                    @else
+                                                        <span class="employee-role-badge">Owner</span>
+                                                    @endif
+                                                </div>
+
+                                                <span class="employee-role team-member__scope">
+                                                    <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                @empty
-                                    <p class="team-section__empty">No {{ strtolower($title) }} found.</p>
-                                @endforelse
+                                    @empty
+                                        <p class="team-section__empty">No {{ strtolower($title) }} found.</p>
+                                    @endforelse
+                                </div>
                             </div>
                         @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
