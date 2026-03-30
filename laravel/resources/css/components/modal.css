@@ -120,6 +120,9 @@
 }
 
 .modal__header .modal-close-trigger {
+    position: absolute;
+    right: 24px;
+    top: 24px;
     color: var(--color-text);
     transition: color .2s ease-in-out;
 }

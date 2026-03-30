@@ -10,6 +10,7 @@ export function initAssignEmployeeModal() {
         Modal.showCustom({
             title: 'Assign Employee',
             confirmText: 'Assign & Notify',
+            action:      'create',
             rules: {
                 email: { required: { value: true, message: 'Email is required' } },
             },

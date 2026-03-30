@@ -8,6 +8,7 @@ export function initCreateBranchModal() {
         Modal.showCustom({
             title:       'Create New Branch',
             confirmText: 'Create Branch',
+            action:      'create',
             rules: {
                 name: { required: { value: true, message: 'Branch name is required' } },
             },
