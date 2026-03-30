@@ -10,6 +10,7 @@ export function initEditBranchModal() {
         Modal.showCustom({
             title:       'Edit Branch',
             confirmText: 'Update Branch',
+            action:      'edit',
             rules: {
                 branchName: { required: { value: true, message: 'Branch name is required' } },
             },
