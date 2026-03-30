@@ -175,6 +175,10 @@
 }
 
 .modal .modal-form__group {
+    margin-bottom: .5rem;
+}
+
+.modal .modal-form__group.shake-it {
     margin-bottom: 1.5rem;
 }
 

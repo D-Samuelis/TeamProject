@@ -41,6 +41,24 @@
     padding: 0.5rem;
     border-bottom: 1px solid var(--color-border-light-very);
     background: linear-gradient(135deg, var(--color-bg-complement) 0%, var(--color-bg-complement-gradient) 100%);
+    user-select: none;
+}
+
+.team-member-item:hover {
+    background: linear-gradient(135deg, var(--color-bg-complement-hover) 0%, var(--color-bg-complement-gradient-hover) 100%);
+}
+
+.branch-filter-item.active {
+    background: color-mix(in srgb, var(--color-primary), transparent 93%);
+    border-left: 5px solid var(--color-primary);
+}
+
+.branch-filter-item {
+    border-left: 5px solid var(--color-border-light);
+}
+
+.team-member-item:not(.active):hover.branch-filter-item {
+    border-left: 5px solid color-mix(in srgb, var(--color-primary), transparent 50%);
 }
 
 .member-info {
@@ -106,7 +124,14 @@
 .team-section {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: .25rem;
+    padding: 1rem 0;
+}
+
+.team-section__members {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
 }
 
 .team-section__label {
@@ -136,9 +161,85 @@
     align-items: center;
     justify-content: center;
     display: flex;
+    padding-right: 1rem;
 }
 
 .branch-action-group {
     display: flex;
     flex-direction: column;
 }
+
+/* 
+* Branch Actions Grid Layout 
+*/
+
+.branch-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.grid-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    justify-content: space-between;
+}
+
+.status-label {
+    font-size: 0.75rem;
+    margin-left: 0.1rem;
+    color: var(--color-text-unimportant);
+    text-transform: uppercase;
+}
+
+.status-text {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.button-action {
+    display: flex;
+    width: 100%;
+    padding: .2rem .5rem;
+    font-size: 0.875rem;
+    border-radius: .15rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+}
+
+.button-action--primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+}
+.button-action--primary:hover { background-color: var(--color-primary-hover); }
+
+.button-action--success {
+    background-color: var(--status-green);
+    color: var(--status-green-text);
+    justify-content: center;
+}
+.button-action--success:hover { background-color: var(--status-green-hover); }
+
+.button-action--warning {
+    background-color: var(--status-yellow);
+    color: var(--status-yellow-text);
+    justify-content: center;
+}
+.button-action--warning:hover { background-color: var(--status-yellow-hover); }
+
+.button-action--danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-white);
+}
+.button-action--danger:hover { background-color: var(--color-danger-hover); }
+
+.button-action--restore {
+    background-color: var(--status-blue);
+    color: var(--status-blue-text);
+}
+.button-action--restore:hover { background-color: var(--status-blue-hover); }

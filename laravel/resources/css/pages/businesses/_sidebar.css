@@ -28,7 +28,6 @@
 }
 
 .business__nav-link {
-    margin-top: .75rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -56,12 +55,4 @@
 .business__nav-link.new-business:hover {
     border: 1px solid var(--color-primary);
     color: var(--color-primary);
-}
-
-.branch-filter-item.active {
-    background: color-mix(in srgb, var(--color-primary), transparent 93%);
-    border-left: 5px solid var(--color-primary);
-}
-.branch-filter-item {
-    border-left: 5px solid var(--color-border-light);
 }
