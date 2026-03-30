@@ -292,3 +292,126 @@
     color: var(--color-primary);
     background: var(--color-primary-light);
 }
+
+.branch-dropdown {
+    position: relative;
+}
+
+.branch-dropdown__trigger {
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    padding: .5rem .8rem;
+    border-radius: .15rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.branch-dropdown__trigger:hover {
+    background: var(--color-primary-hover);
+}
+
+.branch-dropdown__menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--color-bg-complement);
+    border-radius: .15rem;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.branch-dropdown:focus-within .branch-dropdown__menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.branch-dropdown__item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: .35rem;
+    padding: .8rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.branch-dropdown__item i.status-dot {
+    font-size: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.status__badge {
+    padding: .15rem .35rem;
+    border-radius: .15rem;
+}
+
+.bg__badge-green {
+    background-color: var(--status-green);
+}
+
+.bg__badge-yellow {
+    background-color: var(--status-yellow);
+}
+
+.branch-dropdown__item:hover {
+    background: var(--color-border-light);
+    color: var(--color-text);
+}
+
+.branch-dropdown__btn {
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    font-size: inherit;
+}
+
+.branch-dropdown__item i {
+    width: 1rem;
+    text-align: center;
+}
+
+.text-green { color: var(--status-green); }
+.text-yellow { color: var(--status-yellow); }
+.delete-action:hover {
+    background: var(--stat-item-deleted-hover);
+    color: var(--status-red-text);
+}
+
+.branch-dropdown__divider {
+    height: 1px;
+    background: var(--color-border-light);
+    margin: .25rem 0;
+}
+
+.branch-restore-btn {
+    padding: .35rem .75rem;
+    border-radius: .15rem;
+    background-color: var(--status-black);
+    cursor: pointer;
+}
+
+.branch-restore-btn:hover {
+    background-color: var(--status-black-hover);
+}

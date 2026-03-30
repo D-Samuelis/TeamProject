@@ -7,6 +7,7 @@ import { initCreateBranchModal } from './modals/createBranchModal.js';
 import { initEditBranchModal } from './modals/editBranchModal.js';
 import { initBusinessViewSwitcher } from './viewToggle.js';
 import { initAssignEmployeeModal } from './modals/assignEmployeeModal.js';
+import { initListSearch } from '../../components/table/searchBar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');
@@ -28,4 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBusinessViewSwitcher();
 
     initAssignEmployeeModal();
+
+    initListSearch('#appointmentSearchInput', '.filterable-member', '.js-search-data');
+    initListSearch('#appointmentSearchInput', '.filterable-service', 'strong');
 });

@@ -21,7 +21,7 @@ export function initBusinessListView(data = []) {
                 label: 'Business Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
-                        <strong>${val}</strong>
+                        ${val}
                         ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ''}
                     </div>`
             },

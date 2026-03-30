@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- 1. DATA LAYER (Musí byť pred Vite skriptom) --}}
+
 <script>
     window.BE_DATA = {
         business: @json($business),
@@ -132,62 +132,65 @@
 
             <div class="business__header-right">
                 <div class="business__header-right-section_1">
-                    <div id="branch-header-actions" style="display: none; align-items: center; gap: 6px;">
+                    <div id="branch-header-actions" style="display: none;">
                         @foreach ($business->branches as $branch)
-                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none; width: 100%;">
+                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none;">
                                 
                                 @if (!$branch->trashed())
-                                    <div class="branch-actions-grid">
-                                        {{-- 1. STATUS & TOGGLE --}}
-                                        <div class="grid-cell status-zone">
-                                            <div class="status-text">
-                                                <p class="status-label">Status:</p>
-                                            </div>
-                                            
-                                            @can('update', $branch)
-                                                <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
-                                                    @csrf @method('PUT')
-                                                    <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                                    <input type="hidden" name="is_active" value="{{ $branch->is_active ? 0 : 1 }}">
-                                                    <button type="submit" class="button-action button-action--toggle {{ $branch->is_active ? 'button-action--success' : 'button-action--warning' }}">
-                                                        {{ $branch->is_active ? 'ACTIVE' : 'INACTIVE' }}
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        </div>
+                                    {{-- DROPDOWN PRE AKTÍVNU POBOČKU --}}
+                                    <div class="dropdown branch-dropdown">
+                                        <button class="branch-dropdown__trigger" type="button">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            <span>Branch Actions</span>
+                                        </button>
+                                        
+                                        <div class="branch-dropdown__menu">
+                                            {{-- TOGGLE STATUS --}}
+                                            <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
+                                                @csrf @method('PUT')
+                                                <input type="hidden" name="business_id" value="{{ $business->id }}">
+                                                <input type="hidden" name="is_active" value="{{ $branch->is_active ? 0 : 1 }}">
+                                                <button type="submit" class="branch-dropdown__item">
+                                                    <i class="fa-solid {{ $branch->is_active ? 'fa-circle text-green' : 'fa-circle text-yellow' }} status-dot"></i>
+                                                    Status: 
+                                                    <div class="status__badge {{ $branch->is_active ? 'bg__badge-green' : 'bg__badge-yellow' }}">
+                                                        {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                                    </div>
+                                                </button>
+                                            </form>
 
-                                        {{-- 2. ACTIONS --}}
-                                        <div class="grid-cell action-zone">
+                                            {{-- EDIT --}}
                                             @can('update', $branch)
-                                                <button class="button-action button-action--primary js-edit-branch" type="button" 
+                                                <button class="branch-dropdown__item js-edit-branch" type="button" 
                                                         data-modal-target="edit-branch-modal" 
                                                         data-branch='@json($branch)'>
-                                                    Edit Branch
+                                                    <i class="fa-solid fa-gear"></i> Manage Branch
                                                 </button>
                                             @endcan
 
+                                            <div class="branch-dropdown__divider"></div>
+
+                                            {{-- ARCHIVE --}}
                                             @can('delete', $branch)
-                                                <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                                <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Archive this branch?')">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="button-action button-action--danger">
-                                                        Delete Branch
+                                                    <button type="submit" class="branch-dropdown__item delete-action">
+                                                        <i class="fa-solid fa-box-archive"></i> Archive Branch
                                                     </button>
                                                 </form>
                                             @endcan
                                         </div>
                                     </div>
                                 @else
-                                    {{-- RESTORE VIEW (Pre zmazané pobočky) --}}
-                                    <div class="restore-zone">
-                                        <p>This branch is archived.</p>
-                                        <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="btn-grid btn-grid--restore">
-                                                <i class="fa-solid fa-rotate-left"></i> Restore Branch
-                                            </button>
-                                        </form>
-                                    </div>
+                                    {{-- PRIAME TLAČIDLO PRE ARCHIVOVANÚ POBOČKU --}}
+                                    <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="branch-restore-btn">
+                                            <i class="fa-solid fa-rotate-left"></i> Restore Branch
+                                        </button>
+                                    </form>
                                 @endif
+
                             </div>
                         @endforeach
                     </div>
@@ -221,16 +224,25 @@
                                         @endphp
 
                                         <div class="team-employee-card filterable-member" data-belongs-to="{{ $filterId }}">
-                                            <div class="employee-info">
+                                            <div class="employee-info js-search-data">
                                                 <div class="employee-info__main">
                                                     <span class="employee-name">{{ $user->name }}</span>
 
                                                     @if (!$isOwner)
+                                                        @php
+                                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                                            $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
+                                                        @endphp
+
                                                         <div class="team-employee-actions">
                                                             <form action="{{ route('manage.business.users.delete', [$business->id, $user->id]) }}" 
                                                                 method="POST" 
-                                                                onsubmit="return confirm('Remove {{ $user->name }} from the business?')">
-                                                                @csrf @method('DELETE')
+                                                                onsubmit="return confirm('Remove {{ $user->name }} from {{ $displayName }}?')">
+                                                                @csrf 
+                                                                @method('DELETE')
+                                                                <input type="hidden" name="target_type" value="{{ $modelName }}">
+                                                                <input type="hidden" name="target_id" value="{{ $targetId }}">
+
                                                                 <button class="button-icon button-icon--danger" type="submit" title="Remove Member">
                                                                     <i class="fa-solid fa-xmark"></i>
                                                                 </button>
@@ -239,9 +251,22 @@
                                                     @endif
                                                     
                                                     @if (!$isOwner)
-                                                        <form action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}" method="POST" class="inline-role-form">
-                                                            @csrf @method('PATCH')
-                                                            <select name="role" onchange="this.form.submit()" class="role-select-inline">
+                                                        @php
+                                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                                            $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
+                                                        @endphp
+
+                                                        <form action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}" 
+                                                            method="POST" 
+                                                            class="inline-role-form js-role-update-form">
+                                                            @csrf 
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="target_type" value="{{ $modelName }}">
+                                                            <input type="hidden" name="target_id" value="{{ $targetId }}">
+                                                            
+                                                            <select name="role" 
+                                                                    class="role-select-inline" 
+                                                                    onchange="this.form.requestSubmit()">
                                                                 <option value="manager" {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager</option>
                                                                 <option value="staff"   {{ $user->pivot->role === 'staff'   ? 'selected' : '' }}>Staff</option>
                                                             </select>
@@ -262,7 +287,6 @@
                                 </div>
                             </div>
                         @endforeach
-                        </div>
                     </div>
                 </div>
             </div>
@@ -285,12 +309,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> 
         </div>
     </main>
 </div>
 
-{{-- 2. SCRIPTS --}}
 @vite('resources/js/pages/businesses/entry.js')
 
 <script>

@@ -124,14 +124,14 @@
 .team-section {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: .25rem;
     padding: 1rem 0;
 }
 
 .team-section__members {
     display: flex;
     flex-direction: row;
-    gap: .25rem;
+    gap: .5rem;
 }
 
 .team-section__label {
