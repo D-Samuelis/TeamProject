@@ -68,13 +68,14 @@ export function initBusinessListView(data = []) {
                         <i class="fa-solid fa-gear"></i>
                     </a>
                     
-                    <form action="${window.BE_DATA.routes.delete.replace(':id', item.id)}" method="POST" onsubmit="return confirm('Archive this business?')">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="button-icon button-icon--danger" title="Archive">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
+                    <button 
+                        type="button" 
+                        class="button-icon button-icon--danger js-archive-business-btn" 
+                        title="Archive"
+                        data-id="${item.id}"
+                        data-name="${item.name}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>`;
         },
         onRowRender: (tr, item) => {
