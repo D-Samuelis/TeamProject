@@ -31,7 +31,7 @@
             <div class="filter-group">
                 <label>Location Type</label>
                 <div class="checkbox-list">
-                    @foreach (['branch' => 'At Shop', 'online' => 'Online', 'client_address' => 'At My Place'] as $val => $label)
+                    @foreach (['branch' => 'At Shop', 'online' => 'Online'] as $val => $label)
                         <label class="checkbox-item">
                             <input type="checkbox" name="location_types[]" value="{{ $val }}"
                                 {{ in_array($val, $filters->locationTypes ?? []) ? 'checked' : '' }}>

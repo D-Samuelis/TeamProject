@@ -1,14 +1,30 @@
-<div class="card business-card">
-    <div class="card-body">
-        <h3 class="card-title">
-            <a href="{{ route('business.book', $item->id) }}">{{ $item->name }}</a>
-        </h3>
-        <p class="card-description">{{ Str::limit($item->description, 100) }}</p>
+<a href="{{ route('business.book', $item->id) }}" class="card-link">
+    <div class="card booking-business-card">
+        <div class="card-body">
+            <h3 class="card-title">{{ $item->name }}</h3>
+            <p class="card-description">{{ Str::limit($item->description, 100) }}</p>
 
-        <div class="card-footer">
-            <span class="badge">{{ $item->services->count() }} Services</span>
-            <span class="badge">{{ $item->branches->count() }} Locations</span>
-            <a href="{{ route('business.book', $item->id) }}" class="btn-link">View Profile &rarr;</a>
+            <div class="business-card-stats">
+                <div class="business-stat business-stat--services">
+                    <div class="business-stat__icon">
+                        <i class="fa-solid fa-scissors"></i>
+                    </div>
+                    <div class="business-stat__content">
+                        <span class="business-stat__value">{{ $item->services->count() }}</span>
+                        <span class="business-stat__label">Services</span>
+                    </div>
+                </div>
+
+                <div class="business-stat business-stat--locations">
+                    <div class="business-stat__icon">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div class="business-stat__content">
+                        <span class="business-stat__value">{{ $item->branches->count() }}</span>
+                        <span class="business-stat__label">Branches</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</a>

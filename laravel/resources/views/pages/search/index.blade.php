@@ -5,32 +5,38 @@
 @section('content')
 <div class="booking"> {{-- Tento wrapper nahrádza .appointments --}}
     
-    <aside class="booking__sidebar"> {{-- Sidebar so šírkou 16.75rem --}}
+    <aside class="booking__sidebar"> 
         <section class="booking__group">
-            <h3 class="booking__subtitle">
-                <i class="fa-solid fa-layer-group"></i>
-                Booking Target
-            </h3>
-            <div class="dropdown__mini-list"> {{-- Tvoja trieda z myAppointments --}}
-                @foreach (['business' => 'Shops', 'branch' => 'Locations', 'service' => 'Services'] as $key => $label)
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['target' => $key])) }}"
-                       class="booking__nav-link {{ $filters->target === $key ? 'is-active' : '' }}">
-                        <i class="fa-solid @if($key == 'business') fa-shop @elseif($key == 'branch') fa-location-dot @else fa-scissors @endif"></i>
-                        <span>{{ $label }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </section>
+    <h3 class="miniLists__subtitle">
+        <i class="fa-solid fa-chevron-down"></i>
+        <i class="fa-solid fa-layer-group"></i>
+        Booking Target
+        
+    </h3>
 
-        <section class="booking__group">
-            <h3 class="booking__subtitle">
-                <i class="fa-solid fa-filter"></i>
-                Filters
-            </h3>
-            <div class="booking__filter-wrapper">
-                @include('pages.search.partials.filter-sidebar')
-            </div>
-        </section>
+    <div class="dropdown__mini-list" id="targetList">
+        @foreach (['business' => 'Business', 'branch' => 'Branches', 'service' => 'Services'] as $key => $label)
+            <a href="{{ route('search.index', array_merge(request()->query(), ['target' => $key])) }}"
+               class="booking__nav-link {{ $filters->target === $key ? 'is-active' : '' }}">
+                <i class="fa-solid @if($key == 'business') fa-shop @elseif($key == 'branch') fa-location-dot @else fa-scissors @endif"></i>
+                <span>{{ $label }}</span>
+            </a>
+        @endforeach
+    </div>
+</section>
+
+<section class="booking__group">
+    <h3 class="miniLists__subtitle">
+        <i class="fa-solid fa-chevron-down"></i>
+        <i class="fa-solid fa-filter"></i>
+        Filters
+        
+    </h3>
+
+    <div class="booking__filter-wrapper" id="filterList">
+        @include('pages.search.partials.filter-sidebar')
+    </div>
+</section>
     </aside>
 
     <main class="booking__main">
@@ -69,4 +75,6 @@
         </div>
     </main>
 </div>
+
+@vite('resources/js/pages/manualBooking/entry.js')
 @endsection
