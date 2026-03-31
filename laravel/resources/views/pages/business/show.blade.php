@@ -137,7 +137,6 @@
                             <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none;">
                                 
                                 @if (!$branch->trashed())
-                                    {{-- DROPDOWN PRE AKTÍVNU POBOČKU --}}
                                     <div class="dropdown branch-dropdown">
                                         <button class="branch-dropdown__trigger" type="button">
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -171,18 +170,14 @@
                                             <div class="branch-dropdown__divider"></div>
 
                                             {{-- ARCHIVE --}}
-                                            @can('delete', $branch)
-                                                <form action="{{ route('manage.branch.delete', $branch->id) }}" method="POST" onsubmit="return confirm('Archive this branch?')">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="branch-dropdown__item delete-action">
-                                                        <i class="fa-solid fa-box-archive"></i> Archive Branch
-                                                    </button>
-                                                </form>
-                                            @endcan
+                                            <button type="button" class="branch-dropdown__item delete-action js-archive-branch-btn"
+                                                data-id="{{ $branch->id }}" 
+                                                data-name="{{ $branch->name }}">
+                                                <i class="fa-solid fa-box-archive"></i> Archive Branch
+                                            </button>
                                         </div>
                                     </div>
                                 @else
-                                    {{-- PRIAME TLAČIDLO PRE ARCHIVOVANÚ POBOČKU --}}
                                     <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
                                         @csrf @method('PATCH')
                                         <button type="submit" class="branch-restore-btn">
@@ -235,18 +230,17 @@
                                                         @endphp
 
                                                         <div class="team-employee-actions">
-                                                            <form action="{{ route('manage.business.users.delete', [$business->id, $user->id]) }}" 
-                                                                method="POST" 
-                                                                onsubmit="return confirm('Remove {{ $user->name }} from {{ $displayName }}?')">
-                                                                @csrf 
-                                                                @method('DELETE')
-                                                                <input type="hidden" name="target_type" value="{{ $modelName }}">
-                                                                <input type="hidden" name="target_id" value="{{ $targetId }}">
-
-                                                                <button class="button-icon button-icon--danger" type="submit" title="Remove Member">
-                                                                    <i class="fa-solid fa-xmark"></i>
-                                                                </button>
-                                                            </form>
+                                                            <button class="button-icon button-icon--danger js-remove-user-btn" 
+                                                                type="button" 
+                                                                title="Remove Member"
+                                                                data-user-id="{{ $user->id }}"
+                                                                data-user-name="{{ $user->name }}"
+                                                                data-display-name="{{ $displayName }}"
+                                                                data-business-id="{{ $business->id }}"
+                                                                data-target-type="{{ $modelName }}"
+                                                                data-target-id="{{ $targetId }}">
+                                                                <i class="fa-solid fa-xmark"></i>
+                                                            </button>
                                                         </div>
                                                     @endif
                                                     

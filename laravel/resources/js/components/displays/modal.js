@@ -14,8 +14,8 @@ export class Modal {
         const actionConfig = {
             create:  { color: '#64a764', tag: 'New Record' },
             edit:    { color: '#7b58fb', tag: 'Modification' },
-            delete:  { color: '#ff4221', tag: 'Deactivation' },
-            warning: { color: '#f8c82a', tag: 'Attention' },
+            delete:  { color: '#eb251e', tag: 'Warning' },
+            warning: { color: '#e6a429', tag: 'Attention' },
             info:    { color: '#3b82f6', tag: 'Information' }
         };
 
