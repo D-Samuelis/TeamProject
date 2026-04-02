@@ -1,0 +1,20 @@
+.service-item {
+    display: flex;
+    gap: .5rem;
+    padding: .5rem;
+    align-items: center;
+    border-left: 3px solid var(--color-border-light);
+}
+
+.branch-item {
+    display: flex;
+    gap: .5rem;
+    padding: .5rem;
+    padding-left: 1.5rem;
+    align-items: center;
+}
+
+.branch-item .icon {
+    font-size: .35rem;
+    color: var(--color-border-light);
+}

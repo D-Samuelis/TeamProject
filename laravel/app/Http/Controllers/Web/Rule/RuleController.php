@@ -65,4 +65,23 @@ class RuleController extends Controller
 
         return back()->with('success', 'Rule order updated.');
     }
+
+    public function reorderAll(Request $request)
+    {
+        $orderedIds = $request->input('order');
+
+        \DB::transaction(function () use ($orderedIds) {
+            \DB::table('rules')
+                ->whereIn('id', $orderedIds)
+                ->update(['priority' => \DB::raw('priority + 10000')]);
+
+            foreach ($orderedIds as $index => $id) {
+                \DB::table('rules')
+                    ->where('id', $id)
+                    ->update(['priority' => $index + 1]);
+            }
+        });
+
+        return response()->json(['status' => 'success']);
+    }
 }

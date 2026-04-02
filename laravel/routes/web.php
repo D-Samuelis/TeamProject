@@ -168,6 +168,7 @@ Route::middleware('auth')->group(function () {
                     Route::put('/{ruleId}', 'update')->name('update');
                     Route::delete('/{ruleId}', 'delete')->name('delete');
                     Route::post('/{ruleId}/reorder', 'reorder')->name('reorder');
+                    Route::post('/reorder-all', 'reorderAll')->name('reorder_all');
                 });
         });
 });
