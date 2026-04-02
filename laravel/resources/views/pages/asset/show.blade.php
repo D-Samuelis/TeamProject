@@ -175,8 +175,7 @@
         </header>
 
         <div class="business__body-wrapper asset-rules">
-            <div class="business__panel" data-reorder-url="{{ route('manage.rule.reorder_all') }}">
-
+            <div class="rule-panel" data-reorder-url="{{ route('manage.rule.reorder_all') }}">
 
                 @php $sortedRules = $asset->rules->sortBy('priority'); @endphp
 
@@ -187,77 +186,106 @@
                         $isFirst = $loop->first;
                         $isLast  = $loop->last;
                     @endphp
-                        <div data-rule-id="{{ $rule->id }}" 
-                            class="rule-card-item"
-                            style="border:1px solid #ddd; border-radius:6px; padding:1rem; margin-bottom:1rem; background: #fff; position: relative;">
-                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                            <div style="display:flex;align-items:flex-start;gap:10px;">
-                                <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
-                                    @can('update', $asset)
-                                        <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
-                                            @csrf
-                                            <input type="hidden" name="direction" value="up">
-                                            <button type="submit"
-                                                    {{ $isFirst ? 'disabled' : '' }}
-                                                    style="background:none;border:none;cursor:{{ $isFirst ? 'default' : 'pointer' }};color:{{ $isFirst ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▲</button>
-                                        </form>
-                                    @endcan
-                                    <span class="js-priority-label" style="font-size:11px;font-weight:600;color:#888;background:#f3f4f6;border-radius:4px;padding:1px 6px;">
-                                        #{{ $rule->priority }}
-                                    </span>
-                                    @can('update', $asset)
-                                        <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
-                                            @csrf
-                                            <input type="hidden" name="direction" value="down">
-                                            <button type="submit"
-                                                    {{ $isLast ? 'disabled' : '' }}
-                                                    style="background:none;border:none;cursor:{{ $isLast ? 'default' : 'pointer' }};color:{{ $isLast ? '#ddd' : '#555' }};font-size:12px;padding:0;line-height:1;">▼</button>
-                                        </form>
-                                    @endcan
+
+                    <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card" style="flex-direction: column;">
+    
+                        <div class="rule-card__header" style="width: 100%;">
+                            <div class="rule-card__left">
+
+                                <div class="rule-card__reorder">
+
+                                    <div class="rule-card__reorder-buttons">
+                                        @can('update', $asset)
+                                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="direction" value="up">
+                                                <button type="submit" class="rule-card__reorder-btn {{ $isFirst ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isFirst ? 'disabled' : '' }}>▲</button>
+                                            </form>
+                                        @endcan
+
+                                        @can('update', $asset)
+                                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
+                                                @csrf
+                                                <input type="hidden" name="direction" value="down">
+                                                <button type="submit" class="rule-card__reorder-btn {{ $isLast ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isLast ? 'disabled' : '' }}>▼</button>
+                                            </form>
+                                        @endcan
+                                    </div>
+
+                                    <div class="rule-card__priority js-priority-label"><span>#</span>{{ $rule->priority }}</div>
+
                                 </div>
 
-                                <div>
-                                    <strong>{{ $rule->title }}</strong>
-                                    @if($rule->description)
-                                        <p style="color:#888;font-size:13px;margin:2px 0;">{{ $rule->description }}</p>
-                                    @endif
-                                    <p style="font-size:12px;color:#aaa;margin:4px 0 0;">
-                                        {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
-                                        →
-                                        {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
-                                    </p>
+                                <div class="rule-card__meta">
+                                    <div>
+                                        <strong class="rule-card__title">{{ $rule->title }}</strong>
+                                        @if($rule->description)
+                                            <p class="rule-card__description">{{ $rule->description }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="rule-card__dates-row" style="display: flex; gap: 1rem; margin-top: 5px;">
+                                        <span class="rule-card__dates">
+                                            <span>from:</span> {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
+                                        </span>
+                                        <span class="rule-card__dates">
+                                            <span>to:</span> {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div style="display:flex;gap:6px;flex-shrink:0;">
-                                @can('update', $asset)
-                                    <button onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>Edit</button>
-                                @endcan
-                                @can('update', $asset)
-                                    <form method="POST" action="{{ route('manage.rule.delete', $rule->id) }}"
-                                          onsubmit="return confirm('Delete this rule?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" style="color:red;">Delete</button>
-                                    </form>
-                                @endcan
+                            <div class="rule-card__actions">
+                                <div class="dropdown branch-dropdown">
+                                    <button class="branch-dropdown__trigger" type="button">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i> Rule Actions
+                                    </button>
+                                    <div class="branch-dropdown__menu">
+                                        @can('update', $asset)
+                                            <button type="button" class="branch-dropdown__item" onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit Rule
+                                            </button>
+                                        @endcan
+                                        <div class="branch-dropdown__divider"></div>
+                                        @can('update', $asset)
+                                            <form method="POST" action="{{ route('manage.rule.delete', $rule->id) }}" onsubmit="return confirm('Delete this rule?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="branch-dropdown__item delete-action">
+                                                    <i class="fa-solid fa-trash-can"></i> Delete Rule
+                                                </button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div style="margin-top:0.75rem;font-size:13px;display:flex;flex-wrap:wrap;gap:8px;padding-left:34px;">
-                            @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $i => $dayName)
-                                <span>
-                                    <strong>{{ $dayName }}:</strong>
-                                    @if(empty($rs[$i]))
-                                        <span style="color:#aaa;">closed</span>
-                                    @else
-                                        {{ collect($rs[$i])->map(fn($r) => $r['from_time'].'–'.$r['to_time'])->join(', ') }}
-                                    @endif
-                                </span>
-                            @endforeach
+                        <div class="rule-card__schedule">
+                            <div class="rule-card__schedule-grid" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $i => $dayName)
+                                    <div class="rule-card__schedule-item {{ empty($rs[$i]) ? 'is-closed' : '' }}" style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="day-label" style="min-width: 35px; font-weight: bold;">{{ $dayName }}</span>
+                                        <div class="day-line" style="flex-grow: 1; border-bottom: 1px dashed var(--color-border-light); opacity: 0.5;"></div>
+                                        <span class="day-time">
+                                            @if(empty($rs[$i]))
+                                                <span class="rule-card__day-hours--closed">closed</span>
+                                            @else
+                                                {{ collect($rs[$i])->map(fn($r) => $r['from_time'].'–'.$r['to_time'])->join(', ') }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
+
+                        {{-- 3. FOOTER: Toggle tlačidlo na spodku karty --}}
+                        <button class="rule-card__expand-trigger js-rule-expand" type="button">
+                            <i class="fa-solid fa-chevron-down"></i>
+                            <span>Show Schedule</span>
+                        </button>
                     </div>
+
                 @empty
-                    <p style="color:#888;">No rules yet. Add one to define working hours.</p>
+                    <p class="rule-panel__empty">No rules yet. Add one to define working hours.</p>
                 @endforelse
 
             </div>
@@ -391,6 +419,7 @@
 </style>
 
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 @vite('resources/js/pages/assets/entry.js')
 
 

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('assetInfo');
     initCollapsibleList('branchesList');
     initCollapsibleList('actionsList');
-    const container = document.querySelector('.business__panel');
+    const container = document.querySelector('.rule-panel');
 
     initRuleDragDrop({
         reorderUrl: container ? container.dataset.reorderUrl : null
