@@ -5,6 +5,8 @@ export function initArchiveAssetModal() {
         const btn = e.target.closest('.js-archive-asset-btn');
         if (!btn) return;
 
+        console.log("Archive Asset Modal logic loaded");
+
         const { id, name } = btn.dataset;
 
         Modal.showCustom({
@@ -18,25 +20,39 @@ export function initArchiveAssetModal() {
                 </div>
             `,
             onConfirm: async (modal) => {
-                const url = window.BE_DATA.routes.deleteAsset.replace(':id', id);
+                const btn = document.querySelector('.js-archive-asset-btn:focus') || document.querySelector('.js-archive-asset-btn');
+                const assetId = id || btn.dataset.id;
 
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        _token: window.BE_DATA.csrf,
-                        _method: 'DELETE',
-                    }),
-                });
+                console.log("ID na archiváciu:", assetId);
 
-                if (res.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Error archiving asset.');
+                const url = window.BE_DATA.routes.deleteAsset.replace(':id', assetId);
+                console.log("Odosielam na URL:", url);
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.BE_DATA.csrf
+                        },
+                        body: JSON.stringify({
+                            _token: window.BE_DATA.csrf,
+                            _method: 'DELETE',
+                        }),
+                    });
+
+                    if (res.ok) {
+                        console.log("Archivácia úspešná!");
+                        window.location.reload();
+                    } else {
+                        const errorData = await res.json();
+                        console.error("Server vrátil chybu:", errorData);
+                        alert('Chyba pri archivácii: ' + (errorData.message || 'Neznáma chyba'));
+                    }
+                } catch (err) {
+                    console.error("Network error:", err);
                 }
             }
         });

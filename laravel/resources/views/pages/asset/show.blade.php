@@ -12,7 +12,7 @@
         allServices: @json($services),
         routes: {
             branchStore: '{{ route("manage.branch.store") }}',
-            deleteAsset: '{{ route("manage.asset.destroy", ":id") }}'
+            deleteAsset: '{{ route("manage.branch.delete", ":id") }}'
         }
     };
 </script>
@@ -151,13 +151,11 @@
 
                                     {{-- Archive Asset --}}
                                     @can('destroy', $asset)
-                                        <form method="POST" action="{{ route('manage.asset.delete', $asset->id) }}"
-                                            onsubmit="return confirm('Archive this asset?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="branch-dropdown__item delete-action">
-                                                <i class="fa-solid fa-box-archive"></i> Archive Asset
-                                            </button>
-                                        </form>
+                                        <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
+                                            data-id="{{ $asset->id }}" 
+                                            data-name="{{ $asset->name }}">
+                                            <i class="fa-solid fa-box-archive"></i> Archive Asset
+                                        </button>
                                     @endcan
 
                                 </div>
@@ -325,8 +323,8 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-@vite('resources/js/pages/assets/entry.js')
 
+@vite('resources/js/pages/assets/entry.js')
 
 <script>
     const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -340,6 +338,9 @@
 
     function buildScheduleUI(containerId, initialData) {
         const container = document.getElementById(containerId);
+
+        if (!container) return;
+
         container.innerHTML = '';
         const days = (initialData && initialData.days) ? initialData.days : {};
         DAY_NAMES.forEach((name, i) => {

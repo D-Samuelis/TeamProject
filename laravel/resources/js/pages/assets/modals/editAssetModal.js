@@ -5,8 +5,6 @@ export function initEditAssetModal() {
     
     if (!editBtn) return;
 
-    console.log("Edit Asset Modal logic loaded");
-
     const asset = window.BE_DATA.asset;
     const branches = window.BE_DATA.allBranches || [];
     const services = window.BE_DATA.allServices || [];
