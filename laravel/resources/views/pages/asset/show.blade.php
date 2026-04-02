@@ -4,6 +4,19 @@
 
 @section('content')
 
+<script>
+    window.BE_DATA = {
+        csrf: '{{ csrf_token() }}',
+        asset: @json($asset),
+        allBranches: @json($branches),
+        allServices: @json($services),
+        routes: {
+            branchStore: '{{ route("manage.branch.store") }}',
+            deleteAsset: '{{ route("manage.asset.destroy", ":id") }}'
+        }
+    };
+</script>
+
 @if(session('success'))
     <p style="color:green; position:absolute; z-index: 10000;">{{ session('success') }}</p>
 @endif
@@ -25,7 +38,7 @@
                         @endif
                     </p>
                     @can('update', $asset)
-                        <button class="business-info-card__edit-btn" type="button" onclick="openModal('editAssetModal')">
+                        <button class="business-info-card__edit-btn" type="button" data-modal-target="edit-business-modal">
                             <i class="fa-solid fa-gear"></i> Manage Asset
                         </button>
                     @endcan
@@ -108,57 +121,56 @@
                 <div class="business__header-right-section_1">
                     <div style="display:flex;align-items:center;gap:8px;">
 
-                        {{-- DROPDOWN: Asset Actions --}}
-                        <div class="dropdown branch-dropdown">
-                            <button class="branch-dropdown__trigger" type="button">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                                <span>Asset Actions</span>
-                            </button>
-
-                            <div class="branch-dropdown__menu">
-
-                                {{-- DUMMY status toggle — no BE yet --}}
-                                <button type="button" class="branch-dropdown__item" disabled title="Coming soon">
-                                    <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
-                                    Status:
-                                    <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
-                                        {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
-                                    </div>
+                        @if (!$asset->trashed())
+                            {{-- AK JE ASSET AKTÍVNY: Zobrazíme dropdown --}}
+                            <div class="dropdown branch-dropdown">
+                                <button class="branch-dropdown__trigger" type="button">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    <span>Asset Actions</span>
                                 </button>
 
-                                {{-- Add Rule --}}
-                                @can('update', $asset)
-                                    <button type="button"
-                                            class="branch-dropdown__item"
-                                            onclick="openModal('createRuleModal')">
-                                        <i class="fa-solid fa-plus"></i> Add Rule
+                                <div class="branch-dropdown__menu">
+
+                                    {{-- Status toggle --}}
+                                    <button type="button" class="branch-dropdown__item" disabled title="Coming soon">
+                                        <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
+                                        Status:
+                                        <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
+                                            {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
+                                        </div>
                                     </button>
-                                @endcan
 
-                                {{-- Manage Asset --}}
-                                @can('update', $asset)
-                                    <button type="button"
-                                            class="branch-dropdown__item"
-                                            onclick="openModal('editAssetModal')">
-                                        <i class="fa-solid fa-gear"></i> Manage Asset
-                                    </button>
-                                @endcan
-
-                                <div class="branch-dropdown__divider"></div>
-
-                                {{-- Archive Asset --}}
-                                @can('destroy', $asset)
-                                    <form method="POST" action="{{ route('manage.asset.delete', $asset->id) }}"
-                                          onsubmit="return confirm('Archive this asset?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="branch-dropdown__item delete-action">
-                                            <i class="fa-solid fa-box-archive"></i> Archive Asset
+                                    {{-- Add Rule --}}
+                                    @can('update', $asset)
+                                        <button type="button" class="branch-dropdown__item" data-modal-target="create-rule-modal">
+                                            <i class="fa-solid fa-plus"></i> Add Rule
                                         </button>
-                                    </form>
-                                @endcan
+                                    @endcan
 
+                                    <div class="branch-dropdown__divider"></div>
+
+                                    {{-- Archive Asset --}}
+                                    @can('destroy', $asset)
+                                        <form method="POST" action="{{ route('manage.asset.delete', $asset->id) }}"
+                                            onsubmit="return confirm('Archive this asset?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="branch-dropdown__item delete-action">
+                                                <i class="fa-solid fa-box-archive"></i> Archive Asset
+                                            </button>
+                                        </form>
+                                    @endcan
+
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            {{-- TODO : BE MAN FIX THIS (no route) --}}
+                            <form action="{{ route('manage.asset.restore', $asset->id) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="branch-restore-btn">
+                                    <i class="fa-solid fa-rotate-left"></i> Restore Asset
+                                </button>
+                            </form>
+                        @endif
 
                     </div>
                 </div>
@@ -241,7 +253,8 @@
                                     </button>
                                     <div class="branch-dropdown__menu">
                                         @can('update', $asset)
-                                            <button type="button" class="branch-dropdown__item" onclick='openEditRuleModal({{ $rule->id }}, @json($rule))'>
+                                            <button type="button" class="branch-dropdown__item js-edit-rule-btn" 
+                                                    data-rule='@json($rule)'>
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit Rule
                                             </button>
                                         @endcan
@@ -292,114 +305,6 @@
         </div>
     </main>
 </div>
-
-
-{{-- MODAL: Edit Asset --}}
-<div id="editAssetModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('editAssetModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">Edit Asset</h2>
-
-        <form method="POST" action="{{ route('manage.asset.update', $asset->id) }}">
-            @csrf @method('PUT')
-
-            <div style="margin-bottom:1rem;">
-                <label>Name <span style="color:red;">*</span></label><br>
-                <input type="text" name="name" value="{{ old('name', $asset->name) }}"
-                       style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" required>
-                @error('name') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="margin-bottom:1rem;">
-                <label>Description</label><br>
-                <textarea name="description" rows="3"
-                          style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">{{ old('description', $asset->description) }}</textarea>
-                @error('description') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="margin-bottom:1rem;">
-                <label>Branches</label>
-                <div style="border:1px solid #ccc;border-radius:4px;padding:8px;max-height:150px;overflow-y:auto;">
-                    @foreach($branches as $branch)
-                        @php $currentBranchIds = old('branch_ids', $asset->branches->pluck('id')->toArray()); @endphp
-                        <label style="display:block;padding:3px 0;cursor:pointer;">
-                            <input type="checkbox" name="branch_ids[]" value="{{ $branch->id }}"
-                                {{ in_array($branch->id, $currentBranchIds) ? 'checked' : '' }}>
-                            {{ $branch->name }}
-                        </label>
-                    @endforeach
-                </div>
-                @error('branch_ids') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="margin-bottom:1.5rem;">
-                <label>Services</label>
-                <p style="font-size:12px;color:#888;margin:2px 0 6px;">Only services linked to at least one selected branch.</p>
-                <div style="border:1px solid #ccc;border-radius:4px;padding:8px;max-height:150px;overflow-y:auto;">
-                    @foreach($services as $service)
-                        @php $currentServiceIds = old('service_ids', $asset->services->pluck('id')->toArray()); @endphp
-                        <label style="display:block;padding:3px 0;cursor:pointer;">
-                            <input type="checkbox" name="service_ids[]" value="{{ $service->id }}"
-                                {{ in_array($service->id, $currentServiceIds) ? 'checked' : '' }}>
-                            {{ $service->name }}
-                            <span style="font-size:12px;color:#aaa;">({{ $service->branches->pluck('name')->join(', ') }})</span>
-                        </label>
-                    @endforeach
-                </div>
-                @error('service_ids') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;">
-                <button type="button" onclick="closeModal('editAssetModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-{{-- MODAL: Create Rule --}}
-<div id="createRuleModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('createRuleModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">New Rule</h2>
-
-        <form method="POST" action="{{ route('manage.rule.store') }}" onsubmit="return serializeSchedule('create')">
-            @csrf
-            <input type="hidden" name="asset_id" value="{{ $asset->id }}">
-            <input type="hidden" name="rule_set" id="create_rule_set_input">
-
-            @include('pages.asset.partials.rule-form', ['prefix' => 'create', 'rule' => null])
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('createRuleModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Create Rule</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-{{-- MODAL: Edit Rule --}}
-<div id="editRuleModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('editRuleModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">Edit Rule</h2>
-
-        <form method="POST" id="editRuleForm" onsubmit="return serializeSchedule('edit')">
-            @csrf @method('PUT')
-            <input type="hidden" name="rule_set" id="edit_rule_set_input">
-
-            @include('pages.asset.partials.rule-form', ['prefix' => 'edit', 'rule' => null])
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('editRuleModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 
 <style>
     .modal-backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center; }
