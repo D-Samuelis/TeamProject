@@ -11,7 +11,8 @@
         allBranches: @json($branches),
         allServices: @json($services),
         routes: {
-            branchStore: '{{ route("manage.branch.store") }}'
+            branchStore: '{{ route("manage.branch.store") }}',
+            deleteAsset: '{{ route("manage.asset.destroy", ":id") }}'
         }
     };
 </script>
@@ -304,49 +305,6 @@
         </div>
     </main>
 </div>
-
-{{-- MODAL: Create Rule --}}
-<div id="createRuleModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('createRuleModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">New Rule</h2>
-
-        <form method="POST" action="{{ route('manage.rule.store') }}" onsubmit="return serializeSchedule('create')">
-            @csrf
-            <input type="hidden" name="asset_id" value="{{ $asset->id }}">
-            <input type="hidden" name="rule_set" id="create_rule_set_input">
-
-            @include('pages.asset.partials.rule-form', ['prefix' => 'create', 'rule' => null])
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('createRuleModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Create Rule</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-{{-- MODAL: Edit Rule --}}
-<div id="editRuleModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('editRuleModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">Edit Rule</h2>
-
-        <form method="POST" id="editRuleForm" onsubmit="return serializeSchedule('edit')">
-            @csrf @method('PUT')
-            <input type="hidden" name="rule_set" id="edit_rule_set_input">
-
-            @include('pages.asset.partials.rule-form', ['prefix' => 'edit', 'rule' => null])
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('editRuleModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 
 <style>
     .modal-backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center; }
