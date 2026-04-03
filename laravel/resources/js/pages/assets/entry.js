@@ -4,6 +4,7 @@ import { initEditAssetModal } from './modals/editAssetModal.js';
 import { initCreateRuleModal } from './modals/createRuleModal.js';
 import { initEditRuleModal } from './modals/editRuleModal.js';
 import { initArchiveAssetModal } from './modals/archiveAssetModal.js';
+import { initDeleteRuleModal } from '../assets/modals/deleteRuleModal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('assetInfo');
@@ -18,4 +19,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initCreateRuleModal();
     initEditRuleModal();
     initArchiveAssetModal();
+    initDeleteRuleModal();
 });

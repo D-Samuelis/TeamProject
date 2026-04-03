@@ -12,7 +12,8 @@
         allServices: @json($services),
         routes: {
             branchStore: '{{ route("manage.branch.store") }}',
-            deleteAsset: '{{ route("manage.branch.delete", ":id") }}'
+            deleteAsset: '{{ route("manage.asset.delete", ":id") }}',
+            deleteRule: '{{ route("manage.rule.delete", ":id") }}'
         }
     };
 </script>
@@ -257,13 +258,13 @@
                                             </button>
                                         @endcan
                                         <div class="branch-dropdown__divider"></div>
+                                        {{-- Delete Rule --}}
                                         @can('update', $asset)
-                                            <form method="POST" action="{{ route('manage.rule.delete', $rule->id) }}" onsubmit="return confirm('Delete this rule?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="branch-dropdown__item delete-action">
-                                                    <i class="fa-solid fa-trash-can"></i> Delete Rule
-                                                </button>
-                                            </form>
+                                            <button type="button" class="branch-dropdown__item delete-action js-delete-rule-btn"
+                                                data-rule-id="{{ $rule->id }}"
+                                                data-rule-title="{{ $rule->title }}">
+                                                <i class="fa-solid fa-trash"></i> Delete Rule
+                                            </button>
                                         @endcan
                                     </div>
                                 </div>
