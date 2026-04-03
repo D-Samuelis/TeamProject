@@ -198,7 +198,7 @@
                         $isLast  = $loop->last;
                     @endphp
 
-                    <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card" style="flex-direction: column;">
+                    <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card filterable-rule" style="flex-direction: column;">
     
                         <div class="rule-card__header" style="width: 100%;">
                             <div class="rule-card__left">
@@ -227,7 +227,7 @@
 
                                 </div>
 
-                                <div class="rule-card__meta">
+                                <div class="rule-card__meta js-search-data">
                                     <div>
                                         <strong class="rule-card__title">{{ $rule->title }}</strong>
                                         @if($rule->description)
