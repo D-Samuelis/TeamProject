@@ -11,10 +11,11 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('branch_service_id')->constrained('branch_service')->cascadeOnDelete();
             $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
-            $table->string('status')->default('pending'); // pending, confirmed, cancelled
-            $table->unsignedInteger('duration'); // inherited from service at booking time (minutes)
+            $table->string('status')->default('pending');
+            $table->unsignedInteger('duration');
             $table->date('date');
             $table->time('start_at');
             $table->softDeletes();

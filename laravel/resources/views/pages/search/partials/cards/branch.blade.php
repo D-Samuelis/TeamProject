@@ -4,17 +4,19 @@
         <p class="card-subtitle">{{ $item->business->name }}</p>
 
         <div class="branch-info">
-            <p><strong>Address:</strong> {{ $item->address }}, {{ $item->city }}</p>
-            @if ($item->phone)
+            <p><strong>Address:</strong> {{ $item->address_line_1 . ', ' . $item->city }}</p>
+
+            @if (isset($item->phone))
                 <p><strong>Phone:</strong> {{ $item->phone }}</p>
             @endif
         </div>
 
         <div class="card-actions">
-            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($item->address . ' ' . $item->city) }}"
+            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($item->address_line_1 . ' ' . $item->city) }}"
                 target="_blank" class="btn-secondary">
                 Get Directions
             </a>
+
             <a href="{{ route('business.book', $item->business->id) }}" class="btn-link">Visit Shop</a>
         </div>
     </div>

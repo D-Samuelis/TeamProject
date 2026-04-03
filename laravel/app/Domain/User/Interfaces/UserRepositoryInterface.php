@@ -19,6 +19,8 @@ interface UserRepositoryInterface
 
     public function delete(User $user): void;
 
+    public function isStaffInBusiness(User $user, Business $business): bool;
+
     public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum;
 
     public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum;

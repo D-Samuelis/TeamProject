@@ -13,7 +13,7 @@ use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 class BusinessRepository implements BusinessRepositoryInterface
 {
     /**
-     * PUBLIC METHODS
+     * PUBLIC
      */
     public function findActive(int $id): Business
     {
@@ -42,7 +42,7 @@ class BusinessRepository implements BusinessRepositoryInterface
     }
 
     /**
-     * MANAGEMENT METHODS
+     * MANAGEMENT
      */
     public function listForUser(User $user, string $scope = 'active'): Collection
     {
@@ -54,8 +54,8 @@ class BusinessRepository implements BusinessRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all'     => $query->withTrashed(),
-            default   => $query,
+            'all' => $query->withTrashed(),
+            default => $query,
         };
 
         return $query
@@ -68,8 +68,10 @@ class BusinessRepository implements BusinessRepositoryInterface
     {
         return Business::withTrashed()
             ->with([
-                'branches' => fn($q) => $q->withTrashed(),
-                'services' => fn($q) => $q->withTrashed(),
+                'users',
+                'branches.users',
+                'branches.branchServices.users',
+                'branches.branchServices.service',
             ])
             ->findOrFail($id);
     }
@@ -107,8 +109,7 @@ class BusinessRepository implements BusinessRepositoryInterface
     public function existsOwner(int $userId, ?int $businessId = null): bool
     {
         $query = Business::whereHas('users', function ($q) use ($userId) {
-            $q->where('model_has_users.user_id', $userId)
-            ->where('model_has_users.role', BusinessRoleEnum::OWNER->value);
+            $q->where('model_has_users.user_id', $userId)->where('model_has_users.role', BusinessRoleEnum::OWNER->value);
         });
 
         if ($businessId) {
@@ -132,7 +133,6 @@ class BusinessRepository implements BusinessRepositoryInterface
     {
         $query = Business::query()->where('is_published', true);
 
-        // Reuse the exact same filter logic
         $this->applySearchFilters($query, $dto);
 
         return $query->count();
@@ -143,33 +143,27 @@ class BusinessRepository implements BusinessRepositoryInterface
      */
     private function applySearchFilters(Builder $query, SearchDTO $dto): void
     {
-        // Keyword Deep Search
         if ($dto->query) {
             $keyword = $dto->query;
-
             $query->where(function ($sub) use ($keyword) {
-                // Check Business Name/Description
-                $sub->orWhere('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%");
-
-                // Check if any ACTIVE branch matches city or name
-                $sub->orWhereHas('branches', fn($b) => $b->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('city', 'like', "%{$keyword}%")));
-
-                // Check if any ACTIVE service matches name or description
-                $sub->orWhereHas('services', fn($s) => $s->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%")));
+                $sub->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhereHas('branches', fn($b) => $b->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('city', 'like', "%{$keyword}%")))
+                    ->orWhereHas('services', fn($s) => $s->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%")));
             });
         }
 
-        // Other Exact Column Checks
         if ($dto->city) {
             $query->whereHas('branches', fn($q) => $q->where('is_active', true)->where('city', $dto->city));
         }
 
+        // Filter against base values on the service template
         if ($dto->maxPrice) {
-            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('price', '<=', $dto->maxPrice));
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('base_price', '<=', $dto->maxPrice));
         }
 
         if ($dto->maxDuration) {
-            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('duration_minutes', '<=', $dto->maxDuration));
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('base_duration_minutes', '<=', $dto->maxDuration));
         }
 
         if (!empty($dto->locationTypes)) {

@@ -24,7 +24,7 @@ class GetSlotsRequest extends FormRequest
     {
         return [
             'asset_id'   => 'required|integer|exists:assets,id',
-            'service_id' => 'required|integer|exists:services,id',
+            'service_id' => 'required|integer|exists:branch_service,id',
             'from'       => 'required|date',
             'to'         => 'required|date|after_or_equal:from',
         ];

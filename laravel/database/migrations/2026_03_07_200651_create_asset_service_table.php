@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('asset_service', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('branch_service_id')->constrained('branch_service')->cascadeOnDelete();
             $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['service_id', 'asset_id']);
+            $table->unique(['branch_service_id', 'asset_id']);
         });
     }
 

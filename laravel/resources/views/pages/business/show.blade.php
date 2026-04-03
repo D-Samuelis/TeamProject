@@ -20,21 +20,25 @@
 </script>
 
 @php
-    // Logika pre zoznam členov
-    $allMembers = collect($business->users);
-    foreach ($business->branches as $branch) {
-        $allMembers = $allMembers->concat($branch->users);
-    }
-    foreach ($business->services as $service) {
-        $allMembers = $allMembers->concat($service->users);
-    }
-    $allMembers = $allMembers->sortBy('name');
+    // 1. Start with high-level Business users (Admins/Owners)
+    $allMembers = collect($business->users ?? []);
 
-    $owners   = $allMembers->filter(fn($u) => $u->pivot->role === 'owner');
-    $managers = $allMembers->filter(fn($u) => $u->pivot->role === 'manager');
-    $staff    = $allMembers->filter(fn($u) => $u->pivot->role === 'staff');
+    // 2. Add Branch-level users
+    foreach ($business->branches ?? [] as $branch) {
+        $allMembers = $allMembers->concat($branch->users ?? []);
+        
+        // 3. Add users assigned to specific services AT this branch
+        foreach ($branch->branchServices ?? [] as $branchService) {
+            $allMembers = $allMembers->concat($branchService->users ?? []);
+        }
+    }
 
-    // Helper funkcia definovaná nižšie
+    // Unique by ID so people aren't listed twice, then sort
+    $allMembers = $allMembers->unique('id')->sortBy('name');
+
+    $owners = $allMembers->filter(fn($u) => optional($u->pivot)->role === 'owner');
+    $managers = $allMembers->filter(fn($u) => optional($u->pivot)->role === 'manager');
+    $staff = $allMembers->filter(fn($u) => optional($u->pivot)->role === 'staff');
 @endphp
 
 <div class="business">

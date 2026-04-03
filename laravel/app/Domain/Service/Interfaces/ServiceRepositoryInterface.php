@@ -2,17 +2,21 @@
 
 namespace App\Domain\Service\Interfaces;
 
-use Illuminate\Support\Collection;
-use App\Models\Business\Service;
+use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
-use App\Domain\Service\Enums\ServiceRoleEnum;
+use Illuminate\Support\Collection;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+use App\Models\Business\Service;
 
 interface ServiceRepositoryInterface
 {
     /**
      * PUBLIC
+     * Note: public-facing service search (end-user marketplace) should use
+     * BranchServiceRepository::search() instead, as it searches instances
+     * with effective prices and branch context.
+     * This findActive/search is for template-level lookups only.
      */
     public function findActive(int $id): Service;
 
@@ -31,6 +35,8 @@ interface ServiceRepositoryInterface
 
     /**
      * DATA PERSISTENCE
+     * Service::save/update only manages the template itself.
+     * Branch instance creation is handled by BranchServiceRepository.
      */
     public function save(array $data): Service;
 
@@ -39,15 +45,6 @@ interface ServiceRepositoryInterface
     public function delete(Service $service): void;
 
     public function restore(Service $service): void;
-
-    /**
-     * RELATIONSHIPS
-     */
-    public function attachBranches(Service $service, array $branchIds): void;
-    
-    public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void;
-
-    public function detachUser(Service $service, int $userId): int;
 
     public function count(SearchDTO $dto): int;
 }

@@ -5,14 +5,14 @@ namespace App\Application\UseCases;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
-use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Domain\Service\Interfaces\BranchServiceRepositoryInterface;
 
 class SearchEntities
 {
     public function __construct(
         private readonly BusinessRepositoryInterface $businessRepo,
         private readonly BranchRepositoryInterface $branchRepo,
-        private readonly ServiceRepositoryInterface $serviceRepo
+        private readonly BranchServiceRepositoryInterface $serviceRepo
     ) {}
 
     public function execute(SearchDTO $dto): array

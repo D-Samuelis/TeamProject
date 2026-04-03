@@ -3,6 +3,7 @@
 @section('title', 'Bexora | My Businesses')
 
 @section('content')
+
 <div class="business">
     <aside class="business__sidebar">
         <section class="business__filters">

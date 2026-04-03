@@ -4,7 +4,6 @@ namespace App\Repositories\Service;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
-use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
@@ -15,19 +14,31 @@ class ServiceRepository implements ServiceRepositoryInterface
 {
     /**
      * PUBLIC
+     * Note: public-facing service search (end-user marketplace) should use
+     * BranchServiceRepository::search() instead, as it searches instances
+     * with effective prices and branch context.
+     * This findActive/search is for template-level lookups only.
      */
     public function findActive(int $id): Service
     {
-        return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
+        return Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)
     {
-        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
-        return $query->with('business')->latest()->paginate($dto->perPage);
+        return $query
+            ->with(['business', 'branchServices'])
+            ->latest()
+            ->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection
@@ -42,10 +53,10 @@ class ServiceRepository implements ServiceRepositoryInterface
     {
         $query = Service::query();
 
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             $query->where(function ($q) use ($user) {
                 $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
-                    ->orWhereHas('business.branches.users', fn($q) => $q->where('user_id', $user->id));
+                  ->orWhereHas('business.branches.users', fn($q) => $q->where('user_id', $user->id));
             });
         }
 
@@ -55,12 +66,12 @@ class ServiceRepository implements ServiceRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all' => $query->withTrashed(),
-            default => $query,
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query
-            ->with(['business', 'branches', 'assets'])
+            ->with(['business', 'branchServices.branch'])
             ->latest()
             ->get();
     }
@@ -68,44 +79,37 @@ class ServiceRepository implements ServiceRepositoryInterface
     public function findForManagement(int $id): Service
     {
         return Service::withTrashed()
-            ->with(['business', 'branches', 'assets'])
+            ->with(['business', 'branchServices.branch'])
             ->findOrFail($id);
     }
 
     public function findWithinBusiness(int $serviceId, int $businessId): Service
     {
-        return Service::where('id', $serviceId)->where('business_id', $businessId)->firstOrFail();
+        return Service::where('id', $serviceId)
+            ->where('business_id', $businessId)
+            ->firstOrFail();
+    }
+
+    /**
+     * DATA PERSISTENCE
+     * Service::save/update only manages the template itself.
+     * Branch instance creation is handled by BranchServiceRepository.
+     */
+    public function save(array $data): Service
+    {
+        return Service::create($data);
     }
 
     public function update(Service $service, array $data): Service
     {
-        if (isset($data['branch_ids'])) {
-            $service->branches()->sync($data['branch_ids']);
-            unset($data['branch_ids']);
-        }
-
         $service->update($data);
-        return $service;
-    }
-
-    public function save(array $data): Service
-    {
-        $branchIds = $data['branch_ids'] ?? [];
-        unset($data['branch_ids']);
-
-        $service = Service::create($data);
-
-        if (!empty($branchIds)) {
-            $service->branches()->sync($branchIds);
-        }
-
         return $service;
     }
 
     public function delete(Service $service): void
     {
         $service->update([
-            'is_active' => false,
+            'is_active'    => false,
             'delete_after' => now()->addDays(7),
         ]);
         $service->delete();
@@ -115,30 +119,16 @@ class ServiceRepository implements ServiceRepositoryInterface
     {
         $service->update([
             'delete_after' => null,
-            'is_active' => true,
+            'is_active'    => true,
         ]);
-
         $service->restore();
-    }
-
-    public function attachBranches(Service $service, array $branchIds): void
-    {
-        $service->branches()->sync($branchIds);
-    }
-
-    public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void
-    {
-        $service->users()->attach($userId, ['role' => $role->value]);
-    }
-
-    public function detachUser(Service $service, int $userId): int
-    {
-        return $service->users()->detach($userId);
     }
 
     public function count(SearchDTO $dto): int
     {
-        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
@@ -155,24 +145,19 @@ class ServiceRepository implements ServiceRepositoryInterface
             $query->where(function ($sub) use ($keyword) {
                 $sub->where('name', 'like', "%{$keyword}%")
                     ->orWhere('description', 'like', "%{$keyword}%")
-                    ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$keyword}%"))
-                    ->orWhereHas('branches', fn($br) => $br->where('city', 'like', "%{$keyword}%"));
+                    ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$keyword}%"));
             });
         }
 
-        if ($dto->city) {
-            $query->whereHas('branches', fn($q) => $q->where('city', $dto->city));
-        }
-
         if ($dto->maxPrice) {
-            $query->where('price', '<=', $dto->maxPrice);
+            $query->where('base_price', '<=', $dto->maxPrice);
         }
 
         if ($dto->maxDuration) {
-            $query->where('duration_minutes', '<=', $dto->maxDuration);
+            $query->where('base_duration_minutes', '<=', $dto->maxDuration);
         }
 
-        if (!empty($dto->locationTypes)) {
+        if (! empty($dto->locationTypes)) {
             $query->whereIn('location_type', $dto->locationTypes);
         }
 

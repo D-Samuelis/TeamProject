@@ -32,24 +32,51 @@ class UserRepository implements UserRepositoryInterface
         $user->delete();
     }
 
+    /**
+     * Check if the user is associated with the business at any level 
+     */
+    public function isStaffInBusiness(User $user, Business $business): bool
+    {
+        if ($user->businesses()->where('businesses.id', $business->id)->exists()) {
+            return true;
+        }
+
+        if ($user->branches()->where('business_id', $business->id)->exists()) {
+            return true;
+        }
+
+        return $user->morphToMany(\App\Models\Business\BranchService::class, 'model', 'model_has_users')
+            ->whereHas('branch', function ($query) use ($business) {
+                $query->where('business_id', $business->id);
+            })
+            ->exists();
+    }
+
     public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum
     {
-        $member = $user->businesses()->withTrashed()->where('businesses.id', $business->id)->first();
+        $member = $user->businesses()
+            ->where('businesses.id', $business->id)
+            ->first();
 
         return $member ? BusinessRoleEnum::tryFrom($member->pivot->role) : null;
     }
 
     public function getBranchRole(User $user, Branch $branch): ?BranchRoleEnum
     {
-        $member = $user->branches()->withTrashed()->where('branches.id', $branch->id)->first();
+        $member = $user->branches()
+            ->withTrashed()
+            ->where('branches.id', $branch->id)
+            ->first();
 
         return $member ? BranchRoleEnum::tryFrom($member->pivot->role) : null;
     }
 
     public function getAssetRole(User $user, Asset $asset): ?string
     {
-        $asset->load(['branches.business', 'services']);
+        // Load asset with branches (via asset_branch) and branch services (via asset_service)
+        $asset->load(['branches.business', 'branchServices.branch']);
 
+        // Check via directly assigned branches
         foreach ($asset->branches as $branch) {
             if ($branch->business) {
                 $businessRole = $this->getBusinessRole($user, $branch->business);
@@ -62,12 +89,21 @@ class UserRepository implements UserRepositoryInterface
             if ($branchRole === BranchRoleEnum::STAFF)   return 'staff';
         }
 
-        foreach ($asset->services as $service) {
-            $member = $user->services()
-                ->where('services.id', $service->id)
-                ->first();
+        // Check via branch service instances this asset is assigned to
+        foreach ($asset->branchServices as $branchService) {
+            $branch = $branchService->branch;
 
-            if ($member) return 'staff';
+            if ($branch?->business) {
+                $businessRole = $this->getBusinessRole($user, $branch->business);
+                if ($businessRole === BusinessRoleEnum::OWNER)   return 'owner';
+                if ($businessRole === BusinessRoleEnum::MANAGER) return 'manager';
+            }
+
+            if ($branch) {
+                $branchRole = $this->getBranchRole($user, $branch);
+                if ($branchRole === BranchRoleEnum::MANAGER) return 'manager';
+                if ($branchRole === BranchRoleEnum::STAFF)   return 'staff';
+            }
         }
 
         return null;

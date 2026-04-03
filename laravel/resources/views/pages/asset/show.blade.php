@@ -65,8 +65,8 @@
                 @forelse($asset->branches as $b)
                     @php
                         $c = branchColor($b->id);
-                        $branchServices = $asset->services->filter(
-                            fn($s) => $s->branches->contains('id', $b->id)
+                        $branchServices = $asset->branchServices->filter(
+                            fn($s) => $s->branch_id === $b->id
                         );
                     @endphp
 
@@ -280,8 +280,12 @@
                                         <span class="day-time">
                                             @if(empty($rs[$i]))
                                                 <span class="rule-card__day-hours--closed">closed</span>
+                                            @elseif(is_array($rs[$i]))
+                                                {{-- Handle the standard array of time ranges --}}
+                                                {{ collect($rs[$i])->map(fn($r) => ($r['from_time'] ?? '??').'–'.($r['to_time'] ?? '??'))->join(', ') }}
                                             @else
-                                                {{ collect($rs[$i])->map(fn($r) => $r['from_time'].'–'.$r['to_time'])->join(', ') }}
+                                                {{-- Fallback: If it's just a string, display the string directly --}}
+                                                {{ $rs[$i] }}
                                             @endif
                                         </span>
                                     </div>

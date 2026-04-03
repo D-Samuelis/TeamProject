@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Models\Auth\User;
+use App\Models\Business\BranchService;
 use App\Models\Business\Business;
 
 class BranchRepository implements BranchRepositoryInterface
@@ -18,7 +19,10 @@ class BranchRepository implements BranchRepositoryInterface
      */
     public function findActive(int $id): Branch
     {
-        return Branch::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
+        return Branch::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)
@@ -27,7 +31,6 @@ class BranchRepository implements BranchRepositoryInterface
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
 
-        // Apply the branch-specific filters
         $this->applyBranchFilters($query, $dto);
 
         return $query
@@ -48,15 +51,20 @@ class BranchRepository implements BranchRepositoryInterface
     {
         $query = Branch::query();
 
-        if (!$user->isAdmin()) {
-            $query->where(function ($q) use ($user) {
-                $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
-                    ->orWhereHas('users', fn($q) => $q->where('user_id', $user->id));
-            });
-        }
-
+        // Scope to a specific business if provided
         if ($business) {
             $query->where('business_id', $business->id);
+        }
+
+        if (!$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                // 1. User has a role at the Business level (Owner/Manager)
+                $q->whereHas('business.users', fn($sub) => $sub->where('user_id', $user->id))
+                    // 2. User has a direct role at the Branch level
+                    ->orWhereHas('users', fn($sub) => $sub->where('user_id', $user->id))
+                    // 3. User is assigned to a specific service within a branch
+                    ->orWhereHas('branchServices.users', fn($sub) => $sub->where('user_id', $user->id));
+            });
         }
 
         match ($scope) {
@@ -65,16 +73,27 @@ class BranchRepository implements BranchRepositoryInterface
             default   => $query,
         };
 
-        return $query
-            ->with(['business', 'services', 'assets'])
+        return $query->with(['business', 'branchServices.service', 'assets'])
             ->latest()
             ->get();
+    }
+
+    public function attachServices(Branch $branch, array $serviceIds): void
+    {
+        foreach ($serviceIds as $serviceId) {
+            BranchService::firstOrCreate([
+                'branch_id'  => $branch->id,
+                'service_id' => $serviceId,
+            ], [
+                'is_enabled' => true,
+            ]);
+        }
     }
 
     public function findForManagement(int $id): Branch
     {
         return Branch::withTrashed()
-            ->with(['business', 'services', 'assets'])
+            ->with(['business', 'branchServices.service', 'assets'])
             ->findOrFail($id);
     }
 
@@ -84,8 +103,8 @@ class BranchRepository implements BranchRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all' => $query->withTrashed(),
-            default => $query,
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query->get();
@@ -111,10 +130,15 @@ class BranchRepository implements BranchRepositoryInterface
 
     public function delete(Branch $branch): void
     {
+        // Soft delete logic with a grace period
         $branch->update([
             'delete_after' => now()->addDays(7),
-            'is_active' => false,
+            'is_active'    => false,
         ]);
+
+        // Also disable all services for this branch immediately
+        $branch->branchServices()->update(['is_enabled' => false]);
+
         $branch->delete();
     }
 
@@ -122,11 +146,6 @@ class BranchRepository implements BranchRepositoryInterface
     {
         $branch->update(['delete_after' => null]);
         $branch->restore();
-    }
-
-    public function attachServices(Branch $branch, array $serviceIds): void
-    {
-        $branch->services()->sync($serviceIds);
     }
 
     public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void
@@ -142,8 +161,8 @@ class BranchRepository implements BranchRepositoryInterface
     public function getAssignments(Branch $branch): array
     {
         return [
-            'services' => $branch->services()->pluck('id')->all(),
-            'users' => $branch->users()->pluck('id')->all(),
+            'branch_services' => $branch->branchServices()->pluck('id')->all(),
+            'users'           => $branch->users()->pluck('id')->all(),
         ];
     }
 
@@ -168,11 +187,7 @@ class BranchRepository implements BranchRepositoryInterface
             $query->where(function ($sub) use ($keyword) {
                 $sub->where('name', 'like', "%{$keyword}%")
                     ->orWhere('city', 'like', "%{$keyword}%")
-                    ->orWhereHas(
-                        'business',
-                        fn($b) =>
-                        $b->where('name', 'like', "%{$keyword}%")
-                    );
+                    ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$keyword}%"));
             });
         }
 
@@ -184,7 +199,7 @@ class BranchRepository implements BranchRepositoryInterface
             $query->where('business_id', $dto->businessId);
         }
 
-        if (!empty($dto->locationTypes)) {
+        if (! empty($dto->locationTypes)) {
             $query->whereIn('type', $dto->locationTypes);
         }
     }

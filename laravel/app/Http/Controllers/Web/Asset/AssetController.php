@@ -14,8 +14,8 @@ use App\Application\Asset\UseCases\UpdateAsset;
 use App\Application\Asset\UseCases\GetAsset;
 use App\Application\Asset\UseCases\ListAssets;
 use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Service\UseCases\GetBranchService;
 use App\Application\Service\UseCases\ListServices;
-use App\Application\Service\UseCases\GetService;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 use App\Models\Auth\User;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +52,7 @@ class AssetController extends Controller
     {
         $user     = Auth::user();
         $asset = $getAsset->execute($assetId, $user);
-        $asset->load('branches.business', 'services');
+        $asset->load('branches.business', 'branchServices');
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
         return view('pages.asset.show', [
@@ -94,11 +94,15 @@ class AssetController extends Controller
         return back();
     }
 
-    public function book(GetAssetRequest $request, GetAsset $useCase, GetService $getService)
+    // In your Controller
+    public function book(GetAssetRequest $request, GetAsset $getAsset, GetBranchService $getBranchService)
     {
-        $asset   = $useCase->execute($request->validated('asset_id'), Auth::user());
-        $service = $getService->execute($request->validated('service_id'), Auth::user());
-        return view('pages.public.asset.book', compact('asset', 'service'));
+        $branchService = $getBranchService->execute($request->validated('service_id'));
+        $asset = $getAsset->execute($request->validated('asset_id'));
+        return view('pages.public.asset.book', [
+            'service' => $branchService,
+            'asset' => $asset
+        ]);
     }
 
     private function getAssociatedBranchesAndServices(

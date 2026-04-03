@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->string('description')->nullable();
             $table->timestamp('delete_after')->nullable();
             $table->timestamps();

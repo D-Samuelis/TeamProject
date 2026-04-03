@@ -14,6 +14,7 @@ use App\Application\Service\UseCases\RestoreService;
 use App\Application\Service\UseCases\GetService;
 use App\Application\Service\UseCases\ListServices;
 use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Service\UseCases\GetBranchService;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Service\UseCases\AssignServiceToBranch;
 use App\Application\Service\UseCases\UnassignServiceFromBranch;
@@ -76,7 +77,7 @@ class ManageServiceController extends Controller
         return redirect()->route('manage.branch.show', $branchId)->with('success', 'Service removed from branch.');
     }
 
-    public function book(int $serviceId, GetService $useCase)
+    public function book(int $serviceId, GetBranchService $useCase)
     {
         $service = $useCase->execute($serviceId);
         return view('pages.public.service.book', compact('service'));

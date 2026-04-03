@@ -34,6 +34,11 @@ class RepositoryServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            \App\Domain\Service\Interfaces\BranchServiceRepositoryInterface::class,
+            \App\Repositories\Service\BranchServiceRepository::class
+        );
+
+        $this->app->bind(
             \App\Domain\Asset\Interfaces\AssetRepositoryInterface::class,
             \App\Repositories\Asset\AssetRepository::class
         );

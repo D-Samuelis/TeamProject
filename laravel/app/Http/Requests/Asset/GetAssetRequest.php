@@ -32,10 +32,11 @@ class GetAssetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_id' => ['required', 'exists:services,id'],
+            'service_id' => ['required', 'exists:branch_service,id'],
             'asset_id' => [
                 'required',
-                Rule::exists('asset_service', 'asset_id')->where('service_id', $this->input('service_id')),
+                Rule::exists('asset_service', 'asset_id')
+                    ->where('branch_service_id', $this->input('service_id')),
             ],
         ];
     }
@@ -45,6 +46,5 @@ class GetAssetRequest extends FormRequest
         return [
             'asset_id.exists' => 'This asset is not assigned to the selected service.',
         ];
-
     }
 }

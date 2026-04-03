@@ -35,26 +35,20 @@ class BusinessAuthorizationService
      */
     public function ensureCanViewBusiness(?User $user, Business $business): void
     {
-        // Public
-        if ($business->is_published) {
-            return;
-        }
+        if ($business->is_published) return;
+        if (!$user) throw new AuthorizationException('This business is private.');
+        if ($user->isAdmin()) return;
 
-        // Private
-        if (!$user) {
-            throw new AuthorizationException('This business is private.');
-        }
-
-        // Admin
-        if ($user->isAdmin()) {
-            return;
-        }
-
-        // Roles
+        // 1. Check direct business role (Owner/Admin)
         $role = $this->userRepo->getBusinessRole($user, $business);
-        if (!$role) {
-            throw new AuthorizationException('You do not have permission to view this business.');
+        if ($role) return;
+
+        // 2. Check if they belong to any Branch or BranchService in this business
+        if ($this->userRepo->isStaffInBusiness($user, $business)) {
+            return;
         }
+
+        throw new AuthorizationException('You do not have permission to view this business.');
     }
 
     /**

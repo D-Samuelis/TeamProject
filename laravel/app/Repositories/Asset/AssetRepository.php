@@ -28,23 +28,23 @@ class AssetRepository implements AssetRepositoryInterface
         if ($user && ! $user->isAdmin()) {
             $query->where(function ($q) use ($user) {
 
-                // 1. Assets linked to branches the user is directly assigned to
+                // Assets linked to branches the user is assigned to
                 $q->whereHas('branches', function ($b) use ($user) {
                     $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
                 })
 
-                    // 2. Assets linked to services the user is directly assigned to
-                    ->orWhereHas('services', function ($s) use ($user) {
-                        $s->whereHas('users', fn($u) => $u->where('users.id', $user->id));
-                    })
+                // Assets linked to branch service instances the user's branch covers
+                ->orWhereHas('branchServices.branch', function ($b) use ($user) {
+                    $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
+                })
 
-                    // 3. Assets linked to branches that belong to a business the user manages
-                    ->orWhereHas('branches.business', function ($b) use ($user) {
-                        $b->whereHas('users', fn($u) =>
+                // Assets linked to branches under a business the user owns/manages
+                ->orWhereHas('branches.business', function ($b) use ($user) {
+                    $b->whereHas('users', fn($u) =>
                         $u->where('users.id', $user->id)
-                            ->whereIn('model_has_users.role', ['owner', 'manager'])
-                        );
-                    });
+                          ->whereIn('model_has_users.role', ['owner', 'manager'])
+                    );
+                });
             });
         }
 
@@ -56,9 +56,12 @@ class AssetRepository implements AssetRepositoryInterface
         return Asset::withTrashed()->findOrFail($id);
     }
 
-    public function attachServices(Asset $asset, array $serviceIds): void
+    /**
+     * Attach asset to branch service instances (replaces old attachServices).
+     */
+    public function attachBranchServices(Asset $asset, array $branchServiceIds): void
     {
-        $asset->services()->sync($serviceIds);
+        $asset->branchServices()->sync($branchServiceIds);
     }
 
     public function attachBranches(Asset $asset, array $branchIds): void
@@ -69,8 +72,8 @@ class AssetRepository implements AssetRepositoryInterface
     public function getAssignments(Asset $asset): array
     {
         return [
-            'services' => $asset->services()->pluck('id')->all(),
-            'branches' => $asset->branches()->pluck('id')->all(),
+            'branch_services' => $asset->branchServices()->pluck('id')->all(),
+            'branches'        => $asset->branches()->pluck('id')->all(),
         ];
     }
 

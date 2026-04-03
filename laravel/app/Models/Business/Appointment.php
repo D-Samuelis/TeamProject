@@ -5,6 +5,8 @@ namespace App\Models\Business;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
+
 use App\Models\Auth\User;
 
 class Appointment extends Model
@@ -13,7 +15,8 @@ class Appointment extends Model
 
     protected $fillable = [
         'user_id',
-        'service_id',
+        'branch_id',
+        'branch_service_id',
         'asset_id',
         'status',
         'duration',
@@ -34,9 +37,14 @@ class Appointment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function service(): BelongsTo
+    public function branch(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function branchService(): BelongsTo
+    {
+        return $this->belongsTo(BranchService::class);
     }
 
     public function asset(): BelongsTo
@@ -48,8 +56,27 @@ class Appointment extends Model
 
     public function endTime(): string
     {
-        return \Carbon\Carbon::parse($this->start_at)
+        return Carbon::parse($this->start_at)
             ->addMinutes($this->duration)
             ->format('H:i');
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        /**
+         * Guard against branch_id and branch_service.branch_id mismatch.
+         * Ensures the denormalized branch_id is always consistent.
+         */
+        static::creating(function (Appointment $appointment) {
+            $branchService = BranchService::find($appointment->branch_service_id);
+
+            if ($branchService && $branchService->branch_id !== $appointment->branch_id) {
+                throw new \InvalidArgumentException(
+                    "branch_id ({$appointment->branch_id}) does not match the branch_service's branch ({$branchService->branch_id})."
+                );
+            }
+        });
     }
 }
