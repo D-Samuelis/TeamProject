@@ -6,9 +6,7 @@ const SELECTORS = {
 };
 
 export function initRuleDragDrop(options = {}) {
-    console.log('initRuleDragDrop called', options);
     const container = document.querySelector(SELECTORS.container);
-    console.log('container:', container);
     if (!container) return;
 
     const reorderUrl = options.reorderUrl;
@@ -44,10 +42,6 @@ export function initRuleDragDrop(options = {}) {
                 .map(card => card.dataset.ruleId)
                 .filter(Boolean);
 
-            console.log('reorderUrl:', reorderUrl);
-            console.log('orderedIds:', orderedIds);
-            console.log('csrfToken:', csrfToken);
-
             try {
                 await fetch(reorderUrl, {
                     method: 'POST',
@@ -68,9 +62,7 @@ export function initRuleDragDrop(options = {}) {
         const expandButtons = container.querySelectorAll(SELECTORS.expandBtn);
 
         expandButtons.forEach(btn => {
-            console.log("button");
             btn.onclick = (e) => {
-                console.log("click");
                 e.preventDefault();
                 const card = btn.closest(SELECTORS.card);
                 if (!card) return;
