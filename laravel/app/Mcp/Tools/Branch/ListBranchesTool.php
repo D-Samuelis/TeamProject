@@ -4,6 +4,7 @@ namespace App\Mcp\Tools\Branch;
 
 use App\Application\Branch\UseCases\ListBranches;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -49,31 +50,46 @@ class ListBranchesTool extends Tool
 
     public function handle(Request $request): Response
     {
-        $validated = $request->validate([
-            'business_id' => 'nullable|integer',
-            'q'           => 'nullable|string',
-            'city'        => 'nullable|string',
-            'per_page'    => 'nullable|integer|min:1|max:100',
-            'page'        => 'nullable|integer|min:1',
-        ]);
+        try {
+            $validated = $request->validate([
+                'business_id' => 'nullable|integer',
+                'q'           => 'nullable|string',
+                'city'        => 'nullable|string',
+                'per_page'    => 'nullable|integer|min:1|max:100',
+                'page'        => 'nullable|integer|min:1',
+            ]);
 
-        $branches = $this->listBranches->execute([
-            'target'      => 'branch',
-            'business_id' => $validated['business_id'] ?? null,
-            'q'           => $validated['q'] ?? null,
-            'city'        => $validated['city'] ?? null,
-            'per_page'    => $validated['per_page'] ?? 10,
-            'page'        => $validated['page'] ?? 1,
-        ]);
+            $branches = $this->listBranches->execute(
+                user: null,
+                business: null,
+                scope: 'public',
+                filters: [
+                    'target'      => 'branch',
+                    'business_id' => $validated['business_id'] ?? null,
+                    'q'           => $validated['q'] ?? null,
+                    'city'        => $validated['city'] ?? null,
+                    'per_page'    => $validated['per_page'] ?? 10,
+                    'page'        => $validated['page'] ?? 1,
+                ]
+            );
 
-        return Response::text(
-            $branches->map(function ($item) {
-                return "id: " . $item['id']
-                    . " name: " . $item['name']
-                    . " city: " . $item['city']
-                    . " address: " . $item['address_line_1'];
-            })
-        );
+            return Response::text(
+                $branches->map(function ($item) {
+                    return "id: " . $item['id']
+                        . " name: " . $item['name']
+                        . " city: " . $item['city']
+                        . " address: " . $item['address_line_1'];
+                })
+            );
+        } catch (ValidationException $e) {
+            logger()->warning('ListBranchesTool validation failed', ['errors' => $e->errors()]);
+
+            return Response::text('Invalid input: ' . implode(' ', array_merge(...array_values($e->errors()))));
+        } catch (\Throwable $e) {
+            logger()->error('ListBranchesTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return Response::text('Failed to retrieve branches. Please try again later.');
+        }
     }
 
     public function schema(JsonSchema $schema): array

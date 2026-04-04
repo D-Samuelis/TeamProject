@@ -7,6 +7,7 @@ use App\Application\Service\UseCases\ListServices;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Business\Service;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -55,40 +56,55 @@ class ListServiceTool extends Tool
 
     public function handle(Request $request): Response
     {
-        $validated = $request->validate([
-            'q'              => 'nullable|string',
-            'city'           => 'nullable|string',
-            'max_price'      => 'nullable|numeric|min:0',
-            'max_duration'   => 'nullable|integer|min:1',
-            'location_types' => 'nullable|array',
-            'location_types.*' => 'string',
-            'business_id'    => 'nullable|integer',
-            'per_page'       => 'nullable|integer|min:1|max:100',
-            'page'           => 'nullable|integer|min:1',
-        ]);
+        try{
+            $validated = $request->validate([
+                'q'              => 'nullable|string',
+                'city'           => 'nullable|string',
+                'max_price'      => 'nullable|numeric|min:0',
+                'max_duration'   => 'nullable|integer|min:1',
+                'location_types' => 'nullable|array',
+                'location_types.*' => 'string',
+                'business_id'    => 'nullable|integer',
+                'per_page'       => 'nullable|integer|min:1|max:100',
+                'page'           => 'nullable|integer|min:1',
+            ]);
 
-        $services = $this->listServices->execute([
-            'target'         => 'service',
-            'q'              => $validated['q'] ?? null,
-            'city'           => $validated['city'] ?? null,
-            'max_price'      => $validated['max_price'] ?? null,
-            'max_duration'   => $validated['max_duration'] ?? null,
-            'location_types' => $validated['location_types'] ?? [],
-            'business_id'    => $validated['business_id'] ?? null,
-            'per_page'       => $validated['per_page'] ?? 10,
-            'page'           => $validated['page'] ?? 1,
-        ]);
+            $services = $this->listServices->execute(
+                user: null,
+                business: null,
+                scope: 'public',
+                filters: [
+                    'q'              => $validated['q'] ?? null,
+                    'city'           => $validated['city'] ?? null,
+                    'max_price'      => $validated['max_price'] ?? null,
+                    'max_duration'   => $validated['max_duration'] ?? null,
+                    'location_types' => $validated['location_types'] ?? [],
+                    'business_id'    => $validated['business_id'] ?? null,
+                    'per_page'       => $validated['per_page'] ?? 10,
+                    'page'           => $validated['page'] ?? 1,
+                ]
+            );
 
-        return Response::text(
-            $services->map(function ($item) {
-                return "id: " . $item['id']
-                    . " name: " . $item['name']
-                    . " price: " . $item['price']
-                    . " duration_minutes: " . $item['duration_minutes']
-                    . " location_type: " . $item['location_type']
-                    . " description: " . $item['description'];
-            })
-        );
+            return Response::text(
+                $services->map(function ($item) {
+                    return "id: " . $item['id']
+                        . " name: " . $item['name']
+                        . " price: " . $item['price']
+                        . " duration_minutes: " . $item['duration_minutes']
+                        . " location_type: " . $item['location_type']
+                        . " description: " . $item['description'];
+                })
+            );
+
+        } catch (ValidationException $e) {
+            logger()->warning('ListServiceTool validation failed', ['errors' => $e->errors()]);
+
+            return Response::text('Invalid input: ' . implode(' ', array_merge(...array_values($e->errors()))));
+        } catch (\Throwable $e) {
+            logger()->error('ListServiceTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return Response::text('Failed to retrieve services. Please try again later.');
+        }
     }
 
     public function schema(JsonSchema $schema): array

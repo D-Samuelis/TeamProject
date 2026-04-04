@@ -1,30 +1,69 @@
 export class Modal {
     static showCustom(options) {
-        const { title, body, confirmText = 'Save', cancelText = 'Cancel', onConfirm, rules = {} } = options;
+        const { 
+            title, 
+            type,
+            action = "create", // create | edit | delete | warning | info (determines color scheme and default tag)
+            body, 
+            confirmText = 'Save', 
+            cancelText = 'Cancel', 
+            onConfirm, 
+            rules = {} 
+        } = options;
+
+        const actionConfig = {
+            create:  { color: '#64a764', tag: 'New Record' },
+            edit:    { color: '#7b58fb', tag: 'Modification' },
+            delete:  { color: '#eb251e', tag: 'Warning' },
+            warning: { color: '#e6a429', tag: 'Attention' },
+            info:    { color: '#3b82f6', tag: 'Information' }
+        };
+
+        const config = actionConfig[action] || actionConfig.info;
+        const activeColor = config.color;
+        const displayTag = type || config.tag;
+
+        const activeColorHover = `color-mix(in srgb, ${activeColor}, black 15%)`;
 
         const modalHtml = `
-            <div class="modal" id="dynamic-modal">
-                <div class="modal__overlay modal-close-trigger"></div>
-                <div class="modal__content">
-                    <div class="modal__header">
+        <div class="modal" id="dynamic-modal" style="--modal-accent: ${activeColor}; --modal-accent-hover: ${activeColorHover}">
+            <div class="modal__overlay modal-close-trigger"></div>
+            <div class="modal__content">
+                <div class="modal__header">
+                    <div class="modal-header__title-group">
                         <h2 class="modal-header__title">${title}</h2>
-                        <button class="modal-close-trigger" style="border: none; background: transparent; font-size: 1.25rem; cursor: pointer;">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="modal-type-badge" style="border-left: 3px solid var(--modal-accent); background-color: color-mix(in srgb, var(--modal-accent), transparent 85%); padding: 0.2rem 0.6rem; border-radius: 0 4px 4px 0;">
+                            <h3 class="modal-header__subtitle" style="color: var(--modal-accent); margin: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ${displayTag}
+                            </h3>
+                        </div>
                     </div>
-                    <div class="modal__body">
-                        ${body}
-                    </div>
-                    <div class="modal__buttons">
-                        <button type="button" class="modal__nav-link is-active btn-confirm" style="border: none; cursor: pointer;">
-                            ${confirmText}
-                        </button>
-                        <button type="button" class="modal__nav-link modal-close-trigger" style="border: none; cursor: pointer;">
-                            ${cancelText}
-                        </button>
-                    </div>
+                    <button class="modal-close-trigger" 
+                        style="border: none; background: transparent; font-size: 1.25rem; cursor: pointer; color: var(--color-text-light); transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 4px;" 
+                        onmouseenter="this.style.color='#ff4221';" 
+                        onmouseleave="this.style.color='var(--color-text-light)'; this.style.backgroundColor='transparent'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-            </div>`;
+                <div class="modal__body">
+                    ${body}
+                </div>
+                <div class="modal__buttons">
+                    <button type="button" class="modal__nav-link is-active btn-confirm" 
+                            style="border: none; cursor: pointer; background-color: var(--modal-accent); color: white; padding: 0.6rem 1.4rem; border-radius: .15rem; transition: all 0.2s;"
+                            onmouseenter="this.style.backgroundColor='var(--modal-accent-hover)';" 
+                            onmouseleave="this.style.backgroundColor='var(--modal-accent)';">
+                        ${confirmText}
+                    </button>
+                    <button type="button" class="modal__nav-link modal-close-trigger" 
+                            style="border: none; cursor: pointer; background: var(--color-border-light-very); color: var(--color-text); border-radius: .15rem; padding: 0.6rem 1.4rem; transition: all 0.2s;"
+                            onmouseenter="this.style.background='var(--color-border-light)'"
+                            onmouseleave="this.style.background='var(--color-border-light-very)'">
+                        ${cancelText}
+                    </button>
+                </div>
+            </div>
+        </div>`;
 
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = document.getElementById('dynamic-modal');

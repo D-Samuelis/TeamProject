@@ -11,6 +11,7 @@ export function initCreateBusinessModal() {
         Modal.showCustom({
             title: 'Create New Business',
             confirmText: 'Create Business',
+            action:      'create',
             rules: {
                 name: { required: { value: true, message: 'Business name is required' } },
             },

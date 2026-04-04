@@ -14,6 +14,7 @@ export function initEditBusinessMetaDataModal() {
         Modal.showCustom({
             title: 'Edit Business Info',
             confirmText: 'Save Changes',
+            action:      'edit',
             rules: {
                 name: { required: { value: true, message: 'Business name is required' } },
             },

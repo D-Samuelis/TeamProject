@@ -120,6 +120,9 @@
 }
 
 .modal__header .modal-close-trigger {
+    position: absolute;
+    right: 24px;
+    top: 24px;
     color: var(--color-text);
     transition: color .2s ease-in-out;
 }
@@ -141,6 +144,12 @@
     color: var(--color-text);
     max-height: 65vh;
     overflow-y: auto;
+}
+
+.modal-confirm-content {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
 }
 
 .modal__buttons {
@@ -175,6 +184,10 @@
 }
 
 .modal .modal-form__group {
+    margin-bottom: .5rem;
+}
+
+.modal .modal-form__group.shake-it {
     margin-bottom: 1.5rem;
 }
 
