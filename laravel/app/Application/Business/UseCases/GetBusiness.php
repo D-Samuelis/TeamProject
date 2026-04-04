@@ -14,6 +14,10 @@ class GetBusiness
         private readonly BusinessAuthorizationService $authService
     ) {}
 
+    /**
+     * @param int $businessId The ID of the business to retrieve
+     * @param User|null $user The authenticated user (required for management mode)
+     */
     public function execute(int $businessId, ?User $user = null): Business
     {
         if ($user) {

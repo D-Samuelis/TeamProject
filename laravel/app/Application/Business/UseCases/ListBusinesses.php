@@ -18,18 +18,12 @@ class ListBusinesses
      * @param string $scope 'active'|'deleted'|'all'|'public'
      * @param array $filters Search/Filter criteria for public browsing
      */
-    public function execute(
-        ?User $user = null,
-        string $scope = 'active',
-        array $filters = []
-    ): Collection {
-        if ($scope === 'public') {
+    public function execute(?User $user = null, string $scope = 'active', array $filters = []): Collection
+    {
+        if (!$user) {
+            // Public browsing ignores scope
             $dto = SearchDTO::fromArray($filters);
             return $this->businessRepo->search($dto)->getCollection();
-        }
-
-        if (!$user) {
-            throw new \InvalidArgumentException('User is required for non-public business lists.');
         }
 
         return $this->businessRepo->listForUser($user, $scope);

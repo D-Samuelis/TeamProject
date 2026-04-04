@@ -20,8 +20,8 @@ return new class extends Migration
             $table->dateTime('valid_to')->nullable();
             $table->json('rule_set');
             $table->timestamp('delete_after')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

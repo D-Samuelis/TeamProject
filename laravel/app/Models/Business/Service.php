@@ -3,13 +3,14 @@
 namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'business_id',
@@ -23,17 +24,23 @@ class Service extends Model
     ];
 
     protected $casts = [
-        'base_price' => 'decimal:2',
+        'base_price'            => 'decimal:2',
         'base_duration_minutes' => 'integer',
-        'is_active' => 'boolean',
-        'delete_after' => 'datetime',
+        'is_active'             => 'boolean',
+        'delete_after'          => 'datetime',
     ];
+
+    // ── Relationships ────────────────────────────────────────────
 
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
     }
 
+    /**
+     * Branch-level instances of this service template.
+     * No direct user() relationship here — RBAC lives on BranchService.
+     */
     public function branchServices(): HasMany
     {
         return $this->hasMany(BranchService::class, 'service_id');

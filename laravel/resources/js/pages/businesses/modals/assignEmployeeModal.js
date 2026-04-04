@@ -1,18 +1,22 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
 
 export function initAssignEmployeeModal() {
-    const btn = document.querySelector('[data-modal-target="assign-employee-modal"]');
+    const btn = document.querySelector(
+        '[data-modal-target="assign-employee-modal"]',
+    );
     if (!btn) return;
 
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener("click", (e) => {
         e.preventDefault();
 
         Modal.showCustom({
-            title: 'Assign Employee',
-            confirmText: 'Assign & Notify',
-            action:      'create',
+            title: "Assign Employee",
+            confirmText: "Assign & Notify",
+            action: "create",
             rules: {
-                email: { required: { value: true, message: 'Email is required' } },
+                email: {
+                    required: { value: true, message: "Email is required" },
+                },
             },
             body: `
                 <form id="assignEmployeeForm" method="POST" action="${window.BE_DATA.routes.assignUser}">
@@ -29,16 +33,26 @@ export function initAssignEmployeeModal() {
                                 <option value="business" data-id="${window.BE_DATA.business.id}">Entire Business</option>
                                 
                                 <optgroup label="Branches">
-                                    ${window.BE_DATA.business.branches.map(b => 
-                                        `<option value="branch" data-id="${b.id}">${b.name}</option>`
-                                    ).join('')}
+                                    ${window.BE_DATA.business.branches
+                                        .map(
+                                            (b) =>
+                                                `<option value="branch" data-id="${b.id}">${b.name}</option>`,
+                                        )
+                                        .join("")}
                                 </optgroup>
 
                                 <optgroup label="Services">
-                                    ${window.BE_DATA.business.services.map(s => 
-                                        `<option value="service" data-id="${s.id}">${s.name}</option>`
-                                    ).join('')}
-                                </optgroup>
+                                    ${window.BE_DATA.business.branches
+                                        .flatMap(
+                                            (branch) =>
+                                                branch.branchServices || [],
+                                        ) // default to empty array
+                                        .map(
+                                            (s) =>
+                                                `<option value="service" data-id="${s.id}">${s.service?.name ?? "Unnamed service"}</option>`,
+                                        )
+                                        .join("")}
+                                </optgroup> 
                             </select>
                         </div>
                     </div>
@@ -63,18 +77,20 @@ export function initAssignEmployeeModal() {
             `,
             onConfirm: async (modal) => {
                 Modal.clearFieldErrors(modal);
-                const form = modal.querySelector('#assignEmployeeForm');
-                
-                const selector = modal.querySelector('#modal-target-selector');
+                const form = modal.querySelector("#assignEmployeeForm");
+
+                const selector = modal.querySelector("#modal-target-selector");
                 const selectedOption = selector.options[selector.selectedIndex];
-                form.querySelector('#modal-hidden-target-type').value = selector.value;
-                form.querySelector('#modal-hidden-target-id').value = selectedOption.dataset.id;
+                form.querySelector("#modal-hidden-target-type").value =
+                    selector.value;
+                form.querySelector("#modal-hidden-target-id").value =
+                    selectedOption.dataset.id;
 
                 const res = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        Accept: "application/json",
                     },
                     body: new FormData(form),
                 });
@@ -90,8 +106,8 @@ export function initAssignEmployeeModal() {
                     return;
                 }
 
-                alert('Error while assigning employee. Please try again.');
-            }
+                alert("Error while assigning employee. Please try again.");
+            },
         });
     });
 }

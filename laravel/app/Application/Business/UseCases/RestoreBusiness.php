@@ -18,9 +18,7 @@ class RestoreBusiness
     {
         DB::transaction(function () use ($businessId, $user) {
             $business = $this->businessRepo->findForManagement($businessId);
-
             $this->authService->ensureCanUpdateBusiness($user, $business);
-
             $this->businessRepo->restore($business);
         });
     }

@@ -21,13 +21,7 @@ class BusinessAuthorizationService
      */
     public function ensureCanCreateBusiness(User $user): void
     {
-        if ($user->isAdmin()) {
-            return;
-        }
-
-        if ($this->businessRepo->existsOwner($user->id)) {
-            throw new AuthorizationException('You already own a business and cannot create another one.');
-        }
+        
     }
 
     /**

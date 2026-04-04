@@ -22,7 +22,7 @@ interface BranchRepositoryInterface
     /**
      * MANAGEMENT: Operations for owners/admins.
      */
-    public function listForUser(User $user, ?Business $business = null, string $scope = 'active'): Collection;
+    public function listForUser(User $user, ?int $businessId = null, string $scope = 'active'): Collection;
 
     public function findForManagement(int $id): Branch;
 
@@ -48,7 +48,7 @@ interface BranchRepositoryInterface
     
     public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void;
 
-    public function detachUser($branch, $userId): int;
+    public function detachUser(Branch $branch, int $userId): int;
     
     public function getAssignments(Branch $branch): array;
 

@@ -129,6 +129,8 @@ Route::middleware('auth')->group(function () {
                     Route::put('/{branchId}', 'update')->name('update');
                     Route::delete('/{branchId}', 'delete')->name('delete');
                     Route::patch('/{branchId}/restore', 'restore')->name('restore');
+                    Route::post('/{branchId}/services/assign', 'assignServices')->name('services.assign');
+                    Route::delete('/{branchId}/services/unassign', 'unassignServices')->name('services.unassign');
                 });
 
             // Services

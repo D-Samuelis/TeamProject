@@ -22,9 +22,7 @@ class StoreBranch
     {
         return DB::transaction(function () use ($dto, $user) {
             $business = $this->businessRepo->findForManagement($dto->business_id);
-            
             $this->authService->ensureCanCreateBranch($user, $business);
-            
             return $this->branchRepo->save($dto->toArray());
         });
     }

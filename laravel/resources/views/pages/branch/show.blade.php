@@ -1,5 +1,3 @@
-manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
-
 @if (session('success'))
     <p style="color:green;">{{ session('success') }}</p>
 @endif
@@ -65,11 +63,20 @@ manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
 {{-- Services --}}
 <div style="margin-top:0.5rem;">
     <strong>Services:</strong>
-    @forelse($branch->services as $s)
+
+    @php
+        // Use enabledBranchServices if you want only active services
+        $displayServices = $branch->branchServices ?? collect();
+    @endphp
+
+    @forelse($displayServices as $bs)
         <span>
-            <a href="{{ route('manage.service.show', $s->id) }}">{{ $s->name }}</a>
-            @can('assign', [$s, $branch])
-                <form method="POST" action="{{ route('manage.service.branch.unassign', [$s->id, $branch->id]) }}"
+            {{-- The related service of the BranchService pivot --}}
+            <a href="{{ route('manage.service.show', $bs->service->id) }}">{{ $bs->service->name }}</a>
+
+            @can('assign', [$bs->service, $branch])
+                <form method="POST"
+                    action="{{ route('manage.service.branch.unassign', [$bs->service->id, $branch->id]) }}"
                     style="display:inline;" onsubmit="return confirm('Remove this service from branch?')">
                     @csrf @method('DELETE')
                     <button type="submit"
@@ -86,7 +93,17 @@ manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
 </div>
 
 {{-- Assign service --}}
-@php $assignableServices = $services->whereNotIn('id', $branch->services->pluck('id')); @endphp
+@php
+    // all services available in the system
+    $allServices = $services ?? collect();
+
+    // IDs of already assigned services
+    $assignedIds = $branch->branchServices->pluck('service_id');
+
+    // filter only services not yet assigned
+    $assignableServices = $allServices->whereNotIn('id', $assignedIds);
+@endphp
+
 @if ($assignableServices->isNotEmpty())
     <div style="margin-top:0.5rem;">
         <strong>Assign service:</strong>
@@ -131,8 +148,7 @@ manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
             @csrf @method('PUT')
             @include('pages.branch.partials.branch-form', [
                 'prefix' => 'edit',
-                'branch' => $branch,
-                'businesses' => $businesses,
+                'branch' => $branch
             ])
 
             <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">

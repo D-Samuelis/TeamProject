@@ -23,21 +23,7 @@ use App\Application\Business\UseCases\UpdateBusiness;
 
 class ManageBusinessController extends Controller
 {
-    public function index(ListBusinesses $useCase)
-    {
-        $user = Auth::user();
-
-        return view('pages.business.index', [
-            'activeBusinesses' => $useCase->execute($user, 'active'),
-            'deletedBusinesses' => $useCase->execute($user, 'deleted'),
-        ]);
-    }
-
-    public function show(int $businessId, GetBusiness $useCase)
-    {
-        $business = $useCase->execute($businessId, Auth::user());
-        return view('pages.business.show', compact('business'));
-    }
+    // ── DATA PERSISTENCE ─────────────────────────────────────────
 
     public function store(StoreBusinessRequest $request, StoreBusiness $useCase)
     {
@@ -61,6 +47,24 @@ class ManageBusinessController extends Controller
     {
         $useCase->execute($businessId, Auth::user());
         return back()->with('success', 'Business restored successfully.');
+    }
+
+    // ── VIEWS ─────────────────────────────────────────
+
+    public function index(ListBusinesses $useCase)
+    {
+        $user = Auth::user();
+
+        return view('pages.business.index', [
+            'activeBusinesses' => $useCase->execute($user, 'active'),
+            'deletedBusinesses' => $useCase->execute($user, 'deleted'),
+        ]);
+    }
+
+    public function show(int $businessId, GetBusiness $useCase)
+    {
+        $business = $useCase->execute($businessId, Auth::user());
+        return view('pages.business.show', compact('business'));
     }
 
     public function book(int $businessId, GetBusiness $useCase)

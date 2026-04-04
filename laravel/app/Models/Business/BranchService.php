@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,15 +24,19 @@ class BranchService extends Model
     ];
 
     protected $casts = [
-        'custom_price' => 'decimal:2',
+        'custom_price'            => 'decimal:2',
         'custom_duration_minutes' => 'integer',
-        'is_enabled' => 'boolean',
+        'is_enabled'              => 'boolean',
     ];
 
+    // ── Relationships ────────────────────────────────────────────
+
+    /**
+     * Staff assigned directly to this service instance (BranchService-level RBAC).
+     * Distinct from branch-level or business-level user assignments.
+     */
     public function users()
-
     {
-
         return $this->morphToMany(\App\Models\Auth\User::class, 'model', 'model_has_users')
             ->withPivot('role')
             ->withTimestamps();
@@ -57,6 +62,8 @@ class BranchService extends Model
     {
         return $this->hasMany(Appointment::class, 'branch_service_id');
     }
+
+    // ── Computed attributes (fall back to service template) ──────
 
     protected function name(): Attribute
     {

@@ -20,9 +20,7 @@ class UpdateBusiness
     {
         return DB::transaction(function () use ($dto, $user) {
             $business = $this->businessRepo->findForManagement($dto->id);
-
             $this->authService->ensureCanUpdateBusiness($user, $business);
-
             return $this->businessRepo->update($dto->id, $dto->toArray());
         });
     }

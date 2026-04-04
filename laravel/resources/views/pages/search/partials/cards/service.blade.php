@@ -1,8 +1,8 @@
 <div class="card service-card">
     <div class="card-body">
-        <h3 class="card-title">{{ $item->service->name }}</h3>
+        <h3 class="card-title">{{ $item->name }}</h3>
 
-        <span class="card-price">{{ number_format($item->effective_price, 2) }} €</span>
+        <span class="card-price">{{ number_format($item->price, 2) }} €</span>
     </div>
 
     <p class="card-subtitle">
@@ -14,8 +14,8 @@
     </p>
 
     <div class="card-meta">
-        <span class="meta-item">⏱ {{ $item->effective_duration }} min</span>
-        <span class="meta-item">📍 {{ ucfirst($item->effective_location_type) }}</span>
+        <span class="meta-item">⏱ {{ $item->duration }} min</span>
+        <span class="meta-item">📍 {{ ucfirst($item->location_type) }}</span>
     </div>
 
     <div class="card-actions">

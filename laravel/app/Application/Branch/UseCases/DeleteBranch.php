@@ -18,9 +18,7 @@ class DeleteBranch
     {
         DB::transaction(function () use ($branchId, $user) {
             $branch = $this->branchRepo->findForManagement($branchId);
-
             $this->authService->ensureCanDeleteBranch($user, $branch);
-
             $this->branchRepo->delete($branch);
         });
     }

@@ -18,9 +18,7 @@ class RestoreBranch
     {
         DB::transaction(function () use ($branchId, $user) {
             $branch = $this->branchRepo->findForManagement($branchId);
-
             $this->branchAuthService->ensureCanUpdateBranch($user, $branch);
-
             $this->branchRepo->restore($branch);
         });
     }

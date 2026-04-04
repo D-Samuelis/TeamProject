@@ -20,9 +20,7 @@ class UpdateBranch
     {
         return DB::transaction(function () use ($dto, $user) {
             $branch = $this->branchRepo->findForManagement($dto->id);
-
             $this->authService->ensureCanUpdateBranch($user, $branch);
-
             return $this->branchRepo->update($branch, $dto->toArray());
         });
     }

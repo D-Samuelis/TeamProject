@@ -8,15 +8,8 @@
 {{-- Business --}}
 <div style="margin-bottom:1rem;">
     <label>Business <span style="color:red;">*</span></label><br>
-    <select name="business_id" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" required>
-        <option value="">— Select business —</option>
-        @foreach($businesses as $business)
-            <option value="{{ $business->id }}"
-                {{ old('business_id', $branch->business_id ?? '') == $business->id ? 'selected' : '' }}>
-                {{ $business->name }}
-            </option>
-        @endforeach
-    </select>
+    <input type="text" name="business_name" value="{{ $branch->business->name ?? '' }}" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" required>
+
     @error('business_id') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
 </div>
 

@@ -14,13 +14,15 @@ class DeleteBusiness
         private readonly BusinessRepositoryInterface $businessRepo
     ) {}
 
+    /**
+     * @param int $businessId The ID of the business to delete
+     * @param User $user The authenticated user (required for management mode)
+     */
     public function execute(int $businessId, User $user): void
     {
         DB::transaction(function () use ($businessId, $user) {
             $business = $this->businessRepo->findForManagement($businessId);
-
             $this->authService->ensureCanDeleteBusiness($user, $business);
-
             $this->businessRepo->delete($business);
         });
     }

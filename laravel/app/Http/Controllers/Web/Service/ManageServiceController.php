@@ -22,24 +22,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ManageServiceController extends Controller
 {
-    public function index(ListServices $listServices, ListBusinesses $listBusinesses, ListBranches $listBranches)
-    {
-        return view('pages.service.index', [
-            'services' => $listServices->execute(Auth::user(), scope: 'all'),
-            'businesses' => $listBusinesses->execute(Auth::user()),
-            'branches' => $listBranches->execute(Auth::user()),
-        ]);
-    }
-
-    public function show(int $serviceId, GetService $getService, ListBusinesses $listBusinesses, ListBranches $listBranches)
-    {
-        $service = $getService->execute($serviceId, Auth::user());
-        return view('pages.service.show', [
-            'service' => $service,
-            'businesses' => $listBusinesses->execute(Auth::user()),
-            'branches' => $listBranches->execute(Auth::user()),
-        ]);
-    }
+    // ── DATA PERSISTENCE ─────────────────────────────────────────
 
     public function store(StoreServiceRequest $request, StoreService $useCase)
     {
@@ -64,6 +47,27 @@ class ManageServiceController extends Controller
         $useCase->execute($serviceId, Auth::user());
         return back()->with('success', 'Service restored successfully.');
     }
+
+    // ── VIEWS ─────────────────────────────────────────
+
+    public function index(ListServices $listServices, ListBusinesses $listBusinesses, ListBranches $listBranches)
+    {
+        return view('pages.service.index', [
+            'services' => $listServices->execute(Auth::user(), scope: 'all'),
+            'businesses' => $listBusinesses->execute(Auth::user()),
+            'branches' => $listBranches->execute(Auth::user()),
+        ]);
+    }
+
+    public function show(int $serviceId, GetService $getService, ListBusinesses $listBusinesses, ListBranches $listBranches)
+    {
+        $service = $getService->execute($serviceId, Auth::user());
+        return view('pages.service.show', [
+            'service' => $service,
+            'businesses' => $listBusinesses->execute(Auth::user()),
+            'branches' => $listBranches->execute(Auth::user()),
+        ]);
+    }  
 
     public function assign(int $serviceId, int $branchId, AssignServiceToBranch $useCase)
     {

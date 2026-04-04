@@ -14,28 +14,15 @@ use App\Application\Branch\UseCases\ListBranches;
 use App\Application\Branch\UseCases\GetBranch;
 use App\Application\Branch\DTO\StoreBranchDTO;
 use App\Application\Branch\DTO\UpdateBranchDTO;
+use App\Application\Branch\UseCases\AssignServiceToBranchUseCase;
+use App\Application\Branch\UseCases\UnassignServiceFromBranchUseCase;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Service\UseCases\ListServices;
+use App\Http\Requests\Branch\BranchServiceAssignmentRequest;
 
 class ManageBranchController extends Controller
 {
-    public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
-    {
-        return view('pages.branch.index', [
-            'branches'   => $listBranches->execute(Auth::user()),
-            'businesses' => $listBusinesses->execute(Auth::user()),
-        ]);
-    }
-
-    public function show(int $branchId, GetBranch $getBranch, ListBusinesses $listBusinesses, ListServices $listServices)
-    {
-        $branch = $getBranch->execute($branchId, Auth::user());
-        return view('pages.branch.show', [
-            'branch'     => $branch,
-            'businesses' => $listBusinesses->execute(Auth::user()),
-            'services'   => $listServices->execute(Auth::user(), $branch->business),
-        ]);
-    }
+    // ── DATA PERSISTENCE ─────────────────────────────────────────
 
     public function store(StoreBranchRequest $request, StoreBranch $useCase)
     {
@@ -59,5 +46,40 @@ class ManageBranchController extends Controller
     {
         $useCase->execute($branchId, Auth::user());
         return back()->with('success', 'Branch restored.');
+    }
+
+    public function assignServices(
+        BranchServiceAssignmentRequest $request,
+        AssignServiceToBranchUseCase $useCase
+    ) {
+        $assigned = $useCase->execute($request->validated()['branch_id'], $request->validated()['service_ids']);
+        return back()->with('success', count($assigned) . ' service(s) assigned.');
+    }
+
+    public function unassignServices(
+        BranchServiceAssignmentRequest $request,
+        UnassignServiceFromBranchUseCase $useCase
+    ) {
+        $count = $useCase->execute($request->validated()['branch_id'], $request->validated()['service_ids']);
+        return back()->with('success', "$count service(s) unassigned.");
+    }
+
+    // ── VIEWS ─────────────────────────────────────────
+
+    public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
+    {
+        return view('pages.branch.index', [
+            'branches'   => $listBranches->execute(Auth::user()),
+            'businesses' => $listBusinesses->execute(Auth::user()),
+        ]);
+    }
+
+    public function show(int $branchId, GetBranch $useCase, ListServices $listServices)
+    {
+        $branch = $useCase->execute($branchId, Auth::user());
+        return view('pages.branch.show', [
+            'branch'     => $branch,
+            'services'   => $listServices->execute(Auth::user(), $branch->business),
+        ]);
     }
 }

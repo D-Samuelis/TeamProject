@@ -21,11 +21,8 @@ class StoreBusiness
     {
         return DB::transaction(function () use ($dto, $user) {
             $this->authService->ensureCanCreateBusiness($user);
-
             $business = $this->businessRepo->save($dto->toArray());
-
             $this->businessRepo->attachUser($business, $user->id, BusinessRoleEnum::OWNER);
-
             return $business;
         });
     }

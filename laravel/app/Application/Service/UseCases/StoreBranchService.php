@@ -2,14 +2,16 @@
 
 namespace App\Application\Service\UseCases;
 
+use Illuminate\Support\Facades\DB;
 use App\Application\Auth\Services\ServiceAuthorizationService;
+use App\Application\Service\DTO\StoreBranchServiceDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Domain\Service\Interfaces\BranchServiceRepositoryInterface;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
-use Illuminate\Support\Facades\DB;
+use App\Models\Business\BranchService;
 
-class AssignServiceToBranch
+class StoreBranchService
 {
     public function __construct(
         private readonly ServiceRepositoryInterface       $serviceRepo,
@@ -18,11 +20,11 @@ class AssignServiceToBranch
         private readonly ServiceAuthorizationService      $authService,
     ) {}
 
-    public function execute(int $serviceId, int $branchId, User $user): void
+    public function execute(StoreBranchServiceDTO $dto, User $user): BranchService
     {
-        DB::transaction(function () use ($serviceId, $branchId, $user) {
-            $service = $this->serviceRepo->findForManagement($serviceId);
-            $branch  = $this->branchRepo->findForManagement($branchId);
+        return DB::transaction(function () use ($dto, $user) {
+            $service = $this->serviceRepo->findForManagement($dto->service_id);
+            $branch  = $this->branchRepo->findForManagement($dto->branch_id);
 
             if ($branch->business_id !== $service->business_id) {
                 throw new \DomainException('Branch does not belong to this service\'s business.');
@@ -30,25 +32,17 @@ class AssignServiceToBranch
 
             $this->authService->ensureCanAssignServiceToBranch($user, $service->business, $branch);
 
-            // Check for an existing instance (including soft-deleted)
-            $existing = $this->branchServiceRepo->findByServiceAndBranch($serviceId, $branchId);
+            $existing = $this->branchServiceRepo->findByServiceAndBranch($dto->service_id, $dto->branch_id);
 
             if ($existing) {
                 if ($existing->trashed()) {
-                    // Restore the old instance rather than creating a duplicate,
-                    // so custom overrides, asset links, and history are preserved.
                     $existing->restore();
-                    $existing->update(['is_enabled' => true]);
                 }
-                // Already exists and is active — nothing to do
-                return;
+                // Update with the provided overrides
+                return $this->branchServiceRepo->updateInstance($existing, $dto->toArray());
             }
 
-            $this->branchServiceRepo->createInstance([
-                'branch_id'  => $branchId,
-                'service_id' => $serviceId,
-                'is_enabled' => true,
-            ]);
+            return $this->branchServiceRepo->createInstance($dto->toArray());
         });
     }
 }

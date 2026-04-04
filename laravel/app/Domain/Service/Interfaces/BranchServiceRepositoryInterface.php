@@ -33,4 +33,6 @@ interface BranchServiceRepositoryInterface
     public function findForBranch(int $branchId, bool $enabledOnly = true): \Illuminate\Support\Collection;
 
     public function findWithinBranch(int $branchServiceId, int $branchId): BranchService;
+
+    public function findByServiceAndBranch(int $serviceId, int $branchId): ?BranchService;
 }

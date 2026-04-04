@@ -1,9 +1,10 @@
 {{--
     Reusable service form fields.
-    $prefix     : 'create' or 'edit'
-    $service    : existing Service model or null
-    $businesses : collection
-    $branches   : collection
+    $prefix               : 'create' or 'edit'
+    $service              : existing Service model or null
+    $businesses           : collection
+    $branches             : collection
+    $showBranchAssignment : bool — true only on create; edit manages branches via show page
 --}}
 
 {{-- Business --}}
@@ -43,14 +44,14 @@
     <div>
         <label>Duration (minutes) <span style="color:red;">*</span></label><br>
         <input type="number" name="duration_minutes" min="1"
-               value="{{ old('duration_minutes', $service->duration_minutes ?? '') }}"
+               value="{{ old('duration_minutes', $service->base_duration_minutes ?? '') }}"
                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" required>
         @error('duration_minutes') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
     </div>
     <div>
         <label>Price <span style="color:red;">*</span></label><br>
         <input type="number" name="price" min="0" step="0.01"
-               value="{{ old('price', $service->price ?? '') }}"
+               value="{{ old('price', $service->base_price ?? '') }}"
                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" required>
         @error('price') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
     </div>
@@ -61,8 +62,9 @@
     <label>Location type</label><br>
     <select name="location_type" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
         <option value="">— None —</option>
-        @foreach(['branch','online','hybrid'] as $t)
-            <option value="{{ $t }}" {{ old('location_type', $service->location_type ?? '') == $t ? 'selected' : '' }}>
+        @foreach(['branch', 'online', 'hybrid'] as $t)
+            <option value="{{ $t }}"
+                {{ old('location_type', $service->location_type ?? '') == $t ? 'selected' : '' }}>
                 {{ ucfirst($t) }}
             </option>
         @endforeach
@@ -70,24 +72,30 @@
     @error('location_type') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
 </div>
 
-{{-- Branches --}}
-<div style="margin-bottom:1rem;">
-    <label>Branches</label>
-    <div style="border:1px solid #ccc;border-radius:4px;padding:8px;max-height:150px;overflow-y:auto;">
-        @forelse($branches as $branch)
-            @php $currentBranchIds = old('branch_ids', isset($service) ? $service->branches->pluck('id')->toArray() : []); @endphp
-            <label style="display:block;padding:3px 0;cursor:pointer;">
-                <input type="checkbox" name="branch_ids[]" value="{{ $branch->id }}"
-                    {{ in_array($branch->id, $currentBranchIds) ? 'checked' : '' }}>
-                {{ $branch->name }}
-                @if($branch->city) <span style="font-size:12px;color:#aaa;">({{ $branch->city }})</span> @endif
-            </label>
-        @empty
-            <p style="color:#888;font-size:13px;margin:0;">No branches available.</p>
-        @endforelse
+{{--
+    Branch assignment — shown only on create.
+    On the show/edit page this is managed via the dedicated assign/unassign UI,
+    so including it here would create a conflicting second source of truth.
+--}}
+@if (!empty($showBranchAssignment) && $branches->isNotEmpty())
+    <div style="margin-bottom:1rem;">
+        <label>Assign to branches <span style="color:#888;font-size:12px;">(optional)</span></label>
+        <div style="border:1px solid #ccc;border-radius:4px;padding:8px;max-height:150px;overflow-y:auto;">
+            @foreach($branches as $branch)
+                @php $currentBranchIds = old('branch_ids', []); @endphp
+                <label style="display:block;padding:3px 0;cursor:pointer;">
+                    <input type="checkbox" name="branch_ids[]" value="{{ $branch->id }}"
+                        {{ in_array($branch->id, $currentBranchIds) ? 'checked' : '' }}>
+                    {{ $branch->name }}
+                    @if($branch->city)
+                        <span style="font-size:12px;color:#aaa;">({{ $branch->city }})</span>
+                    @endif
+                </label>
+            @endforeach
+        </div>
+        @error('branch_ids') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
     </div>
-    @error('branch_ids') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-</div>
+@endif
 
 {{-- Is active --}}
 <div style="margin-bottom:1rem;">
