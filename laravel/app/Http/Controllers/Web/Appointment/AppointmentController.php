@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Appointment;
 
+use App\Application\Appointment\UseCases\GetAppointment;
+use App\Application\Appointment\UseCases\ListAppointments;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,6 +21,26 @@ class AppointmentController extends Controller
         private readonly GetAvailableSlots $getSlots,
         private readonly CreateAppointment $createAppointment,
     ) {}
+
+    public function index(ListAppointments $listAppointments)
+    {
+        $user = Auth::user();
+
+        return view('pages.appointment.index', [
+            'appointments'   => $listAppointments->execute([], $user),
+        ]);
+    }
+
+    public function show(int $appointmentId, GetAppointment $getAsset)
+    {
+        $user     = Auth::user();
+        $appointment = $getAsset->execute($appointmentId, $user);
+        $appointment->load(['service', 'asset.branch.business', 'user']);
+
+        return view('pages.appointment.show', [
+            'appointment'    => $appointment,
+        ]);
+    }
 
     /**
      * GET /appointments/slots?asset_id=&service_id=&from=&to=

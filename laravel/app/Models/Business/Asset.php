@@ -15,7 +15,8 @@ class Asset extends Model
     protected $fillable = [
         'name',
         'description',
-        'delete_after'
+        'delete_after',
+        'branch_id',
         ];
 
 
@@ -24,9 +25,9 @@ class Asset extends Model
         return $this->belongsToMany(Service::class);
     }
 
-    public function branches()
+    public function branch()
     {
-        return $this->belongsToMany(Branch::class);
+        return $this->belongsTo(Branch::class);
     }
 
     public function rules()

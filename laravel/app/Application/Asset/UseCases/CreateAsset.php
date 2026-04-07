@@ -29,12 +29,6 @@ class CreateAsset
         return DB::transaction(function () use ($dto) {
             $asset = $this->assetRepo->save($dto->toArray());
 
-            if (!empty($dto->branch_ids)) {
-                $valid = $this->branchRepo->findMultipleByIds($dto->branch_ids);
-                $valid = array_intersect($dto->branch_ids, array_column($valid->toArray(), 'id'));
-                $this->assetRepo->attachBranches($asset, $valid);
-            }
-
             if (!empty($dto->service_ids)) {
                 $valid = $this->serviceRepo->findMultipleByIds($dto->service_ids);
                 $valid = array_intersect($dto->service_ids, array_column($valid->toArray(), 'id'));

@@ -21,15 +21,14 @@ class UpdateAssetRequest extends FormRequest
 
     public function rules(): array
     {
-        $branchIds = $this->input('branch_ids', []);
+        $branchId = $this->input('branch_id');
 
         return [
             'id'            => 'required|integer|exists:assets,id',
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
-            'branch_ids'    => 'required_without:service_ids|array',
-            'branch_ids.*'  => 'integer|exists:branches,id',
-            'service_ids'   => ['required_without:branch_ids', 'array', new ServicesBelongToBranches($branchIds)],
+            'branch_id'     => 'required|integer|exists:branches,id',
+            'service_ids'   => ['required', 'array', 'min:1', new ServicesBelongToBranches([$branchId])],
             'service_ids.*' => 'integer|exists:services,id',
         ];
     }
@@ -37,10 +36,11 @@ class UpdateAssetRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'branch_ids.*.exists'  => 'One or more selected branches do not exist.',
+            'branch_id.required'   => 'You must select a branch for this asset.',
+            'branch_id.exists'     => 'The selected branch does not exist.',
+            'service_ids.required' => 'At least one service must be assigned to this asset.',
+            'service_ids.min'      => 'You must select at least one service.',
             'service_ids.*.exists' => 'One or more selected services do not exist.',
-            'branch_ids.required_without'  => 'At least one branch or service must be selected.',
-            'service_ids.required_without' => 'At least one branch or service must be selected.',
         ];
     }
 }

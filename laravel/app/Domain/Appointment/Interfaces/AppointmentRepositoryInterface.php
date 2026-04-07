@@ -2,6 +2,8 @@
 
 namespace App\Domain\Appointment\Interfaces;
 
+use App\Application\DTO\SearchDTO;
+use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use App\Models\Business\Appointment;
@@ -23,4 +25,8 @@ interface AppointmentRepositoryInterface
      * Find a single appointment by ID.
      */
     public function findById(int $id): ?Appointment;
+
+    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection;
+
+    public function search(SearchDTO $dto, ?User $user = null): Collection;
 }

@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Appointment;
 
+use App\Application\DTO\SearchDTO;
+use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use App\Domain\Appointment\Interfaces\AppointmentRepositoryInterface;
@@ -27,5 +29,68 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     public function findById(int $id): ?Appointment
     {
         return Appointment::find($id);
+    }
+
+    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection
+    {
+        $query = Appointment::query()->with(['user', 'service', 'asset.branch.business']);
+
+        // 1. If not an Admin, strictly limit to the user's own bookings
+        if ($user && !$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        // 2. Apply Optional Filters (from SearchDTO)
+        if (!empty($dto->filters['status'])) {
+            $query->where('status', $dto->filters['status']);
+        }
+
+        if (!empty($dto->filters['date'])) {
+            $query->whereDate('date', $dto->filters['date']);
+        }
+
+        // 3. Return the results ordered by the most recent appointment date
+        return $query->latest('start_at')->get();
+    }
+
+    public function search(SearchDTO $dto, ?User $user = null): Collection
+    {
+        $query = Appointment::query()->with(['user', 'service', 'asset.branch']);
+
+        if ($user && !$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                // 1. Always show appointments where the user is the customer
+                $q->where('user_id', $user->id)
+
+                    // 2. OR show appointments in branches where the user has a role (Staff/Manager)
+                    ->orWhereHas('asset.branch', function ($b) use ($user) {
+                        $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
+                    })
+
+                    // 3. OR show appointments for services the user is assigned to
+                    ->orWhereHas('service', function ($s) use ($user) {
+                        $s->whereHas('users', fn($u) => $u->where('users.id', $user->id));
+                    })
+
+                    // 4. OR show appointments in businesses the user manages/owns
+                    ->orWhereHas('asset.branch.business', function ($biz) use ($user) {
+                        $biz->whereHas('users', function ($u) use ($user) {
+                            $u->where('users.id', $user->id)
+                                ->whereIn('model_has_users.role', ['owner', 'manager']);
+                        });
+                    });
+            });
+        }
+
+        // Apply filters from SearchDTO
+        if (!empty($dto->filters['status'])) {
+            $query->where('status', $dto->filters['status']);
+        }
+
+        if (!empty($dto->filters['date'])) {
+            $query->whereDate('date', $dto->filters['date']);
+        }
+
+        return $query->latest('start_at')->get();
     }
 }
