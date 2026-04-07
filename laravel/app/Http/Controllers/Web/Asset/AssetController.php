@@ -39,7 +39,7 @@ class AssetController extends Controller
         $dto = new CreateAssetDTO(
             $request->validated('name'),
             $request->validated('description'),
-            $request->validated('branch_ids') ?? [],
+            (int) $request->validated('branch_id'),
             $request->validated('service_ids') ?? []
         );
 
@@ -52,7 +52,7 @@ class AssetController extends Controller
     {
         $user     = Auth::user();
         $asset = $getAsset->execute($assetId, $user);
-        $asset->load('branches.business', 'services');
+        $asset->load('branch.business', 'services');
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
         return view('pages.asset.show', [
@@ -68,7 +68,7 @@ class AssetController extends Controller
             $assetId,
             $request->validated('name'),
             $request->validated('description'),
-            $request->validated('branch_ids') ?? [],
+            (int) $request->validated('branch_id'),
             $request->validated('service_ids') ?? []
         );
 

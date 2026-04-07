@@ -8,7 +8,7 @@ class UpdateAssetDTO
         public int $id,
         public string $name,
         public ?string $description = null,
-        public array $branch_ids = [],
+        public int $branch_id,
         public array $service_ids = []
     ) {}
 
@@ -17,7 +17,7 @@ class UpdateAssetDTO
         return [
             'name' => $this->name,
             'description' => $this->description,
-            'branch_ids' => $this->branch_ids,
+            'branch_id' => $this->branch_id,
             'service_ids' => $this->service_ids
         ];
     }

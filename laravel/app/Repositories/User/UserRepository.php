@@ -48,19 +48,17 @@ class UserRepository implements UserRepositoryInterface
 
     public function getAssetRole(User $user, Asset $asset): ?string
     {
-        $asset->load(['branches.business', 'services']);
+        $asset->load(['branch.business', 'services']);
 
-        foreach ($asset->branches as $branch) {
-            if ($branch->business) {
-                $businessRole = $this->getBusinessRole($user, $branch->business);
-                if ($businessRole === BusinessRoleEnum::OWNER)   return 'owner';
-                if ($businessRole === BusinessRoleEnum::MANAGER) return 'manager';
-            }
-
-            $branchRole = $this->getBranchRole($user, $branch);
-            if ($branchRole === BranchRoleEnum::MANAGER) return 'manager';
-            if ($branchRole === BranchRoleEnum::STAFF)   return 'staff';
+        if ($asset->branch->business) {
+            $businessRole = $this->getBusinessRole($user, $asset->branch->business);
+            if ($businessRole === BusinessRoleEnum::OWNER)   return 'owner';
+            if ($businessRole === BusinessRoleEnum::MANAGER) return 'manager';
         }
+
+        $branchRole = $this->getBranchRole($user, $asset->branch);
+        if ($branchRole === BranchRoleEnum::MANAGER) return 'manager';
+        if ($branchRole === BranchRoleEnum::STAFF)   return 'staff';
 
         foreach ($asset->services as $service) {
             $member = $user->services()

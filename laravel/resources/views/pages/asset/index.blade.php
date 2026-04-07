@@ -63,22 +63,16 @@
 
             {{-- Branches --}}
             <div style="margin-bottom:1rem;">
-                <label>Branches</label>
-                <div style="border:1px solid #ccc; border-radius:4px; padding:8px; max-height:160px; overflow-y:auto;">
-                    @forelse($branches as $branch)
-                        <label style="display:block; padding:4px 0; cursor:pointer;">
-                            <input type="checkbox"
-                                   name="branch_ids[]"
-                                   value="{{ $branch->id }}"
-                                   {{ in_array($branch->id, old('branch_ids', [])) ? 'checked' : '' }}>
-                            {{ $branch->name }}
-                            <span style="font-size:12px; color:#888;">({{ $branch->business->name }})</span>
-                        </label>
-                    @empty
-                        <p style="color:#888; font-size:13px; margin:0;">No branches available.</p>
-                    @endforelse
-                </div>
-                @error('branch_ids') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
+                <label for="branch_id">Branch <span style="color:red;">*</span></label><br>
+                <select name="branch_id" id="branch_id" required style="width:100%; padding:8px;">
+                    <option value="">Select a Branch</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                            {{ $branch->name }} ({{ $branch->business->name }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('branch_id') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
             </div>
 
             {{-- Services --}}
