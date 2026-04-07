@@ -1,126 +1,81 @@
-{{-- resources/views/pages/private/asset/index.blade.php --}}
+@extends('layouts.app')
 
-@if(session('success'))
-    <p style="color: green;">{{ session('success') }}</p>
-@endif
+@section('title', 'Bexora | Assets')
 
-{{-- Asset list --}}
-<div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h1>Assets</h1>
-        <button onclick="document.getElementById('createAssetModal').style.display='flex'">
-            + New Asset
-        </button>
-    </div>
+@section('content')
 
-    @forelse($assets as $asset)
-        <div>
-            <a href="{{ route('manage.asset.show', $asset->id) }}">{{ $asset->name }}</a>
-            <span style="color: #888;">{{ $asset->description }}</span>
-        </div>
-    @empty
-        <p>No assets yet.</p>
-    @endforelse
-</div>
+<script>
+    window.BE_DATA = {
+        csrf: '{{ csrf_token() }}',
+        assets: @json($assets),
+        allBranches: @json($branches),
+        allServices: @json($services),
+        routes: {
+            store: "{{ route('manage.asset.store') }}",
+            show: "{{ route('manage.asset.show', ':id') }}",
+            update: "{{ route('manage.asset.update', ':id') }}",
+            delete: "{{ route('manage.asset.delete', ':id') }}"
+        },
+        csrf: "{{ csrf_token() }}"
+    };
+</script>
 
-{{-- ── Create Modal ──────────────────────────────────────────────────────── --}}
-<div id="createAssetModal"
-     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-
-    <div style="background:#fff; border-radius:8px; padding:2rem; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; position:relative;">
-
-        <button onclick="document.getElementById('createAssetModal').style.display='none'"
-                style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.25rem; cursor:pointer;">
-            &times;
-        </button>
-
-        <h2 style="margin-bottom:1.5rem;">New Asset</h2>
-
-        <form method="POST" action="{{ route('manage.asset.store') }}">
-            @csrf
-
-            {{-- Name --}}
-            <div style="margin-bottom:1rem;">
-                <label for="create_name">Name <span style="color:red;">*</span></label><br>
-                <input type="text"
-                       id="create_name"
-                       name="name"
-                       value="{{ old('name') }}"
-                       style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"
-                       required>
-                @error('name') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
+<div class="business"> {{-- Používam rovnaké triedy pre zachovanie CSS --}}
+    <aside class="business__sidebar">
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
+            <div id="managementList" class="dropdown__mini-list">
+                <a href="{{ route('manage.asset.index') }}" class="business__nav-link is-active">
+                    <i class="fa-solid fa-list"></i><span>All Assets</span>
+                </a>
+                <button type="button" class="business__nav-link" data-modal-target="create-asset-modal">
+                    <i class="fa-solid fa-plus"></i><span>New Asset</span>
+                </button>
             </div>
-
-            {{-- Description --}}
-            <div style="margin-bottom:1rem;">
-                <label for="create_description">Description</label><br>
-                <textarea id="create_description"
-                          name="description"
-                          rows="3"
-                          style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">{{ old('description') }}</textarea>
-                @error('description') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
+        </section>
+        <section class="business__status-filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
+            <div id="statusList" class="dropdown__mini-list">
+                {{-- Sem môžeš neskôr pridať filtre cez JS podobne ako pri biznisoch --}}
             </div>
+        </section>
+    </aside>
 
-            {{-- Branches --}}
-            <div style="margin-bottom:1rem;">
-                <label for="branch_id">Branch <span style="color:red;">*</span></label><br>
-                <select name="branch_id" id="branch_id" required style="width:100%; padding:8px;">
-                    <option value="">Select a Branch</option>
-                    @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
-                            {{ $branch->name }} ({{ $branch->business->name }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('branch_id') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
-            </div>
+    <main class="business__main">
+        <header class="business__header-wrapper business__header-wrapper--simple">
+            <div class="business__header-corner"></div>
 
-            {{-- Services --}}
-            <div style="margin-bottom:1.5rem;">
-                <label>Services</label>
-                <p style="font-size:12px; color:#888; margin:2px 0 6px;">Only services linked to at least one selected branch can be chosen.</p>
-                <div style="border:1px solid #ccc; border-radius:4px; padding:8px; max-height:160px; overflow-y:auto;">
-                    @forelse($services as $service)
-                        <label style="display:block; padding:4px 0; cursor:pointer;">
-                            <input type="checkbox"
-                                   name="service_ids[]"
-                                   value="{{ $service->id }}"
-                                   {{ in_array($service->id, old('service_ids', [])) ? 'checked' : '' }}>
-                            {{ $service->name }}
-                            <span style="font-size:12px; color:#888;">({{ implode(', ', $service->branches->pluck('name')->toArray()) }})</span>
-                        </label>
-                    @empty
-                        <p style="color:#888; font-size:13px; margin:0;">No services available.</p>
-                    @endforelse
+            <div class="business__header-info">
+                <h2 class="business-header__title">My Assets</h2>
+
+                <div class="business-info">
+                    <div class="stat-item stat-item--all">
+                        <i class="fa-solid fa- boxes-stacked"></i>
+                        <div id="countAll">{{ $assets->count() }}</div> Total assets
+                    </div>
                 </div>
-                @error('service_ids') <p style="color:red; font-size:13px;">{{ $message }}</p> @enderror
             </div>
 
-            <div style="display:flex; gap:8px; justify-content:flex-end;">
-                <button type="button"
-                        onclick="document.getElementById('createAssetModal').style.display='none'"
-                        style="padding:8px 16px; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer;">
-                    Cancel
-                </button>
-                <button type="submit"
-                        style="padding:8px 16px; background:#1a1a1a; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-                    Create Asset
-                </button>
+            <div class="business__header-right">
+                <div class="business__header-right-section_1"> </div>
+                <div class="business__header-right-section_2">
+                    <div class="list-view__search-wrapper">
+                        <div class="search-container">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="assetSearchInput" placeholder="Search assets...">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
+        </header>
+
+        <div class="business__body-wrapper">
+            <div id="assetTableContainer" class="list-view__body-wrapper">
+            </div>
+        </div>
+    </main>
 </div>
 
-{{-- Re-open modal on validation error --}}
-@if($errors->any())
-<script>
-    document.getElementById('createAssetModal').style.display = 'flex';
-</script>
-@endif
+@vite('resources/js/pages/assets/entry.js')
 
-{{-- Close modal on backdrop click --}}
-<script>
-    document.getElementById('createAssetModal').addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
-    });
-</script>
+@endsection

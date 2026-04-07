@@ -61,6 +61,16 @@
     --status-green-hover: #76a176;
     --status-green-text: #214427;
 
+    --badge-primary-bg-color: #7b58fb10;
+    --badge-primary-text-color: #7b58fb;
+    --badge-primary-border-color: #7b58fb69;
+    --badge-primary-bg-color-hover: #7b58fb1e;
+
+    --badge-secondary-bg-color: #0857b210;
+    --badge-secondary-text-color: #0857b2;
+    --badge-secondary-border-color: #0857b26c;
+    --badge-secondary-bg-color-hover: #083eb21e;
+
     --stat-item-all: var(--color-primary);
     --stat-item-all-hover: var(--color-primary-hover);
     --stat-item-published: #39a139;
@@ -118,6 +128,16 @@
     --status-green: #6b8e6b;
     --status-green-hover: #557555;
     --status-green-text: #dcfce7;
+
+    --badge-primary-bg-color: #7b58fb10;
+    --badge-primary-text-color: #7b58fb;
+    --badge-primary-border-color: #7b58fb69;
+    --badge-primary-bg-color-hover: #7b58fb1e;
+
+    --badge-secondary-bg-color: #087cb210;
+    --badge-secondary-text-color: #0882b2;
+    --badge-secondary-border-color: #087cb26c;
+    --badge-secondary-bg-color-hover: #087cb21e;
 
     --stat-item-all: var(--color-primary);
     --stat-item-all-hover: var(--color-primary-hover);
