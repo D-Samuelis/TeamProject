@@ -27,8 +27,16 @@ class AssetController extends Controller
         $user = Auth::user();
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
+        $assets = $listAssets->execute([], $user);
+
+        if ($assets instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $assets->getCollection()->load(['rules', 'branch', 'services.branches']);
+        } else {
+            $assets->load(['rules', 'branch', 'services.branches']);
+        }
+
         return view('pages.asset.index', [
-            'assets'   => $listAssets->execute([], $user),
+            'assets'   => $assets,
             'branches' => $branches,
             'services' => $services,
         ]);

@@ -1,6 +1,6 @@
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
-import { initBusinessListView } from './listView.js';
-import { initBusinessStatusFilters } from './statusFilters.js';
+import { initBusinessListView } from './listView.js'; 
+import { initBusinessStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS SHIT INTO ONE FILE (+ assets entry) */
 import { initCreateBusinessModal } from './modals/createBusinessModal.js';
 import { initEditBusinessMetaDataModal } from './modals/editBusinessMetaDataModal.js';
 import { initCreateBranchModal } from './modals/createBranchModal.js';
