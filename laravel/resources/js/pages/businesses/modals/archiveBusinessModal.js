@@ -1,4 +1,5 @@
 import { Modal } from '../../../components/displays/modal.js';
+import { getFutureDateData } from '../../../utils/date.js';
 
 export function initArchiveBusinessModal() {
     document.addEventListener('click', (e) => {
@@ -14,11 +15,24 @@ export function initArchiveBusinessModal() {
             body: `
                 <div class="modal-confirm-content">
                     <p>Are you sure you want to archive <strong>${name}</strong>?</p>
-                    <p class="text-muted small">This business will be marked as archived and automatically deleted in "FETCH TIME" if not restored in time.</p>
+                    
+                    <div class="archive-expiry-wrapper text-muted small">
+                        <span>This business will be marked as archived and automatically deleted in</span>
+
+                        <select id="archive-expiry-select-business" class="form-select-inline">
+                            <option value="${getFutureDateData(1).timestamp}">1 Day [${getFutureDateData(1).display}]</option>
+                            <option value="${getFutureDateData(7).timestamp}" selected>1 Week [${getFutureDateData(7).display}]</option>
+                            <option value="${getFutureDateData(30).timestamp}">1 Month [${getFutureDateData(30).display}]</option>
+                        </select> 
+
+                        <span>if not restored in time.</span>
+                    </div>
                 </div>
             `,
             onConfirm: async (modal) => {
                 const url = window.BE_DATA.routes.delete.replace(':id', id);
+
+                const expiryTimestamp = modal.querySelector('#archive-expiry-select-business').value;
 
                 const res = await fetch(url, {
                     method: 'POST',
@@ -30,6 +44,7 @@ export function initArchiveBusinessModal() {
                     body: JSON.stringify({
                         _token: window.BE_DATA.csrf,
                         _method: 'DELETE',
+                        /*delete_at_timestamp: expiryTimestamp*/
                     }),
                 });
 

@@ -1,4 +1,5 @@
 import { Modal } from '../../../components/displays/modal.js';
+import { getFutureDateData } from '../../../utils/date.js';
 
 export function initArchiveAssetModal() {
     document.addEventListener('click', (e) => {
@@ -8,8 +9,6 @@ export function initArchiveAssetModal() {
         const assetId = btn.dataset.id;
         const assetName = btn.dataset.name;
 
-        console.log("Archive Asset Modal - ID:", assetId, "Name:", assetName);
-
         Modal.showCustom({
             title: 'Archive Asset',
             confirmText: 'Archive',
@@ -17,12 +16,23 @@ export function initArchiveAssetModal() {
             body: `
                 <div class="modal-confirm-content">
                     <p>Are you sure you want to archive <strong>${assetName}</strong>?</p>
-                    <p class="text-muted small">This asset will be marked as archived and automatically deleted if not restored in time.</p>
+                    
+                    <div class="archive-expiry-wrapper text-muted small">
+                        <span>This asset will be marked as archived and automatically deleted in</span>
+
+                        <select id="archive-expiry-select" class="form-select-inline">
+                            <option value="${getFutureDateData(1).timestamp}">1 Day [${getFutureDateData(1).display}]</option>
+                            <option value="${getFutureDateData(7).timestamp}" selected>1 Week [${getFutureDateData(7).display}]</option>
+                            <option value="${getFutureDateData(30).timestamp}">1 Month [${getFutureDateData(30).display}]</option>
+                        </select> 
+
+                        <span>if not restored in time.</span>
+                    </div>
                 </div>
             `,
             onConfirm: async (modal) => {
                 const url = window.BE_DATA.routes.deleteAsset.replace(':id', assetId);
-                console.log("Odosielam na URL:", url);
+                const expiryTimestamp = document.getElementById('archive-expiry-select').value;
 
                 try {
                     const res = await fetch(url, {
@@ -36,6 +46,7 @@ export function initArchiveAssetModal() {
                         body: JSON.stringify({
                             _token: window.BE_DATA.csrf,
                             _method: 'DELETE',
+                            /*delete_at_timestamp: expiryTimestamp*/
                         }),
                     });
 
