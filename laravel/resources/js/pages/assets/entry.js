@@ -6,8 +6,36 @@ import { initEditRuleModal } from './modals/editRuleModal.js';
 import { initArchiveAssetModal } from './modals/archiveAssetModal.js';
 import { initDeleteRuleModal } from '../assets/modals/deleteRuleModal.js';
 import { initListSearch } from '../../components/table/searchBar.js';
+import { initAssetListView } from './listView.js';
+import { initAssetStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS SHIT INTO ONE FILE (+ businesses entry) */
+import { initConnectionsModal } from './modals/initConnectionsModal.js';
+import { initRuleDetailModal } from './modals/initRuleDetailModal.js';
+import { initCreateAssetModal } from './modals/createAssetModal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    /* index */
+    initCollapsibleList('managementList');
+    initCollapsibleList('statusList');
+    
+    initAssetListView(window.BE_DATA.assets);
+    initAssetStatusFilters();
+
+    initListSearch('#assetSearchInput', '.asset-table__row', 'strong');
+
+    const createBtn = document.querySelector('[data-modal-target="create-asset-modal"]');
+    if (createBtn) {
+        createBtn.addEventListener('click', () => {
+            const modal = document.getElementById('createAssetModal');
+            if (modal) modal.style.display = 'flex';
+        });
+    }
+
+    initAssetListView(window.BE_DATA.assets);
+    initConnectionsModal();
+    initRuleDetailModal();
+    initCreateAssetModal();
+
+    /* show */
     initCollapsibleList('assetInfo');
     initCollapsibleList('branchesList');
     const container = document.querySelector('.rule-panel');

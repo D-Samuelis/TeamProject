@@ -12,17 +12,21 @@ class ServicesBelongToBranches implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (empty($this->branchIds) || empty($value)) {
+        $serviceIds = (array) $value;
+
+        if (empty($this->branchIds) || empty($serviceIds)) {
             return;
         }
 
-        $invalidServices = Service::whereIn('id', $value)
-            ->whereDoesntHave('branches', fn($q) => $q->whereIn('branches.id', $this->branchIds))
+        $invalidServices = Service::whereIn('id', $serviceIds)
+            ->whereDoesntHave('branches', function ($query) {
+                $query->whereIn('branches.id', $this->branchIds);
+            })
             ->pluck('name');
 
         if ($invalidServices->isNotEmpty()) {
             $names = $invalidServices->join(', ');
-            $fail("The following services are not available in any of the selected branches: {$names}.");
+            $fail("The following services are not available in the selected branch: {$names}.");
         }
     }
 }

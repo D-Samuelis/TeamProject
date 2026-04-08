@@ -77,4 +77,27 @@ export function formatFullDate(date) {
 
     return `${dayName}, ${monthName} ${dayOfMonth}, ${year}`;
 }
+
+/**
+ * Calculates future date for archivation in modals
+ * @param {number} days - Number of days after we will be deleting archived object
+ * @returns {object} - { display: "12.04.2026...", timestamp: 1712918400 }
+ */
+export const getFutureDateData = (days) => {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    return {
+        display: date.toLocaleString('sk-SK', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        }),
+        
+        timestamp: Math.floor(date.getTime() / 1000)
+    };
+};
  

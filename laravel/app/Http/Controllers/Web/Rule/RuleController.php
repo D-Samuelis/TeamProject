@@ -8,6 +8,7 @@ use App\Application\Rule\UseCases\CreateRule;
 use App\Application\Rule\UseCases\UpdateRule;
 use App\Application\Rule\UseCases\DeleteRule;
 use App\Application\Rule\UseCases\ReorderRule;
+use App\Application\Rule\UseCases\ReorderAllRules;
 use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rule\StoreRuleRequest;
@@ -66,21 +67,14 @@ class RuleController extends Controller
         return back()->with('success', 'Rule order updated.');
     }
 
-    public function reorderAll(Request $request)
+    public function reorderAll(Request $request, ReorderAllRules $useCase)
     {
-        $orderedIds = $request->input('order');
+        $request->validate([
+            'order'   => 'required|array',
+            'order.*' => 'integer|exists:rules,id',
+        ]);
 
-        \DB::transaction(function () use ($orderedIds) {
-            \DB::table('rules')
-                ->whereIn('id', $orderedIds)
-                ->update(['priority' => \DB::raw('priority + 10000')]);
-
-            foreach ($orderedIds as $index => $id) {
-                \DB::table('rules')
-                    ->where('id', $id)
-                    ->update(['priority' => $index + 1]);
-            }
-        });
+        $useCase->execute($request->input('order'), Auth::id());
 
         return response()->json(['status' => 'success']);
     }

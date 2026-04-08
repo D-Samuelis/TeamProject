@@ -170,5 +170,14 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{ruleId}/reorder', 'reorder')->name('reorder');
                     Route::post('/reorder-all', 'reorderAll')->name('reorder_all');
                 });
+
+            Route::prefix('appointments')
+                ->name('appointment.')
+                ->controller(AppointmentController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{appointmentId}', 'show')->name('show');
+                    Route::delete('/{appointmentId}', 'delete')->name('delete');
+                });
         });
 });

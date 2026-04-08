@@ -62,18 +62,18 @@
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branches & Services</h3>
             <div id="branchesList" class="dropdown__mini-list">
-                @forelse($asset->branches as $b)
+                @if($asset->branch)
                     @php
-                        $c = branchColor($b->id);
+                        $c = branchColor($asset->branch->id);
                         $branchServices = $asset->services->filter(
-                            fn($s) => $s->branches->contains('id', $b->id)
+                            fn($s) => $s->branches->contains('id', $asset->branch->id)
                         );
                     @endphp
 
                     {{-- Branch row (folder) --}}
                     <div class="service-item" style="background:{{ $c['bg'] }};border-left:3px solid {{ $c['border'] }};border-radius:0 6px 6px 0;">
                         <div class="member-info">
-                            <span class="member-name" style="color:{{ $c['text'] }};">{{ $b->name }}</span>
+                            <span class="member-name" style="color:{{ $c['text'] }};">{{ $asset->branch->name }}</span>
                         </div>
                     </div>
 
@@ -90,9 +90,7 @@
                     @empty
                         <p style="font-size:12px;color:#bbb;font-style:italic;padding-left:24px;">No services</p>
                     @endforelse
-                @empty
-                    <p style="color:#888;font-size:13px;padding:8px;">None</p>
-                @endforelse
+                @endif
             </div>
         </section>
 
@@ -153,7 +151,7 @@
                                     {{-- Archive Asset --}}
                                     @can('destroy', $asset)
                                         <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
-                                            data-id="{{ $asset->id }}" 
+                                            data-id="{{ $asset->id }}"
                                             data-name="{{ $asset->name }}">
                                             <i class="fa-solid fa-box-archive"></i> Archive Asset
                                         </button>
@@ -199,7 +197,7 @@
                     @endphp
 
                     <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card filterable-rule" style="flex-direction: column;">
-    
+
                         <div class="rule-card__header" style="width: 100%;">
                             <div class="rule-card__left">
 
@@ -252,7 +250,7 @@
                                     </button>
                                     <div class="branch-dropdown__menu">
                                         @can('update', $asset)
-                                            <button type="button" class="branch-dropdown__item js-edit-rule-btn" 
+                                            <button type="button" class="branch-dropdown__item js-edit-rule-btn"
                                                     data-rule='@json($rule)'>
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit Rule
                                             </button>
@@ -394,19 +392,77 @@
         list.appendChild(row);
     }
 
+    function clearRangeErrors(containerId) {
+        document.querySelectorAll(`#${containerId} .range-error`).forEach(el => el.remove());
+    }
+
+    function showRangeError(row, message) {
+        // Remove any existing error on this row first
+        const existing = row.querySelector('.range-error');
+        if (existing) existing.remove();
+
+        const err = document.createElement('span');
+        err.className = 'range-error';
+        err.style.cssText = 'color:red;font-size:12px;display:block;margin-top:2px;';
+        err.textContent = message;
+        row.insertAdjacentElement('afterend', err);
+    }
+
+    function timeToMinutes(t) {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+    }
+
     function serializeSchedule(prefix) {
+        const containerId = `${prefix}_schedule_builder`;
+        clearRangeErrors(containerId);
+
         const result = { days: {} };
+        let hasError = false;
+
         DAY_NAMES.forEach((_, i) => {
-            const cb = document.getElementById(`${prefix}_schedule_builder_open_${i}`);
+            const cb = document.getElementById(`${containerId}_open_${i}`);
             if (!cb || !cb.checked) { result.days[i] = []; return; }
-            const rows = document.querySelectorAll(`#${prefix}_schedule_builder_ranges_${i} .range-row`);
-            result.days[i] = Array.from(rows)
-                .map(row => {
-                    const t = row.querySelectorAll('input[type=time]');
-                    return { from_time: t[0].value, to_time: t[1].value };
-                })
-                .filter(r => r.from_time && r.to_time && r.from_time < r.to_time);
+
+            const rows = Array.from(
+                document.querySelectorAll(`#${containerId}_ranges_${i} .range-row`)
+            );
+
+            const accepted = [];   // only ranges that passed ALL checks
+            const dayRanges = [];  // what goes into result
+
+            rows.forEach((row) => {
+                const [fromInput, toInput] = row.querySelectorAll('input[type=time]');
+                const from = fromInput.value;
+                const to   = toInput.value;
+
+                if (!from || !to) return;
+
+                const fromMin = timeToMinutes(from);
+                const toMin   = timeToMinutes(to);
+
+                if (fromMin >= toMin) {
+                    showRangeError(row, `Start time (${from}) must be before end time (${to}).`);
+                    hasError = true;
+                    return;
+                }
+
+                const overlap = accepted.find(r => fromMin < r.toMin && toMin > r.fromMin);
+                if (overlap) {
+                    showRangeError(row, `Overlaps with ${overlap.from}–${overlap.to}.`);
+                    hasError = true;
+                    return;
+                }
+
+                accepted.push({ fromMin, toMin, from, to });
+                dayRanges.push({ from_time: from, to_time: to });
+            });
+
+            result.days[i] = dayRanges;
         });
+
+        if (hasError) return false;
+
         document.getElementById(`${prefix}_rule_set_input`).value = JSON.stringify(result);
         return true;
     }
@@ -431,7 +487,7 @@
 @if($errors->hasAny(['name','description','branch_ids','service_ids']))
     <script>openModal('editAssetModal');</script>
 @endif
-@if($errors->hasAny(['title','valid_from','valid_to','rule_set']))
+@if($errors->hasAny(['title','valid_from','valid_to','rule_set', 'rule_set.days']))
     <script>openModal('createRuleModal');</script>
 @endif
 

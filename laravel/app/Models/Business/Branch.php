@@ -36,7 +36,7 @@ class Branch extends Model
 
     public function assets()
     {
-        return $this->belongsToMany(Asset::class);
+        return $this->hasMany(Asset::class);
     }
 
     public function users()
