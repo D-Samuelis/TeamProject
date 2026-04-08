@@ -1,3 +1,5 @@
+{{-- toto je k comu ? --}}
+
 <div class="container">
     <a href="{{ route('search.index') }}">&larr; Back to Explore</a>
 

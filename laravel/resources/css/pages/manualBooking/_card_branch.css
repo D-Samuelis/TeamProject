@@ -1,0 +1,46 @@
+.branch-card-top {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: -0.1rem;
+}
+
+.branch-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-family: 'Inter-SemiBold', sans-serif;
+    border: 1px solid transparent;
+}
+
+.branch-type--physical {
+    background: var(--status-green);
+    color: var(--status-green-text);
+}
+
+.branch-type--online {
+    background: var(--status-blue);
+    color: var(--status-blue-text);
+}
+
+.branch-type--hybrid {
+    background: var(--status-yellow);
+    color: var(--status-yellow-text);
+}
+
+.branch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-unimportant-dark);
+}
+
+.branch-info p {
+    margin: 0;
+}
+

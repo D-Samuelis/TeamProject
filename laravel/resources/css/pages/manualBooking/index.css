@@ -1,1 +1,8 @@
 @import "./_main.css";
+@import "./_filters.css";
+@import "./_card.css";
+@import "./_card_branch.css";
+@import "./_card_business.css";
+@import "./_card_service.css";
+@import "./_responsive.css";
+@import "./_pagination.css"

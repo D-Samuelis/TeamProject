@@ -1,532 +1,994 @@
 {{-- resources/views/pages/public/asset/book.blade.php --}}
-@extends('layouts.app') {{-- adjust to your layout --}}
+@extends('layouts.app')
 
-@section('head')
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ink:          #1c1c1c;
-            --ink-muted:    #6e6e6e;
-            --ink-faint:    #c4c4c4;
-            --paper:        #f8f6f2;
-            --paper-2:      #efece5;
-            --white:        #ffffff;
-            --accent:       #c9622c;
-            --accent-bg:    #f7ede5;
-            --success:      #2d6a4f;
-            --success-bg:   #e0f5ec;
-            --border:       #e3dfd7;
-            --r:            10px;
-        }
-
-        .book-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .book-wrap {
-            font-family: 'DM Sans', sans-serif;
-            color: var(--ink);
-            font-size: 15px;
-            line-height: 1.6;
-            max-width: 960px;
-            margin: 2rem auto;
-            padding: 0 1.25rem 4rem;
-        }
-
-        /* ── header ── */
-        .book-header { margin-bottom: 2rem; }
-        .book-header h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 2rem;
-            font-weight: 400;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-        }
-        .book-header .meta {
-            margin-top: 6px;
-            font-size: 13px;
-            color: var(--ink-muted);
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .book-header .meta span { display: flex; align-items: center; gap: 4px; }
-
-        /* ── layout ── */
-        .book-layout {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 1.5rem;
-            align-items: start;
-        }
-        @media (max-width: 700px) {
-            .book-layout { grid-template-columns: 1fr; }
-        }
-
-        /* ── calendar card ── */
-        .cal-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--r);
-            overflow: hidden;
-        }
-
-        .cal-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        .cal-nav button {
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            width: 32px; height: 32px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--ink-muted);
-            transition: border-color .15s, color .15s;
-        }
-        .cal-nav button:hover { border-color: var(--accent); color: var(--accent); }
-        .cal-nav-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.05rem;
-            font-weight: 400;
-        }
-
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0;
-        }
-        .cal-dow {
-            text-align: center;
-            font-size: 11px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--ink-faint);
-            padding: 10px 0 6px;
-        }
-        .cal-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            cursor: pointer;
-            border-radius: 6px;
-            margin: 2px;
-            transition: background .12s;
-            position: relative;
-            border: 1.5px solid transparent;
-        }
-        .cal-day:hover:not(.empty):not(.past):not(.closed) {
-            background: var(--accent-bg);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        .cal-day.empty   { cursor: default; }
-        .cal-day.past    { color: var(--ink-faint); cursor: not-allowed; }
-        .cal-day.closed  { color: var(--ink-faint); cursor: not-allowed; }
-        .cal-day.today   { font-weight: 500; }
-        .cal-day.has-slots::after {
-            content: '';
-            width: 4px; height: 4px;
-            border-radius: 50%;
-            background: var(--accent);
-            position: absolute;
-            bottom: 5px;
-        }
-        .cal-day.selected {
-            background: var(--ink) !important;
-            color: white !important;
-            border-color: var(--ink) !important;
-        }
-        .cal-day.selected::after { background: var(--accent); }
-
-        /* ── slots panel ── */
-        .slots-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--r);
-            padding: 1.25rem;
-            position: sticky;
-            top: 1.5rem;
-        }
-        .slots-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin-bottom: .75rem;
-        }
-        .slots-loading {
-            text-align: center;
-            color: var(--ink-faint);
-            padding: 2rem 0;
-            font-size: 13px;
-        }
-        .slots-closed {
-            color: var(--ink-muted);
-            font-size: 13px;
-            padding: 1.5rem 0;
-            text-align: center;
-        }
-        .slots-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 1rem;
-        }
-        .slot-btn {
-            padding: 9px 4px;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            background: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-align: center;
-            color: var(--ink);
-            transition: all .12s;
-        }
-        .slot-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
-        .slot-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-        /* ── confirm strip ── */
-        .confirm-strip {
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
-            display: none;
-        }
-        .confirm-strip.show { display: block; }
-        .confirm-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            padding: 4px 0;
-        }
-        .confirm-row .lbl { color: var(--ink-muted); }
-        .confirm-row .val { font-weight: 500; }
-        .book-btn {
-            margin-top: 1rem;
-            width: 100%;
-            padding: 11px;
-            background: var(--ink);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background .15s, transform .1s;
-        }
-        .book-btn:hover   { background: var(--accent); }
-        .book-btn:active  { transform: scale(.98); }
-        .book-btn:disabled { opacity: .5; cursor: not-allowed; }
-
-        /* ── success banner ── */
-        .success-banner {
-            display: none;
-            background: var(--success-bg);
-            color: var(--success);
-            border-radius: var(--r);
-            padding: 1.25rem;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-        .success-banner.show { display: block; }
-
-        /* ── spinner ── */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spinner {
-            display: inline-block;
-            width: 16px; height: 16px;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin .6s linear infinite;
-            vertical-align: middle;
-        }
-    </style>
-@endsection
+@section('title', 'Bexora | Choose Time')
 
 @section('content')
-    <div class="book-wrap">
+@php
+    $selectedBranch = $service->branches->firstWhere('id', request('branch_id'));
+@endphp
 
-        {{-- Header --}}
-        <div class="book-header">
-            <h1>Book {{ $asset->name }}</h1>
-            <div class="meta">
-                <span>📋 {{ $service->name }}</span>
-                <span>⏱ {{ $service->duration_minutes }} minutes</span>
-            </div>
+<div class="public-asset-book">
+    <aside class="public-asset-book__sidebar">
+        <div class="public-asset-book__sidebar-top">
+            <a
+                href="{{ route('service.book', ['serviceId' => $service->id, 'branch_id' => request('branch_id')]) }}"
+                class="public-asset-book__back-link"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Assets</span>
+            </a>
         </div>
 
-        <div class="book-layout">
-
-            {{-- Calendar --}}
-            <div class="cal-card">
-                <div class="cal-nav">
-                    <button id="prevMonth" aria-label="Previous month">&#8249;</button>
-                    <div class="cal-nav-title" id="calTitle"></div>
-                    <button id="nextMonth" aria-label="Next month">&#8250;</button>
+        <section class="public-asset-book__sidebar-section">
+            <div class="public-asset-book__steps">
+                <div class="public-asset-book__step">
+                    <span class="public-asset-book__step-number">1</span>
+                    <div class="public-asset-book__step-text">
+                        <strong>Choose Asset</strong>
+                        <span>Selected asset for this service</span>
+                    </div>
                 </div>
-                <div style="padding: 8px 10px 10px;">
-                    <div class="cal-grid" id="calDow"></div>
-                    <div class="cal-grid" id="calDays"></div>
+
+                <div class="public-asset-book__step-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="public-asset-book__step public-asset-book__step--active">
+                    <span class="public-asset-book__step-number">2</span>
+                    <div class="public-asset-book__step-text">
+                        <strong>Choose Time</strong>
+                        <span>Pick an available date and time</span>
+                    </div>
                 </div>
             </div>
+        </section>
+    </aside>
 
-            {{-- Slots --}}
-            <div class="slots-card">
-                <div class="slots-title" id="slotsTitle">Pick a date</div>
+    <main class="public-asset-book__main">
+        <header class="public-asset-book__service-header">
+            <div class="public-asset-book__service-header-content">
+                <p class="public-asset-book__step-label-top">Step 2 of 2</p>
+                <h1 class="public-asset-book__service-title">Book {{ $asset->name }}</h1>
+
+                <div class="public-asset-book__service-meta">
+                    <span class="public-asset-book__meta-badge">
+                        <i class="fa-solid fa-cube"></i>
+                        <span>{{ $asset->name }}</span>
+                    </span>
+
+                    <span class="public-asset-book__meta-badge">
+                        <i class="fa-solid fa-scissors"></i>
+                        <span>{{ $service->name }}</span>
+                    </span>
+
+                    @if($selectedBranch)
+                        <span class="public-asset-book__meta-badge">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>{{ $selectedBranch->name }}</span>
+                        </span>
+                    @endif
+
+                    @if($service->business)
+                        <span class="public-asset-book__meta-badge">
+                            <i class="fa-solid fa-shop"></i>
+                            <span>{{ $service->business->name }}</span>
+                        </span>
+                    @endif
+
+                    
+
+                    @if($service->duration_minutes)
+                        <span class="public-asset-book__meta-badge">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>{{ $service->duration_minutes }} min</span>
+                        </span>
+                    @endif
+
+                    @if(!is_null($service->price))
+                        <span class="public-asset-book__meta-badge">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>€{{ number_format((float) $service->price, 2) }}</span>
+                        </span>
+                    @endif
+                </div>
+
+                <div class="public-asset-book__legend">
+                    <span class="public-asset-book__legend-dot"></span>
+                    <span>Day has available slots</span>
+                </div>
+
+                <p class="public-asset-book__header-hint" id="calendarHint">
+                    <i class="fa-solid fa-arrow-down"></i>
+                    Choose a highlighted day below to see free time slots.
+                </p>
+            </div>
+        </header>
+
+        <div class="public-asset-book__layout">
+            <section class="public-asset-book__calendar-panel">
+                <div class="public-asset-book__calendar-nav">
+                    <button id="prevMonth" aria-label="Previous month" class="public-asset-book__nav-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <div class="public-asset-book__calendar-title" id="calTitle"></div>
+
+                    <button id="nextMonth" aria-label="Next month" class="public-asset-book__nav-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="public-asset-book__calendar-body">
+                    <div class="public-asset-book__calendar-grid" id="calDow"></div>
+                    <div class="public-asset-book__calendar-grid" id="calDays"></div>
+                </div>
+
+                <div class="public-asset-book__calendar-note public-asset-book__calendar-note--hidden" id="calendarAvailabilityNote">
+                    No available slots found in this month.
+                </div>
+            </section>
+
+            <aside class="public-asset-book__slots-panel">
+                <div class="public-asset-book__slots-title" id="slotsTitle">Pick a date</div>
+
                 <div id="slotsBody">
-                    <div class="slots-closed">← Select a day on the calendar</div>
+                    <div class="public-asset-book__slots-message">← Select a day on the calendar</div>
                 </div>
-                <div class="confirm-strip" id="confirmStrip">
-                    <div class="confirm-row"><span class="lbl">Service</span><span class="val">{{ $service->name }}</span></div>
-                    <div class="confirm-row"><span class="lbl">Asset</span><span class="val">{{ $asset->name }}</span></div>
-                    <div class="confirm-row"><span class="lbl">Date</span><span class="val" id="cfDate">–</span></div>
-                    <div class="confirm-row"><span class="lbl">Time</span><span class="val" id="cfTime">–</span></div>
-                    <div class="confirm-row"><span class="lbl">Duration</span><span class="val">{{ $service->duration_minutes }} min</span></div>
-                    <button class="book-btn" id="bookBtn" onclick="submitBooking()">Confirm booking</button>
+
+                <div class="public-asset-book__confirm-strip" id="confirmStrip">
+                    <div class="public-asset-book__confirm-row">
+                        <span class="public-asset-book__confirm-label">Service</span>
+                        <span class="public-asset-book__confirm-value">{{ $service->name }}</span>
+                    </div>
+
+                    <div class="public-asset-book__confirm-row">
+                        <span class="public-asset-book__confirm-label">Asset</span>
+                        <span class="public-asset-book__confirm-value">{{ $asset->name }}</span>
+                    </div>
+
+                    @if($selectedBranch)
+                        <div class="public-asset-book__confirm-row">
+                            <span class="public-asset-book__confirm-label">Branch</span>
+                            <span class="public-asset-book__confirm-value">{{ $selectedBranch->name }}</span>
+                        </div>
+                    @endif
+
+                    <div class="public-asset-book__confirm-row">
+                        <span class="public-asset-book__confirm-label">Date</span>
+                        <span class="public-asset-book__confirm-value" id="cfDate">–</span>
+                    </div>
+
+                    <div class="public-asset-book__confirm-row">
+                        <span class="public-asset-book__confirm-label">Time</span>
+                        <span class="public-asset-book__confirm-value" id="cfTime">–</span>
+                    </div>
+
+                    <div class="public-asset-book__confirm-row">
+                        <span class="public-asset-book__confirm-label">Duration</span>
+                        <span class="public-asset-book__confirm-value">{{ $service->duration_minutes }} min</span>
+                    </div>
+
+                    @if(!is_null($service->price))
+                        <div class="public-asset-book__confirm-row">
+                            <span class="public-asset-book__confirm-label">Price</span>
+                            <span class="public-asset-book__confirm-value">€{{ number_format((float) $service->price, 2) }}</span>
+                        </div>
+                    @endif
+
+                    <button class="public-asset-book__confirm-btn" id="bookBtn" onclick="submitBooking()">
+                        Confirm booking
+                    </button>
                 </div>
-            </div>
+            </aside>
         </div>
 
-        <div class="success-banner" id="successBanner">
-            ✓ Your appointment has been booked! Redirecting…
+        <div class="public-asset-book__success-banner" id="successBanner">
+            Appointment booked successfully. Redirecting...
         </div>
+    </main>
+</div>
 
-    </div>
+<style>
+    .public-asset-book {
+        display: grid;
+        grid-template-columns: 16.75rem 1fr;
+        width: 100%;
+        min-height: calc(100vh - 100px - 24px);
+        border-top: 1px solid var(--color-border-light);
+        border-bottom: 1px solid var(--color-border-light);
+        overflow: hidden;
+        background-color: var(--color-bg);
+    }
 
-    <script>
-        (function () {
-            // ── Config from Laravel ─────────────────────────────────────────────────
-            const ASSET_ID   = {{ $asset->id }};
-            const SERVICE_ID = {{ $service->id }};
-            const DURATION   = {{ $service->duration_minutes }};
-            const SLOTS_URL  = '{{ route('appointment.slots') }}';
-            const STORE_URL  = '{{ route('appointment.store') }}';
-            const CSRF       = '{{ csrf_token() }}';
+    .public-asset-book__sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+        padding: 1rem;
+        overflow-y: auto;
+        border-right: 1px solid var(--color-border-light);
+        background-color: var(--color-bg);
+    }
 
-            // ── State ───────────────────────────────────────────────────────────────
-            const today       = new Date(); today.setHours(0,0,0,0);
-            let   viewYear    = today.getFullYear();
-            let   viewMonth   = today.getMonth();          // 0-based
-            let   slotCache   = {};                        // 'YYYY-MM-DD' => string[]
-            let   loadedMonths= new Set();
-            let   selectedDate= null;
-            let   selectedSlot= null;
+    .public-asset-book__sidebar-top {
+        display: flex;
+        align-items: center;
+    }
 
-            const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    .public-asset-book__back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+    }
 
-            // ── Calendar render ─────────────────────────────────────────────────────
-            function renderCalendar() {
-                document.getElementById('calTitle').textContent =
-                    new Date(viewYear, viewMonth, 1)
-                        .toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    .public-asset-book__back-link:hover {
+        color: var(--color-primary);
+    }
 
-                // DOW headers (Mon-first)
-                const dowEl = document.getElementById('calDow');
-                dowEl.innerHTML = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
+    .public-asset-book__sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
 
-                const firstDay = new Date(viewYear, viewMonth, 1);
-                const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
-                // Monday-first: Mon=0 … Sun=6
-                let startOffset = (firstDay.getDay() + 6) % 7;
+    .public-asset-book__steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
 
-                let html = '';
-                for (let i = 0; i < startOffset; i++) html += '<div class="cal-day empty"></div>';
+    .public-asset-book__step {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.85rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.75rem;
+        background-color: var(--color-bg);
+        opacity: 0.75;
+    }
 
-                for (let d = 1; d <= totalDays; d++) {
-                    const dt  = new Date(viewYear, viewMonth, d);
-                    const key = dateKey(dt);
-                    const isPast     = dt < today;
-                    const isToday    = dt.getTime() === today.getTime();
-                    const isSelected = selectedDate === key;
-                    const loaded     = key in slotCache;
-                    const slots      = slotCache[key];
-                    const hasSlots   = loaded && slots.length > 0;
-                    const isClosed   = loaded && slots.length === 0;
+    .public-asset-book__step--active {
+        opacity: 1;
+        border-color: var(--color-primary);
+        box-shadow: 0 4px 14px var(--color-box-shadow);
+    }
 
-                    let cls = 'cal-day';
-                    if (isPast)              cls += ' past';
-                    if (isToday)             cls += ' today';
-                    if (isSelected)          cls += ' selected';
-                    if (hasSlots && !isPast) cls += ' has-slots';
-                    if (isClosed)            cls += ' closed';
+    .public-asset-book__step-number {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: 1px solid var(--color-border-light);
+        background-color: var(--color-bg-complement);
+        color: var(--color-text);
+    }
 
-                    // Past = not clickable. Closed days ARE clickable (show "Closed" message).
-                    const clickable = !isPast;
-                    html += `<div class="${cls}" ${clickable ? `onclick="selectDate('${key}')"` : ''}>${d}</div>`;
-                }
+    .public-asset-book__step--active .public-asset-book__step-number {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-text-white);
+    }
 
-                document.getElementById('calDays').innerHTML = html;
+    .public-asset-book__step-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0;
+    }
+
+    .public-asset-book__step-text strong {
+        font-size: 0.95rem;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__step-text span {
+        font-size: 0.85rem;
+        color: var(--color-text-unimportant-dark);
+        line-height: 1.45;
+    }
+
+    .public-asset-book__step-dots {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.15rem 0;
+    }
+
+    .public-asset-book__step-dots span {
+        width: 0.32rem;
+        height: 0.32rem;
+        border-radius: 999px;
+        background-color: var(--color-text-unimportant-light);
+    }
+
+    .public-asset-book__main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-width: 0;
+        padding: 1rem;
+        background-color: var(--color-bg);
+    }
+
+    .public-asset-book__service-header {
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.85rem;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__service-header-content {
+        padding: 1.25rem;
+    }
+
+    .public-asset-book__step-label-top {
+        margin: 0 0 0.45rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .public-asset-book__service-title {
+        margin: 0;
+        font-size: clamp(1.65rem, 3vw, 2.2rem);
+        line-height: 1.15;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__service-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 1rem;
+    }
+
+    .public-asset-book__meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.58rem 0.85rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 999px;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-size: 0.92rem;
+        line-height: 1;
+        max-width: 100%;
+    }
+
+    .public-asset-book__meta-badge i {
+        color: var(--color-primary);
+        flex-shrink: 0;
+    }
+
+    .public-asset-book__meta-badge span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .public-asset-book__legend {
+        margin-top: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.92rem;
+    }
+
+    .public-asset-book__legend-dot {
+        width: 0.52rem;
+        height: 0.52rem;
+        border-radius: 999px;
+        background-color: #2e9f5b;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .public-asset-book__header-hint {
+        margin: 0.55rem 0 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.92rem;
+    }
+
+    .public-asset-book__layout {
+        display: grid;
+        grid-template-columns: minmax(0, 560px) minmax(320px, 1fr);
+        gap: 1rem;
+        align-items: start;
+    }
+
+    .public-asset-book__calendar-panel,
+    .public-asset-book__slots-panel {
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.85rem;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__calendar-panel {
+        max-width: 560px;
+    }
+
+    .public-asset-book__calendar-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 0.95rem;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .public-asset-book__nav-btn {
+        width: 2rem;
+        height: 2rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.55rem;
+        background-color: var(--color-bg);
+        color: var(--color-text-unimportant-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .public-asset-book__nav-btn:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__calendar-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__calendar-body {
+        padding: 0.45rem 0.6rem 0.65rem;
+    }
+
+    .public-asset-book__calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .public-asset-book__dow {
+        text-align: center;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-unimportant-light);
+        padding: 0.45rem 0 0.35rem;
+    }
+
+    .public-asset-book__day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 2px;
+        border-radius: 0.55rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+        position: relative;
+        color: var(--color-text);
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        font-size: 0.84rem;
+    }
+
+    .public-asset-book__day:hover:not(.empty):not(.past):not(.closed) {
+        background-color: var(--color-bg);
+        border-color: #2e9f5b;
+        color: #2e9f5b;
+    }
+
+    .public-asset-book__day.empty {
+        cursor: default;
+    }
+
+    .public-asset-book__day.past,
+    .public-asset-book__day.closed {
+        color: var(--color-text-unimportant-light);
+        cursor: not-allowed;
+    }
+
+    .public-asset-book__day.today {
+        font-weight: 700;
+    }
+
+    .public-asset-book__day.has-slots::after {
+        content: '';
+        width: 0.34rem;
+        height: 0.34rem;
+        border-radius: 999px;
+        background-color: #2e9f5b;
+        position: absolute;
+        bottom: 0.24rem;
+    }
+
+    .public-asset-book__day.selected {
+        background-color: var(--color-primary) !important;
+        color: var(--color-text-white) !important;
+        border-color: var(--color-primary) !important;
+    }
+
+    .public-asset-book__calendar-note {
+        padding: 0 0.95rem 0.85rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.9rem;
+    }
+
+    .public-asset-book__calendar-note--hidden {
+        display: none;
+    }
+
+    .public-asset-book__slots-panel {
+        padding: 1rem;
+        position: sticky;
+        top: 1rem;
+        min-width: 0;
+    }
+
+    .public-asset-book__slots-title {
+        font-size: 1.12rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 0.95rem;
+        letter-spacing: 0.01em;
+    }
+
+    .public-asset-book__slots-message,
+    .public-asset-book__slots-loading {
+        text-align: center;
+        color: var(--color-text-unimportant-dark);
+        padding: 1.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .public-asset-book__slots-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.45rem;
+        margin-bottom: 1rem;
+    }
+
+    .public-asset-book__slot-btn {
+        padding: 0.72rem 0.35rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.55rem;
+        background-color: var(--color-bg);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        color: var(--color-text);
+        transition: all 0.15s ease;
+    }
+
+    .public-asset-book__slot-btn:hover {
+        border-color: #2e9f5b;
+        color: #2e9f5b;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__slot-btn.active {
+        background-color: var(--color-primary);
+        color: var(--color-text-white);
+        border-color: var(--color-primary);
+    }
+
+    .public-asset-book__confirm-strip {
+        border-top: 1px solid var(--color-border-light);
+        padding-top: 1rem;
+        display: none;
+    }
+
+    .public-asset-book__confirm-strip.show {
+        display: block;
+    }
+
+    .public-asset-book__confirm-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.88rem;
+        padding: 0.23rem 0;
+    }
+
+    .public-asset-book__confirm-label {
+        color: var(--color-text-unimportant-dark);
+    }
+
+    .public-asset-book__confirm-value {
+        color: var(--color-text);
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .public-asset-book__confirm-btn {
+        margin-top: 1rem;
+        width: 100%;
+        min-height: 2.85rem;
+        border: none;
+        border-radius: 0.7rem;
+        background-color: var(--color-primary);
+        color: var(--color-text-white);
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+    }
+
+    .public-asset-book__confirm-btn:hover {
+        background-color: var(--color-primary-hover);
+    }
+
+    .public-asset-book__confirm-btn:active {
+        transform: scale(0.98);
+    }
+
+    .public-asset-book__confirm-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .public-asset-book__success-banner {
+        display: none;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.85rem;
+        background-color: var(--color-bg-complement);
+        color: var(--color-text);
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+    }
+
+    .public-asset-book__success-banner.show {
+        display: block;
+    }
+
+    @keyframes publicAssetBookSpin {
+        to { transform: rotate(360deg); }
+    }
+
+    .public-asset-book__spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid var(--color-border-light);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: publicAssetBookSpin .6s linear infinite;
+        vertical-align: middle;
+    }
+
+    @media (max-width: 1100px) {
+        .public-asset-book__layout {
+            grid-template-columns: 1fr;
+        }
+
+        .public-asset-book__calendar-panel {
+            max-width: none;
+        }
+
+        .public-asset-book__slots-panel {
+            position: static;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .public-asset-book {
+            grid-template-columns: 1fr;
+        }
+
+        .public-asset-book__sidebar {
+            border-right: none;
+            border-bottom: 1px solid var(--color-border-light);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .public-asset-book__main {
+            padding: 0.75rem;
+        }
+
+        .public-asset-book__service-header-content,
+        .public-asset-book__slots-panel {
+            padding: 0.9rem;
+        }
+
+        .public-asset-book__calendar-nav {
+            padding: 0.75rem 0.85rem;
+        }
+
+        .public-asset-book__calendar-body {
+            padding: 0.4rem 0.4rem 0.6rem;
+        }
+
+        .public-asset-book__slots-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const ASSET_ID   = {{ $asset->id }};
+        const SERVICE_ID = {{ $service->id }};
+        const DURATION   = {{ $service->duration_minutes }};
+        const SLOTS_URL  = '{{ route('appointment.slots') }}';
+        const STORE_URL  = '{{ route('appointment.store') }}';
+        const CSRF       = '{{ csrf_token() }}';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let viewYear = today.getFullYear();
+        let viewMonth = today.getMonth();
+        let slotCache = {};
+        let loadedMonths = new Set();
+        let selectedDate = null;
+        let selectedSlot = null;
+
+        const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+        function renderCalendar() {
+            document.getElementById('calTitle').textContent =
+                new Date(viewYear, viewMonth, 1).toLocaleDateString('en-GB', {
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+            const dowEl = document.getElementById('calDow');
+            dowEl.innerHTML = DOW.map(d => `<div class="public-asset-book__dow">${d}</div>`).join('');
+
+            const firstDay = new Date(viewYear, viewMonth, 1);
+            const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
+            const startOffset = (firstDay.getDay() + 6) % 7;
+
+            let html = '';
+
+            for (let i = 0; i < startOffset; i++) {
+                html += '<div class="public-asset-book__day empty"></div>';
             }
 
-            // ── Load slots for visible month ────────────────────────────────────────
-            async function loadMonth(year, month) {
-                const mk = `${year}-${month}`;
-                if (loadedMonths.has(mk)) { renderCalendar(); return; }
-                loadedMonths.add(mk);
+            for (let d = 1; d <= totalDays; d++) {
+                const dt = new Date(viewYear, viewMonth, d);
+                const key = dateKey(dt);
+                const isPast = dt < today;
+                const isToday = dt.getTime() === today.getTime();
+                const isSelected = selectedDate === key;
+                const loaded = key in slotCache;
+                const slots = slotCache[key];
+                const hasSlots = loaded && slots.length > 0;
+                const isClosed = loaded && slots.length === 0;
 
-                const from = `${year}-${String(month + 1).padStart(2,'0')}-01`;
-                const lastDay = new Date(year, month + 1, 0).getDate();
-                const to   = `${year}-${String(month + 1).padStart(2,'0')}-${lastDay}`;
+                let cls = 'public-asset-book__day';
+                if (isPast) cls += ' past';
+                if (isToday) cls += ' today';
+                if (isSelected) cls += ' selected';
+                if (hasSlots && !isPast) cls += ' has-slots';
+                if (isClosed) cls += ' closed';
 
-                const url = `${SLOTS_URL}?asset_id=${ASSET_ID}&service_id=${SERVICE_ID}&from=${from}&to=${to}`;
+                const clickable = !isPast;
 
-                try {
-                    const res  = await fetch(url, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF } });
-                    const data = await res.json();
-                    Object.assign(slotCache, data);
-                } catch (e) {
-                    console.error('Failed to load slots', e);
-                }
+                html += `<div class="${cls}" ${clickable ? `onclick="selectDate('${key}')"` : ''}>${d}</div>`;
+            }
 
+            document.getElementById('calDays').innerHTML = html;
+            renderCalendarNote();
+        }
+
+        function renderCalendarNote() {
+            const note = document.getElementById('calendarAvailabilityNote');
+            if (!note) return;
+
+            const prefix = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-`;
+            const monthKeys = Object.keys(slotCache).filter(key => key.startsWith(prefix));
+            const availableDays = monthKeys.filter(key => (slotCache[key] || []).length > 0).length;
+
+            if (!monthKeys.length) {
+                note.classList.add('public-asset-book__calendar-note--hidden');
+                return;
+            }
+
+            if (availableDays === 0) {
+                note.classList.remove('public-asset-book__calendar-note--hidden');
+            } else {
+                note.classList.add('public-asset-book__calendar-note--hidden');
+            }
+        }
+
+        async function loadMonth(year, month) {
+            const mk = `${year}-${month}`;
+            if (loadedMonths.has(mk)) {
                 renderCalendar();
+                return;
             }
 
-            // ── Select a date ───────────────────────────────────────────────────────
-            window.selectDate = function(key) {
-                selectedDate = key;
-                selectedSlot = null;
-                renderCalendar();
-                renderSlots();
-            };
+            loadedMonths.add(mk);
 
-            function renderSlots() {
-                if (!selectedDate) return;
+            const from = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            const to = `${year}-${String(month + 1).padStart(2, '0')}-${lastDay}`;
 
-                const slots = slotCache[selectedDate] ?? null;
-                const d     = new Date(selectedDate + 'T00:00:00');
-                const label = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+            const url = `${SLOTS_URL}?asset_id=${ASSET_ID}&service_id=${SERVICE_ID}&from=${from}&to=${to}`;
 
-                document.getElementById('slotsTitle').textContent = label;
-
-                if (!slots) {
-                    document.getElementById('slotsBody').innerHTML = `<div class="slots-loading"><span class="spinner"></span></div>`;
-                    document.getElementById('confirmStrip').classList.remove('show');
-                    return;
-                }
-
-                if (slots.length === 0) {
-                    document.getElementById('slotsBody').innerHTML = `<div class="slots-closed">Closed — no available slots.</div>`;
-                    document.getElementById('confirmStrip').classList.remove('show');
-                    return;
-                }
-
-                const btns = slots.map(s => {
-                    const active = s === selectedSlot ? ' active' : '';
-                    return `<button class="slot-btn${active}" onclick="selectSlot('${s}')">${s}</button>`;
-                }).join('');
-
-                document.getElementById('slotsBody').innerHTML = `<div class="slots-grid">${btns}</div>`;
-                document.getElementById('confirmStrip').classList.toggle('show', !!selectedSlot);
-
-                if (selectedSlot) {
-                    // compute end time
-                    const [h, m] = selectedSlot.split(':').map(Number);
-                    const endMin = h * 60 + m + DURATION;
-                    const endStr = `${String(Math.floor(endMin/60)).padStart(2,'0')}:${String(endMin%60).padStart(2,'0')}`;
-
-                    document.getElementById('cfDate').textContent = label;
-                    document.getElementById('cfTime').textContent = `${selectedSlot} – ${endStr}`;
-                }
-            }
-
-            window.selectSlot = function(slot) {
-                selectedSlot = slot;
-                renderSlots();
-            };
-
-            // ── Book ────────────────────────────────────────────────────────────────
-            window.submitBooking = async function() {
-                if (!selectedDate || !selectedSlot) return;
-
-                const btn = document.getElementById('bookBtn');
-                btn.disabled = true;
-                btn.textContent = 'Booking…';
-
-                try {
-                    const res = await fetch(STORE_URL, {
-                        method:  'POST',
-                        headers: {
-                            'Content-Type':  'application/json',
-                            'Accept':        'application/json',
-                            'X-CSRF-TOKEN':  CSRF,
-                        },
-                        body: JSON.stringify({
-                            asset_id:   ASSET_ID,
-                            service_id: SERVICE_ID,
-                            date:       selectedDate,
-                            start_at:   selectedSlot,
-                        }),
-                    });
-
-                    const data = await res.json();
-
-                    if (!res.ok) {
-                        const msg = data.errors?.start_at?.[0] ?? data.message ?? 'Something went wrong.';
-                        alert(msg);
-                        btn.disabled = false;
-                        btn.textContent = 'Confirm booking';
-                        // Refresh this day's slots
-                        loadedMonths.delete(`${viewYear}-${viewMonth}`);
-                        await loadMonth(viewYear, viewMonth);
-                        renderSlots();
-                        return;
+            try {
+                const res = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF
                     }
+                });
 
-                    // Remove booked slot from cache
-                    slotCache[selectedDate] = (slotCache[selectedDate] ?? []).filter(s => s !== selectedSlot);
-                    selectedSlot = null;
+                const data = await res.json();
+                Object.assign(slotCache, data);
+            } catch (e) {
+                console.error('Failed to load slots', e);
+            }
 
-                    document.getElementById('successBanner').classList.add('show');
-                    document.getElementById('confirmStrip').classList.remove('show');
-                    renderCalendar();
+            renderCalendar();
+        }
 
-                    setTimeout(() => {
-                        window.location.href = '{{ route('myAppointments') }}';
-                    }, 2000);
+        window.selectDate = function (key) {
+            selectedDate = key;
+            selectedSlot = null;
+            renderCalendar();
+            renderSlots();
+        };
 
-                } catch (e) {
-                    alert('Network error. Please try again.');
+        function renderSlots() {
+            if (!selectedDate) return;
+
+            const slots = slotCache[selectedDate] ?? null;
+            const d = new Date(selectedDate + 'T00:00:00');
+            const label = d.toLocaleDateString('en-GB', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            });
+
+            document.getElementById('slotsTitle').textContent = label;
+
+            if (!slots) {
+                document.getElementById('slotsBody').innerHTML =
+                    `<div class="public-asset-book__slots-loading"><span class="public-asset-book__spinner"></span></div>`;
+                document.getElementById('confirmStrip').classList.remove('show');
+                return;
+            }
+
+            if (slots.length === 0) {
+                document.getElementById('slotsBody').innerHTML =
+                    `<div class="public-asset-book__slots-message">No free slots for this day.</div>`;
+                document.getElementById('confirmStrip').classList.remove('show');
+                return;
+            }
+
+            const btns = slots.map(slot => {
+                const active = slot === selectedSlot ? ' active' : '';
+                return `<button class="public-asset-book__slot-btn${active}" onclick="selectSlot('${slot}')">${slot}</button>`;
+            }).join('');
+
+            document.getElementById('slotsBody').innerHTML =
+                `<div class="public-asset-book__slots-grid">${btns}</div>`;
+
+            document.getElementById('confirmStrip').classList.toggle('show', !!selectedSlot);
+
+            if (selectedSlot) {
+                const [h, m] = selectedSlot.split(':').map(Number);
+                const endMin = h * 60 + m + DURATION;
+                const endStr = `${String(Math.floor(endMin / 60)).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
+
+                document.getElementById('cfDate').textContent = label;
+                document.getElementById('cfTime').textContent = `${selectedSlot} – ${endStr}`;
+            }
+        }
+
+        window.selectSlot = function (slot) {
+            selectedSlot = slot;
+            renderSlots();
+        };
+
+        window.submitBooking = async function () {
+            if (!selectedDate || !selectedSlot) return;
+
+            const btn = document.getElementById('bookBtn');
+            btn.disabled = true;
+            btn.textContent = 'Booking…';
+
+            try {
+                const res = await fetch(STORE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF,
+                    },
+                    body: JSON.stringify({
+                        asset_id: ASSET_ID,
+                        service_id: SERVICE_ID,
+                        date: selectedDate,
+                        start_at: selectedSlot,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    const msg = data.errors?.start_at?.[0] ?? data.message ?? 'Something went wrong.';
+                    alert(msg);
                     btn.disabled = false;
                     btn.textContent = 'Confirm booking';
+                    loadedMonths.delete(`${viewYear}-${viewMonth}`);
+                    await loadMonth(viewYear, viewMonth);
+                    renderSlots();
+                    return;
                 }
-            };
 
-            // ── Month navigation ────────────────────────────────────────────────────
-            document.getElementById('prevMonth').addEventListener('click', () => {
-                if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) return;
-                viewMonth--;
-                if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-                loadMonth(viewYear, viewMonth);
-            });
+                slotCache[selectedDate] = (slotCache[selectedDate] ?? []).filter(s => s !== selectedSlot);
+                selectedSlot = null;
 
-            document.getElementById('nextMonth').addEventListener('click', () => {
-                viewMonth++;
-                if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-                loadMonth(viewYear, viewMonth);
-            });
+                document.getElementById('successBanner').classList.add('show');
+                document.getElementById('confirmStrip').classList.remove('show');
+                renderCalendar();
 
-            // ── Helpers ─────────────────────────────────────────────────────────────
-            function dateKey(d) {
-                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                setTimeout(() => {
+                    window.location.href = '{{ route('myAppointments') }}';
+                }, 2000);
+
+            } catch (e) {
+                alert('Network error. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Confirm booking';
             }
+        };
 
-            // ── Init ─────────────────────────────────────────────────────────────────
-            renderCalendar();
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) return;
+            viewMonth--;
+            if (viewMonth < 0) {
+                viewMonth = 11;
+                viewYear--;
+            }
             loadMonth(viewYear, viewMonth);
+        });
 
-        })();
-    </script>
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            viewMonth++;
+            if (viewMonth > 11) {
+                viewMonth = 0;
+                viewYear++;
+            }
+            loadMonth(viewYear, viewMonth);
+        });
+
+        function dateKey(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        renderCalendar();
+        loadMonth(viewYear, viewMonth);
+    })();
+</script>
 @endsection

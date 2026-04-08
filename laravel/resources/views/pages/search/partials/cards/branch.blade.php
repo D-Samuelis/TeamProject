@@ -1,21 +1,46 @@
-<div class="card branch-card">
-    <div class="card-body">
-        <h3 class="card-title">{{ $item->name }}</h3>
-        <p class="card-subtitle">{{ $item->business->name }}</p>
+<a href="{{ route('business.book', ['businessId' => $item->business->id, 'branch_id' => $item->id]) }}" class="card-link">
+    <div class="card branch-card booking-branch-card">
+        <div class="card-body">
+            <div class="js-search-data" hidden>
+                {{ $item->name }}
+                {{ $item->type }}
+                {{ $item->business->name }}
+                {{ $item->address_line_1 }}
+                {{ $item->address_line_2 }}
+                {{ $item->postal_code }}
+                {{ $item->city }}
+                {{ $item->country }}
+            </div>
 
-        <div class="branch-info">
-            <p><strong>Address:</strong> {{ $item->address }}, {{ $item->city }}</p>
-            @if ($item->phone)
-                <p><strong>Phone:</strong> {{ $item->phone }}</p>
-            @endif
-        </div>
+            <div class="branch-card-top">
+                @if ($item->type)
+                    <span class="branch-type branch-type--{{ strtolower($item->type) }}">
+                        {{ ucfirst($item->type) }}
+                    </span>
+                @endif
+            </div>
 
-        <div class="card-actions">
-            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($item->address . ' ' . $item->city) }}"
-                target="_blank" class="btn-secondary">
-                Get Directions
-            </a>
-            <a href="{{ route('business.book', $item->business->id) }}" class="btn-link">Visit Shop</a>
+            <h3 class="card-title">{{ $item->name }}</h3>
+
+            <div class="branch-info">
+                @if ($item->address_line_1 || $item->address_line_2 || $item->city || $item->postal_code || $item->country)
+                    <p class="search-card-address">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>
+                            {{ implode(', ', array_filter([
+                                $item->address_line_1,
+                                $item->address_line_2,
+                                trim(($item->postal_code ?? '') . ' ' . ($item->city ?? '')),
+                                $item->country
+                            ])) }}
+                        </span>
+                    </p>
+                @endif
+            </div>
+
+            <p class="card-subtitle">
+                Provided by: {{ $item->business->name }}
+            </p>
         </div>
     </div>
-</div>
+</a>
