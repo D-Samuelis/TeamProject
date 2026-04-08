@@ -19,9 +19,10 @@ export function initAssetListView(data = []) {
         columns: [
             { 
                 label: 'Asset Name', key: 'name', sortable: true, searchable: true,
-                render: (val) => `
+                render: (val, item) => `
                     <div class="name-cell">
                         ${val}
+                        ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red); margin-left: 8px;">Archived</span>' : ''}
                     </div>`
             },
             { 
@@ -33,18 +34,14 @@ export function initAssetListView(data = []) {
                 key: 'id', 
                 sortable: false,
                 render: (val, item) => {
-                    const bCount = item.branches?.length || 0;
                     const sCount = item.services?.length || 0;
+                    const serviceLabel = sCount === 1 ? 'Service' : 'Services';
                     
                     return `
                         <div class="stat-badge-group js-open-connections" data-id="${item.id}" style="cursor:pointer; display: flex; gap: 6px;">
-                            <div class="stat-badge stat-badge--branch" title="Connected Branches">
-                                <i class="fa-solid fa-code-branch"></i>
-                                <span>${String(bCount).padStart(2, '0')}</span>
-                            </div>
-                            <div class="stat-badge stat-badge--service" title="Connected Services">
+                            <div class="stat-badge stat-badge--service" title="${item.branch ? item.branch.name : 'No Branch'}">
                                 <i class="fa-solid fa-bell-concierge"></i>
-                                <span>${String(sCount).padStart(2, '0')}</span>
+                                <span>${String(sCount).padStart(2, '0')} ${serviceLabel}</span>
                             </div>
                         </div>`;
                 }
@@ -68,6 +65,8 @@ export function initAssetListView(data = []) {
                             return (!from || today >= from) && (!to || today <= to);
                         });
 
+                    if (!activeRule) return `<span class="text-muted">No rule for today</span>`;
+
                     return `
                         <div class="active-rule-trigger js-open-rule-detail" data-id="${item.id}" style="cursor:pointer;">
                             <div class="stat-badge stat-badge--rule">
@@ -79,6 +78,19 @@ export function initAssetListView(data = []) {
             }
         ],
         renderActions: (item) => {
+            if (item.deleted_at) {
+                return `
+                    <div class="business__actions">
+                        <form action="${window.BE_DATA.routes.restoreAsset.replace(':id', item.id)}" method="POST">
+                            <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                            <input type="hidden" name="_method" value="POST">
+                            <button type="submit" class="button-icon" title="Restore Asset">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </form>
+                    </div>`;
+            }
+
             return `
                 <div class="business__actions">
                     <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
@@ -87,13 +99,17 @@ export function initAssetListView(data = []) {
                     
                     <button 
                         type="button" 
-                        class="button-icon button-icon--danger js-delete-asset-btn" 
+                        class="button-icon button-icon--danger js-archive-asset-btn" 
                         title="Delete Asset"
+                        data-modal-target="archive-asset-modal"
                         data-id="${item.id}"
                         data-name="${item.name}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>`;
+        },
+        onRowRender: (tr, item) => {
+            if (item.deleted_at) tr.classList.add('is-archived');
         }
     };
 
@@ -104,20 +120,34 @@ export function initAssetListView(data = []) {
     });
 
     renderer.render(container, sorter.getSortedData(), sorter);
+
+    window.addEventListener('assetFiltersChanged', (event) => {
+        const statuses = event.detail.statuses;
+        const activeFilters = statuses.reduce((acc, s) => {
+            acc[s.id] = s.active;
+            return acc;
+        }, {});
+
+        const filteredData = originalData.filter(item => {
+            if (item.deleted_at) return activeFilters.deleted;
+            return activeFilters.published;
+        });
+
+        sorter.setData(filteredData);
+        renderer.render(container, sorter.getSortedData(), sorter);
+    });
 }
 
 function updateAssetCounts(data) {
     const stats = {
         all: data.length,
-        published: data.length,
-        hidden: 0,
-        deleted: 0
+        published: data.filter(a => !a.deleted_at).length,
+        deleted: data.filter(a => a.deleted_at).length
     };
 
     const mapping = {
         'countAll': stats.all,
         'countPublished': stats.published,
-        'countHidden': stats.hidden,
         'countDeleted': stats.deleted
     };
 

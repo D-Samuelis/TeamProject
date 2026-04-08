@@ -23,7 +23,7 @@ class AssetRepository implements AssetRepositoryInterface
 
     public function search(SearchDTO $dto, ?User $user = null): Collection
     {
-        $query = Asset::query();
+        $query = Asset::withTrashed();
 
         if ($user && !$user->isAdmin()) {
             $query->where(function ($q) use ($user) {
@@ -81,5 +81,16 @@ class AssetRepository implements AssetRepositoryInterface
         $asset = Asset::find($data->id);
         $asset->update($data->toArray());
         return $asset;
+    }
+
+    public function restore(int $id): void
+    {
+        $asset = Asset::withTrashed()->find($id);
+        
+        if ($asset) {
+            $asset->restore();
+            
+            $asset->update(['delete_after' => null]); 
+        }
     }
 }
