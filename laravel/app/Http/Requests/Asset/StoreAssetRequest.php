@@ -14,7 +14,7 @@ class StoreAssetRequest extends FormRequest
 
     public function rules(): array
     {
-        $branchId = $this->input('branch_ids');
+        $branchId = $this->input('branch_id'); 
 
         return [
             'name'          => 'required|string|max:255',

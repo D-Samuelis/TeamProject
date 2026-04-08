@@ -12,7 +12,8 @@
         allServices: @json($services),
         routes: {
             branchStore: '{{ route("manage.branch.store") }}',
-            deleteAsset: '{{ route("manage.asset.delete", ":id") }}',
+            deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
+            restoreAsset: "{{ route('manage.asset.restore', ':id') }}",
             deleteRule: '{{ route("manage.rule.delete", ":id") }}'
         }
     };
@@ -160,9 +161,8 @@
                                 </div>
                             </div>
                         @else
-                            {{-- TODO : BE MAN FIX THIS (no route) --}}
                             <form action="{{ route('manage.asset.restore', $asset->id) }}" method="POST">
-                                @csrf @method('PATCH')
+                                @csrf @method('POST')
                                 <button type="submit" class="branch-restore-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Restore Asset
                                 </button>
