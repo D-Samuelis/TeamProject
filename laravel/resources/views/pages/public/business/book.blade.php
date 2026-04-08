@@ -1,141 +1,204 @@
-<div class="container">
-    <a href="{{ route('search.index') }}">&larr; Back to Explore</a>
+@extends('layouts.app')
 
-    <header class="business-header">
-        <h1>{{ $business->name }} [{{ ucfirst($business->state->value) }}]</h1>
-        <p>{{ $business->description }}</p>
-    </header>
+@section('title', 'Bexora | Business Details')
 
-    <div class="content-layout">
-        {{-- Branches Column --}}
-        <section class="branches">
-            <h2>Locations</h2>
-            @foreach ($business->branches as $branch)
-                <div class="item-card">
-                    <strong>{{ $branch->name }}</strong>
-                    <p>Type: {{ is_object($branch->type) ? $branch->type->value : $branch->type }}</p>
-                    <p>Available: {{ $branch->is_active ? 'Yes' : 'No' }}</p>
-                    <address>
-                        @if ($branch->address_line_1)
-                            {{ $branch->address_line_1 }}<br>
-                        @endif
-                        @if ($branch->address_line_2)
-                            {{ $branch->address_line_2 }}<br>
-                        @endif
-                        {{ $branch->country }}, {{ $branch->city }}, {{ $branch->postal_code }}
-                    </address>
-                </div>
-            @endforeach
-        </section>
+@section('content')
+@php
+    $selectedBranchId = request('branch_id');
 
-        {{-- Services Column --}}
-        <section class="services">
-            <h2>Services</h2>
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>Service</th>
-                    <th>Duration</th>
-                    <th>Price</th>
-                    <th>Location</th>
-                    <th>Available</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach ($business->services as $service)
-                    <tr>
-                        <td>
-                            <strong>{{ $service->name }}</strong><br>
-                            <small>{{ $service->description }}</small>
-                        </td>
-                        <td>{{ $service->duration_minutes }} min</td>
-                        <td>{{ number_format($service->price, 2) }} €</td>
-                        <td>{{ is_object($service->location_type) ? ucfirst($service->location_type->value) : ucfirst($service->location_type) }}
-                        </td>
-                        <td>{{ $service->is_active ? 'Yes' : 'No' }}</td>
-                        <td><button><a href="{{ route('service.book', $service->id) }}">Book</a></button></td>
-                    </tr>
+    $preparedBranches = $business->branches->map(function ($branch) {
+        $branchType = strtolower(is_object($branch->type) ? $branch->type->value : $branch->type);
+
+        $branchTypeLabel = match ($branchType) {
+            'hybrid' => 'Hybrid',
+            'online' => 'Online',
+            'physical' => 'Physical',
+            default => ucfirst($branchType),
+        };
+
+        $branchAddress = implode(', ', array_filter([
+            $branch->address_line_1,
+            $branch->address_line_2,
+            trim(($branch->postal_code ?? '') . ' ' . ($branch->city ?? '')),
+            $branch->country,
+        ]));
+
+        $branchMapQuery = trim(
+            ($branch->address_line_1 ?? '') . ' ' .
+            ($branch->address_line_2 ?? '') . ' ' .
+            ($branch->postal_code ?? '') . ' ' .
+            ($branch->city ?? '') . ' ' .
+            ($branch->country ?? '')
+        );
+
+        $hasMapData =
+            $branch->city ||
+            $branch->country ||
+            $branch->address_line_1 ||
+            $branch->address_line_2 ||
+            $branch->postal_code;
+
+        return [
+            'id' => $branch->id,
+            'name' => $branch->name,
+            'type' => $branchType,
+            'type_label' => $branchTypeLabel,
+            'address' => $branchAddress,
+            'map_query' => $branchMapQuery,
+            'has_map_data' => $hasMapData,
+            'services_count' => $branch->services->count(),
+            'services' => $branch->services->map(function ($service) use ($branch, $branchAddress) {
+                $locationType = strtolower($service->location_type);
+
+                $locationLabel = match ($locationType) {
+                    'hybrid' => 'Hybrid',
+                    'online' => 'Online',
+                    default => 'Physical',
+                };
+
+                return [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'description' => $service->description,
+                    'duration_minutes' => $service->duration_minutes,
+                    'price' => $service->price,
+                    'location_label' => $locationLabel,
+                    'branch_name' => $branch->name,
+                    'branch_address' => $branchAddress,
+                    'book_url' => route('service.book', $service->id),
+                ];
+            })->values(),
+        ];
+    })->values();
+@endphp
+
+<div class="public-business-detail">
+    <aside class="public-business-detail__sidebar">
+        <div class="public-business-detail__sidebar-top">
+            <a href="{{ route('search.index') }}" class="public-business-detail__back-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Explore</span>
+            </a>
+        </div>
+
+        <section class="public-business-detail__sidebar-section">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i> Branches
+            </h3>
+
+            <div id="branchList" class="dropdown__mini-list public-business-detail__branch-nav">
+                @foreach($preparedBranches as $branch)
+                    @php
+                        $isActiveBranch = ((string) $selectedBranchId === (string) $branch['id']) || (!$selectedBranchId && $loop->first);
+                    @endphp
+
+                    <button
+                        type="button"
+                        class="public-business-detail__branch-link {{ $isActiveBranch ? 'is-active' : '' }}"
+                        data-branch-id="{{ $branch['id'] }}"
+                    >
+                        <i class="fa-solid fa-shop"></i>
+                        <span>{{ $branch['name'] }}</span>
+                    </button>
                 @endforeach
-                </tbody>
-            </table>
+            </div>
         </section>
-    </div>
+    </aside>
+
+    <main class="public-business-detail__main">
+        <header class="public-business-detail__business-header">
+            <div class="public-business-detail__business-header-content">
+                <h1 class="public-business-detail__business-title">{{ $business->name }}</h1>
+
+                @if($business->description)
+                    <p class="public-business-detail__business-description">
+                        {{ $business->description }}
+                    </p>
+                @endif
+            </div>
+        </header>
+
+        @foreach($preparedBranches as $branch)
+            @php
+                $isActiveBranch = ((string) $selectedBranchId === (string) $branch['id']) || (!$selectedBranchId && $loop->first);
+            @endphp
+
+            <section
+                class="public-business-detail__branch-panel {{ $isActiveBranch ? 'is-active' : '' }}"
+                data-branch-panel="{{ $branch['id'] }}"
+            >
+                <header class="public-business-detail__branch-header">
+                    <div class="public-business-detail__branch-header-left">
+                        <h2 class="public-business-detail__branch-title">{{ $branch['name'] }}</h2>
+
+                        <div class="public-business-detail__branch-meta">
+                            @if ($branch['type'])
+                                <span class="public-business-detail__branch-badge public-business-detail__branch-badge--{{ $branch['type'] }}">
+                                    {{ $branch['type_label'] }}
+
+                                    <span class="public-business-detail__badge-tooltip">
+                                        <span>Physical - services at a physical location.</span>
+                                        <span>Online - services only online.</span>
+                                        <span>Hybrid - both online and in-person services.</span>
+                                    </span>
+                                </span>
+                            @endif
+
+                            @if ($branch['address'])
+                                <div class="public-business-detail__branch-location-block">
+                                    <p class="public-business-detail__branch-address">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        <span>{{ $branch['address'] }}</span>
+                                    </p>
+
+                                    @if ($branch['has_map_data'])
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($branch['map_query']) }}"
+                                           target="_blank"
+                                           class="public-business-detail__directions-link">
+                                            <i class="fa-solid fa-map-location-dot"></i>
+                                            <span>Get Directions</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="public-business-detail__branch-header-right">
+                        <div class="public-business-detail__branch-header-tools">
+                            <div class="public-business-detail__branch-search">
+                                <div class="list-view__search-wrapper">
+                                    <div class="search-container">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input
+                                            type="text"
+                                            id="publicBusinessDetailSearch-{{ $branch['id'] }}"
+                                            placeholder="Search services..."
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="public-business-detail__body-wrapper">
+                    <div
+                        id="publicBusinessDetailTable-{{ $branch['id'] }}"
+                        class="list-view__body-wrapper public-business-detail__table-container"
+                    ></div>
+                </div>
+            </section>
+        @endforeach
+    </main>
 </div>
 
-<style>
-    .container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 20px;
-        font-family: sans-serif;
-    }
+<script>
+    window.PUBLIC_BUSINESS_DETAIL_DATA = {!! json_encode([
+        'selectedBranchId' => $selectedBranchId,
+        'branches' => $preparedBranches,
+    ]) !!};
+</script>
 
-    .business-header {
-        margin: 20px 0;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 20px;
-    }
-
-    .content-layout {
-        display: flex;
-        gap: 40px;
-    }
-
-    .branches {
-        flex: 1;
-    }
-
-    .services {
-        flex: 2;
-    }
-
-    .item-card {
-        background: #fafafa;
-        border: 1px solid #eee;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-size: 0.9rem;
-    }
-
-    .item-card p {
-        margin: 5px 0;
-        color: #666;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th,
-    .data-table td {
-        text-align: left;
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        font-size: 0.9rem;
-    }
-
-    .data-table th {
-        background: #f8f8f8;
-        font-weight: bold;
-    }
-
-    .data-table small {
-        color: #777;
-    }
-
-    button {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #0056b3;
-    }
-</style>
+@vite('resources/js/pages/manualBooking/entry.js')
+@endsection

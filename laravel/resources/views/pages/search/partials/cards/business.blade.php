@@ -1,6 +1,13 @@
 <a href="{{ route('business.book', $item->id) }}" class="card-link">
     <div class="card booking-business-card">
         <div class="card-body">
+            <div class="js-search-data" hidden>
+                {{ $item->name }}
+                {{ $item->description }}
+                {{ $item->services->count() }}
+                {{ $item->branches->count() }}
+            </div>
+
             <h3 class="card-title">{{ $item->name }}</h3>
             <p class="card-description">{{ Str::limit($item->description, 100) }}</p>
 

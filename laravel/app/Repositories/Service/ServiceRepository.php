@@ -27,7 +27,8 @@ class ServiceRepository implements ServiceRepositoryInterface
 
         $this->applyServiceFilters($query, $dto);
 
-        return $query->with('business')->latest()->paginate($dto->perPage);
+        #return $query->with('business')->latest()->paginate($dto->perPage);
+        return $query->with(['business', 'branches'])->latest()->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection

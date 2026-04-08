@@ -56,3 +56,22 @@
 .service-duration i {
     color: var(--color-text-unimportant);
 }
+
+
+.service-card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 20rem;
+}
+
+.service-card-address {
+    min-height: 1rem;
+}
+
+.service-card-address-placeholder {
+    min-height: 1rem;
+}
+
+.service-card-meta {
+    margin-top: auto;
+}
