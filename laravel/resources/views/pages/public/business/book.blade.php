@@ -65,7 +65,7 @@
                     'location_label' => $locationLabel,
                     'branch_name' => $branch->name,
                     'branch_address' => $branchAddress,
-                    'book_url' => route('service.book', $service->id),
+                    'book_url' => route('service.book', ['serviceId' => $service->id, 'branch_id' => $branch['id']]),
                 ];
             })->values(),
         ];
@@ -97,7 +97,7 @@
                         class="public-business-detail__branch-link {{ $isActiveBranch ? 'is-active' : '' }}"
                         data-branch-id="{{ $branch['id'] }}"
                     >
-                        <i class="fa-solid fa-shop"></i>
+                        <i class="fa-solid fa-location-dot"></i>
                         <span>{{ $branch['name'] }}</span>
                     </button>
                 @endforeach
