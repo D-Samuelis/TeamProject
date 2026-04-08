@@ -1,0 +1,7 @@
+.asset-table__row.is-archived {
+    background: color-mix(in srgb, var(--color-danger), transparent 96%);
+}
+
+.asset-table__row.is-archived {
+    box-shadow: inset 4px 0 0 0 var(--status-red);
+}

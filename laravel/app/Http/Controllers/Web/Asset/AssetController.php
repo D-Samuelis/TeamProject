@@ -27,7 +27,7 @@ class AssetController extends Controller
         $user = Auth::user();
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
-        $assets = $listAssets->execute([], $user);
+        $assets = $listAssets->execute(['with_trashed' => true], $user);
 
         if ($assets instanceof \Illuminate\Pagination\LengthAwarePaginator) {
             $assets->getCollection()->load(['rules', 'branch', 'services.branches']);
@@ -97,9 +97,11 @@ class AssetController extends Controller
         return back()->with('success', "Asset '{$asset->name}' deleted successfully.");
     }
 
-    public function restore()
+    public function restore(int $assetId, AssetRepositoryInterface $assetRepo)
     {
-        return back();
+        $assetRepo->restore($assetId);
+
+        return back()->with('success', "Asset bol úspešne obnovený.");
     }
 
     public function book(GetAssetRequest $request, GetAsset $useCase, GetService $getService)

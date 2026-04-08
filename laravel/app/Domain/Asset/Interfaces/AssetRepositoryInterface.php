@@ -27,4 +27,6 @@ interface AssetRepositoryInterface
     public function delete(Asset $asset): void;
 
     public function update(UpdateAssetDTO $data): Asset;
+
+    public function restore(int $id): void;
 }

@@ -14,13 +14,14 @@
             store: "{{ route('manage.asset.store') }}",
             show: "{{ route('manage.asset.show', ':id') }}",
             update: "{{ route('manage.asset.update', ':id') }}",
-            delete: "{{ route('manage.asset.delete', ':id') }}"
+            deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
+            restoreAsset: "{{ route('manage.asset.restore', ':id') }}"
         },
         csrf: "{{ csrf_token() }}"
     };
 </script>
 
-<div class="business"> {{-- Používam rovnaké triedy pre zachovanie CSS --}}
+<div class="business">
     <aside class="business__sidebar">
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
@@ -36,7 +37,6 @@
         <section class="business__status-filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
             <div id="statusList" class="dropdown__mini-list">
-                {{-- Sem môžeš neskôr pridať filtre cez JS podobne ako pri biznisoch --}}
             </div>
         </section>
     </aside>
@@ -50,8 +50,20 @@
 
                 <div class="business-info">
                     <div class="stat-item stat-item--all">
-                        <i class="fa-solid fa- boxes-stacked"></i>
+                        <i class="fa-solid fa-layer-group"></i>
                         <div id="countAll">{{ $assets->count() }}</div> Total assets
+                    </div>
+                    <div class="stat-item stat-item--published">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div id="countPublished">{{ $assets->count() }}</div> Published
+                    </div>
+                    <div class="stat-item stat-item--hidden">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        <div id="countHidden">{{ $assets->count() }}</div> Hidden
+                    </div>
+                    <div class="stat-item stat-item--deleted">
+                        <i class="fa-solid fa-trash"></i>
+                        <div id="countDeleted">{{ $assets->count() }}</div> Archived
                     </div>
                 </div>
             </div>

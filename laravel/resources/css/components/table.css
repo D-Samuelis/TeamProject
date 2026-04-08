@@ -1,5 +1,17 @@
 td {
-    max-width: 50px;
+    font-size: var(--font-size-small);
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.description-cell {
+    max-width: 250px;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name-cell {
+    width: 100%;
+    min-width: 150px;
 }

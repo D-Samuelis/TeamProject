@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modal) modal.style.display = 'flex';
         });
     }
-
-    initAssetListView(window.BE_DATA.assets);
     initConnectionsModal();
     initRuleDetailModal();
     initCreateAssetModal();
