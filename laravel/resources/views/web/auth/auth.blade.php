@@ -35,12 +35,12 @@
                 </div>
 
                 <div id="loginSection" class="auth-card__section {{ ($mode ?? 'login') === 'login' ? '' : 'hidden' }}">
-                    @include('web.layouts.partials.auth_partials.login')
+                    @include('web.auth.auth_partials.login')
                 </div>
 
                 <div id="registerSection"
                     class="auth-card__section {{ ($mode ?? 'login') === 'register' ? '' : 'hidden' }}">
-                    @include('web.layouts.partials.auth_partials.register')
+                    @include('web.auth.auth_partials.register')
                 </div>
 
             </div>
