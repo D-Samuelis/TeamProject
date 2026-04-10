@@ -6,7 +6,7 @@
     }
 
     $isBookFlow = isset($segments[0]) && $segments[0] === 'book';
-    $crumbs = [['label' => 'Domov', 'url' => '/']];
+    $crumbs = [['label' => 'Homepage', 'url' => '/']];
 
     if ($isBookFlow) {
         $ref = request('ref');
