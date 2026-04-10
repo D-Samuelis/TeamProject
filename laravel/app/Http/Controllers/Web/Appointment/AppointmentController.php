@@ -26,7 +26,7 @@ class AppointmentController extends Controller
     {
         $user = Auth::user();
 
-        return view('pages.appointment.index', [
+        return view('web.customer.appointment.index', [
             'appointments'   => $listAppointments->execute([], $user),
         ]);
     }
@@ -37,7 +37,7 @@ class AppointmentController extends Controller
         $appointment = $getAsset->execute($appointmentId, $user);
         $appointment->load(['service', 'asset.branch.business', 'user']);
 
-        return view('pages.appointment.show', [
+        return view('web.customer.appointment.show', [
             'appointment'    => $appointment,
         ]);
     }

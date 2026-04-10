@@ -27,7 +27,7 @@ class ManageBusinessController extends Controller
     {
         $user = Auth::user();
 
-        return view('pages.business.index', [
+        return view('web.manage.business.index', [
             'activeBusinesses' => $useCase->execute($user, 'active'),
             'deletedBusinesses' => $useCase->execute($user, 'deleted'),
         ]);
@@ -36,7 +36,7 @@ class ManageBusinessController extends Controller
     public function show(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId, Auth::user());
-        return view('pages.business.show', compact('business'));
+        return view('web.manage.business.show', compact('business'));
     }
 
     public function store(StoreBusinessRequest $request, StoreBusiness $useCase)
@@ -66,6 +66,6 @@ class ManageBusinessController extends Controller
     public function book(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId);
-        return view('pages.public.business.book', compact('business'));
+        return view('web.customer.book.business.book', compact('business'));
     }
 }

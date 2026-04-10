@@ -35,7 +35,7 @@ class AssetController extends Controller
             $assets->load(['rules', 'branch', 'services.branches']);
         }
 
-        return view('pages.asset.index', [
+        return view('web.manage.asset.index', [
             'assets'   => $assets,
             'branches' => $branches,
             'services' => $services,
@@ -63,7 +63,7 @@ class AssetController extends Controller
         $asset->load('branch.business', 'services');
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
-        return view('pages.asset.show', [
+        return view('web.manage.asset.show', [
             'asset'    => $asset,
             'branches' => $branches,
             'services' => $services,
@@ -108,7 +108,7 @@ class AssetController extends Controller
     {
         $asset   = $useCase->execute($request->validated('asset_id'), Auth::user());
         $service = $getService->execute($request->validated('service_id'), Auth::user());
-        return view('pages.public.asset.book', compact('asset', 'service'));
+        return view('web.customer.book.asset.book', compact('asset', 'service'));
     }
 
     private function getAssociatedBranchesAndServices(
