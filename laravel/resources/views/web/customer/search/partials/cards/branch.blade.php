@@ -1,4 +1,4 @@
-<a href="{{ route('business.book', ['businessId' => $item->business->id, 'branch_id' => $item->id]) }}" class="card-link">
+<a href="{{ route('book.business', ['businessId' => $item->business->id, 'ref' => 'search', 'target' => 'branch']) }}" class="card-link">
     <div class="card branch-card booking-branch-card">
         <div class="card-body">
             <div class="js-search-data" hidden>

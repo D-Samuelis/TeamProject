@@ -29,16 +29,20 @@ function initBranchNavigation() {
     branchLinks.forEach(link => {
         link.addEventListener('click', () => {
             const branchId = link.dataset.branchId;
-
+ 
             branchLinks.forEach(item => item.classList.remove('is-active'));
             branchPanels.forEach(panel => panel.classList.remove('is-active'));
-
+ 
             link.classList.add('is-active');
-
+ 
             const activePanel = document.querySelector(`[data-branch-panel="${branchId}"]`);
             if (activePanel) {
                 activePanel.classList.add('is-active');
             }
+ 
+            const url = new URL(window.location.href);
+            url.searchParams.set('branch_id', branchId);
+            window.history.replaceState({}, '', url);
         });
     });
 }
