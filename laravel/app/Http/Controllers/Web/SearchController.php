@@ -29,7 +29,7 @@ class SearchController extends Controller
         $dto = SearchDTO::fromRequest($params);
         $searchData = $searchUseCase->execute($dto);
 
-        return view('pages.search.index', array_merge($searchData, [
+        return view('web.customer.search.index', array_merge($searchData, [
             'dto'     => $dto,
             'filters' => $dto
         ]));
@@ -38,6 +38,6 @@ class SearchController extends Controller
     public function show(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId, Auth::user());
-        return view('pages.search.show', compact('business'));
+        return view('web.customer.search.show', compact('business'));
     }
 }

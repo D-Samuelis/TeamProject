@@ -10,10 +10,9 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Auth::user()->notifications()->paginate(15);
-        return view('pages.notifications.index', compact('notifications'));
+        return view('web.layouts.notifications.index', compact('notifications'));
     }
 
-    // NEW: Standard redirect method for marking one as read
     public function markAsRead($id)
     {
         $notification = Auth::user()->notifications()->findOrFail($id);
@@ -28,7 +27,6 @@ class NotificationController extends Controller
         return back()->with('success', 'All notifications marked as read.');
     }
 
-    // Keep this for your JS 'X' button
     public function dismiss($id)
     {
         $notification = Auth::user()->notifications()->findOrFail($id);

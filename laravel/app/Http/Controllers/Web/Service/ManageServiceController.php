@@ -23,7 +23,7 @@ class ManageServiceController extends Controller
 {
     public function index(ListServices $listServices, ListBusinesses $listBusinesses, ListBranches $listBranches)
     {
-        return view('pages.service.index', [
+        return view('web.customer.service.index', [
             'services' => $listServices->execute(Auth::user(), scope: 'all'),
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
@@ -33,7 +33,7 @@ class ManageServiceController extends Controller
     public function show(int $serviceId, GetService $getService, ListBusinesses $listBusinesses, ListBranches $listBranches)
     {
         $service = $getService->execute($serviceId, Auth::user());
-        return view('pages.service.show', [
+        return view('web.customer.service.show', [
             'service' => $service,
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
@@ -79,6 +79,6 @@ class ManageServiceController extends Controller
     public function book(int $serviceId, GetService $useCase)
     {
         $service = $useCase->execute($serviceId);
-        return view('pages.public.service.book', compact('service'));
+        return view('web.customer.book.service.book', compact('service'));
     }
 }

@@ -25,7 +25,7 @@ class AuthController extends Controller
 
         $mode = $request->route()->getName();
         
-        return view('pages.auth', [
+        return view('web.auth.auth', [
             'mode' => $mode === 'register' ? 'register' : 'login',
         ]);
     }

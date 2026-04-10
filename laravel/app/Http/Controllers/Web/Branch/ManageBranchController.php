@@ -21,7 +21,7 @@ class ManageBranchController extends Controller
 {
     public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
     {
-        return view('pages.branch.index', [
+        return view('web.manage.branch.index', [
             'branches'   => $listBranches->execute(Auth::user()),
             'businesses' => $listBusinesses->execute(Auth::user()),
         ]);
@@ -30,7 +30,7 @@ class ManageBranchController extends Controller
     public function show(int $branchId, GetBranch $getBranch, ListBusinesses $listBusinesses, ListServices $listServices)
     {
         $branch = $getBranch->execute($branchId, Auth::user());
-        return view('pages.branch.show', [
+        return view('web.manage.branch.show', [
             'branch'     => $branch,
             'businesses' => $listBusinesses->execute(Auth::user()),
             'services'   => $listServices->execute(Auth::user(), $branch->business),
