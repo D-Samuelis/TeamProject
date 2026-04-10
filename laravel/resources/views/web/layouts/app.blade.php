@@ -23,10 +23,6 @@
 
 <body>
 
-<div class="container mx-auto px-4 mt-4">
-    <x-ui.breadcrumbs />
-</div>
-
 <nav class="nav-main">
     @include('web.layouts.partials.nav')
 </nav>

@@ -1,3 +1,5 @@
+@section("breadcrumb-{$business->id}", $business->name)
+
 @extends('web.layouts.app')
 
 @section('content')
@@ -111,201 +113,203 @@
         </section>
     </aside>
 
-    {{-- MAIN CONTENT --}}
-    <main class="business__main">
-        <header class="business__header-wrapper">
-            <div class="business__header-corner">
-                <div class="view-switcher">
-                    <button class="view-switcher__btn active" id="showTeam"><i class="fa-solid fa-users"></i> Team</button>
-                    <button class="view-switcher__btn" id="showServices"><i class="fa-solid fa-bell-concierge"></i> Services</button>
-                </div>
-            </div>
-
-            <div class="business__header-info">
-                <div class="business__header-info-text">
-                    <div class="breadcrumbs">
-                        <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $business->name }}
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="business__main">
+            <header class="business__header-wrapper">
+                <div class="business__header-corner">
+                    <div class="view-switcher">
+                        <button class="view-switcher__btn active" id="showTeam"><i class="fa-solid fa-users"></i> Team</button>
+                        <button class="view-switcher__btn" id="showServices"><i class="fa-solid fa-bell-concierge"></i> Services</button>
                     </div>
-                    <h2 class="business-header__title" id="dynamic-title">Business Overview</h2>
                 </div>
-            </div>
 
-            <div class="business__header-right">
-                <div class="business__header-right-section_1">
-                    <div id="branch-header-actions" style="display: none;">
-                        @foreach ($business->branches as $branch)
-                            <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none;">
-                                
-                                @if (!$branch->trashed())
-                                    <div class="dropdown branch-dropdown">
-                                        <button class="branch-dropdown__trigger" type="button">
-                                            <i class="fa-solid fa-ellipsis-vertical"></i>
-                                            <span>Branch Actions</span>
-                                        </button>
-                                        
-                                        <div class="branch-dropdown__menu">
-                                            {{-- TOGGLE STATUS --}}
-                                            <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
-                                                @csrf @method('PUT')
-                                                <input type="hidden" name="business_id" value="{{ $business->id }}">
-                                                <input type="hidden" name="is_active" value="{{ $branch->is_active ? 0 : 1 }}">
-                                                <button type="submit" class="branch-dropdown__item">
-                                                    <i class="fa-solid {{ $branch->is_active ? 'fa-circle text-green' : 'fa-circle text-yellow' }} status-dot"></i>
-                                                    Status: 
-                                                    <div class="status__badge {{ $branch->is_active ? 'bg__badge-green' : 'bg__badge-yellow' }}">
-                                                        {{ $branch->is_active ? 'Active' : 'Inactive' }}
-                                                    </div>
-                                                </button>
-                                            </form>
+                <div class="business__header-info">
+                    <div class="business__header-info-text">
+                        <div class="breadcrumbs">
+                            <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $business->name }}
+                        </div>
+                        <h2 class="business-header__title" id="dynamic-title">Business Overview</h2>
+                    </div>
+                </div>
 
-                                            {{-- EDIT --}}
-                                            @can('update', $branch)
-                                                <button class="branch-dropdown__item js-edit-branch" type="button" 
-                                                        data-modal-target="edit-branch-modal" 
-                                                        data-branch='@json($branch)'>
-                                                    <i class="fa-solid fa-gear"></i> Manage Branch
-                                                </button>
-                                            @endcan
-
-                                            <div class="branch-dropdown__divider"></div>
-
-                                            {{-- ARCHIVE --}}
-                                            <button type="button" class="branch-dropdown__item delete-action js-archive-branch-btn"
-                                                data-id="{{ $branch->id }}" 
-                                                data-name="{{ $branch->name }}">
-                                                <i class="fa-solid fa-box-archive"></i> Archive Branch
+                <div class="business__header-right">
+                    <div class="business__header-right-section_1">
+                        <div id="branch-header-actions" style="display: none;">
+                            @foreach ($business->branches as $branch)
+                                <div class="branch-action-group" data-branch-id="{{ $branch->id }}" style="display: none;">
+                                    
+                                    @if (!$branch->trashed())
+                                        <div class="dropdown branch-dropdown">
+                                            <button class="branch-dropdown__trigger" type="button">
+                                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                <span>Branch Actions</span>
                                             </button>
-                                        </div>
-                                    </div>
-                                @else
-                                    <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" class="branch-restore-btn">
-                                            <i class="fa-solid fa-rotate-left"></i> Restore Branch
-                                        </button>
-                                    </form>
-                                @endif
+                                            
+                                            <div class="branch-dropdown__menu">
+                                                {{-- TOGGLE STATUS --}}
+                                                <form action="{{ route('manage.branch.update', $branch->id) }}" method="POST">
+                                                    @csrf @method('PUT')
+                                                    <input type="hidden" name="business_id" value="{{ $business->id }}">
+                                                    <input type="hidden" name="is_active" value="{{ $branch->is_active ? 0 : 1 }}">
+                                                    <button type="submit" class="branch-dropdown__item">
+                                                        <i class="fa-solid {{ $branch->is_active ? 'fa-circle text-green' : 'fa-circle text-yellow' }} status-dot"></i>
+                                                        Status: 
+                                                        <div class="status__badge {{ $branch->is_active ? 'bg__badge-green' : 'bg__badge-yellow' }}">
+                                                            {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                                        </div>
+                                                    </button>
+                                                </form>
 
-                            </div>
-                        @endforeach
+                                                {{-- EDIT --}}
+                                                @can('update', $branch)
+                                                    <button class="branch-dropdown__item js-edit-branch" type="button" 
+                                                            data-modal-target="edit-branch-modal" 
+                                                            data-branch='@json($branch)'>
+                                                        <i class="fa-solid fa-gear"></i> Manage Branch
+                                                    </button>
+                                                @endcan
+
+                                                <div class="branch-dropdown__divider"></div>
+
+                                                {{-- ARCHIVE --}}
+                                                <button type="button" class="branch-dropdown__item delete-action js-archive-branch-btn"
+                                                    data-id="{{ $branch->id }}" 
+                                                    data-name="{{ $branch->name }}">
+                                                    <i class="fa-solid fa-box-archive"></i> Archive Branch
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <form action="{{ route('manage.branch.restore', $branch->id) }}" method="POST">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="branch-restore-btn">
+                                                <i class="fa-solid fa-rotate-left"></i> Restore Branch
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-                <div class="business__header-right-section_2">
-                    <div class="list-view__search-wrapper">
-                        <div class="search-container">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="appointmentSearchInput" placeholder="Search team...">
+                    <div class="business__header-right-section_2">
+                        <div class="list-view__search-wrapper">
+                            <div class="search-container">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="appointmentSearchInput" placeholder="Search team...">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <div class="business__body-wrapper">
-            {{-- TEAM VIEW --}}
-            <div id="businessTeamView" class="business__panel">
-                <div class="dashboard-column dashboard-column--team">
-                    <div class="dashboard-card">
-                        @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
-                            <div class="team-section">
-                                <p class="team-section__label">{{ $title }}</p>
-                                
-                                <div class="team-section__members">
-                                    @forelse ($collection as $user)
-                                        @php
-                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
-                                            $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
-                                            $isOwner = ($title === 'Owners' || $user->pivot->role === 'owner');
-                                        @endphp
+            <div class="business__body-wrapper">
+                {{-- TEAM VIEW --}}
+                <div id="businessTeamView" class="business__panel">
+                    <div class="dashboard-column dashboard-column--team">
+                        <div class="dashboard-card">
+                            @foreach(['Owners' => $owners, 'Managers' => $managers, 'Staff' => $staff] as $title => $collection)
+                                <div class="team-section">
+                                    <p class="team-section__label">{{ $title }}</p>
+                                    
+                                    <div class="team-section__members">
+                                        @forelse ($collection as $user)
+                                            @php
+                                                [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                                $filterId = ($modelName === 'business') ? 'all' : 'branch-' . $user->pivot->model_id;
+                                                $isOwner = ($title === 'Owners' || $user->pivot->role === 'owner');
+                                            @endphp
 
-                                        <div class="team-employee-card filterable-member" data-belongs-to="{{ $filterId }}">
-                                            <div class="employee-info js-search-data">
-                                                <div class="employee-info__main">
-                                                    <span class="employee-name">{{ $user->name }}</span>
+                                            <div class="team-employee-card filterable-member" data-belongs-to="{{ $filterId }}">
+                                                <div class="employee-info js-search-data">
+                                                    <div class="employee-info__main">
+                                                        <span class="employee-name">{{ $user->name }}</span>
 
-                                                    @if (!$isOwner)
-                                                        @php
-                                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
-                                                            $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
-                                                        @endphp
+                                                        @if (!$isOwner)
+                                                            @php
+                                                                [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                                                $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
+                                                            @endphp
 
-                                                        <div class="team-employee-actions">
-                                                            <button class="button-icon button-icon--danger js-remove-user-btn" 
-                                                                type="button" 
-                                                                title="Remove Member"
-                                                                data-user-id="{{ $user->id }}"
-                                                                data-user-name="{{ $user->name }}"
-                                                                data-display-name="{{ $displayName }}"
-                                                                data-business-id="{{ $business->id }}"
-                                                                data-target-type="{{ $modelName }}"
-                                                                data-target-id="{{ $targetId }}">
-                                                                <i class="fa-solid fa-xmark"></i>
-                                                            </button>
-                                                        </div>
-                                                    @endif
-                                                    
-                                                    @if (!$isOwner)
-                                                        @php
-                                                            [$modelName, $displayName] = _resolveAssignment($user, $business);
-                                                            $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
-                                                        @endphp
+                                                            <div class="team-employee-actions">
+                                                                <button class="button-icon button-icon--danger js-remove-user-btn" 
+                                                                    type="button" 
+                                                                    title="Remove Member"
+                                                                    data-user-id="{{ $user->id }}"
+                                                                    data-user-name="{{ $user->name }}"
+                                                                    data-display-name="{{ $displayName }}"
+                                                                    data-business-id="{{ $business->id }}"
+                                                                    data-target-type="{{ $modelName }}"
+                                                                    data-target-id="{{ $targetId }}">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        @if (!$isOwner)
+                                                            @php
+                                                                [$modelName, $displayName] = _resolveAssignment($user, $business);
+                                                                $targetId = ($modelName === 'business') ? $business->id : $user->pivot->model_id;
+                                                            @endphp
 
-                                                        <form action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}" 
-                                                            method="POST" 
-                                                            class="inline-role-form js-role-update-form">
-                                                            @csrf 
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="target_type" value="{{ $modelName }}">
-                                                            <input type="hidden" name="target_id" value="{{ $targetId }}">
-                                                            
-                                                            <select name="role" 
-                                                                    class="role-select-inline" 
-                                                                    onchange="this.form.requestSubmit()">
-                                                                <option value="manager" {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager</option>
-                                                                <option value="staff"   {{ $user->pivot->role === 'staff'   ? 'selected' : '' }}>Staff</option>
-                                                            </select>
-                                                        </form>
-                                                    @else
-                                                        <span class="employee-role-badge">Owner</span>
-                                                    @endif
+                                                            <form action="{{ route('manage.business.users.update', [$business->id, $user->id]) }}" 
+                                                                method="POST" 
+                                                                class="inline-role-form js-role-update-form">
+                                                                @csrf 
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="target_type" value="{{ $modelName }}">
+                                                                <input type="hidden" name="target_id" value="{{ $targetId }}">
+                                                                
+                                                                <select name="role" 
+                                                                        class="role-select-inline" 
+                                                                        onchange="this.form.requestSubmit()">
+                                                                    <option value="manager" {{ $user->pivot->role === 'manager' ? 'selected' : '' }}>Manager</option>
+                                                                    <option value="staff"   {{ $user->pivot->role === 'staff'   ? 'selected' : '' }}>Staff</option>
+                                                                </select>
+                                                            </form>
+                                                        @else
+                                                            <span class="employee-role-badge">Owner</span>
+                                                        @endif
+                                                    </div>
+
+                                                    <span class="employee-role team-member__scope">
+                                                        <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
+                                                    </span>
                                                 </div>
-
-                                                <span class="employee-role team-member__scope">
-                                                    <i class="fa-solid fa-layer-group"></i> {{ $displayName }}
-                                                </span>
                                             </div>
-                                        </div>
-                                    @empty
-                                        <p class="team-section__empty">No {{ strtolower($title) }} found.</p>
-                                    @endforelse
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            {{-- SERVICES VIEW --}}
-            <div id="businessServicesView" class="business__panel hidden">
-                <div class="dashboard-card">
-                    <div class="card-header"><h3><i class="fa-solid fa-bell-concierge"></i> Services</h3></div>
-                    <div class="card-body">
-                        <div class="services-grid">
-                            @foreach ($business->services as $service)
-                                <div class="service-item-card filterable-service"
-                                    data-belongs-to="{{ $service->branches->pluck('id')->map(fn($id) => 'branch-'.$id)->implode(' ') ?: 'all' }}">
-                                    <div class="service-item-card__header"><strong>{{ $service->name }}</strong></div>
-                                    <div class="service-item-card__footer">
-                                        <a href="{{ route('manage.service.show', $service->id) }}">Edit Schedule</a>
+                                        @empty
+                                            <p class="team-section__empty">No {{ strtolower($title) }} found.</p>
+                                        @endforelse
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 </div>
-            </div> 
-        </div>
-    </main>
+
+                {{-- SERVICES VIEW --}}
+                <div id="businessServicesView" class="business__panel hidden">
+                    <div class="dashboard-card">
+                        <div class="card-header"><h3><i class="fa-solid fa-bell-concierge"></i> Services</h3></div>
+                        <div class="card-body">
+                            <div class="services-grid">
+                                @foreach ($business->services as $service)
+                                    <div class="service-item-card filterable-service"
+                                        data-belongs-to="{{ $service->branches->pluck('id')->map(fn($id) => 'branch-'.$id)->implode(' ') ?: 'all' }}">
+                                        <div class="service-item-card__header"><strong>{{ $service->name }}</strong></div>
+                                        <div class="service-item-card__footer">
+                                            <a href="{{ route('manage.service.show', $service->id) }}">Edit Schedule</a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </main>
+    </div>
 </div>
 
 @vite('resources/js/pages/businesses/entry.js')

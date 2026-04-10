@@ -1,9 +1,11 @@
 @php
     $segments = array_values(array_filter(explode('/', request()->path())));
+    
+    if (empty($segments)) {
+        return;
+    }
 
-    // Detekcia book flow: /book/business/{id}/service/{id}/asset/{id}
     $isBookFlow = isset($segments[0]) && $segments[0] === 'book';
-
     $crumbs = [['label' => 'Domov', 'url' => '/']];
 
     if ($isBookFlow) {
@@ -11,7 +13,6 @@
         $branchId = request('branch_id');
         $target   = request('target');
 
-        // Ak prišiel používateľ zo search, pridaj ho ako prvý crumb
         if ($ref === 'search') {
             $crumbs[] = [
                 'label' => 'Search',
@@ -19,7 +20,6 @@
             ];
         }
 
-        // /book/business/{businessId}
         if (isset($segments[2])) {
             $businessId = $segments[2];
             $crumbs[] = [
@@ -28,7 +28,6 @@
             ];
         }
 
-        // /book/business/{businessId}/service/{serviceId}
         if (isset($segments[4])) {
             $serviceId = $segments[4];
             $crumbs[] = [
@@ -37,7 +36,6 @@
             ];
         }
 
-        // /book/business/{businessId}/service/{serviceId}/asset/{assetId}
         if (isset($segments[6])) {
             $crumbs[] = [
                 'label' => isset($asset) ? $asset->name : 'Asset',
@@ -47,29 +45,40 @@
     } else {
         $blacklisted = ['manage', 'customer'];
         $url = '';
+        
         foreach ($segments as $segment) {
             $url .= '/' . $segment;
             if (in_array(strtolower($segment), $blacklisted)) continue;
-            $crumbs[] = ['label' => str_replace('-', ' ', ucfirst($segment)), 'url' => $url];
+
+            // Základný label zo segmentu URL
+            $label = str_replace('-', ' ', ucfirst($segment));
+
+            // Ak je to ID a máme preň definovanú sekciu (Meno z DB)
+            if (is_numeric($segment) && View::hasSection("breadcrumb-{$segment}")) {
+                $rawLabel = View::getSection("breadcrumb-{$segment}");
+                
+                // 1. Dekódujeme HTML entity (opraví &amp; -> &)
+                // 2. Odstránime prípadné HTML tagy
+                // 3. Orežeme dĺžku, aby to nerozbilo šípky
+                $label = Str::limit(strip_tags(html_entity_decode($rawLabel)), 30);
+            }
+
+            $crumbs[] = ['label' => $label, 'url' => $url];
         }
     }
 @endphp
 
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="flex list-reset text-gray-600 text-sm">
+<nav aria-label="breadcrumb" class="breadcrumbs-container">
+    <ul class="breadcrumbs">
         @foreach($crumbs as $crumb)
             @php $isLast = $loop->last; @endphp
-            <li class="flex items-center">
-                @if (!$loop->first)
-                    <span class="mx-2 text-gray-400">/</span>
-                @endif
-
+            <li class="breadcrumbs__item {{ $isLast ? 'is-active' : '' }}">
                 @if($isLast || !$crumb['url'])
-                    <span class="font-bold text-gray-800">{{ $crumb['label'] }}</span>
+                    <span class="breadcrumbs__link">{{ $crumb['label'] }}</span>
                 @else
-                    <a href="{{ $crumb['url'] }}" class="text-blue-600 hover:text-blue-800">{{ $crumb['label'] }}</a>
+                    <a href="{{ $crumb['url'] }}" class="breadcrumbs__link">{{ $crumb['label'] }}</a>
                 @endif
             </li>
         @endforeach
-    </ol>
+    </ul>
 </nav>

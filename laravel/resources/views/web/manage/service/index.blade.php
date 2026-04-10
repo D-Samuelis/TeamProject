@@ -53,7 +53,7 @@
         <h2 style="margin-bottom:1.5rem;">New Service</h2>
         <form method="POST" action="{{ route('manage.service.store') }}">
             @csrf
-            @include('web.manage.service.web.layouts.partials.service-form', [
+            @include('web.manage.service.partials.service-form', [
                 'prefix' => 'create',
                 'service' => null,
                 'businesses' => $businesses,
@@ -67,7 +67,7 @@
     </div>
 </div>
 
-@include('web.manage.service.web.layouts.partials.modal-styles-scripts')
+@include('web.manage.service.partials.modal-styles-scripts')
 
 @if ($errors->any())
     <script>

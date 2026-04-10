@@ -67,6 +67,12 @@
                     <a href="/manage/businesses" class="profile-menu__link">My Businesses</a>
                 </div>
                 <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/manage/services" class="profile-menu__link">My Services</a>
+                </div>
+                <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/manage/assets" class="profile-menu__link">My Assets</a>
+                </div>
+                <div class="profile-menu__option" id="lightModeOption">
                     <a href="/profile" class="profile-menu__link">My Profile</a>
                 </div>
                 <div class="profile-menu__option" id="darkModeOption">
