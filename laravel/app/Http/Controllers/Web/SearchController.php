@@ -34,10 +34,4 @@ class SearchController extends Controller
             'filters' => $dto
         ]));
     }
-
-    public function show(int $businessId, GetBusiness $useCase)
-    {
-        $business = $useCase->execute($businessId, Auth::user());
-        return view('web.customer.search.show', compact('business'));
-    }
 }

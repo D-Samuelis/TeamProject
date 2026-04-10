@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\Service\ManageServiceController;
 use App\Http\Controllers\Web\Asset\AssetController;
 use App\Http\Controllers\Web\Rule\RuleController;
 use App\Http\Controllers\Web\Appointment\AppointmentController;
+use App\Http\Controllers\Web\Book\BookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +27,11 @@ Route::prefix('search')->name('search.')->controller(SearchController::class)->g
     Route::get('/services/{serviceId}', 'showService')->name('service.show');
 });
 
-Route::get('/business/{businessId}/book', [ManageBusinessController::class, 'book'])->name('business.book');
-Route::get('/service/{serviceId}/book', [ManageServiceController::class, 'book'])->name('service.book');
-Route::get('/service/{serviceId}/asset/{assetId}/book', [AssetController::class, 'book'])->name('asset.book');
+Route::controller(BookController::class)->prefix('book')->name('book.')->group(function () {
+    Route::get('/business/{businessId}',                                    'business')->name('business');
+    Route::get('/business/{businessId}/service/{serviceId}',                'service') ->name('service');
+    Route::get('/business/{businessId}/service/{serviceId}/asset/{assetId}','asset')   ->name('asset');
+});
 
 Route::prefix('appointments')->name('appointment.')->controller(AppointmentController::class)->group(function () {
     Route::get('/slots', 'slots')->name('slots'); 

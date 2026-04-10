@@ -1,4 +1,4 @@
-<a href="{{ route('service.book', $item->id) }}" class="card-link">
+<a href="{{ route('book.service', ['businessId' => $item->business->id, 'serviceId' => $item->id, 'ref' => 'search', 'target' => 'service']) }}" class="card-link">
     <div class="card service-card booking-service-card">
         <div class="card-body service-card-body">
             @php
