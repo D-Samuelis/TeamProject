@@ -41,51 +41,54 @@
         </section>
     </aside>
 
-    <main class="business__main">
-        <header class="business__header-wrapper business__header-wrapper--simple">
-            <div class="business__header-corner"></div>
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="business__main">
+            <header class="business__header-wrapper business__header-wrapper--simple">
+                <div class="business__header-corner"></div>
 
-            <div class="business__header-info">
-                <h2 class="business-header__title">My Assets</h2>
+                <div class="business__header-info">
+                    <h2 class="business-header__title">My Assets</h2>
 
-                <div class="business-info">
-                    <div class="stat-item stat-item--all">
-                        <i class="fa-solid fa-layer-group"></i>
-                        <div id="countAll">{{ $assets->count() }}</div> Total assets
-                    </div>
-                    <div class="stat-item stat-item--published">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <div id="countPublished">{{ $assets->count() }}</div> Published
-                    </div>
-                    <div class="stat-item stat-item--hidden">
-                        <i class="fa-solid fa-eye-slash"></i>
-                        <div id="countHidden">{{ $assets->count() }}</div> Hidden
-                    </div>
-                    <div class="stat-item stat-item--deleted">
-                        <i class="fa-solid fa-trash"></i>
-                        <div id="countDeleted">{{ $assets->count() }}</div> Archived
-                    </div>
-                </div>
-            </div>
-
-            <div class="business__header-right">
-                <div class="business__header-right-section_1"> </div>
-                <div class="business__header-right-section_2">
-                    <div class="list-view__search-wrapper">
-                        <div class="search-container">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="assetSearchInput" placeholder="Search assets...">
+                    <div class="business-info">
+                        <div class="stat-item stat-item--all">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <div id="countAll">{{ $assets->count() }}</div> Total assets
+                        </div>
+                        <div class="stat-item stat-item--published">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div id="countPublished">{{ $assets->count() }}</div> Published
+                        </div>
+                        <div class="stat-item stat-item--hidden">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            <div id="countHidden">{{ $assets->count() }}</div> Hidden
+                        </div>
+                        <div class="stat-item stat-item--deleted">
+                            <i class="fa-solid fa-trash"></i>
+                            <div id="countDeleted">{{ $assets->count() }}</div> Archived
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
 
-        <div class="business__body-wrapper">
-            <div id="assetTableContainer" class="list-view__body-wrapper">
+                <div class="business__header-right">
+                    <div class="business__header-right-section_1"> </div>
+                    <div class="business__header-right-section_2">
+                        <div class="list-view__search-wrapper">
+                            <div class="search-container">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="assetSearchInput" placeholder="Search assets...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="business__body-wrapper">
+                <div id="assetTableContainer" class="list-view__body-wrapper">
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 </div>
 
 @vite('resources/js/pages/assets/entry.js')

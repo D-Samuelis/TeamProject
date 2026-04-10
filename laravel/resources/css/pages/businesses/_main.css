@@ -15,6 +15,7 @@
     overflow: hidden;
     background-color: var(--color-bg);
     padding: 1.5rem;
+    padding-top: 0;
 }
 
 .business__body-wrapper {

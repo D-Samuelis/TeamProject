@@ -1,3 +1,5 @@
+@section("breadcrumb-{$asset->id}", $asset->name)
+
 @extends('web.layouts.app')
 
 @section('title', 'Bexora | My Businesses')
@@ -97,210 +99,213 @@
 
     </aside>
 
-    <main class="business__main">
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="business__main">
 
-        <header class="business__header-wrapper">
-            <div class="business__header-corner">
-                <div class="view-switcher">
-                    <button class="view-switcher__btn active"><i class="fa-solid fa-list-check"></i> Rules</button>
-                </div>
-            </div>
-
-            <div class="business__header-info">
-                <div class="business__header-info-text">
-                    <div class="breadcrumbs">
-                        <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $asset->name }}
-                    </div>
-                    <h2 class="business-header__title">Asset Rules</h2>
-                </div>
-            </div>
-
-            <div class="business__header-right">
-
-                {{-- ── Asset Actions (status badge + dropdown) ── --}}
-                <div class="business__header-right-section_1">
-                    <div style="display:flex;align-items:center;gap:8px;">
-
-                        @if (!$asset->trashed())
-                            {{-- AK JE ASSET AKTÍVNY: Zobrazíme dropdown --}}
-                            <div class="dropdown branch-dropdown">
-                                <button class="branch-dropdown__trigger" type="button">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                    <span>Asset Actions</span>
-                                </button>
-
-                                <div class="branch-dropdown__menu">
-
-                                    {{-- Status toggle --}}
-                                    <button type="button" class="branch-dropdown__item" disabled title="Coming soon">
-                                        <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
-                                        Status:
-                                        <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
-                                            {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
-                                        </div>
-                                    </button>
-
-                                    {{-- Add Rule --}}
-                                    @can('update', $asset)
-                                        <button type="button" class="branch-dropdown__item" data-modal-target="create-rule-modal">
-                                            <i class="fa-solid fa-plus"></i> Add Rule
-                                        </button>
-                                    @endcan
-
-                                    <div class="branch-dropdown__divider"></div>
-
-                                    {{-- Archive Asset --}}
-                                    @can('destroy', $asset)
-                                        <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
-                                            data-id="{{ $asset->id }}"
-                                            data-name="{{ $asset->name }}">
-                                            <i class="fa-solid fa-box-archive"></i> Archive Asset
-                                        </button>
-                                    @endcan
-
-                                </div>
-                            </div>
-                        @else
-                            <form action="{{ route('manage.asset.restore', $asset->id) }}" method="POST">
-                                @csrf @method('POST')
-                                <button type="submit" class="branch-restore-btn">
-                                    <i class="fa-solid fa-rotate-left"></i> Restore Asset
-                                </button>
-                            </form>
-                        @endif
-
+            <header class="business__header-wrapper">
+                <div class="business__header-corner">
+                    <div class="view-switcher">
+                        <button class="view-switcher__btn active"><i class="fa-solid fa-list-check"></i> Rules</button>
                     </div>
                 </div>
 
-                <div class="business__header-right-section_2">
-                    <div class="list-view__search-wrapper">
-                        <div class="search-container">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="ruleSearchInput" placeholder="Search rules...">
+                <div class="business__header-info">
+                    <div class="business__header-info-text">
+                        <div class="breadcrumbs">
+                            <a href="{{ route('manage.business.index') }}">Dashboard</a> / {{ $asset->name }}
                         </div>
+                        <h2 class="business-header__title">Asset Rules</h2>
                     </div>
                 </div>
-            </div>
-        </header>
 
-        <div class="business__body-wrapper asset-rules">
-            <div class="rule-panel" data-reorder-url="{{ route('manage.rule.reorder_all') }}">
+                <div class="business__header-right">
 
-                @php $sortedRules = $asset->rules->sortBy('priority'); @endphp
+                    {{-- ── Asset Actions (status badge + dropdown) ── --}}
+                    <div class="business__header-right-section_1">
+                        <div style="display:flex;align-items:center;gap:8px;">
 
-                @forelse($sortedRules as $rule)
-                    @php
-                        $rs = is_string($rule->rule_set) ? json_decode($rule->rule_set, true) : $rule->rule_set;
-                        $rs = $rs['days'] ?? $rs;
-                        $isFirst = $loop->first;
-                        $isLast  = $loop->last;
-                    @endphp
-
-                    <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card filterable-rule" style="flex-direction: column;">
-
-                        <div class="rule-card__header" style="width: 100%;">
-                            <div class="rule-card__left">
-
-                                <div class="rule-card__reorder">
-
-                                    <div class="rule-card__reorder-buttons">
-                                        @can('update', $asset)
-                                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
-                                                @csrf
-                                                <input type="hidden" name="direction" value="up">
-                                                <button type="submit" class="rule-card__reorder-btn {{ $isFirst ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isFirst ? 'disabled' : '' }}>▲</button>
-                                            </form>
-                                        @endcan
-
-                                        @can('update', $asset)
-                                            <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
-                                                @csrf
-                                                <input type="hidden" name="direction" value="down">
-                                                <button type="submit" class="rule-card__reorder-btn {{ $isLast ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isLast ? 'disabled' : '' }}>▼</button>
-                                            </form>
-                                        @endcan
-                                    </div>
-
-                                    <div class="rule-card__priority js-priority-label"><span>#</span>{{ $rule->priority }}</div>
-
-                                </div>
-
-                                <div class="rule-card__meta js-search-data">
-                                    <div>
-                                        <strong class="rule-card__title">{{ $rule->title }}</strong>
-                                        @if($rule->description)
-                                            <p class="rule-card__description">{{ $rule->description }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="rule-card__dates-row" style="display: flex; gap: 1rem; margin-top: 5px;">
-                                        <span class="rule-card__dates">
-                                            <span>from:</span> {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
-                                        </span>
-                                        <span class="rule-card__dates">
-                                            <span>to:</span> {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="rule-card__actions">
+                            @if (!$asset->trashed())
+                                {{-- AK JE ASSET AKTÍVNY: Zobrazíme dropdown --}}
                                 <div class="dropdown branch-dropdown">
                                     <button class="branch-dropdown__trigger" type="button">
-                                        <i class="fa-solid fa-ellipsis-vertical"></i> Rule Actions
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        <span>Asset Actions</span>
                                     </button>
+
                                     <div class="branch-dropdown__menu">
+
+                                        {{-- Status toggle --}}
+                                        <button type="button" class="branch-dropdown__item" disabled title="Coming soon">
+                                            <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
+                                            Status:
+                                            <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
+                                                {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
+                                            </div>
+                                        </button>
+
+                                        {{-- Add Rule --}}
                                         @can('update', $asset)
-                                            <button type="button" class="branch-dropdown__item js-edit-rule-btn"
-                                                    data-rule='@json($rule)'>
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit Rule
+                                            <button type="button" class="branch-dropdown__item" data-modal-target="create-rule-modal">
+                                                <i class="fa-solid fa-plus"></i> Add Rule
                                             </button>
                                         @endcan
+
                                         <div class="branch-dropdown__divider"></div>
-                                        {{-- Delete Rule --}}
-                                        @can('update', $asset)
-                                            <button type="button" class="branch-dropdown__item delete-action js-delete-rule-btn"
-                                                data-rule-id="{{ $rule->id }}"
-                                                data-rule-title="{{ $rule->title }}">
-                                                <i class="fa-solid fa-trash"></i> Delete Rule
+
+                                        {{-- Archive Asset --}}
+                                        @can('destroy', $asset)
+                                            <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
+                                                data-id="{{ $asset->id }}"
+                                                data-name="{{ $asset->name }}">
+                                                <i class="fa-solid fa-box-archive"></i> Archive Asset
                                             </button>
                                         @endcan
+
+                                    </div>
+                                </div>
+                            @else
+                                <form action="{{ route('manage.asset.restore', $asset->id) }}" method="POST">
+                                    @csrf @method('POST')
+                                    <button type="submit" class="branch-restore-btn">
+                                        <i class="fa-solid fa-rotate-left"></i> Restore Asset
+                                    </button>
+                                </form>
+                            @endif
+
+                        </div>
+                    </div>
+
+                    <div class="business__header-right-section_2">
+                        <div class="list-view__search-wrapper">
+                            <div class="search-container">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="ruleSearchInput" placeholder="Search rules...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="business__body-wrapper asset-rules">
+                <div class="rule-panel" data-reorder-url="{{ route('manage.rule.reorder_all') }}">
+
+                    @php $sortedRules = $asset->rules->sortBy('priority'); @endphp
+
+                    @forelse($sortedRules as $rule)
+                        @php
+                            $rs = is_string($rule->rule_set) ? json_decode($rule->rule_set, true) : $rule->rule_set;
+                            $rs = $rs['days'] ?? $rs;
+                            $isFirst = $loop->first;
+                            $isLast  = $loop->last;
+                        @endphp
+
+                        <div data-rule-id="{{ $rule->id }}" class="rule-card js-rule-card filterable-rule" style="flex-direction: column;">
+
+                            <div class="rule-card__header" style="width: 100%;">
+                                <div class="rule-card__left">
+
+                                    <div class="rule-card__reorder">
+
+                                        <div class="rule-card__reorder-buttons">
+                                            @can('update', $asset)
+                                                <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="direction" value="up">
+                                                    <button type="submit" class="rule-card__reorder-btn {{ $isFirst ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isFirst ? 'disabled' : '' }}>▲</button>
+                                                </form>
+                                            @endcan
+
+                                            @can('update', $asset)
+                                                <form method="POST" action="{{ route('manage.rule.reorder', $rule->id) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="direction" value="down">
+                                                    <button type="submit" class="rule-card__reorder-btn {{ $isLast ? 'rule-card__reorder-btn--disabled' : '' }}" {{ $isLast ? 'disabled' : '' }}>▼</button>
+                                                </form>
+                                            @endcan
+                                        </div>
+
+                                        <div class="rule-card__priority js-priority-label"><span>#</span>{{ $rule->priority }}</div>
+
+                                    </div>
+
+                                    <div class="rule-card__meta js-search-data">
+                                        <div>
+                                            <strong class="rule-card__title">{{ $rule->title }}</strong>
+                                            @if($rule->description)
+                                                <p class="rule-card__description">{{ $rule->description }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="rule-card__dates-row" style="display: flex; gap: 1rem; margin-top: 5px;">
+                                            <span class="rule-card__dates">
+                                                <span>from:</span> {{ $rule->valid_from ? \Carbon\Carbon::parse($rule->valid_from)->format('d.m.Y') : '–' }}
+                                            </span>
+                                            <span class="rule-card__dates">
+                                                <span>to:</span> {{ $rule->valid_to ? \Carbon\Carbon::parse($rule->valid_to)->format('d.m.Y') : '–' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rule-card__actions">
+                                    <div class="dropdown branch-dropdown">
+                                        <button class="branch-dropdown__trigger" type="button">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i> Rule Actions
+                                        </button>
+                                        <div class="branch-dropdown__menu">
+                                            @can('update', $asset)
+                                                <button type="button" class="branch-dropdown__item js-edit-rule-btn"
+                                                        data-rule='@json($rule)'>
+                                                    <i class="fa-solid fa-pen-to-square"></i> Edit Rule
+                                                </button>
+                                            @endcan
+                                            <div class="branch-dropdown__divider"></div>
+                                            {{-- Delete Rule --}}
+                                            @can('update', $asset)
+                                                <button type="button" class="branch-dropdown__item delete-action js-delete-rule-btn"
+                                                    data-rule-id="{{ $rule->id }}"
+                                                    data-rule-title="{{ $rule->title }}">
+                                                    <i class="fa-solid fa-trash"></i> Delete Rule
+                                                </button>
+                                            @endcan
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="rule-card__schedule">
-                            <div class="rule-card__schedule-grid" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                                @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $i => $dayName)
-                                    <div class="rule-card__schedule-item {{ empty($rs[$i]) ? 'is-closed' : '' }}" style="display: flex; align-items: center; gap: 10px;">
-                                        <span class="day-label" style="min-width: 35px; font-weight: bold;">{{ $dayName }}</span>
-                                        <div class="day-line" style="flex-grow: 1; border-bottom: 1px dashed var(--color-border-light); opacity: 0.5;"></div>
-                                        <span class="day-time">
-                                            @if(empty($rs[$i]))
-                                                <span class="rule-card__day-hours--closed">closed</span>
-                                            @else
-                                                {{ collect($rs[$i])->map(fn($r) => $r['from_time'].'–'.$r['to_time'])->join(', ') }}
-                                            @endif
-                                        </span>
-                                    </div>
-                                @endforeach
+                            <div class="rule-card__schedule">
+                                <div class="rule-card__schedule-grid" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                    @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $i => $dayName)
+                                        <div class="rule-card__schedule-item {{ empty($rs[$i]) ? 'is-closed' : '' }}" style="display: flex; align-items: center; gap: 10px;">
+                                            <span class="day-label" style="min-width: 35px; font-weight: bold;">{{ $dayName }}</span>
+                                            <div class="day-line" style="flex-grow: 1; border-bottom: 1px dashed var(--color-border-light); opacity: 0.5;"></div>
+                                            <span class="day-time">
+                                                @if(empty($rs[$i]))
+                                                    <span class="rule-card__day-hours--closed">closed</span>
+                                                @else
+                                                    {{ collect($rs[$i])->map(fn($r) => $r['from_time'].'–'.$r['to_time'])->join(', ') }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
+
+                            {{-- 3. FOOTER: Toggle tlačidlo na spodku karty --}}
+                            <button class="rule-card__expand-trigger js-rule-expand" type="button">
+                                <i class="fa-solid fa-chevron-down"></i>
+                                <span>Show Schedule</span>
+                            </button>
                         </div>
 
-                        {{-- 3. FOOTER: Toggle tlačidlo na spodku karty --}}
-                        <button class="rule-card__expand-trigger js-rule-expand" type="button">
-                            <i class="fa-solid fa-chevron-down"></i>
-                            <span>Show Schedule</span>
-                        </button>
-                    </div>
+                    @empty
+                        <p class="rule-panel__empty">No rules yet. Add one to define working hours.</p>
+                    @endforelse
 
-                @empty
-                    <p class="rule-panel__empty">No rules yet. Add one to define working hours.</p>
-                @endforelse
-
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 </div>
 
 <style>

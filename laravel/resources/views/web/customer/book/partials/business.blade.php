@@ -100,92 +100,95 @@
         </section>
     </aside>
 
-    <main class="public-business-detail__main">
-        <header class="public-business-detail__business-header">
-            <div class="public-business-detail__business-header-content">
-                <h1 class="public-business-detail__business-title">{{ $business->name }}</h1>
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="public-business-detail__main">
+            <header class="public-business-detail__business-header">
+                <div class="public-business-detail__business-header-content">
+                    <h1 class="public-business-detail__business-title">{{ $business->name }}</h1>
 
-                @if($business->description)
-                    <p class="public-business-detail__business-description">
-                        {{ $business->description }}
-                    </p>
-                @endif
-            </div>
-        </header>
+                    @if($business->description)
+                        <p class="public-business-detail__business-description">
+                            {{ $business->description }}
+                        </p>
+                    @endif
+                </div>
+            </header>
 
-        @foreach($preparedBranches as $branch)
-            @php
-                $isActiveBranch = ((string) $selectedBranchId === (string) $branch['id']) || (!$selectedBranchId && $loop->first);
-            @endphp
+            @foreach($preparedBranches as $branch)
+                @php
+                    $isActiveBranch = ((string) $selectedBranchId === (string) $branch['id']) || (!$selectedBranchId && $loop->first);
+                @endphp
 
-            <section
-                class="public-business-detail__branch-panel {{ $isActiveBranch ? 'is-active' : '' }}"
-                data-branch-panel="{{ $branch['id'] }}"
-            >
-                <header class="public-business-detail__branch-header">
-                    <div class="public-business-detail__branch-header-left">
-                        <h2 class="public-business-detail__branch-title">{{ $branch['name'] }}</h2>
+                <section
+                    class="public-business-detail__branch-panel {{ $isActiveBranch ? 'is-active' : '' }}"
+                    data-branch-panel="{{ $branch['id'] }}"
+                >
+                    <header class="public-business-detail__branch-header">
+                        <div class="public-business-detail__branch-header-left">
+                            <h2 class="public-business-detail__branch-title">{{ $branch['name'] }}</h2>
 
-                        <div class="public-business-detail__branch-meta">
-                            @if ($branch['type'])
-                                <span class="public-business-detail__branch-badge public-business-detail__branch-badge--{{ $branch['type'] }}">
-                                    {{ $branch['type_label'] }}
+                            <div class="public-business-detail__branch-meta">
+                                @if ($branch['type'])
+                                    <span class="public-business-detail__branch-badge public-business-detail__branch-badge--{{ $branch['type'] }}">
+                                        {{ $branch['type_label'] }}
 
-                                    <span class="public-business-detail__badge-tooltip">
-                                        <span>Physical - services at a physical location.</span>
-                                        <span>Online - services only online.</span>
-                                        <span>Hybrid - both online and in-person services.</span>
+                                        <span class="public-business-detail__badge-tooltip">
+                                            <span>Physical - services at a physical location.</span>
+                                            <span>Online - services only online.</span>
+                                            <span>Hybrid - both online and in-person services.</span>
+                                        </span>
                                     </span>
-                                </span>
-                            @endif
+                                @endif
 
-                            @if ($branch['address'])
-                                <div class="public-business-detail__branch-location-block">
-                                    <p class="public-business-detail__branch-address">
-                                        <i class="fa-solid fa-location-dot"></i>
-                                        <span>{{ $branch['address'] }}</span>
-                                    </p>
+                                @if ($branch['address'])
+                                    <div class="public-business-detail__branch-location-block">
+                                        <p class="public-business-detail__branch-address">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <span>{{ $branch['address'] }}</span>
+                                        </p>
 
-                                    @if ($branch['has_map_data'])
-                                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($branch['map_query']) }}"
-                                           target="_blank"
-                                           class="public-business-detail__directions-link">
-                                            <i class="fa-solid fa-map-location-dot"></i>
-                                            <span>Get Directions</span>
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
+                                        @if ($branch['has_map_data'])
+                                            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($branch['map_query']) }}"
+                                            target="_blank"
+                                            class="public-business-detail__directions-link">
+                                                <i class="fa-solid fa-map-location-dot"></i>
+                                                <span>Get Directions</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="public-business-detail__branch-header-right">
-                        <div class="public-business-detail__branch-header-tools">
-                            <div class="public-business-detail__branch-search">
-                                <div class="list-view__search-wrapper">
-                                    <div class="search-container">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                        <input
-                                            type="text"
-                                            id="publicBusinessDetailSearch-{{ $branch['id'] }}"
-                                            placeholder="Search services..."
-                                        >
+                        <div class="public-business-detail__branch-header-right">
+                            <div class="public-business-detail__branch-header-tools">
+                                <div class="public-business-detail__branch-search">
+                                    <div class="list-view__search-wrapper">
+                                        <div class="search-container">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                            <input
+                                                type="text"
+                                                id="publicBusinessDetailSearch-{{ $branch['id'] }}"
+                                                placeholder="Search services..."
+                                            >
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </header>
+                    </header>
 
-                <div class="public-business-detail__body-wrapper">
-                    <div
-                        id="publicBusinessDetailTable-{{ $branch['id'] }}"
-                        class="list-view__body-wrapper public-business-detail__table-container"
-                    ></div>
-                </div>
-            </section>
-        @endforeach
-    </main>
+                    <div class="public-business-detail__body-wrapper">
+                        <div
+                            id="publicBusinessDetailTable-{{ $branch['id'] }}"
+                            class="list-view__body-wrapper public-business-detail__table-container"
+                        ></div>
+                    </div>
+                </section>
+            @endforeach
+        </main>
+    </div>
 </div>
 
 <script>
