@@ -732,6 +732,7 @@
         const DURATION   = {{ $service->duration_minutes }};
         const SLOTS_URL  = '{{ route('appointment.slots') }}';
         const STORE_URL  = '{{ route('appointment.store') }}';
+
         const CSRF       = '{{ csrf_token() }}';
 
         const today = new Date();
@@ -745,6 +746,8 @@
         let selectedSlot = null;
 
         const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const RESCHEDULE_ID = {{ request('reschedule') ? (int) request('reschedule') : 'null' }};
+        const UPDATE_URL = RESCHEDULE_ID ? '{{ route('manage.appointment.reschedule', ['appointmentId' => '__ID__']) }}'.replace('__ID__', RESCHEDULE_ID) : null;
 
         function renderCalendar() {
             document.getElementById('calTitle').textContent =
@@ -909,22 +912,22 @@
 
             const btn = document.getElementById('bookBtn');
             btn.disabled = true;
-            btn.textContent = 'Booking…';
+            btn.textContent = RESCHEDULE_ID ? 'Rescheduling…' : 'Booking…';
+
+            const isReschedule = !!RESCHEDULE_ID;
+            const url    = isReschedule ? UPDATE_URL : STORE_URL;
+            const method = isReschedule ? 'PATCH' : 'POST';
+            const body   = isReschedule ? { date: selectedDate, start_at: selectedSlot } : { asset_id: ASSET_ID, service_id: SERVICE_ID, date: selectedDate, start_at: selectedSlot };
 
             try {
-                const res = await fetch(STORE_URL, {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': CSRF,
                     },
-                    body: JSON.stringify({
-                        asset_id: ASSET_ID,
-                        service_id: SERVICE_ID,
-                        date: selectedDate,
-                        start_at: selectedSlot,
-                    }),
+                    body: JSON.stringify(body),
                 });
 
                 const data = await res.json();
@@ -933,7 +936,7 @@
                     const msg = data.errors?.start_at?.[0] ?? data.message ?? 'Something went wrong.';
                     alert(msg);
                     btn.disabled = false;
-                    btn.textContent = 'Confirm booking';
+                    btn.textContent = isReschedule ? 'Confirm Reschedule' : 'Confirm booking';
                     loadedMonths.delete(`${viewYear}-${viewMonth}`);
                     await loadMonth(viewYear, viewMonth);
                     renderSlots();
@@ -948,7 +951,12 @@
                 renderCalendar();
 
                 setTimeout(() => {
-                    window.location.href = '{{ route('myAppointments') }}';
+                    if (isReschedule) {
+                        window.location.href = '{{ route('manage.appointment.show', ['appointmentId' => '__ID__']) }}'
+                            .replace('__ID__', RESCHEDULE_ID);
+                    } else {
+                        window.location.href = '{{ route('myAppointments') }}';
+                    }
                 }, 2000);
 
             } catch (e) {
@@ -983,5 +991,9 @@
 
         renderCalendar();
         loadMonth(viewYear, viewMonth);
+
+        if (RESCHEDULE_ID) {
+            document.getElementById('bookBtn').textContent = 'Confirm Reschedule';
+        }
     })();
 </script>

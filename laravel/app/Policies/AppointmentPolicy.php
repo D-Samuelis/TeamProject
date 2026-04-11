@@ -27,6 +27,11 @@ class AppointmentPolicy
         return $this->runCheck(fn() => $this->appointmentAuthService->ensureCanUpdateAppointment($user, $appointment));
     }
 
+    public function updateStatus(User $user, Appointment $appointment, string $status): bool
+    {
+        return $this->runCheck(fn() => $this->appointmentAuthService->ensureCanChangeStatus($user, $appointment, $status));
+    }
+
     public function delete(User $user, Appointment $appointment): bool
     {
         return $this->runCheck(fn() => $this->appointmentAuthService->ensureCanDeleteAppointment($user, $appointment));

@@ -39,13 +39,10 @@ class AppointmentAuthorizationService
         if ($appointment->user_id === $user->id) return;
 
         $businessRole = $this->userRepo->getBusinessRole($user, $appointment->asset->branch->business);
-        if (in_array($businessRole, [
-            \App\Domain\Business\Enums\BusinessRoleEnum::OWNER,
-            \App\Domain\Business\Enums\BusinessRoleEnum::MANAGER,
-        ])) return;
+        if ($businessRole && $businessRole->canUpdate()) return;
 
         $branchRole = $this->userRepo->getBranchRole($user, $appointment->asset->branch);
-        if ($branchRole === \App\Domain\Branch\Enums\BranchRoleEnum::MANAGER) return;
+        if ($branchRole && $branchRole->canUpdate()) return;
 
         throw new DomainException('You do not have permission to update this appointment.');
     }
@@ -55,14 +52,28 @@ class AppointmentAuthorizationService
         if ($user->isAdmin()) return;
 
         $businessRole = $this->userRepo->getBusinessRole($user, $appointment->asset->branch->business);
-        if (in_array($businessRole, [
-            \App\Domain\Business\Enums\BusinessRoleEnum::OWNER,
-            \App\Domain\Business\Enums\BusinessRoleEnum::MANAGER,
-        ])) return;
+        if ($businessRole && $businessRole->canUpdate()) return;
 
         $branchRole = $this->userRepo->getBranchRole($user, $appointment->asset->branch);
-        if ($branchRole === \App\Domain\Branch\Enums\BranchRoleEnum::MANAGER) return;
+        if ($branchRole && $branchRole->canUpdate()) return;
 
         throw new DomainException('You do not have permission to update this appointment.');
+    }
+
+    public function ensureCanChangeStatus(User $user, Appointment $appointment, string $status): void
+    {
+        if ($user->isAdmin()) return;
+
+        $businessRole = $this->userRepo->getBusinessRole($user, $appointment->asset->branch->business);
+        if ($businessRole && $businessRole->canUpdate()) return;
+
+        $branchRole = $this->userRepo->getBranchRole($user, $appointment->asset->branch);
+        if ($branchRole && $branchRole->canUpdate()) return;
+
+        $currentStatus = $this->appointmentRepo->getCurrentStatus($appointment);
+        // Customer who booked can only cancel
+        if ($appointment->user_id === $user->id && $status === 'cancelled' && $currentStatus->canChangeSatatus()) return;
+
+        throw new \DomainException('You do not have permission to set this status.');
     }
 }

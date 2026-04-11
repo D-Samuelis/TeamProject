@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedInteger('duration'); // inherited from service at booking time (minutes)
             $table->date('date');
             $table->time('start_at');
-            $table->softDeletes();
             $table->timestamps();
         });
     }

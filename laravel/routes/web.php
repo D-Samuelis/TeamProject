@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{appointmentId}', 'show')->name('show');
             Route::put('/{appointmentId}', 'update')->name('update');
+            Route::patch('/{appointmentId}/reschedule', 'reschedule')->name('reschedule');
             Route::delete('/{appointmentId}', 'delete')->name('delete');
         });
     });

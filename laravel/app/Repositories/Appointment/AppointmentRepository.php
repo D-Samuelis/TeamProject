@@ -3,6 +3,7 @@
 namespace App\Repositories\Appointment;
 
 use App\Application\DTO\SearchDTO;
+use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -103,5 +104,10 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     public function delete(Appointment $appointment): void
     {
         $appointment->delete();
+    }
+
+    public function getCurrentStatus(Appointment $appointment): AppointmentStatusEnum
+    {
+        return AppointmentStatusEnum::tryFrom($appointment->status);
     }
 }

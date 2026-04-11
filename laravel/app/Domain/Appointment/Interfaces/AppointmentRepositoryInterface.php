@@ -3,6 +3,7 @@
 namespace App\Domain\Appointment\Interfaces;
 
 use App\Application\DTO\SearchDTO;
+use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -33,4 +34,6 @@ interface AppointmentRepositoryInterface
     public function update(Appointment $appointment, array $data): Appointment;
 
     public function delete(Appointment $appointment): void;
+
+    public function getCurrentStatus(Appointment $appointment): AppointmentStatusEnum;
 }

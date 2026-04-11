@@ -14,6 +14,9 @@
         id: {{ $appointment->id }}
     </div>
     <div>
+        appointment: {{ $appointment->date }} {{ $appointment->start_at }}
+    </div>
+    <div>
         user: {{ $appointment->user }}
     </div>
     <div>
@@ -22,8 +25,21 @@
 </div>
 
 @can('update', $appointment)
-    <button onclick="openModal('editAppointmentModal')">Edit Appointment</button>
+    <button onclick="openModal('editAppointmentModal')">Edit Appointment - 1</button>
 @endcan
+
+@if($appointment->status == 'pending' || auth()->user()->isAdmin())
+    @can('update', $appointment)
+        <a href="{{ route('book.asset', [
+            'businessId' => $appointment->asset->branch->business_id,
+            'serviceId'  => $appointment->service_id,
+            'assetId'    => $appointment->asset_id,
+            'reschedule' => $appointment->id,
+        ]) }}" class="btn-secondary">
+            Reschedule
+        </a>
+    @endcan
+@endif
 
 @can('delete', $appointment)
     <form method="POST" action="{{ route('manage.appointment.delete', $appointment->id) }}"
@@ -43,34 +59,20 @@
             @csrf @method('PUT')
 
             <div style="margin-bottom:1rem;">
-                <label>Date</label><br>
-                <input type="date" name="date" class="modal-form__input"
-                       value="{{ $appointment->date }}"
-                       min="{{ now()->toDateString() }}"
-                       style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-                @error('date') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="margin-bottom:1rem;">
-                <label>Time</label><br>
-                <select name="start_at" id="editSlotSelect"
-                        style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-                    <option value="{{ substr($appointment->start_at, 0, 5) }}">
-                        {{ substr($appointment->start_at, 0, 5) }} (current)
-                    </option>
-                </select>
-                @error('start_at') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
-            </div>
-
-            <div style="margin-bottom:1rem;">
                 <label>Status</label><br>
                 <select name="status" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
-                    <option value="pending"   {{ $appointment->status === 'pending'   ? 'selected' : '' }}>Pending</option>
+                    <option value="pending" {{ $appointment->status === 'pending' ? 'selected' : '' }}
+                    @cannot('updateStatus', [$appointment, 'pending']) disabled @endcannot>
+                        Pending
+                    </option>
                     <option value="confirmed" {{ $appointment->status === 'confirmed' ? 'selected' : '' }}
-                    @cannot('manage', $appointment) disabled @endcannot>
+                    @cannot('updateStatus', [$appointment, 'confirmed']) disabled @endcannot>
                         Confirmed
                     </option>
-                    <option value="cancelled" {{ $appointment->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    <option value="cancelled" {{ $appointment->status === 'cancelled' ? 'selected' : '' }}
+                    @cannot('updateStatus', [$appointment, 'cancelled']) disabled @endcannot>
+                        Cancelled
+                    </option>
                 </select>
                 @error('status') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
             </div>
