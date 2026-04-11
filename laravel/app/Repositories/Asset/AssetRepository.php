@@ -83,14 +83,23 @@ class AssetRepository implements AssetRepositoryInterface
         return $asset;
     }
 
-    public function restore(int $id): void
+    public function restore(Asset $asset): void
     {
-        $asset = Asset::withTrashed()->find($id);
-        
-        if ($asset) {
-            $asset->restore();
-            
-            $asset->update(['delete_after' => null]); 
-        }
+        $asset->restore();
+
+        $asset->update(['delete_after' => null]);
+    }
+
+    public function findActive(int $id): Asset
+    {
+        return Asset::query()
+            ->where('is_active', true)
+            ->whereHas('branch', function ($query) {
+                $query->where('is_active', true)
+                    ->whereHas('business', function ($q) {
+                        $q->where('is_published', true);
+                    });
+            })
+            ->findOrFail($id);
     }
 }

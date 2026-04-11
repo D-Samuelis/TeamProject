@@ -18,6 +18,9 @@ class SlotGeneratorService
         int $durationMinutes,
         int $bufferMinutes = 0
     ): array {
+        if (!$asset->is_active) {
+            return [];
+        }
         // ISO: Mon=1..Sun=7, minus 1 gives Mon=0..Sun=6
         $dayOfWeek = $date->dayOfWeekIso - 1;
 

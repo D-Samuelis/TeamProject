@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Business\Appointment;
 use App\Models\Business\Asset;
+use App\Policies\AppointmentPolicy;
 use App\Policies\AssetPolicy;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
         Branch::class => BranchPolicy::class,
         Asset::class => AssetPolicy::class,
         Service::class => ServicePolicy::class,
+        Appointment::class => AppointmentPolicy::class,
     ];
 
     /**

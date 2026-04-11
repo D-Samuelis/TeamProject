@@ -15,10 +15,19 @@ export function initCreateAssetModal() {
             body: `
                 <form id="createAssetForm" class="modal-form">
                     <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
-                    
+
                     <div class="modal-form__group">
                         <label class="modal-form__label">Asset Name</label>
                         <input type="text" name="name" class="modal-form__input" placeholder="e.g. Žigulík 01" maxlength="25" required autofocus>
+                    </div>
+
+                     <div class="modal-form__group">
+                        <label class="modal-form__label">Status</label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" name="is_active"}>
+                            <span>Active</span>
+                        </label>
+                        <input type="hidden" name="is_active" value="0">
                     </div>
 
                     <div class="modal-form__group">
@@ -53,7 +62,7 @@ export function initCreateAssetModal() {
             onConfirm: async (modal) => {
                 const form = modal.querySelector('#createAssetForm');
                 const submitBtn = modal.querySelector('.btn-confirm');
-                
+
                 Modal.clearFieldErrors(modal);
                 if (!form.querySelector('#hidden_branch_id').value) {
                     Modal.showFieldErrors(modal, { branch_id: ['Please select a branch from the list'] });
@@ -65,7 +74,7 @@ export function initCreateAssetModal() {
                 try {
                     const res = await fetch(window.BE_DATA.routes.store, {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': window.BE_DATA.csrf
@@ -118,7 +127,7 @@ function setupSearchableSelect() {
     searchInput.addEventListener('input', () => {
         const filter = searchInput.value.toLowerCase();
         dropdown.style.display = 'block';
-        
+
         items.forEach(item => {
             const text = item.textContent.toLowerCase();
             item.style.display = text.includes(filter) ? 'block' : 'none';
@@ -150,7 +159,7 @@ function setupSearchableSelect() {
         serviceLabels.forEach(label => {
             const serviceBranchIds = label.dataset.branchIds.split(',');
             const hasMatch = selectedBranchId && serviceBranchIds.includes(selectedBranchId);
-            
+
             if (hasMatch) {
                 label.style.display = 'flex';
                 visibleCount++;
@@ -162,7 +171,7 @@ function setupSearchableSelect() {
 
         if (placeholder) {
             placeholder.style.display = (visibleCount === 0) ? 'block' : 'none';
-            placeholder.innerHTML = selectedBranchId 
+            placeholder.innerHTML = selectedBranchId
                 ? '<i class="fa-solid fa-circle-info"></i> No services available for this branch'
                 : '<i class="fa-solid fa-arrow-up"></i> Firstly, choose a branch to see available services';
         }

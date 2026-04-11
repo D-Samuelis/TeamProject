@@ -60,4 +60,14 @@ class RuleRepository implements RuleRepositoryInterface
             ->where('priority', '>', $deletedPriority)
             ->decrement('priority');
     }
+
+    public function shiftPriorities(array $ids, int $offset): void
+    {
+        Rule::whereIn('id', $ids)->increment('priority', $offset);
+    }
+
+    public function setPriority(int $id, int $priority): void
+    {
+        Rule::where('id', $id)->update(['priority' => $priority]);
+    }
 }

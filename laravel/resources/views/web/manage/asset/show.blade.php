@@ -12,6 +12,7 @@
         asset: @json($asset),
         allBranches: @json($branches),
         allServices: @json($services),
+        canUpdate: @json(auth()->user()?->can('update', $asset)),
         routes: {
             branchStore: '{{ route("manage.branch.store") }}',
             deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
@@ -136,13 +137,23 @@
                                     <div class="branch-dropdown__menu">
 
                                         {{-- Status toggle --}}
-                                        <button type="button" class="branch-dropdown__item" disabled title="Coming soon">
-                                            <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
-                                            Status:
-                                            <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
-                                                {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
-                                            </div>
-                                        </button>
+                                        <form action="{{ route('manage.asset.update', $asset->id) }}" method="POST">
+                                            @csrf @method('PUT')
+                                            <input type="hidden" name="name" value="{{ $asset->name }}">
+                                            <input type="hidden" name="branch_id" value="{{ $asset->branch_id }}">
+                                            @foreach($asset->services as $service)
+                                                <input type="hidden" name="service_ids[]" value="{{ $service->id }}">
+                                            @endforeach
+                                            <input type="hidden" name="description" value="{{ $asset->description }}">
+                                            <input type="hidden" name="is_active" value="{{ $asset->is_active ? 0 : 1 }}">
+                                            <button type="submit" class="branch-dropdown__item">
+                                                <i class="fa-solid fa-circle status-dot {{ $asset->is_active ?? true ? 'text-green' : 'text-yellow' }}"></i>
+                                                Status:
+                                                <div class="status__badge {{ $asset->is_active ?? true ? 'bg__badge-green' : 'bg__badge-yellow' }}">
+                                                    {{ $asset->is_active ?? true ? 'Active' : 'Inactive' }}
+                                                </div>
+                                            </button>
+                                        </form>
 
                                         {{-- Add Rule --}}
                                         @can('update', $asset)
@@ -154,7 +165,7 @@
                                         <div class="branch-dropdown__divider"></div>
 
                                         {{-- Archive Asset --}}
-                                        @can('destroy', $asset)
+                                        @can('delete', $asset)
                                             <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
                                                 data-id="{{ $asset->id }}"
                                                 data-name="{{ $asset->name }}">

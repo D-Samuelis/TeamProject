@@ -28,5 +28,7 @@ interface AssetRepositoryInterface
 
     public function update(UpdateAssetDTO $data): Asset;
 
-    public function restore(int $id): void;
+    public function restore(Asset $asset): void;
+
+    public function findActive(int $id): Asset;
 }

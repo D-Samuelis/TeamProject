@@ -93,4 +93,15 @@ class AppointmentRepository implements AppointmentRepositoryInterface
 
         return $query->latest('start_at')->get();
     }
+
+    public function update(Appointment $appointment, array $data): Appointment
+    {
+        $appointment->update($data);
+        return $appointment->fresh();
+    }
+
+    public function delete(Appointment $appointment): void
+    {
+        $appointment->delete();
+    }
 }

@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Web\Appointment;
 
+use App\Application\Appointment\DTO\UpdateAppointmentDTO;
 use App\Application\Appointment\UseCases\GetAppointment;
 use App\Application\Appointment\UseCases\ListAppointments;
+use App\Application\Appointment\UseCases\DeleteAppointment;
+use App\Application\Appointment\UseCases\UpdateAppointment;
+use App\Domain\Appointment\Interfaces\AppointmentRepositoryInterface;
+use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,12 +49,12 @@ class AppointmentController extends Controller
 
     /**
      * GET /appointments/slots?asset_id=&service_id=&from=&to=
+     * Always public so no user is needed for auth
      */
     public function slots(GetSlotsRequest $request): JsonResponse
     {
         $slots = $this->getSlots->execute(
             GetSlotsDTO::fromRequest($request),
-            Auth::user(),
         );
 
         return response()->json($slots);
@@ -63,7 +68,6 @@ class AppointmentController extends Controller
         $appointment = $this->createAppointment->execute(
             CreateAppointmentDTO::fromRequest($request),
             Auth::id(),
-            Auth::user(),
         );
 
         if ($request->wantsJson()) {
@@ -73,5 +77,27 @@ class AppointmentController extends Controller
         return redirect()
             ->route('myAppointments')
             ->with('success', 'Appointment booked successfully!');
+    }
+
+    public function update(int $appointmentId, UpdateAppointmentRequest $request, UpdateAppointment $updateAppointment)
+    {
+        $appointment = $updateAppointment->execute(
+            UpdateAppointmentDTO::fromRequest($appointmentId, $request),
+            Auth::user(),
+        );
+
+        return back()->with('success', 'Appointment updated successfully.');
+    }
+
+    public function delete(int $appointmentId, AppointmentRepositoryInterface $appointmentRepo, DeleteAppointment $useCase)
+    {
+        $appointment = $appointmentRepo->findById($appointmentId);
+        abort_if(!$appointment, 404);
+
+        $useCase->execute($appointmentId, Auth::id());
+
+        return redirect()
+            ->route('myAppointments')
+            ->with('success', 'Appointment deleted successfully.');
     }
 }

@@ -16,13 +16,13 @@ class GetAsset
 
     public function execute(int $assetId, ?User $user = null): Asset
     {
-        $asset = $this->assetRepo->findForManagement($assetId);
-        abort_if(! $asset, 404);
-
         if ($user) {
+            $asset = $this->assetRepo->findForManagement($assetId);
+            abort_if(! $asset, 404);
             $this->authService->ensureCanViewAsset($user, $asset);
+            return $asset;
         }
 
-        return $asset;
+        return $this->assetRepo->findActive($assetId);
     }
 }

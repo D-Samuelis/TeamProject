@@ -29,7 +29,7 @@ class RuleController extends Controller
             asset_id:    $request->validated('asset_id'),
         );
 
-        $useCase->execute($dto, Auth::id());
+        $useCase->execute($dto, Auth::user());
 
         return back()->with('success', 'Rule created successfully.');
     }
@@ -45,14 +45,14 @@ class RuleController extends Controller
             rule_set:    $request->validated('rule_set'),
         );
 
-        $useCase->execute($dto, Auth::id());
+        $useCase->execute($dto, Auth::user());
 
         return back()->with('success', 'Rule updated successfully.');
     }
 
     public function delete(int $ruleId, DeleteRule $useCase)
     {
-        $useCase->execute($ruleId, Auth::id());
+        $useCase->execute($ruleId, Auth::user());
         return back()->with('success', 'Rule deleted.');
     }
 
@@ -62,7 +62,7 @@ class RuleController extends Controller
             'direction' => 'required|in:up,down',
         ]);
 
-        $useCase->execute($ruleId, $request->input('direction'), Auth::id());
+        $useCase->execute($ruleId, $request->input('direction'), Auth::user());
 
         return back()->with('success', 'Rule order updated.');
     }
@@ -74,7 +74,7 @@ class RuleController extends Controller
             'order.*' => 'integer|exists:rules,id',
         ]);
 
-        $useCase->execute($request->input('order'), Auth::id());
+        $useCase->execute($request->input('order'), Auth::user());
 
         return response()->json(['status' => 'success']);
     }

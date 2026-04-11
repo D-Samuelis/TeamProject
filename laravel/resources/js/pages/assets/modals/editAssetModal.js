@@ -26,6 +26,15 @@ export function initEditAssetModal() {
                     </div>
 
                     <div class="modal-form__group">
+                        <label class="modal-form__label">Status</label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" name="is_active" value="1" ${asset.is_active ? 'checked' : ''}>
+                            <span>Active</span>
+                        </label>
+                        <input type="hidden" name="is_active" value="0">
+                    </div>
+
+                    <div class="modal-form__group">
                         <label class="modal-form__label">Description (Optional)</label>
                         <textarea name="description" class="modal-form__input" rows="3">${asset.description || ''}</textarea>
                     </div>
@@ -34,11 +43,11 @@ export function initEditAssetModal() {
                         <label class="modal-form__label">Assign to Branch</label>
                         <div class="searchable-select-wrapper">
                             <input type="hidden" name="branch_id" id="hidden_branch_id" value="${asset.branch ? asset.branch.id : ''}">
-                            <input type="text" id="branch_search" class="modal-form__input" 
-                                   placeholder="Search and select branch..." 
-                                   value="${asset.branch ? asset.branch.name : ''}" 
+                            <input type="text" id="branch_search" class="modal-form__input"
+                                   placeholder="Search and select branch..."
+                                   value="${asset.branch ? asset.branch.name : ''}"
                                    autocomplete="off">
-                            
+
                             <div id="branch_dropdown" class="custom-dropdown" style="display: none;">
                                 ${allBranches.map(b => `
                                     <div class="dropdown-item" data-value="${b.id}">${b.name}</div>
@@ -61,14 +70,14 @@ export function initEditAssetModal() {
             onConfirm: async (modal) => {
                 const form = modal.querySelector('#editAssetForm');
                 const submitBtn = modal.querySelector('.btn-confirm');
-                
+
                 Modal.clearFieldErrors(modal);
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
                     const res = await fetch(form.action, {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
                         },
@@ -117,7 +126,7 @@ function setupEditSearchableSelect() {
         serviceLabels.forEach(label => {
             const serviceBranchIds = label.dataset.branchIds.split(',');
             const hasMatch = selectedBranchId && serviceBranchIds.includes(selectedBranchId.toString());
-            
+
             if (hasMatch) {
                 label.style.display = 'flex';
                 visibleCount++;

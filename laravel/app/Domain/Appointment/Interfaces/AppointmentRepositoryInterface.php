@@ -29,4 +29,8 @@ interface AppointmentRepositoryInterface
     public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection;
 
     public function search(SearchDTO $dto, ?User $user = null): Collection;
+
+    public function update(Appointment $appointment, array $data): Appointment;
+
+    public function delete(Appointment $appointment): void;
 }
