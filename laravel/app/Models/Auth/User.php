@@ -23,14 +23,33 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'password', 'is_admin', 'country', 'city', 'title_prefix', 'birth_date', 'title_suffix', 'phone_number', 'gender', 'remember_token'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'is_admin',
+        'country',
+        'city',
+        'title_prefix',
+        'birth_date',
+        'title_suffix',
+        'phone_number',
+        'gender',
+        'notify_email',
+        'notify_sms',
+        'is_visible',
+        'remember_token'
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
      */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'remember_token'
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -39,9 +58,12 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'birth_date' => 'date',
-        'is_admin' => 'boolean',
+        'password'          => 'hashed',
+        'birth_date'        => 'date',
+        'is_admin'          => 'boolean',
+        'notify_email'      => 'boolean',
+        'notify_sms'        => 'boolean',
+        'is_visible'   => 'boolean',
     ];
 
     /**
@@ -49,30 +71,27 @@ class User extends Authenticatable
      */
     public function businesses()
     {
-        return $this->morphedByMany(Business::class, 'model', 'model_has_users')
-            ->withPivot('role');
+        return $this->morphedByMany(Business::class, 'model', 'model_has_users')->withPivot('role');
     }
 
     public function branches()
     {
-        return $this->morphedByMany(Branch::class, 'model', 'model_has_users')
-            ->withPivot('role');
+        return $this->morphedByMany(Branch::class, 'model', 'model_has_users')->withPivot('role');
     }
 
     public function services()
     {
-        return $this->morphedByMany(Service::class, 'model', 'model_has_users')
-            ->withPivot('role');
+        return $this->morphedByMany(Service::class, 'model', 'model_has_users')->withPivot('role');
     }
 
     /**
      * Helpers
      *  */
-     public function isAdmin()
+    public function isAdmin()
     {
         return $this->is_admin;
     }
-    
+
     /* public function hasBusinessRole($businessId, BusinessRoleEnum $role): bool
     {
         return $this->businesses()

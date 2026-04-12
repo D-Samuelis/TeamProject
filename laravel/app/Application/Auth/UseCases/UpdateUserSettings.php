@@ -2,16 +2,16 @@
 
 namespace App\Application\Auth\UseCases;
 
-use App\Application\Auth\DTO\UpdateUserDTO;
+use App\Application\Auth\DTO\UpdateUserSettingsDTO;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
 
-class UpdateUser
+class UpdateUserSettings
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
     ) {}
 
-    public function execute(int $userId, UpdateUserDTO $dto)
+    public function execute(int $userId, UpdateUserSettingsDTO $dto): void
     {
         $user = $this->userRepository->findById($userId);
 
@@ -21,6 +21,6 @@ class UpdateUser
 
         $user->fill($dto->toArray());
 
-        return $this->userRepository->update($user);
+        $this->userRepository->update($user);
     }
 }

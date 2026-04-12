@@ -24,7 +24,17 @@ class EntityRoleUpdatedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if ($notifiable->notify_email) {
+            $channels[] = 'mail';
+        }
+
+        if ($notifiable->notify_sms && $notifiable->phone_number) {
+            $channels[] = 'sms';
+        }
+
+        return $channels;
     }
 
     /**

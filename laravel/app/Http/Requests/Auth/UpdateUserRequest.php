@@ -21,17 +21,13 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        // We get the user ID from the route to ignore it during the unique email check
         $userId = $this->route('user') ?? $this->user()?->id;
 
         return [
-            'current_password' => [
-                'required_with:password,email',
-                'current_password'
-            ],
+            'current_password' => ['required', 'current_password'],
             'name'         => ['sometimes', 'string', 'max:255'],
             'email'        => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $userId],
-            'password'     => ['sometimes', 'confirmed', Password::defaults()],
+            'password'  => ['sometimes', 'nullable', 'confirmed', Password::defaults()],
             'city'         => ['sometimes', 'nullable', 'string', 'max:255'],
             'country'      => ['sometimes', 'nullable', 'string', 'max:255'],
             'title_prefix' => ['sometimes', 'nullable', 'string', 'max:50'],
@@ -50,6 +46,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'gender.in' => 'The selected gender must be male, female, or other.',
             'birth_date.date_format' => 'The birth date must match the format YYYY-MM-DD.',
+            'current_password.required' => 'Please enter your current password to confirm changes.',
+            'current_password.current_password' => 'The current password is incorrect.',
         ];
     }
 }

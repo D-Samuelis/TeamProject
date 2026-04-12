@@ -46,26 +46,17 @@ class UpdateUserDTO
      */
     public function toArray(): array
     {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => $this->password,
-            'city' => $this->city,
-            'country' => $this->country,
+        return array_filter([
+            'name'         => $this->name,
+            'email'        => $this->email,
+            'password'     => $this->password ? bcrypt($this->password) : null,
+            'city'         => $this->city,
+            'country'      => $this->country,
             'title_prefix' => $this->title_prefix,
-            'birth_date' => $this->birth_date?->format('Y-m-d'),
+            'birth_date'   => $this->birth_date?->format('Y-m-d'),
             'title_suffix' => $this->title_suffix,
             'phone_number' => $this->phone_number,
-            'gender' => $this->gender,
-        ];
-    }
-
-    /**
-     * Optional: Returns only the fields that are not null.
-     * Often preferred for PATCH/Update requests.
-     */
-    public function toFilteredArray(): array
-    {
-        return array_filter($this->toArray(), fn($value) => $value !== null);
+            'gender'       => $this->gender,
+        ], fn($value) => $value !== null);
     }
 }

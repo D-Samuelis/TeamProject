@@ -62,6 +62,7 @@ Route::middleware('guest')->controller(AuthController::class)->group(function ()
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/settings', [ProfileController::class, 'updateSettings'])->name('profile.settings');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');

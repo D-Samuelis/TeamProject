@@ -17,6 +17,8 @@ interface UserRepositoryInterface
 
     public function save(array $data): User;
 
+    public function update(User $user): User;
+
     public function delete(User $user): void;
 
     public function getBusinessRole(User $user, Business $business): ?BusinessRoleEnum;

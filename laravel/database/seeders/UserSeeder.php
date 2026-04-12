@@ -76,7 +76,9 @@ class UserSeeder extends Seeder
                     'is_admin'          => false,
                     'country'           => 'Slovakia',
                     'city'              => 'Bratislava',
-                    'notification_type' => 'email',
+                    'is_visible'        => true,
+                    'notify_email'     => false,
+                    'notify_sms'       => false,
                     'email_verified_at' => now(),
                 ])
             );
