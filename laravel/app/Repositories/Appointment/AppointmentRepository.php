@@ -32,7 +32,7 @@ class AppointmentRepository implements AppointmentRepositoryInterface
         return Appointment::find($id);
     }
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection
+    public function getForCustomer(SearchDTO $dto, ?User $user = null)
     {
         $query = Appointment::query()->with(['user', 'service', 'asset.branch.business']);
 
@@ -50,11 +50,10 @@ class AppointmentRepository implements AppointmentRepositoryInterface
             $query->whereDate('date', $dto->filters['date']);
         }
 
-        // 3. Return the results ordered by the most recent appointment date
-        return $query->latest('start_at')->get();
+        return $query->latest('start_at')->paginate($dto->perPage);
     }
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection
+    public function search(SearchDTO $dto, ?User $user = null)
     {
         $query = Appointment::query()->with(['user', 'service', 'asset.branch']);
 

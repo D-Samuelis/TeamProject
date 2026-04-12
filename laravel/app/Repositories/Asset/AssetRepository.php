@@ -8,6 +8,7 @@ use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Asset;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 
 class AssetRepository implements AssetRepositoryInterface
 {
@@ -21,7 +22,7 @@ class AssetRepository implements AssetRepositoryInterface
         return Asset::create($data);
     }
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection
+    public function search(SearchDTO $dto, ?User $user = null)
     {
         $query = Asset::withTrashed();
 
@@ -30,11 +31,9 @@ class AssetRepository implements AssetRepositoryInterface
                 $q->whereHas('branch', function ($b) use ($user) {
                     $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
                 })
-
                     ->orWhereHas('services', function ($s) use ($user) {
                         $s->whereHas('users', fn($u) => $u->where('users.id', $user->id));
                     })
-
                     ->orWhereHas('branch.business', function ($b) use ($user) {
                         $b->whereHas('users', function ($u) use ($user) {
                             $u->where('users.id', $user->id)
@@ -44,7 +43,9 @@ class AssetRepository implements AssetRepositoryInterface
             });
         }
 
-        return $query->get();
+        $this->applySearchFilters($query, $dto);
+
+        return $query->latest()->paginate($dto->perPage);
     }
 
     public function findForManagement(int $id): Asset
@@ -101,5 +102,22 @@ class AssetRepository implements AssetRepositoryInterface
                     });
             })
             ->findOrFail($id);
+    }
+
+    private function applySearchFilters(Builder $query, SearchDTO $dto): void
+    {
+        if ($dto->query) {
+            $keyword = $dto->query;
+            $query->where(function ($sub) use ($keyword) {
+                $sub->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhereHas('branch', fn($b) => $b->where('name', 'like', "%{$keyword}%"))
+                    ->orWhereHas('services', fn($s) => $s->where('name', 'like', "%{$keyword}%"));
+            });
+        }
+
+        if ($dto->city) {
+            $query->whereHas('branch', fn($q) => $q->where('city', $dto->city));
+        }
     }
 }

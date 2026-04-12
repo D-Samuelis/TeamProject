@@ -15,6 +15,6 @@ class ListAppointments
     public function execute(array $filters = [], ?User $user = null)
     {
         $dto = SearchDTO::fromArray($filters);
-        return $this->appointmentRepo->getForCustomer($dto, $user);
+        return $this->appointmentRepo->getForCustomer($dto, $user)->getCollection();
     }
 }

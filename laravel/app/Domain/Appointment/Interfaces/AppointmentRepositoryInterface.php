@@ -27,9 +27,9 @@ interface AppointmentRepositoryInterface
      */
     public function findById(int $id): ?Appointment;
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection;
+    public function getForCustomer(SearchDTO $dto, ?User $user = null);
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection;
+    public function search(SearchDTO $dto, ?User $user = null);
 
     public function update(Appointment $appointment, array $data): Appointment;
 
