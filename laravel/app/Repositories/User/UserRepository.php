@@ -27,6 +27,12 @@ class UserRepository implements UserRepositoryInterface
         return User::create($data);
     }
 
+    public function update(User $user): User
+    {
+        $user->save();
+        return $user;
+    }
+
     public function delete(User $user): void
     {
         $user->delete();

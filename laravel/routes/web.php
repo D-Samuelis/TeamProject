@@ -2,7 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\{
-    SearchController, NotificationController, ChatbotController, RoleAssignmentController
+    SearchController,
+    NotificationController,
+    ChatbotController,
+    RoleAssignmentController
 };
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\Business\ManageBusinessController;
@@ -12,12 +15,14 @@ use App\Http\Controllers\Web\Asset\AssetController;
 use App\Http\Controllers\Web\Rule\RuleController;
 use App\Http\Controllers\Web\Appointment\AppointmentController;
 use App\Http\Controllers\Web\Book\BookController;
+use App\Http\Controllers\Web\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
 | Public / Customer
 |--------------------------------------------------------------------------
 */
+
 Route::view('/', 'web.customer.welcome')->name('home');
 
 Route::prefix('search')->name('search.')->controller(SearchController::class)->group(function () {
@@ -29,8 +34,8 @@ Route::prefix('search')->name('search.')->controller(SearchController::class)->g
 
 Route::controller(BookController::class)->prefix('book')->name('book.')->group(function () {
     Route::get('/business/{businessId}',                                    'business')->name('business');
-    Route::get('/business/{businessId}/service/{serviceId}',                'service') ->name('service');
-    Route::get('/business/{businessId}/service/{serviceId}/asset/{assetId}','asset')   ->name('asset');
+    Route::get('/business/{businessId}/service/{serviceId}',                'service')->name('service');
+    Route::get('/business/{businessId}/service/{serviceId}/asset/{assetId}', 'asset')->name('asset');
 });
 
 Route::prefix('appointments')->name('appointment.')->controller(AppointmentController::class)->group(function () {
@@ -55,6 +60,9 @@ Route::middleware('guest')->controller(AuthController::class)->group(function ()
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/settings', [ProfileController::class, 'updateSettings'])->name('profile.settings');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');

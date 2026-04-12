@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('title_suffix')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('gender')->nullable();
+            $table->boolean('notify_email')->default(false);
+            $table->boolean('notify_sms')->default(false);
+            $table->boolean('is_visible')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
