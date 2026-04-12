@@ -5,7 +5,6 @@
 @section('content')
 <div class="appointments">
     <aside class="appointments__sidebar">
-        {{-- Kalendár a filtre ponechávame tak, ako si ich pripravil --}}
         <section class="calendar">
             <div class="calendar__header-controls">
                 <div class="calendar__dropdown-group">
@@ -34,33 +33,40 @@
                 <div class="timeline" id="timelineContainer"></div>
             </div>
 
-            <div id="listView" class="">
-                <div class="appointments__control-group">
-                    <button class="button button__toggle-left" id="showTimeline"><i class="fa-solid fa-table-columns"></i></button>
-                    <button class="button button__toggle-right active" id="showList"><i class="fa-solid fa-list"></i></button>
-                </div>
+            <div id="listView" class="hidden">
+                {{-- NOVÝ HEADER (Prebratý z Business) --}}
+                <header class="business__header-wrapper">
+                    <div class="business__header-corner" id="business__header-corner"></div>
 
-                <div class="list-view-header">
-                    <div class="list-view-header__left">
-                        <h2 class="timeline-header__title" id="listDateText"></h2>
-                        <div class="timeline-info">
-                            <i class="fa-solid fa-list-ul"></i>
-                            <span>Total Appointments:</span>
-                            <span id="listCount">0</span>
+                    <div class="business__header-info">
+                        <h2 class="business-header__title" id="listDateText">My Appointments</h2>
+                        
+                        <div class="business-info">
+                            <div class="stat-item stat-item--all">
+                                <i class="fa-solid fa-list-ul"></i>
+                                <div id="listCount">0</div> Appointments
+                            </div>
+                            {{-- Tu môžeš pridať ďalšie štatistiky ak chceš (napr. Confirmed, Pending) --}}
                         </div>
                     </div>
 
-                    <div class="business__search-wrapper">
-                        <div class="business__search-container">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                    <div class="business__header-right">
+                        <div class="business__header-right-section_1"></div>
+                        <div class="business__header-right-section_2">
+                            <div class="list-view__search-wrapper">
+                                <div class="search-container">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="appointmentSearchInput" placeholder="Search client or service...">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </header>
 
-                <div id="listContainer" class="list-container">
-                    {{-- SEM príde vygenerovaná tabuľka cez TableRenderer --}}
-                    <div id="appointmentTableContainer"></div>
+                <div class="business__body-wrapper">
+                    <div id="appointmentTableContainer" class="list-view__body-wrapper">
+                        {{-- SEM TableRenderer vloží <table> s triedou appointments-table --}}
+                    </div>
                 </div>
             </div>
         </main>
@@ -69,12 +75,8 @@
 
 <script>
     window.BE_DATA = {
-        // Tu sa uisti, že Controller posiela $appointments
         appointments: @json($appointments),
         user: @json(auth()->user()),
-        routes: {
-            
-        },
         csrf: "{{ csrf_token() }}"
     };
 </script>

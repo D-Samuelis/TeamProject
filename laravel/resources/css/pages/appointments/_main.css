@@ -19,6 +19,7 @@
     height: calc(100vh - 80px - 3rem);
     overflow: hidden;
     padding: 1.5rem;
+    padding-top: 0;
 }
 
 .appointments__controls {

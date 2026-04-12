@@ -1,46 +1,26 @@
+import { initCalendar } from './calendar.js';
+import { initCalendarFilters } from './calendarFilter.js';
+import { initStatusFilters } from './statusFilters.js';
+import { initViewToggle } from './viewToggle.js';
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
-import { initAppointmentListView } from './listView.js'; 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("entry loaded");
+    initCalendar();
+    initCalendarFilters();
+    
+    initStatusFilters();
+    initCollapsibleList('filterList');
+    
+    initViewToggle(); 
+});
+
+window.addEventListener('dateChanged', (e) => {
+    const selectedDate = new Date(e.detail);
     const allAppointments = window.BE_DATA.appointments || [];
-    const currentUser = window.BE_DATA.user;
-
-    console.log("user:", currentUser);
-    console.log("data:", allAppointments);
-
-    let dataToRender = allAppointments;
-
-    // Filter aplikujeme len ak máme usera aj appointments
-    if (currentUser && currentUser.id) {
-        dataToRender = allAppointments.filter(app => {
-            // POZOR: Skontroluj, či sa v DB tvoj kľúč volá presne 'user_id'
-            return app.user_id === currentUser.id;
-        });
-    } else {
-        console.warn("User nie je prihlásený alebo chýba ID. Zobrazujem všetko.");
-    }
-
-    initAppointmentListView(dataToRender);
-
-    const btnTimeline = document.getElementById('showTimeline');
-    const btnList = document.getElementById('showList');
+    
+    // Ak je zapnutý timeline view, prekresli ho na nový dátum
     const timelineView = document.getElementById('timelineView');
-    const listView = document.getElementById('listView');
-
-    if (btnTimeline && btnList) {
-        btnTimeline.addEventListener('click', () => {
-            timelineView.classList.remove('hidden');
-            listView.classList.add('hidden');
-            btnTimeline.classList.add('active');
-            btnList.classList.remove('active');
-        });
-
-        btnList.addEventListener('click', () => {
-            listView.classList.remove('hidden');
-            timelineView.classList.add('hidden');
-            btnList.classList.add('active');
-            btnTimeline.classList.remove('active');
-        });
+    if (timelineView && !timelineView.classList.contains('hidden')) {
+        initTimelineLayout(allAppointments, selectedDate, 3);
     }
 });
