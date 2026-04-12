@@ -5,7 +5,7 @@ let currentView = 'timeline';
  * @param {Date} baseDate
  * @param {number} daysCount
  */
-export function initTimelineLayout(baseDate = new Date(), daysCount = 3) {
+export function initTimelineLayout(data = [], baseDate = new Date(), daysCount = 3) {
     const container = document.getElementById('timelineContainer');
     if (!container) return;
 
@@ -17,12 +17,16 @@ export function initTimelineLayout(baseDate = new Date(), daysCount = 3) {
     container.appendChild(headerWrapper);
     container.appendChild(bodyWrapper);
 
+    const dates = calculateDates(baseDate, daysCount);
+
     renderCorner(headerWrapper);
-    renderDayHeaders(headerWrapper, baseDate, daysCount);
+    renderDayHeaders(headerWrapper, dates);
     renderTimeAxis(bodyWrapper);
     renderDayColumns(bodyWrapper, daysCount);
-    renderNowIndicator(bodyWrapper);
+    
+    renderAppointments(bodyWrapper, data, dates);
 
+    renderNowIndicator(bodyWrapper);
     setupAutoScroll(bodyWrapper);
     initIndicatorLoop();
 }
@@ -48,18 +52,23 @@ function createWrapper(className, daysCount, hasScrollbarSpace, id = '') {
 }
 
 /**
- * Renders the top-left corner with view switcher
+ * Renders the top-left corner with the view switcher (Columns / List)
  * @param {HTMLElement} parent
  */
 function renderCorner(parent) {
+    parent.innerHTML = ''; // Vyčistíme starý obsah
     const corner = document.createElement('div');
     corner.className = 'timeline__header-corner';
+    
+    // Zistíme, ktorý pohľad je aktívny podľa ID elementov v DOM
+    const isTimelineActive = !document.getElementById('timelineView').classList.contains('hidden');
+
     corner.innerHTML = `
         <div class="view-switcher">
-            <button class="view-switcher__btn" id="showTimeline">
+            <button class="view-switcher__btn ${isTimelineActive ? 'active' : ''}" id="showTimeline">
                 <i class="fa-solid fa-table-columns"></i> Columns
             </button>
-            <button class="view-switcher__btn" id="showList">
+            <button class="view-switcher__btn ${!isTimelineActive ? 'active' : ''}" id="showList">
                 <i class="fa-solid fa-list"></i> List
             </button>
         </div>
@@ -74,8 +83,7 @@ function renderCorner(parent) {
  * @param {Date} baseDate
  * @param {number} daysCount
  */
-function renderDayHeaders(parent, baseDate, daysCount) {
-    const dates = calculateDates(baseDate, daysCount);
+function renderDayHeaders(parent, dates) {
     dates.forEach(dateObj => {
         const isToday = new Date().toDateString() === dateObj.toDateString();
         const header = document.createElement('div');
@@ -85,12 +93,17 @@ function renderDayHeaders(parent, baseDate, daysCount) {
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
         const dayNumber = dateObj.getDate().toString().padStart(2, '0');
 
+        // Tu môžeš pridať filter na dáta, aby si zistil reálny počet:
+        const count = window.BE_DATA.appointments.filter(a => 
+            new Date(a.date).toDateString() === dateObj.toDateString()
+        ).length;
+
         header.innerHTML = `
             <div class="column-info">
                 <span class="column-info__date">${dayName}, ${monthName}</span>
                 <div class="column-info__stats">
                     <i class="fa-regular fa-calendar-check"></i>
-                    <span class="column-info__count">4 Appointments</span>
+                    <span class="column-info__count">${count} Appointments</span>
                 </div>
             </div>
             <div class="column-date">${dayNumber}</div>
@@ -221,5 +234,66 @@ function calculateDates(baseDate, count) {
         const d = new Date(baseDate);
         d.setDate(d.getDate() + startOffset + i);
         return d;
+    });
+}
+
+/**
+ * Renders appointment blocks into the day columns
+ */
+function renderAppointments(parent, data, visibleDates) {
+    if (!data || !Array.isArray(data)) return;
+
+    const columns = parent.querySelectorAll('.timeline__day-column');
+    const SLOT_HEIGHT = 80;
+    const OFFSET_TOP = 24;
+
+    console.log("Visible Dates on Timeline:", visibleDates.map(d => d.toDateString()));
+    console.log("Appointments to process:", data.length);
+
+    data.forEach(app => {
+        const appDate = new Date(app.date);
+        
+        // Hľadáme zhodu (POZOR: Musia byť rovnaké roky, mesiace aj dni)
+        const colIndex = visibleDates.findIndex(d => 
+            d.getDate() === appDate.getDate() && 
+            d.getMonth() === appDate.getMonth() &&
+            d.getFullYear() === appDate.getFullYear()
+        );
+
+        if (colIndex > -1) {
+            console.log(`Rendering app: ${app.service_name} at col ${colIndex}`);
+            
+            const startTime = new Date(app.start_at);
+            const hours = startTime.getHours();
+            const minutes = startTime.getMinutes();
+            const duration = app.duration || 60;
+
+            const top = (hours * SLOT_HEIGHT) + (minutes * (SLOT_HEIGHT / 60)) + OFFSET_TOP;
+            const height = (duration * (SLOT_HEIGHT / 60));
+
+            const appEl = document.createElement('div');
+            // Pridaj si 'timeline__appointment' do CSS (viď nižšie)
+            appEl.className = `timeline__appointment is-${app.status}`;
+            appEl.style.top = `${top}px`;
+            appEl.style.height = `${height}px`;
+            
+            // Inline štýly pre istotu, ak by CSS nenačítalo
+            appEl.style.position = 'absolute';
+            appEl.style.left = '5px';
+            appEl.style.right = '5px';
+            appEl.style.zIndex = '100';
+
+            appEl.innerHTML = `
+                <div class="appointment-content">
+                    <strong>${hours}:${minutes.toString().padStart(2, '0')}</strong><br>
+                    <span>${app.service?.name || 'Service'}</span>
+                </div>
+            `;
+
+            columns[colIndex].appendChild(appEl);
+        } else {
+            // Toto nám povie, ak appointment nespadá do zobrazených 3 dní
+            console.log(`App date ${appDate.toDateString()} is NOT in visible range.`);
+        }
     });
 }
