@@ -18,7 +18,7 @@ class Asset extends Model
         'is_active',
         'delete_after',
         'branch_id',
-        ];
+    ];
 
 
     public function services()

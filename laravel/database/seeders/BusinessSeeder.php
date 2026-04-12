@@ -224,35 +224,35 @@ class BusinessSeeder extends Seeder
         // Assets – Old Town
         $table1 = Asset::firstOrCreate(
             ['name' => 'Massage Table No. 1'],
-            ['description' => 'Electrically adjustable table, Room A.', 'branch_id' => $physical->id]
+            ['description' => 'Electrically adjustable table, Room A.', 'branch_id' => $physical->id, 'is_active' => true]
         );
         $table2 = Asset::firstOrCreate(
             ['name' => 'Massage Table No. 2'],
-            ['description' => 'Standard table, Room B.', 'branch_id' => $physical->id]
+            ['description' => 'Standard table, Room B.', 'branch_id' => $physical->id, 'is_active' => true]
         );
         $table3 = Asset::firstOrCreate(
             ['name' => 'Massage Table No. 3'],
-            ['description' => 'Premium heated table, VIP Room.', 'branch_id' => $physical->id]
+            ['description' => 'Premium heated table, VIP Room.', 'branch_id' => $physical->id, 'is_active' => true]
         );
         $table4 = Asset::firstOrCreate(
             ['name' => 'Couples Suite'],
-            ['description' => 'Double-table suite for couples massages.', 'branch_id' => $physical->id]
+            ['description' => 'Double-table suite for couples massages.', 'branch_id' => $physical->id, 'is_active' => true]
         );
  
         // Assets – Petrzalka
         $table5 = Asset::firstOrCreate(
             ['name' => 'Petrzalka Table No. 1'],
-            ['description' => 'Standard table, Room 1.', 'branch_id' => $physical2->id]
+            ['description' => 'Standard table, Room 1.', 'branch_id' => $physical2->id, 'is_active' => true]
         );
         $table6 = Asset::firstOrCreate(
             ['name' => 'Petrzalka Table No. 2'],
-            ['description' => 'Standard table, Room 2.', 'branch_id' => $physical2->id]
+            ['description' => 'Standard table, Room 2.', 'branch_id' => $physical2->id, 'is_active' => true]
         );
  
         // Assets – Rača
         $table7 = Asset::firstOrCreate(
             ['name' => 'Rača Massage Table'],
-            ['description' => 'Multi-purpose table.', 'branch_id' => $physical3->id]
+            ['description' => 'Multi-purpose table.', 'branch_id' => $physical3->id, 'is_active' => true]
         );
  
         // Attach assets
@@ -429,17 +429,17 @@ class BusinessSeeder extends Seeder
  
         $room = Asset::firstOrCreate(
             ['name' => 'Meeting Room'],
-            ['description' => 'Capacity 6 people, projector, whiteboard.', 'branch_id' => $physical->id]
+            ['description' => 'Capacity 6 people, projector, whiteboard.', 'branch_id' => $physical->id, 'is_active' => true]
         );
  
         $roomB = Asset::firstOrCreate(
             ['name' => 'Meeting Room B'],
-            ['description' => 'Capacity 3 people, whiteboard only.', 'branch_id' => $physical->id]
+            ['description' => 'Capacity 3 people, whiteboard only.', 'branch_id' => $physical->id, 'is_active' => true]
         );
  
         $auparkRoom = Asset::firstOrCreate(
             ['name' => 'Aupark Conference Room'],
-            ['description' => 'Modern conference room, capacity 8.', 'branch_id' => $physical2->id]
+            ['description' => 'Modern conference room, capacity 8.', 'branch_id' => $physical2->id, 'is_active' => true]
         );
  
         $this->syncPivot($consultation->assets(), $room->id);
@@ -534,11 +534,11 @@ class BusinessSeeder extends Seeder
         $this->attachUser($shave, $owner->id, 'staff');
         $this->attachUser($kids, $staff3->id, 'staff');
  
-        $chair1 = Asset::firstOrCreate(['name' => 'Barber Chair #1'], ['description' => 'Classic leather barber chair.', 'branch_id' => $branch->id]);
-        $chair2 = Asset::firstOrCreate(['name' => 'Barber Chair #2'], ['description' => 'Classic leather barber chair.', 'branch_id' => $branch->id]);
-        $chair3 = Asset::firstOrCreate(['name' => 'Barber Chair #3'], ['description' => 'Premium hydraulic chair.', 'branch_id' => $branch->id]);
-        $dubChair1 = Asset::firstOrCreate(['name' => 'Dúbravka Chair #1'], ['description' => 'Standard barber chair.', 'branch_id' => $branch2->id]);
-        $dubChair2 = Asset::firstOrCreate(['name' => 'Dúbravka Chair #2'], ['description' => 'Standard barber chair.', 'branch_id' => $branch2->id]);
+        $chair1 = Asset::firstOrCreate(['name' => 'Barber Chair #1'], ['description' => 'Classic leather barber chair.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $chair2 = Asset::firstOrCreate(['name' => 'Barber Chair #2'], ['description' => 'Classic leather barber chair.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $chair3 = Asset::firstOrCreate(['name' => 'Barber Chair #3'], ['description' => 'Premium hydraulic chair.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $dubChair1 = Asset::firstOrCreate(['name' => 'Dúbravka Chair #1'], ['description' => 'Standard barber chair.', 'branch_id' => $branch2->id, 'is_active' => true]);
+        $dubChair2 = Asset::firstOrCreate(['name' => 'Dúbravka Chair #2'], ['description' => 'Standard barber chair.', 'branch_id' => $branch2->id, 'is_active' => true]);
  
         $this->syncPivot($cut->assets(), $chair1->id);
         $this->syncPivot($cut->assets(), $chair2->id);
@@ -626,9 +626,9 @@ class BusinessSeeder extends Seeder
         $this->attachUser($prenatal, $staff1->id, 'staff');
         $this->attachUser($onlineLesson, $owner->id, 'staff');
  
-        $mat1 = Asset::firstOrCreate(['name' => 'Yoga Zone Alpha'], ['description' => 'Main studio zone, mat included.', 'branch_id' => $branch->id]);
-        $mat2 = Asset::firstOrCreate(['name' => 'Yoga Zone Beta'], ['description' => 'Secondary studio zone.', 'branch_id' => $branch->id]);
-        $mat3 = Asset::firstOrCreate(['name' => 'Yoga Zone Gamma'], ['description' => 'Quiet corner zone, ideal for meditation.', 'branch_id' => $branch->id]);
+        $mat1 = Asset::firstOrCreate(['name' => 'Yoga Zone Alpha'], ['description' => 'Main studio zone, mat included.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $mat2 = Asset::firstOrCreate(['name' => 'Yoga Zone Beta'], ['description' => 'Secondary studio zone.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $mat3 = Asset::firstOrCreate(['name' => 'Yoga Zone Gamma'], ['description' => 'Quiet corner zone, ideal for meditation.', 'branch_id' => $branch->id, 'is_active' => true]);
  
         $this->syncPivot($lesson->assets(), $mat1->id);
         $this->syncPivot($lesson->assets(), $mat2->id);
@@ -743,12 +743,12 @@ class BusinessSeeder extends Seeder
         $this->attachUser($boxing, $owner->id, 'staff');
         $this->attachUser($onlinePt, $owner->id, 'staff');
  
-        $gymFloor = Asset::firstOrCreate(['name' => 'Gym Floor – Station A'], ['description' => 'Free weights and cable machines.', 'branch_id' => $branch->id]);
-        $gymFloor2 = Asset::firstOrCreate(['name' => 'Gym Floor – Station B'], ['description' => 'Squat racks and benches.', 'branch_id' => $branch->id]);
-        $boxingRing = Asset::firstOrCreate(['name' => 'Boxing Ring'], ['description' => 'Full-size boxing ring.', 'branch_id' => $branch->id]);
-        $scanRoom = Asset::firstOrCreate(['name' => 'Body Scan Room'], ['description' => 'InBody 770 scanner.', 'branch_id' => $branch->id]);
-        $nvGym = Asset::firstOrCreate(['name' => 'NM Gym Floor – A'], ['description' => 'Open training area.', 'branch_id' => $branch2->id]);
-        $nvGym2 = Asset::firstOrCreate(['name' => 'NM Gym Floor – B'], ['description' => 'Cardio and functional zone.', 'branch_id' => $branch2->id]);
+        $gymFloor = Asset::firstOrCreate(['name' => 'Gym Floor – Station A'], ['description' => 'Free weights and cable machines.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $gymFloor2 = Asset::firstOrCreate(['name' => 'Gym Floor – Station B'], ['description' => 'Squat racks and benches.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $boxingRing = Asset::firstOrCreate(['name' => 'Boxing Ring'], ['description' => 'Full-size boxing ring.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $scanRoom = Asset::firstOrCreate(['name' => 'Body Scan Room'], ['description' => 'InBody 770 scanner.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $nvGym = Asset::firstOrCreate(['name' => 'NM Gym Floor – A'], ['description' => 'Open training area.', 'branch_id' => $branch2->id, 'is_active' => true]);
+        $nvGym2 = Asset::firstOrCreate(['name' => 'NM Gym Floor – B'], ['description' => 'Cardio and functional zone.', 'branch_id' => $branch2->id, 'is_active' => true]);
  
         $this->syncPivot($pt->assets(), $gymFloor->id);
         $this->syncPivot($pt->assets(), $gymFloor2->id);
@@ -870,11 +870,11 @@ class BusinessSeeder extends Seeder
         $this->attachUser($filling, $staff2->id, 'staff');
         $this->attachUser($extraction, $owner->id, 'staff');
  
-        $chair1 = Asset::firstOrCreate(['name' => 'Dental Chair 1'], ['description' => 'Sirona C8+ unit, Room 1.', 'branch_id' => $branch->id]);
-        $chair2 = Asset::firstOrCreate(['name' => 'Dental Chair 2'], ['description' => 'Sirona C8+ unit, Room 2.', 'branch_id' => $branch->id]);
-        $chair3 = Asset::firstOrCreate(['name' => 'Dental Chair 3'], ['description' => 'Whitening unit, Room 3.', 'branch_id' => $branch->id]);
-        $kvChair1 = Asset::firstOrCreate(['name' => 'KV Dental Chair 1'], ['description' => 'Standard dental unit.', 'branch_id' => $branch2->id]);
-        $kvChair2 = Asset::firstOrCreate(['name' => 'KV Dental Chair 2'], ['description' => 'Standard dental unit.', 'branch_id' => $branch2->id]);
+        $chair1 = Asset::firstOrCreate(['name' => 'Dental Chair 1'], ['description' => 'Sirona C8+ unit, Room 1.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $chair2 = Asset::firstOrCreate(['name' => 'Dental Chair 2'], ['description' => 'Sirona C8+ unit, Room 2.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $chair3 = Asset::firstOrCreate(['name' => 'Dental Chair 3'], ['description' => 'Whitening unit, Room 3.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $kvChair1 = Asset::firstOrCreate(['name' => 'KV Dental Chair 1'], ['description' => 'Standard dental unit.', 'branch_id' => $branch2->id, 'is_active' => true]);
+        $kvChair2 = Asset::firstOrCreate(['name' => 'KV Dental Chair 2'], ['description' => 'Standard dental unit.', 'branch_id' => $branch2->id, 'is_active' => true]);
  
         $this->syncPivot($checkup->assets(), $chair1->id);
         $this->syncPivot($checkup->assets(), $chair2->id);
@@ -972,9 +972,9 @@ class BusinessSeeder extends Seeder
         $this->attachUser($headshot, $staff1->id, 'staff');
         $this->attachUser($onlineEdit, $staff1->id, 'staff');
  
-        $studio1 = Asset::firstOrCreate(['name' => 'Studio A – White Cyclorama'], ['description' => 'White infinity wall, 5x5m.', 'branch_id' => $branch->id]);
-        $studio2 = Asset::firstOrCreate(['name' => 'Studio B – Dark Background'], ['description' => 'Black and grey backdrop set.', 'branch_id' => $branch->id]);
-        $lightSet = Asset::firstOrCreate(['name' => 'Product Light Table'], ['description' => 'Tabletop lightbox for small products.', 'branch_id' => $branch->id]);
+        $studio1 = Asset::firstOrCreate(['name' => 'Studio A – White Cyclorama'], ['description' => 'White infinity wall, 5x5m.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $studio2 = Asset::firstOrCreate(['name' => 'Studio B – Dark Background'], ['description' => 'Black and grey backdrop set.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $lightSet = Asset::firstOrCreate(['name' => 'Product Light Table'], ['description' => 'Tabletop lightbox for small products.', 'branch_id' => $branch->id, 'is_active' => true]);
  
         $this->syncPivot($portrait->assets(), $studio1->id);
         $this->syncPivot($portrait->assets(), $studio2->id);
@@ -1067,11 +1067,11 @@ class BusinessSeeder extends Seeder
         $this->attachUser($detailing, $staff1->id, 'staff');
         $this->attachUser($ac, $owner->id, 'staff');
  
-        $lift1 = Asset::firstOrCreate(['name' => 'Lift Bay 1'], ['description' => '4-post hydraulic lift.', 'branch_id' => $branch->id]);
-        $lift2 = Asset::firstOrCreate(['name' => 'Lift Bay 2'], ['description' => '2-post hydraulic lift.', 'branch_id' => $branch->id]);
-        $diagBay = Asset::firstOrCreate(['name' => 'Diagnostics Bay'], ['description' => 'OBD2 + full scanner station.', 'branch_id' => $branch->id]);
-        $washBay = Asset::firstOrCreate(['name' => 'Detail / Wash Bay'], ['description' => 'Pressure wash + interior cleaning bay.', 'branch_id' => $branch->id]);
-        $tyreMachine = Asset::firstOrCreate(['name' => 'Tyre Machine Station'], ['description' => 'Tyre changer + balancer.', 'branch_id' => $branch->id]);
+        $lift1 = Asset::firstOrCreate(['name' => 'Lift Bay 1'], ['description' => '4-post hydraulic lift.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $lift2 = Asset::firstOrCreate(['name' => 'Lift Bay 2'], ['description' => '2-post hydraulic lift.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $diagBay = Asset::firstOrCreate(['name' => 'Diagnostics Bay'], ['description' => 'OBD2 + full scanner station.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $washBay = Asset::firstOrCreate(['name' => 'Detail / Wash Bay'], ['description' => 'Pressure wash + interior cleaning bay.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $tyreMachine = Asset::firstOrCreate(['name' => 'Tyre Machine Station'], ['description' => 'Tyre changer + balancer.', 'branch_id' => $branch->id, 'is_active' => true]);
  
         $this->syncPivot($oilChange->assets(), $lift1->id);
         $this->syncPivot($oilChange->assets(), $lift2->id);
@@ -1159,10 +1159,10 @@ class BusinessSeeder extends Seeder
         $this->attachUser($facial, $staff1->id, 'staff');
         $this->attachUser($body, $staff1->id, 'staff');
  
-        $saunaRoom = Asset::firstOrCreate(['name' => 'Finnish Sauna'], ['description' => 'Traditional wood-burning sauna, up to 4 people.', 'branch_id' => $branch->id]);
-        $jacuzziRoom = Asset::firstOrCreate(['name' => 'Jacuzzi Suite'], ['description' => 'Private jacuzzi with ambient lighting.', 'branch_id' => $branch->id]);
-        $treatmentRoom1 = Asset::firstOrCreate(['name' => 'Treatment Room 1'], ['description' => 'Beauty treatment room.', 'branch_id' => $branch->id]);
-        $treatmentRoom2 = Asset::firstOrCreate(['name' => 'Treatment Room 2'], ['description' => 'Body wrap / scrub room.', 'branch_id' => $branch->id]);
+        $saunaRoom = Asset::firstOrCreate(['name' => 'Finnish Sauna'], ['description' => 'Traditional wood-burning sauna, up to 4 people.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $jacuzziRoom = Asset::firstOrCreate(['name' => 'Jacuzzi Suite'], ['description' => 'Private jacuzzi with ambient lighting.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $treatmentRoom1 = Asset::firstOrCreate(['name' => 'Treatment Room 1'], ['description' => 'Beauty treatment room.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $treatmentRoom2 = Asset::firstOrCreate(['name' => 'Treatment Room 2'], ['description' => 'Body wrap / scrub room.', 'branch_id' => $branch->id, 'is_active' => true]);
  
         $this->syncPivot($sauna->assets(), $saunaRoom->id);
         $this->syncPivot($jacuzzi->assets(), $jacuzziRoom->id);
@@ -1246,9 +1246,9 @@ class BusinessSeeder extends Seeder
         $this->attachUser($lashes, $owner->id, 'staff');
         $this->attachUser($brows, $owner->id, 'staff');
  
-        $nail1 = Asset::firstOrCreate(['name' => 'Nail Station 1'], ['description' => 'Manicure & pedicure station.', 'branch_id' => $branch->id]);
-        $nail2 = Asset::firstOrCreate(['name' => 'Nail Station 2'], ['description' => 'Manicure & pedicure station.', 'branch_id' => $branch->id]);
-        $lashBed = Asset::firstOrCreate(['name' => 'Lash Bed'], ['description' => 'Reclined beauty bed for lash and brow work.', 'branch_id' => $branch->id]);
+        $nail1 = Asset::firstOrCreate(['name' => 'Nail Station 1'], ['description' => 'Manicure & pedicure station.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $nail2 = Asset::firstOrCreate(['name' => 'Nail Station 2'], ['description' => 'Manicure & pedicure station.', 'branch_id' => $branch->id, 'is_active' => true]);
+        $lashBed = Asset::firstOrCreate(['name' => 'Lash Bed'], ['description' => 'Reclined beauty bed for lash and brow work.', 'branch_id' => $branch->id, 'is_active' => true]);
  
         $this->syncPivot($manicure->assets(), $nail1->id);
         $this->syncPivot($manicure->assets(), $nail2->id);

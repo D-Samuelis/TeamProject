@@ -58,48 +58,56 @@ class MockDataSeeder extends Seeder
             'name' => 'Table 1',
             'description' => '2 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b1a2 = Asset::create([
             'name' => 'Table 2',
             'description' => '4 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b1a3 = Asset::create([
             'name' => 'Table 3',
             'description' => '4 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b1a4 = Asset::create([
             'name' => 'Table 4',
             'description' => '6 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b1a5 = Asset::create([
             'name' => 'Table 5',
             'description' => '8 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b2a1 = Asset::create([
             'name' => 'Table 1',
             'description' => '2 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b2a2 = Asset::create([
             'name' => 'Table 2',
             'description' => '4 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b2a3 = Asset::create([
             'name' => 'Table 3',
             'description' => '4 seats',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b1b1->services()->attach([$b1s1->id]);
@@ -159,12 +167,14 @@ class MockDataSeeder extends Seeder
             'name' => 'Benjamin Netanyahu',
             'description' => 'Beautician',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b2b1a2 = Asset::create([
             'name' => 'Andrej Danko',
             'description' => 'Beautician',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b2b1->services()->attach([$b2s1->id]);
@@ -258,60 +268,70 @@ class MockDataSeeder extends Seeder
             'name' => 'Chair 1',
             'description' => 'Chair 1',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b1a2 = Asset::create([
             'name' => 'Chair 2',
             'description' => 'Chair 2',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b1a3 = Asset::create([
             'name' => 'Chair 3',
             'description' => 'Chair 3',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b2a1 = Asset::create([
             'name' => 'Chair 1',
             'description' => 'Chair 1',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b2a2 = Asset::create([
             'name' => 'Chair 2',
             'description' => 'Chair 2',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b2a3 = Asset::create([
             'name' => 'Chair 3',
             'description' => 'Chair 3',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b2a4 = Asset::create([
             'name' => 'Chair 4',
             'description' => 'Chair 4',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b2a5 = Asset::create([
             'name' => 'Chair 5',
             'description' => 'Chair 5',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b3a1 = Asset::create([
             'name' => 'Chair 1',
             'description' => 'Chair 1',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b3a2 = Asset::create([
             'name' => 'Chair 2',
             'description' => 'Chair 2',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b3b1->services()->attach([$b3s2->id, $b3s3->id]);
@@ -365,6 +385,7 @@ class MockDataSeeder extends Seeder
             'name' => 'Andrew Tate',
             'description' => 'Finance expert',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b4s1->assets()->attach([$b4a1->id]);
@@ -404,24 +425,28 @@ class MockDataSeeder extends Seeder
             'name' => 'John Pork',
             'description' => 'Plumber',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b5a2 = Asset::create([
             'name' => 'Ballerina Cappuccina',
             'description' => 'Plumber',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b5a3 = Asset::create([
             'name' => 'Tung Sahur',
             'description' => 'Installer',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b5a4 = Asset::create([
             'name' => 'Galileo Galilei',
             'description' => 'Installer',
             'delete_after' => null,
+            'is_active' => true
         ]);
 
         $b5s1->assets()->attach([$b5a1->id, $b5a2->id]);
