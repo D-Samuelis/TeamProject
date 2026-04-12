@@ -10,7 +10,6 @@ use App\Mcp\Tools\Asset\ListAssetsTool;
 use App\Mcp\Tools\Branch\ListBranchesTool;
 use App\Mcp\Tools\Business\ListBusinessesTool;
 use App\Mcp\Tools\Service\ListServiceTool;
-use App\Mcp\Tools\General\GetGeneralInfoTool;
 use Laravel\Mcp\Server;
 
 class McpServer extends Server
@@ -49,7 +48,6 @@ class McpServer extends Server
         ListBranchesTool::class,
         ListServiceTool::class,
         ListAssetsTool::class,
-        GetGeneralInfoTool::class,
     ];
 
     protected array $resources = [
