@@ -4,6 +4,7 @@ namespace App\Mcp\Servers;
 
 use App\Mcp\Tools\Appointment\DeleteAppointmentTool;
 use App\Mcp\Tools\Appointment\GetAppointmentTool;
+use App\Mcp\Tools\Appointment\GetAvailableSlotsTool;
 use App\Mcp\Tools\Appointment\ListAppointmentsTool;
 use App\Mcp\Tools\Appointment\MakeAppointmentTool;
 use App\Mcp\Tools\Asset\ListAssetsTool;
@@ -41,8 +42,9 @@ class McpServer extends Server
 
     protected array $tools = [
         //GetAppointmentTool::class,
-        //ListAppointmentsTool::class,
+        ListAppointmentsTool::class,
         //DeleteAppointmentTool::class,
+        GetAvailableSlotsTool::class,
         MakeAppointmentTool::class,
         ListBusinessesTool::class,
         ListBranchesTool::class,
