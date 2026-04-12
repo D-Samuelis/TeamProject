@@ -1,9 +1,9 @@
-import asyncio
 import json
 import uuid
 import httpx
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -13,20 +13,47 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OLLAMA_URL = os.getenv("MCP_OLLAMA_URL")
-MCP_URL    = os.getenv("MCP_SERVER")
-MODEL      = os.getenv("MCP_OLLAMA_MODEL")
+OLLAMA_URL  = os.getenv("MCP_OLLAMA_URL")
+MCP_URL     = os.getenv("MCP_SERVER")
+MODEL       = os.getenv("MCP_OLLAMA_MODEL")
+PROMPTS_DIR = Path("prompts")
+
+PROMPT_FILES = [
+    "identity.md",
+    "capabilities.md",
+    "tools.md",
+    "rules.md",
+]
 
 sessions: dict[str, list] = {}
 
-ollama_tools: list = []
-mcp_session: ClientSession | None = None
-_mcp_context = None
 
+# ── System prompt ─────────────────────────────────────────────────────────────
+
+def load_system_prompt() -> str:
+    parts = []
+    for filename in PROMPT_FILES:
+        path = PROMPTS_DIR / filename
+        if path.exists():
+            parts.append(path.read_text().strip())
+        else:
+            print(f"[warn] prompts/{filename} not found, skipping")
+    return "\n\n---\n\n".join(parts)
+
+
+SYSTEM_PROMPT = load_system_prompt()
+
+
+def build_messages_with_system(session_messages: list) -> list:
+    """Prepend system prompt without mutating the stored session."""
+    return [{"role": "system", "content": SYSTEM_PROMPT}] + session_messages
+
+
+# ── Lifespan ──────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    yield  # MCP connection is now per-request (needs auth token)
+    yield
 
 
 app = FastAPI(lifespan=lifespan)
@@ -76,6 +103,8 @@ async def agent_turn(messages: list, token: str) -> dict:
     """Run the agentic loop for one user turn."""
     steps = []
 
+    full_messages = build_messages_with_system(messages)
+
     async with streamablehttp_client(
         MCP_URL,
         headers={"Authorization": f"Bearer {token}"}
@@ -85,7 +114,9 @@ async def agent_turn(messages: list, token: str) -> dict:
             tools = [mcp_tool_to_ollama(t) for t in (await mcp.list_tools()).tools]
 
             while True:
-                assistant_msg = await call_ollama(messages, tools)
+                assistant_msg = await call_ollama(full_messages, tools)
+
+                full_messages.append(assistant_msg)
                 messages.append(assistant_msg)
 
                 tool_calls = assistant_msg.get("tool_calls") or []
@@ -103,7 +134,10 @@ async def agent_turn(messages: list, token: str) -> dict:
                     result_text = "\n".join(
                         block.text for block in result.content if hasattr(block, "text")
                     )
-                    messages.append({"role": "tool", "content": result_text})
+
+                    tool_msg = {"role": "tool", "content": result_text}
+                    full_messages.append(tool_msg)
+                    messages.append(tool_msg)
                     steps.append({"tool": tool_name, "args": tool_args, "result": result_text})
 
 
@@ -115,6 +149,7 @@ class NewSessionResponse(BaseModel):
 class ChatRequest(BaseModel):
     session_id: str
     message: str
+    history: list[dict] = []
 
 class ToolStep(BaseModel):
     tool: str
@@ -138,12 +173,12 @@ def create_session():
 @app.post("/chat", response_model=ChatResponse)
 async def chat(
     req: ChatRequest,
-    authorization: str = Header(...)  # expects "Bearer <token>"
+    authorization: str = Header(...)
 ):
-    if req.session_id not in sessions:
-        raise HTTPException(status_code=404, detail="Session not found. Call POST /session first.")
-
     token = authorization.removeprefix("Bearer ").strip()
+
+    if req.session_id not in sessions:
+        sessions[req.session_id] = req.history or []
 
     messages = sessions[req.session_id]
     messages.append({"role": "user", "content": req.message})

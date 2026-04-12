@@ -154,7 +154,7 @@
     }
 </style>
 
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="user-id" content="{{ $userId }}">
 
 <div class="container">
 
@@ -171,6 +171,7 @@
     <div id="input-bar">
         <textarea id="msg-input" rows="2" placeholder="Type a message…"></textarea>
         <button id="send-btn" disabled>Send</button>
+        <button id="clear-btn">Clear history</button>
     </div>
 
     <div id="tools-badge">Connecting…</div>
