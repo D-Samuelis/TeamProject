@@ -15,6 +15,6 @@ class ListAssets
     public function execute(array $filters = [], ?User $user = null)
     {
         $dto = SearchDTO::fromArray($filters);
-        return $this->assetRepo->search($dto, $user);
+        return $this->assetRepo->search($dto, $user)->getCollection();
     }
 }

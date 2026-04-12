@@ -18,7 +18,11 @@ class ServiceRepository implements ServiceRepositoryInterface
      */
     public function findActive(int $id): Service
     {
-        return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
+        return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->with(['assets' => function($query) {
+                $query->where('is_active', true);
+            }])
+            ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)

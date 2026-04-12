@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* index */
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
-    
+
     initAssetListView(window.BE_DATA.assets);
     initAssetStatusFilters();
 
@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.rule-panel');
 
     initRuleDragDrop({
-        reorderUrl: container ? container.dataset.reorderUrl : null
+        reorderUrl: container ? container.dataset.reorderUrl : null,
+        canUpdate: window.BE_DATA?.canUpdate ?? false,
     });
 
     initEditAssetModal();

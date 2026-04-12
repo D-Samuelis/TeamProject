@@ -24,4 +24,8 @@ interface RuleRepositoryInterface
     public function findByPriorityBelow(int $assetId, int $currentPriority): ?Rule;
 
     public function renumberPriorities(int $assetId, int $deletedPriority): void;
+
+    public function shiftPriorities(array $ids, int $offset): void;
+
+    public function setPriority(int $id, int $priority): void;
 }

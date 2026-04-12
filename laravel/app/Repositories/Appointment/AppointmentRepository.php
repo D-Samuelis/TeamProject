@@ -3,6 +3,7 @@
 namespace App\Repositories\Appointment;
 
 use App\Application\DTO\SearchDTO;
+use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -31,7 +32,7 @@ class AppointmentRepository implements AppointmentRepositoryInterface
         return Appointment::find($id);
     }
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection
+    public function getForCustomer(SearchDTO $dto, ?User $user = null)
     {
         $query = Appointment::query()->with(['user', 'service', 'asset.branch.business']);
 
@@ -49,11 +50,10 @@ class AppointmentRepository implements AppointmentRepositoryInterface
             $query->whereDate('date', $dto->filters['date']);
         }
 
-        // 3. Return the results ordered by the most recent appointment date
-        return $query->latest('start_at')->get();
+        return $query->latest('start_at')->paginate($dto->perPage);
     }
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection
+    public function search(SearchDTO $dto, ?User $user = null)
     {
         $query = Appointment::query()->with(['user', 'service', 'asset.branch']);
 
@@ -92,5 +92,21 @@ class AppointmentRepository implements AppointmentRepositoryInterface
         }
 
         return $query->latest('start_at')->get();
+    }
+
+    public function update(Appointment $appointment, array $data): Appointment
+    {
+        $appointment->update($data);
+        return $appointment->fresh();
+    }
+
+    public function delete(Appointment $appointment): void
+    {
+        $appointment->delete();
+    }
+
+    public function getCurrentStatus(Appointment $appointment): AppointmentStatusEnum
+    {
+        return AppointmentStatusEnum::tryFrom($appointment->status);
     }
 }

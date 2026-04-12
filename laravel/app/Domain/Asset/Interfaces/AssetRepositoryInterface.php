@@ -14,7 +14,7 @@ interface AssetRepositoryInterface
 
     public function save(array $data): Asset;
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection;
+    public function search(SearchDTO $dto, ?User $user = null);
 
     public function attachBranches(Asset $Asset, array $branchIds): void;
 
@@ -28,5 +28,7 @@ interface AssetRepositoryInterface
 
     public function update(UpdateAssetDTO $data): Asset;
 
-    public function restore(int $id): void;
+    public function restore(Asset $asset): void;
+
+    public function findActive(int $id): Asset;
 }

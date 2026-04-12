@@ -9,54 +9,57 @@ export function initRuleDragDrop(options = {}) {
     const container = document.querySelector(SELECTORS.container);
     if (!container) return;
 
+    const canUpdate = options.canUpdate ?? false;
     const reorderUrl = options.reorderUrl;
-    const csrfToken = options.csrf 
+    const csrfToken = options.csrf
         || document.querySelector('meta[name="csrf-token"]')?.content;
 
-    new Sortable(container, {
-        animation: 150,
-        handle: SELECTORS.card,
-        ghostClass: 'rule-card--dragging',
-        fallbackTolerance: 3,
-        scroll: true,
-        
-        onStart: function() {
-            container.classList.add('is-sorting');
-        },
-        
-        onEnd: async function () {
-            container.classList.remove('is-sorting');
-            const cards = Array.from(container.querySelectorAll(SELECTORS.card));
-            
-            cards.forEach((card, index) => {
-                const label = card.querySelector('.js-priority-label');
-                if (label) {
-                    const prefix = label.querySelector('span') ? '<span>#</span>' : '#';
-                    label.innerHTML = `${prefix}${index + 1}`;
-                }
-            });
+    if(canUpdate){
+        new Sortable(container, {
+            animation: 150,
+            handle: SELECTORS.card,
+            ghostClass: 'rule-card--dragging',
+            fallbackTolerance: 3,
+            scroll: true,
 
-            if (!reorderUrl) return;
+            onStart: function () {
+                container.classList.add('is-sorting');
+            },
 
-            const orderedIds = cards
-                .map(card => card.dataset.ruleId)
-                .filter(Boolean);
+            onEnd: async function () {
+                container.classList.remove('is-sorting');
+                const cards = Array.from(container.querySelectorAll(SELECTORS.card));
 
-            try {
-                await fetch(reorderUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({ order: orderedIds }),
+                cards.forEach((card, index) => {
+                    const label = card.querySelector('.js-priority-label');
+                    if (label) {
+                        const prefix = label.querySelector('span') ? '<span>#</span>' : '#';
+                        label.innerHTML = `${prefix}${index + 1}`;
+                    }
                 });
-            } catch (err) {
-                console.error('Failed to save order:', err);
+
+                if (!reorderUrl) return;
+
+                const orderedIds = cards
+                    .map(card => card.dataset.ruleId)
+                    .filter(Boolean);
+
+                try {
+                    await fetch(reorderUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ order: orderedIds }),
+                    });
+                } catch (err) {
+                    console.error('Failed to save order:', err);
+                }
             }
-        }
-    });
+        });
+    }
 
     const setupExpandToggles = () => {
         const expandButtons = container.querySelectorAll(SELECTORS.expandBtn);
@@ -68,11 +71,11 @@ export function initRuleDragDrop(options = {}) {
                 if (!card) return;
 
                 card.classList.toggle('is-expanded');
-                
+
                 const labelSpan = btn.querySelector('span');
                 if (labelSpan) {
-                    labelSpan.textContent = card.classList.contains('is-expanded') 
-                        ? 'Hide Schedule' 
+                    labelSpan.textContent = card.classList.contains('is-expanded')
+                        ? 'Hide Schedule'
                         : 'Show Schedule';
                 }
             };
@@ -81,7 +84,7 @@ export function initRuleDragDrop(options = {}) {
 
     setupExpandToggles();
 
-    injectStyles();
+    if(canUpdate) injectStyles();
 }
 
 function injectStyles() {
@@ -108,8 +111,8 @@ function injectStyles() {
         }
 
         /* Zabezpečíme, aby interaktívne prvky neprepúšťali drag, ak netreba */
-        ${SELECTORS.card} button, 
-        ${SELECTORS.card} a, 
+        ${SELECTORS.card} button,
+        ${SELECTORS.card} a,
         ${SELECTORS.card} input {
             cursor: pointer;
             position: relative;

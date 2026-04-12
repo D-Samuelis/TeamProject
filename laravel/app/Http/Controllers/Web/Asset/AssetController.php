@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Asset;
 
+use App\Application\Asset\UseCases\RestoreAsset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Asset\StoreAssetRequest;
 use App\Http\Requests\Asset\UpdateAssetRequest;
@@ -47,6 +48,7 @@ class AssetController extends Controller
         $dto = new CreateAssetDTO(
             $request->validated('name'),
             $request->validated('description'),
+            $request->validated('is_active'),
             (int) $request->validated('branch_id'),
             $request->validated('service_ids') ?? []
         );
@@ -76,6 +78,7 @@ class AssetController extends Controller
             $assetId,
             $request->validated('name'),
             $request->validated('description'),
+            $request->validated('is_active'),
             (int) $request->validated('branch_id'),
             $request->validated('service_ids') ?? []
         );
@@ -90,17 +93,14 @@ class AssetController extends Controller
         $asset = $assetRepo->findById($assetId);
         abort_if(!$asset, 404);
 
-        $this->authorize('destroy', $asset);
-
         $useCase->execute($assetId, Auth::id());
 
         return back()->with('success', "Asset '{$asset->name}' deleted successfully.");
     }
 
-    public function restore(int $assetId, AssetRepositoryInterface $assetRepo)
+    public function restore(int $assetId, RestoreAsset $useCase)
     {
-        $assetRepo->restore($assetId);
-
+        $useCase->execute($assetId, Auth::user());
         return back()->with('success', "Asset bol úspešne obnovený.");
     }
 

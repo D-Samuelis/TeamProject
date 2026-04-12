@@ -3,6 +3,7 @@
 namespace App\Domain\Appointment\Interfaces;
 
 use App\Application\DTO\SearchDTO;
+use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -26,7 +27,13 @@ interface AppointmentRepositoryInterface
      */
     public function findById(int $id): ?Appointment;
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null): Collection;
+    public function getForCustomer(SearchDTO $dto, ?User $user = null);
 
-    public function search(SearchDTO $dto, ?User $user = null): Collection;
+    public function search(SearchDTO $dto, ?User $user = null);
+
+    public function update(Appointment $appointment, array $data): Appointment;
+
+    public function delete(Appointment $appointment): void;
+
+    public function getCurrentStatus(Appointment $appointment): AppointmentStatusEnum;
 }

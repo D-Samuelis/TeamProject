@@ -28,6 +28,12 @@ class CreateAppointment
         $service = $this->getService->execute($dto->serviceId, $user);
         $date    = Carbon::parse($dto->date);
 
+        if (!$asset->is_active) {
+            throw ValidationException::withMessages([
+                'asset_id' => 'This asset is no longer available for booking.',
+            ]);
+        }
+
         return DB::transaction(function () use ($asset, $service, $userId, $date, $dto) {
             // Re-check inside transaction to prevent double booking
             $available = $this->generator->generate($asset, $date, $service->duration_minutes);

@@ -2,23 +2,32 @@
 
 namespace App\Application\Rule\UseCases;
 
+use App\Application\Auth\Services\AssetAuthorizationService;
+use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
+use App\Models\Auth\User;
 use Illuminate\Support\Facades\DB;
 use App\Domain\Rule\Interfaces\RuleRepositoryInterface;
 
 class ReorderRule
 {
     public function __construct(
-        private readonly RuleRepositoryInterface $ruleRepo,
+        private AssetRepositoryInterface $assetRepo,
+        private RuleRepositoryInterface $ruleRepo,
+        private AssetAuthorizationService  $authService,
     ) {}
 
     /**
      * Move a rule up (lower priority number) or down (higher priority number)
      * by swapping priorities with its neighbour.
      */
-    public function execute(int $ruleId, string $direction, int $userId): void
+    public function execute(int $ruleId, string $direction, User $user): void
     {
         $rule = $this->ruleRepo->findById($ruleId);
         abort_if(! $rule, 404);
+
+        $asset = $this->assetRepo->findForManagement($rule->asset_id);
+
+        $this->authService->ensureCanUpdateAsset($user, $asset);
 
         DB::transaction(function () use ($rule, $direction) {
             // Find the adjacent rule for this asset in the requested direction

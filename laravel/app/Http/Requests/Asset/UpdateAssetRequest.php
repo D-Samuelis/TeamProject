@@ -16,6 +16,7 @@ class UpdateAssetRequest extends FormRequest
     {
         $this->merge([
             'id' => $this->route('assetId'),
+            'is_active' => $this->boolean('is_active'),
         ]);
     }
 
@@ -27,6 +28,7 @@ class UpdateAssetRequest extends FormRequest
             'id'            => 'required|integer|exists:assets,id',
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
+            'is_active'     => 'required|boolean',
             'branch_id'     => 'required|integer|exists:branches,id',
             'service_ids'   => ['required', 'array', 'min:1', new ServicesBelongToBranches([$branchId])],
             'service_ids.*' => 'integer|exists:services,id',

@@ -34,7 +34,7 @@ Route::controller(BookController::class)->prefix('book')->name('book.')->group(f
 });
 
 Route::prefix('appointments')->name('appointment.')->controller(AppointmentController::class)->group(function () {
-    Route::get('/slots', 'slots')->name('slots'); 
+    Route::get('/slots', 'slots')->name('slots');
 });
 
 /*
@@ -56,7 +56,7 @@ Route::middleware('guest')->controller(AuthController::class)->group(function ()
 */
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');
     Route::get('/my-appointments', [AppointmentController::class, 'index'])->name('myAppointments');
 
@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('manage')->name('manage.')->group(function () {
-        
+
         Route::prefix('businesses')->name('business.')->group(function () {
             Route::controller(ManageBusinessController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -141,6 +141,8 @@ Route::middleware('auth')->group(function () {
         Route::prefix('appointments')->name('appointment.')->controller(AppointmentController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{appointmentId}', 'show')->name('show');
+            Route::put('/{appointmentId}', 'update')->name('update');
+            Route::patch('/{appointmentId}/reschedule', 'reschedule')->name('reschedule');
             Route::delete('/{appointmentId}', 'delete')->name('delete');
         });
     });

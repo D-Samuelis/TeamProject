@@ -132,7 +132,7 @@
 
         <form method="POST" action="{{ route('manage.service.update', $service->id) }}">
             @csrf @method('PUT')
-            @include('web.manage.service.web.layouts.partials.service-form', [
+            @include('web.manage.service.partials.service-form', [
                 'prefix' => 'edit',
                 'service' => $service,
                 'businesses' => $businesses,
@@ -147,7 +147,7 @@
     </div>
 </div>
 
-@include('web.manage.service.web.layouts.partials.modal-styles-scripts')
+@include('web.manage.service.partials.modal-styles-scripts')
 
 @if ($errors->any())
     <script>

@@ -27,7 +27,7 @@ class AssetPolicy
         return $this->runCheck(fn() => $this->assetAuthService->ensureCanUpdateAsset($user, $asset));
     }
 
-    public function destroy(User $user, Asset $asset): bool
+    public function delete(User $user, Asset $asset): bool
     {
         return $this->runCheck(fn() => $this->assetAuthService->ensureCanDeleteAsset($user, $asset));
     }

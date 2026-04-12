@@ -12,13 +12,21 @@ class StoreAssetRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_active' => $this->boolean('is_active'),
+        ]);
+    }
+
     public function rules(): array
     {
-        $branchId = $this->input('branch_id'); 
+        $branchId = $this->input('branch_id');
 
         return [
             'name'          => 'required|string|max:255',
             'description'   => 'nullable|string',
+            'is_active'     => 'required|boolean',
             'branch_id'     => 'required|integer|exists:branches,id',
             'service_ids'   => ['required', 'array', 'min:1', new ServicesBelongToBranches([$branchId])],
             'service_ids.*' => 'integer|exists:services,id',

@@ -33,8 +33,7 @@ class BookController extends Controller
 
     public function asset(int $businessId, int $serviceId, int $assetId, GetAsset $getAsset, GetService $getService)
     {
-
-        $asset   = $getAsset->execute($assetId, Auth::user());
+        $asset   = $getAsset->execute($assetId);
         $service = $getService->execute($serviceId);
 
         return view('web.customer.book.book', [
