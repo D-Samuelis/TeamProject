@@ -9,7 +9,7 @@
     height: 100%;
     overflow: hidden;
     border: 3px solid color-mix(in srgb, var(--color-border-light), transparent 10%);
-    border-radius: 0.9rem;
+    border-radius: 0.5rem;
     background: color-mix(in srgb, var(--color-bg-complement), white 6%);
     box-shadow: 0 6px 18px color-mix(in srgb, var(--color-box-shadow), transparent 88%);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
@@ -92,7 +92,7 @@
     gap: 0.35rem;
     padding: 0.35rem 0.6rem;
     border: 1px solid color-mix(in srgb, var(--color-primary), transparent 82%);
-    border-radius: 999px;
+    border-radius: 0.5rem;
     background: color-mix(in srgb, var(--color-primary), transparent 90%);
     color: var(--color-primary);
     font-size: 0.77rem;
@@ -163,7 +163,7 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.34rem 0.58rem;
-    border-radius: 999px;
+    border-radius: 0.5rem;
     background: var(--color-bg-complement);
     color: var(--color-text-unimportant-dark);
     font-size: 0.8rem;

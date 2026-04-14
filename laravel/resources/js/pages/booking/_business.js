@@ -29,17 +29,17 @@ function initBranchNavigation() {
     branchLinks.forEach(link => {
         link.addEventListener('click', () => {
             const branchId = link.dataset.branchId;
- 
+
             branchLinks.forEach(item => item.classList.remove('is-active'));
             branchPanels.forEach(panel => panel.classList.remove('is-active'));
- 
+
             link.classList.add('is-active');
- 
+
             const activePanel = document.querySelector(`[data-branch-panel="${branchId}"]`);
             if (activePanel) {
                 activePanel.classList.add('is-active');
             }
- 
+
             const url = new URL(window.location.href);
             url.searchParams.set('branch_id', branchId);
             window.history.replaceState({}, '', url);
@@ -107,6 +107,15 @@ function initBranchTables(branches) {
             ],
             renderActions: (item) => `
                 <div class="public-business-detail__actions-wrap">
+
+                    <a
+                        href="${item.book_url}"
+                        class="public-business-detail__action-btn public-business-detail__action-btn--primary"
+                    >
+                        Book
+                    </a>
+
+
                     <button
                         type="button"
                         class="public-business-detail__action-btn public-business-detail__action-btn--icon js-service-info-btn"
@@ -117,13 +126,6 @@ function initBranchTables(branches) {
                     >
                         <span class="public-business-detail__info-circle">i</span>
                     </button>
-
-                    <a
-                        href="${item.book_url}"
-                        class="public-business-detail__action-btn public-business-detail__action-btn--primary"
-                    >
-                        Book
-                    </a>
                 </div>
             `
         };
@@ -216,18 +218,4 @@ function bindInfoButtons(branch) {
             });
         });
     });
-}
-
-
-export function initBookingSearch() {
-    const searchInput = document.querySelector('#bookingSearch');
-    const bookingGrid = document.querySelector('.booking-grid');
-
-    if (!searchInput || !bookingGrid) return;
-
-    initListSearch(
-        '#bookingSearch',
-        '.booking-grid .card-link',
-        '.js-search-data'
-    );
 }

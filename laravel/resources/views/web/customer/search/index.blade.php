@@ -3,7 +3,8 @@
 @section('title', 'Bexora | Manual Booking')
 
 @section('content')
-<div class="booking"> {{-- Tento wrapper nahrádza .appointments --}}
+
+    <div class="booking booking--manual-page">
     
     <aside class="booking__sidebar"> 
         <section class="booking__group">
@@ -119,5 +120,6 @@
     </div>
 </div>
 
-@vite('resources/js/pages/manualBooking/entry.js')
+
+@vite('resources/js/pages/search/entry.js')
 @endsection

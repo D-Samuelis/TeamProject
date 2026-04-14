@@ -24,8 +24,8 @@
 @import "./pages/welcome/index.css";
 @import "./pages/appointments/index.css";
 @import "./pages/auth/index.css";
-@import "./pages/manualBooking/index.css";
+@import "./pages/search/index.css";
 @import "./pages/businesses/index.css";
 @import "./pages/notifications/index.css";
 @import "./pages/assets/index.css";
-@import "./pages/businessDetail/index.css"
+@import "./pages/booking/index.css"
