@@ -16,6 +16,6 @@
 
 </div>
 
-@vite('resources/js/pages/manualBooking/entry.js')
+@vite('resources/js/pages/booking/entry.js')
 
 @endsection

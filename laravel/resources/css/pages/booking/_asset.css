@@ -1,0 +1,596 @@
+   .public-asset-book {
+        display: grid;
+        grid-template-columns: 16.75rem 1fr;
+        width: 100%;
+        min-height: calc(100vh - 100px - 24px);
+        border-top: 1px solid var(--color-border-light);
+        border-bottom: 1px solid var(--color-border-light);
+        overflow: hidden;
+        background-color: var(--color-bg);
+    }
+
+    .public-asset-book__sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+        padding: 1rem;
+        overflow-y: auto;
+        border-right: 1px solid var(--color-border-light);
+        background-color: var(--color-bg);
+    }
+
+    .public-asset-book__sidebar-top {
+        display: flex;
+        align-items: center;
+    }
+
+    .public-asset-book__back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+    }
+
+    .public-asset-book__back-link:hover {
+        color: var(--color-primary);
+    }
+
+    .public-asset-book__sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .public-asset-book__steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .public-asset-book__step {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.85rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.55rem;
+        background-color: var(--color-bg);
+        opacity: 0.75;
+    }
+
+    .public-asset-book__step--active {
+        opacity: 1;
+        border-color: var(--color-primary);
+        box-shadow: 0 4px 14px var(--color-box-shadow);
+    }
+
+    .public-asset-book__step-number {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: 1px solid var(--color-border-light);
+        background-color: var(--color-bg-complement);
+        color: var(--color-text);
+    }
+
+    .public-asset-book__step--active .public-asset-book__step-number {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-text-white);
+    }
+
+    .public-asset-book__step-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0;
+    }
+
+    .public-asset-book__step-text strong {
+        font-size: 0.95rem;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__step-text span {
+        font-size: 0.85rem;
+        color: var(--color-text-unimportant-dark);
+        line-height: 1.45;
+    }
+
+    .public-asset-book__step-dots {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.15rem 0;
+    }
+
+    .public-asset-book__step-dots span {
+        width: 0.32rem;
+        height: 0.32rem;
+        border-radius: 0.5rem;
+        background-color: var(--color-text-unimportant-light);
+    }
+
+    .public-asset-book__main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-width: 0;
+        padding: 1rem;
+        background-color: var(--color-bg);
+    }
+
+    .public-asset-book__service-header {
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.25rem;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__service-header-content {
+        padding: 1.25rem;
+    }
+
+    .public-asset-book__step-label-top {
+        margin: 0 0 0.45rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .public-asset-book__service-title {
+        margin: 0;
+        font-size: clamp(1.65rem, 3vw, 2.2rem);
+        line-height: 1.15;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__service-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 1rem;
+    }
+
+    .public-asset-book__meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.58rem 0.85rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.5rem;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-size: 0.92rem;
+        line-height: 1;
+        max-width: 100%;
+    }
+
+    .public-asset-book__meta-badge i {
+        color: var(--color-primary);
+        flex-shrink: 0;
+    }
+
+    .public-asset-book__meta-badge span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .public-asset-book__legend {
+        margin-top: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.92rem;
+    }
+
+    .public-asset-book__legend-dot {
+        width: 0.52rem;
+        height: 0.52rem;
+        border-radius: 999px;
+        background-color: #2e9f5b;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .public-asset-book__header-hint {
+        margin: 0.55rem 0 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.92rem;
+    }
+
+    .public-asset-book__layout {
+        display: grid;
+        grid-template-columns: minmax(0, 560px) minmax(320px, 1fr);
+        gap: 1rem;
+        align-items: start;
+    }
+
+    .public-asset-book__calendar-panel,
+    .public-asset-book__slots-panel {
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.25rem;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__calendar-panel {
+        max-width: 560px;
+    }
+
+    .public-asset-book__calendar-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 0.95rem;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .public-asset-book__nav-btn {
+        width: 2rem;
+        height: 2rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.55rem;
+        background-color: var(--color-bg);
+        color: var(--color-text-unimportant-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .public-asset-book__nav-btn:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__calendar-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-text);
+    }
+
+    .public-asset-book__calendar-body {
+        padding: 0.45rem 0.6rem 0.65rem;
+    }
+
+    .public-asset-book__calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .public-asset-book__dow {
+        text-align: center;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-unimportant-light);
+        padding: 0.45rem 0 0.35rem;
+    }
+
+    .public-asset-book__day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 2px;
+        border-radius: 0.55rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+        position: relative;
+        color: var(--color-text);
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        font-size: 0.84rem;
+    }
+
+    .public-asset-book__day:hover:not(.empty):not(.past):not(.closed) {
+        background-color: var(--color-bg);
+        border-color: #2e9f5b;
+        color: #2e9f5b;
+    }
+
+    .public-asset-book__day.empty {
+        cursor: default;
+    }
+
+    .public-asset-book__day.past,
+    .public-asset-book__day.closed {
+        color: var(--color-text-unimportant-light);
+        cursor: not-allowed;
+    }
+
+    .public-asset-book__day.today {
+        font-weight: 700;
+    }
+
+    .public-asset-book__day.has-slots::after {
+        content: '';
+        width: 0.34rem;
+        height: 0.34rem;
+        border-radius: 0.5rem;
+        background-color: #2e9f5b;
+        position: absolute;
+        bottom: 0.24rem;
+    }
+
+    .public-asset-book__day.selected {
+        background-color: var(--color-primary) !important;
+        color: var(--color-text-white) !important;
+        border-color: var(--color-primary) !important;
+    }
+
+    .public-asset-book__calendar-note {
+        padding: 0 0.95rem 0.85rem;
+        color: var(--color-text-unimportant-dark);
+        font-size: 0.9rem;
+    }
+
+    .public-asset-book__calendar-note--hidden {
+        display: none;
+    }
+
+    .public-asset-book__slots-panel {
+        padding: 1rem;
+        position: sticky;
+        top: 1rem;
+        min-width: 0;
+    }
+
+    .public-asset-book__slots-title {
+        font-size: 1.12rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 0.95rem;
+        letter-spacing: 0.01em;
+    }
+
+    .public-asset-book__slots-message,
+    .public-asset-book__slots-loading {
+        text-align: center;
+        color: var(--color-text-unimportant-dark);
+        padding: 1.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .public-asset-book__slots-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.45rem;
+        margin-bottom: 1rem;
+    }
+
+    .public-asset-book__slot-btn {
+        padding: 0.72rem 0.35rem;
+        border: 1px solid var(--color-border-light);
+        border-radius: 0.55rem;
+        background-color: var(--color-bg);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        color: var(--color-text);
+        transition: all 0.15s ease;
+    }
+
+    .public-asset-book__slot-btn:hover {
+        border-color: #2e9f5b;
+        color: #2e9f5b;
+        background-color: var(--color-bg-complement);
+    }
+
+    .public-asset-book__slot-btn.active {
+        background-color: var(--color-primary);
+        color: var(--color-text-white);
+        border-color: var(--color-primary);
+    }
+
+    .public-asset-book__confirm-strip {
+        border-top: 1px solid var(--color-border-light);
+        padding-top: 1rem;
+        display: none;
+    }
+
+    .public-asset-book__confirm-strip.show {
+        display: block;
+    }
+
+    .public-asset-book__confirm-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.88rem;
+        padding: 0.23rem 0;
+    }
+
+    .public-asset-book__confirm-label {
+        color: var(--color-text-unimportant-dark);
+    }
+
+    .public-asset-book__confirm-value {
+        color: var(--color-text);
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .public-asset-book__confirm-btn {
+        margin-top: 1rem;
+        width: 100%;
+        min-height: 2.85rem;
+        border: none;
+        border-radius: 0.7rem;
+        background-color: var(--color-primary);
+        color: var(--color-text-white);
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+    }
+
+    .public-asset-book__confirm-btn:hover {
+        background-color: var(--color-primary-hover);
+    }
+
+    .public-asset-book__confirm-btn:active {
+        transform: scale(0.98);
+    }
+
+    .public-asset-book__confirm-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+
+    @keyframes publicAssetBookSpin {
+        to { transform: rotate(360deg); }
+    }
+
+
+    
+    .public-asset-book__spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid var(--color-border-light);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: publicAssetBookSpin .6s linear infinite;
+        vertical-align: middle;
+    }
+
+
+
+    .public-asset-book__message-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: color-mix(in srgb, black, transparent 55%);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.public-asset-book__message-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.public-asset-book__message-box {
+    width: min(26rem, 100%);
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 0.9rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-light);
+    box-shadow: 0 14px 36px color-mix(in srgb, black, transparent 78%);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+}
+
+.public-asset-book__message-box--error {
+    border-color: color-mix(in srgb, #dc2626, white 70%);
+}
+
+.public-asset-book__message-box--warning {
+    border-color: color-mix(in srgb, #d97706, white 70%);
+}
+
+.public-asset-book__message-box--success {
+    border-color: color-mix(in srgb, #16a34a, white 70%);
+}
+
+.public-asset-book__message-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-text);
+}
+
+.public-asset-book__message-btn {
+    align-self: center;
+    min-width: 7rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--color-primary);
+    border-radius: 0.6rem;
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.public-asset-book__message-btn:hover {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+    @media (max-width: 1100px) {
+        .public-asset-book__layout {
+            grid-template-columns: 1fr;
+        }
+
+        .public-asset-book__calendar-panel {
+            max-width: none;
+        }
+
+        .public-asset-book__slots-panel {
+            position: static;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .public-asset-book {
+            grid-template-columns: 1fr;
+        }
+
+        .public-asset-book__sidebar {
+            border-right: none;
+            border-bottom: 1px solid var(--color-border-light);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .public-asset-book__main {
+            padding: 0.75rem;
+        }
+
+        .public-asset-book__service-header-content,
+        .public-asset-book__slots-panel {
+            padding: 0.9rem;
+        }
+
+        .public-asset-book__calendar-nav {
+            padding: 0.75rem 0.85rem;
+        }
+
+        .public-asset-book__calendar-body {
+            padding: 0.4rem 0.4rem 0.6rem;
+        }
+
+        .public-asset-book__slots-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
