@@ -2,8 +2,6 @@ let currentView = 'timeline';
 
 /**
  * Main entry point for the timeline layout
- * @param {Date} baseDate
- * @param {number} daysCount
  */
 export function initTimelineLayout(data = [], baseDate = new Date(), daysCount = 3) {
     const container = document.getElementById('timelineContainer');
@@ -28,7 +26,11 @@ export function initTimelineLayout(data = [], baseDate = new Date(), daysCount =
 
     renderNowIndicator(bodyWrapper);
     setupAutoScroll(bodyWrapper);
-    initIndicatorLoop();
+    
+    if (!window.indicatorIntervalStarted) {
+        initIndicatorLoop();
+        window.indicatorIntervalStarted = true;
+    }
 }
 
 /**
@@ -93,7 +95,6 @@ function renderDayHeaders(parent, dates) {
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
         const dayNumber = dateObj.getDate().toString().padStart(2, '0');
 
-        // Tu môžeš pridať filter na dáta, aby si zistil reálny počet:
         const count = window.BE_DATA.appointments.filter(a => 
             new Date(a.date).toDateString() === dateObj.toDateString()
         ).length;
@@ -247,53 +248,109 @@ function renderAppointments(parent, data, visibleDates) {
     const SLOT_HEIGHT = 80;
     const OFFSET_TOP = 24;
 
-    console.log("Visible Dates on Timeline:", visibleDates.map(d => d.toDateString()));
-    console.log("Appointments to process:", data.length);
+    visibleDates.forEach((dateObj, colIndex) => {
+        const columnEl = columns[colIndex];
+        const dayApps = data.filter(app => {
+            const d = new Date(app.date);
+            return d.toDateString() === dateObj.toDateString();
+        }).sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
 
-    data.forEach(app => {
-        const appDate = new Date(app.date);
-        
-        // Hľadáme zhodu (POZOR: Musia byť rovnaké roky, mesiace aj dni)
-        const colIndex = visibleDates.findIndex(d => 
-            d.getDate() === appDate.getDate() && 
-            d.getMonth() === appDate.getMonth() &&
-            d.getFullYear() === appDate.getFullYear()
-        );
-
-        if (colIndex > -1) {
-            console.log(`Rendering app: ${app.service_name} at col ${colIndex}`);
+        const groups = [];
+        dayApps.forEach(app => {
+            const start = new Date(app.start_at).getTime();
+            const end = start + (app.duration || 60) * 60000;
             
-            const startTime = new Date(app.start_at);
-            const hours = startTime.getHours();
-            const minutes = startTime.getMinutes();
-            const duration = app.duration || 60;
+            let placed = false;
+            for (let group of groups) {
+                const isOverlapping = group.some(item => {
+                    const iStart = new Date(item.start_at).getTime();
+                    const iEnd = iStart + (item.duration || 60) * 60000;
+                    return (start < iEnd && end > iStart);
+                });
 
-            const top = (hours * SLOT_HEIGHT) + (minutes * (SLOT_HEIGHT / 60)) + OFFSET_TOP;
-            const height = (duration * (SLOT_HEIGHT / 60));
+                if (isOverlapping) {
+                    group.push(app);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) groups.push([app]);
+        });
 
-            const appEl = document.createElement('div');
-            // Pridaj si 'timeline__appointment' do CSS (viď nižšie)
-            appEl.className = `timeline__appointment is-${app.status}`;
-            appEl.style.top = `${top}px`;
-            appEl.style.height = `${height}px`;
-            
-            // Inline štýly pre istotu, ak by CSS nenačítalo
-            appEl.style.position = 'absolute';
-            appEl.style.left = '5px';
-            appEl.style.right = '5px';
-            appEl.style.zIndex = '100';
-
-            appEl.innerHTML = `
-                <div class="appointment-content">
-                    <strong>${hours}:${minutes.toString().padStart(2, '0')}</strong><br>
-                    <span>${app.service?.name || 'Service'}</span>
-                </div>
-            `;
-
-            columns[colIndex].appendChild(appEl);
-        } else {
-            // Toto nám povie, ak appointment nespadá do zobrazených 3 dní
-            console.log(`App date ${appDate.toDateString()} is NOT in visible range.`);
-        }
+        groups.forEach(group => {
+            if (group.length > 2) {
+                renderSummaryBlock(columnEl, group, SLOT_HEIGHT, OFFSET_TOP);
+            } else {
+                group.forEach((app, idx) => {
+                    const width = 98 / group.length; 
+                    const left = idx * width;
+                    renderSingleAppointment(columnEl, app, SLOT_HEIGHT, OFFSET_TOP, width, left);
+                });
+            }
+        });
     });
+}
+
+function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, left) {
+    const startTime = new Date(app.start_at);
+    const duration = app.duration || 60;
+    const endTime = new Date(startTime.getTime() + duration * 60000);
+    
+    const top = (startTime.getHours() * slotHeight) + (startTime.getMinutes() * (slotHeight / 60)) + offsetTop;
+    const height = (duration * (slotHeight / 60));
+
+    const appEl = document.createElement('div');
+    appEl.className = `timeline__appointment is-${app.status} js-open-appointment-detail`;
+    appEl.dataset.appointments = JSON.stringify([app]);
+    
+    appEl.style.top = `${top}px`;
+    appEl.style.height = `${height}px`;
+    appEl.style.left = `${left}%`;
+    appEl.style.width = `${width}%`;
+
+    const formatTime = (date) => `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    const serviceName = app.service?.name || app.service_name || 'Service';
+
+    appEl.innerHTML = `
+        <div class="appointment-time-sidebar">
+            <span>${formatTime(startTime)}</span>
+            <span>${formatTime(endTime)}</span>
+        </div>
+        <div class="appointment-content-inner">
+            <span>${serviceName}</span>
+        </div>
+    `;
+    
+    columnEl.appendChild(appEl);
+}
+
+function renderSummaryBlock(columnEl, group, slotHeight, offsetTop) {
+    const times = group.map(a => {
+        const start = new Date(a.start_at).getTime();
+        const end = start + (a.duration || 60) * 60000;
+        return { start, end };
+    });
+
+    const minStart = new Date(Math.min(...times.map(t => t.start)));
+    const maxEnd = new Date(Math.max(...times.map(t => t.end)));
+    
+    const top = (minStart.getHours() * slotHeight) + (minStart.getMinutes() * (slotHeight / 60)) + offsetTop;
+    
+    const durationMinutes = (maxEnd - minStart) / 60000;
+    const height = durationMinutes * (slotHeight / 60);
+
+    const appEl = document.createElement('div');
+    appEl.className = `timeline__appointment is-multiple js-open-appointment-detail`;
+    appEl.dataset.appointments = JSON.stringify(group);
+    
+    appEl.style.top = `${top}px`;
+    appEl.style.height = `${height}px`;
+    appEl.style.minHeight = `40px`; 
+
+    appEl.innerHTML = `
+        <i class="fa-solid fa-layer-group"></i>
+        <span>${group.length} Appointments</span>
+    `;
+    
+    columnEl.appendChild(appEl);
 }

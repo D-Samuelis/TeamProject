@@ -3,7 +3,7 @@ export class Modal {
         const { 
             title, 
             type,
-            action = "create", // create | edit | delete | warning | info (determines color scheme and default tag)
+            action = "create", // create | edit | delete | warning | info
             body, 
             confirmText = 'Save', 
             cancelText = 'Cancel', 
@@ -22,8 +22,33 @@ export class Modal {
         const config = actionConfig[action] || actionConfig.info;
         const activeColor = config.color;
         const displayTag = type || config.tag;
-
         const activeColorHover = `color-mix(in srgb, ${activeColor}, black 15%)`;
+
+        const isInfo = action === 'info';
+        
+        const buttonsHtml = isInfo 
+            ? `
+                <button type="button" class="modal__nav-link modal-close-trigger" 
+                        style="border: none; cursor: pointer; background-color: var(--modal-accent); color: white; border-radius: .15rem; padding: 0.6rem 2rem; transition: all 0.2s;"
+                        onmouseenter="this.style.backgroundColor='var(--modal-accent-hover)';" 
+                        onmouseleave="this.style.backgroundColor='var(--modal-accent)';">
+                    ${confirmText === 'Save' ? 'Got it' : confirmText}
+                </button>
+            `
+            : `
+                <button type="button" class="modal__nav-link is-active btn-confirm" 
+                        style="border: none; cursor: pointer; background-color: var(--modal-accent); color: white; padding: 0.6rem 1.4rem; border-radius: .15rem; transition: all 0.2s;"
+                        onmouseenter="this.style.backgroundColor='var(--modal-accent-hover)';" 
+                        onmouseleave="this.style.backgroundColor='var(--modal-accent)';">
+                    ${confirmText}
+                </button>
+                <button type="button" class="modal__nav-link modal-close-trigger" 
+                        style="border: none; cursor: pointer; background: var(--color-border-light-very); color: var(--color-text); border-radius: .15rem; padding: 0.6rem 1.4rem; transition: all 0.2s;"
+                        onmouseenter="this.style.background='var(--color-border-light)'"
+                        onmouseleave="this.style.background='var(--color-border-light-very)'">
+                    ${cancelText}
+                </button>
+            `;
 
         const modalHtml = `
         <div class="modal" id="dynamic-modal" style="--modal-accent: ${activeColor}; --modal-accent-hover: ${activeColorHover}">
@@ -40,7 +65,7 @@ export class Modal {
                     </div>
                     <button class="modal-close-trigger" 
                         style="border: none; background: transparent; font-size: 1.25rem; cursor: pointer; color: var(--color-text-light); transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 4px;" 
-                        onmouseenter="this.style.color='#ff4221';" 
+                        onmouseenter="this.style.color='#ff4221'; this.style.backgroundColor='rgba(255, 66, 33, 0.1)';" 
                         onmouseleave="this.style.color='var(--color-text-light)'; this.style.backgroundColor='transparent'">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -49,18 +74,7 @@ export class Modal {
                     ${body}
                 </div>
                 <div class="modal__buttons">
-                    <button type="button" class="modal__nav-link is-active btn-confirm" 
-                            style="border: none; cursor: pointer; background-color: var(--modal-accent); color: white; padding: 0.6rem 1.4rem; border-radius: .15rem; transition: all 0.2s;"
-                            onmouseenter="this.style.backgroundColor='var(--modal-accent-hover)';" 
-                            onmouseleave="this.style.backgroundColor='var(--modal-accent)';">
-                        ${confirmText}
-                    </button>
-                    <button type="button" class="modal__nav-link modal-close-trigger" 
-                            style="border: none; cursor: pointer; background: var(--color-border-light-very); color: var(--color-text); border-radius: .15rem; padding: 0.6rem 1.4rem; transition: all 0.2s;"
-                            onmouseenter="this.style.background='var(--color-border-light)'"
-                            onmouseleave="this.style.background='var(--color-border-light-very)'">
-                        ${cancelText}
-                    </button>
+                    ${buttonsHtml}
                 </div>
             </div>
         </div>`;
@@ -69,35 +83,30 @@ export class Modal {
         const modal = document.getElementById('dynamic-modal');
 
         const close = () => modal.remove();
-        modal.querySelectorAll('.modal-close-trigger').forEach(el => el.onclick = close);
+        
+        // Pripojíme zatváranie na všetky elementy s touto triedou (overlay, krížik, cancel button)
+        modal.querySelectorAll('.modal-close-trigger').forEach(el => {
+            el.onclick = close;
+        });
 
-        modal.querySelector('.btn-confirm').onclick = () => {
-            const form = modal.querySelector('form');
-            if (form) {
-                const event = new Event('submit', { cancelable: true, bubbles: true });
-                form.dispatchEvent(event);
+        // OPRAVENÉ: Naviazanie na confirm button len ak existuje (nie je v info móde)
+        const btnConfirm = modal.querySelector('.btn-confirm');
+        if (btnConfirm) {
+            btnConfirm.onclick = () => {
+                const form = modal.querySelector('form');
+                if (form) {
+                    const event = new Event('submit', { cancelable: true, bubbles: true });
+                    form.dispatchEvent(event);
+                    if (event.defaultPrevented) return;
+                }
 
-                if (event.defaultPrevented) return;
-            }
-
-            if (onConfirm) onConfirm(modal);
-        };
+                if (onConfirm) onConfirm(modal);
+            };
+        }
 
         this._attachValidation(modal, rules);
     }
 
-    /**
-     * Display BE validation errors (e.g. Laravel 422 response) inside the modal.
-     *
-     * @param {HTMLElement} modal  - The modal element passed in onConfirm.
-     * @param {Object}      errors - Laravel-style errors: { fieldName: ['message', ...] }
-     *
-     * @example
-     * if (res.status === 422) {
-     *     const json = await res.json();
-     *     Modal.showFieldErrors(modal, json.errors);
-     * }
-     */
     static showFieldErrors(modal, errors) {
         const form = modal.querySelector('form');
         if (!form) return;
@@ -124,11 +133,6 @@ export class Modal {
         });
     }
 
-    /**
-     * Clear all field errors inside the modal (call before each fetch submit).
-     *
-     * @param {HTMLElement} modal
-     */
     static clearFieldErrors(modal) {
         const form = modal.querySelector('form');
         if (!form) return;
@@ -143,7 +147,6 @@ export class Modal {
         if (!form) return;
 
         const rules = { ...customRules };
-
         const inputs = form.querySelectorAll('input, textarea, select');
 
         inputs.forEach(input => {
@@ -158,7 +161,6 @@ export class Modal {
 
             input.addEventListener('blur', () => this._validateField(input, rules, form));
             input.addEventListener('input', () => {
-                // Always clear on input — handles both FE and BE errors
                 this._clearField(input);
                 if (rules[input.name]) this._validateField(input, rules, form);
             });
@@ -211,7 +213,6 @@ export class Modal {
         const errorDiv = group?.querySelector('.invalid-input-field');
 
         input.classList.remove('input-error');
-
         if (group) group.classList.remove('shake-it');
 
         if (errorDiv) {

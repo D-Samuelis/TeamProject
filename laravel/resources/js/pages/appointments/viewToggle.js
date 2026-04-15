@@ -23,16 +23,9 @@ export function initViewToggle() {
             ? allAppointments.filter(app => app.user_id === currentUser.id)
             : allAppointments;
 
-        /*if (isTimeline) {
+        if (isTimeline) {
             initTimelineLayout(filtered, new Date(), 3); 
             window.dispatchEvent(new Event('resize'));
-        } else {
-            initAppointmentListView(filtered); 
-        }*/
-        // SHIT BE NOT WORKING
-        if (isTimeline) {
-            const testDate = new Date('2026-04-17');
-            initTimelineLayout(filtered, testDate, 3); 
         } else {
             initAppointmentListView(filtered); 
         }

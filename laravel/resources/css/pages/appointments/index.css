@@ -4,4 +4,5 @@
 @import "./_timeline.css";
 @import "./_statusFilters.css";
 @import "./_list.css";
-@import "./_temp.css";  /*testing*/
+@import "./_timelineAppointment.css";
+@import "./modals/showAppointmetsModal.css";
