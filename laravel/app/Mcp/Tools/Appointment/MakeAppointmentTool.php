@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\Auth;
 class MakeAppointmentTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        This tool creates (books) a new appointment for the authenticated user.
+        This tool creates a new appointments for currently authenticated user.
+
+        Appointments are bookings made by users for specific services to specific assets.
 
         ## When to use
         Use this tool when a user wants to book, schedule, or make an appointment for a specific
@@ -32,6 +34,9 @@ class MakeAppointmentTool extends Tool
         - ListAssetsTool
         - ListBusinessesTool
         - ListBranchesTool
+        - GetAvailableSlotsTool
+
+        or ask the user for more context to be able to provide required parameters.
 
         ## Required parameters
         - service_id: The ID of the service to book. If you don't have context about service, ask user which service to book.
@@ -44,11 +49,11 @@ class MakeAppointmentTool extends Tool
         slot-check and booking), the tool will return an error asking the user to pick another time.
 
         ## Example use case
-        User says: "Book a haircut at  for me tomorrow at 10am."
-        → Resolve service_id for haircut. If you don't have the ID use other tools to get more info about business or service or ask user to provide more context.
-        → Resolve asset_id. Use tool to provide more info about assets or ask user for more context.
-        → Resolve date - Use date that is tomorrow
-        → start_at - Use date provided - 10:00
+        User says: "Book a haircut at for me 23.5.2026 at 10am."
+        → Resolve service_id for haircut - If you don't have the ID use ListServicesTool to get more info about service or ask user to provide more context.
+        → Resolve asset_id - If you don't have the ID use ListAssetsTool to provide more info about asset or ask user for more context.
+        → Resolve date - Use date 2026-05-23
+        → start_at - Use time provided - 10:00
 
     MARKDOWN;
 

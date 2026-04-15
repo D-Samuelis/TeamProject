@@ -30,9 +30,6 @@ class ListBusinessesTool extends Tool
 
         ## When to use
         Use this tool when you need to find, look up, or browse businesses.
-        Use this only after you know what branch, business or service user wants.
-        - If you don't have this context, use other ListServicesTool tool or ask user for more context.
-
 
         ## Required parameters
         None.
@@ -47,8 +44,8 @@ class ListBusinessesTool extends Tool
         - `page`: Page number (default: 1).
 
         ## Example use case
-        User wants a massage in Bratislava — after identifying the service with ListServiceTool,
-        call this tool with `q: "massage"` and `city: "Bratislava"` to find matching businesses.
+        - User wants a massage in Bratislava.
+        - Use this tool with `q: "massage"` and `city: "Bratislava"` to find matching businesses.
     MARKDOWN;
 
     public function __construct(

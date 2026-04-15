@@ -21,7 +21,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsDestructive(false)]
 #[IsOpenWorld(false)]
 #[IsIdempotent(true)]
-class ListServiceTool extends Tool
+class ListServicesTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
         This tool retrieves a list of services from the system based on a search query.
@@ -30,7 +30,6 @@ class ListServiceTool extends Tool
 
         ## When to use
         Use this tool when you need to find, look up, or browse services.
-        You should use this tool before other tools.
 
         ## Required parameters
         None.
@@ -46,8 +45,8 @@ class ListServiceTool extends Tool
         - `page`: Page number (default: 1).
 
         ## Example use case
-        User says "I want a massage in Bratislava under €50" — call this tool with
-        `q: "massage"`, `city: "Bratislava"`, `max_price: 50` to find matching services.
+        - User says "I want a massage in Bratislava under €50".
+        - Use this tool with `q: "massage"`, `city: "Bratislava"`, `max_price: 50` to find matching services.
     MARKDOWN;
 
     public function __construct(
@@ -57,6 +56,7 @@ class ListServiceTool extends Tool
     public function handle(Request $request): Response
     {
         try{
+            logger()->debug('ListServicesTool called with request: ', ['request' => $request->all()]);
             $validated = $request->validate([
                 'q'              => 'nullable|string',
                 'city'           => 'nullable|string',
@@ -69,11 +69,14 @@ class ListServiceTool extends Tool
                 'page'           => 'nullable|integer|min:1',
             ]);
 
+            logger()->debug('ListServicesTool validated parameters: ', ['validated' => $validated]);
+
             $services = $this->listServices->execute(
                 user: null,
                 business: null,
                 scope: 'public',
                 filters: [
+                    'target'         => 'service',
                     'q'              => $validated['q'] ?? null,
                     'city'           => $validated['city'] ?? null,
                     'max_price'      => $validated['max_price'] ?? null,
@@ -85,23 +88,26 @@ class ListServiceTool extends Tool
                 ]
             );
 
+            logger()->debug('ListServicesTool results: ', ['services' => $services]);
+
             return Response::text(
                 $services->map(function ($item) {
-                    return "id: " . $item['id']
-                        . " name: " . $item['name']
-                        . " price: " . $item['price']
-                        . " duration_minutes: " . $item['duration_minutes']
-                        . " location_type: " . $item['location_type']
-                        . " description: " . $item['description'];
-                })
+                    return "service id: " . $item['id']
+                        . ", service name: " . $item['name']
+                        . ", service price: " . $item['price']
+                        . ", service duration_minutes: " . $item['duration_minutes']
+                        . ", service location_type: " . $item['location_type']
+                        . ", business_id: " . $item['business_id']
+                        . ", service description: " . $item['description'];
+                })->implode("\n")
             );
 
         } catch (ValidationException $e) {
-            logger()->warning('ListServiceTool validation failed', ['errors' => $e->errors()]);
+            logger()->warning('ListServicesTool validation failed', ['errors' => $e->errors()]);
 
             return Response::text('Invalid input: ' . implode(' ', array_merge(...array_values($e->errors()))));
         } catch (\Throwable $e) {
-            logger()->error('ListServiceTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            logger()->error('ListServicesTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
             return Response::text('Failed to retrieve services. Please try again later.');
         }

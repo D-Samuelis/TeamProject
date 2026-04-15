@@ -37,8 +37,8 @@ class ListAppointmentsTool extends Tool
         - `page`: Page number for pagination (default: 1).
 
         ## Example use case
-        User says "Show me my appointments" — call this tool with no parameters to retrieve
-        the current user's appointments.
+        - User says "Show me my appointments".
+        - Use this tool with no parameters to retrieve the current user's appointments.
     MARKDOWN;
 
     public function __construct(

@@ -23,13 +23,11 @@ class ListAssetsTool extends Tool
     protected string $description = <<<'MARKDOWN'
         This tool retrieves a list of assets from the system based on a search query.
 
-        Assets may represent commodity (for example "Table", "Chair" or "Room"),
-        employee (for example name like "Josh" or role like "masseur").
+        Assets may either represent commodity (for example "Table", "Chair" or "Room"),
+        or employees (for example name like "Josh" or role like "masseur").
 
         ## When to use
         Use this tool when you need to find, look up, or browse assets.
-        Use this only after you know what branch, business or service user wants.
-        - If you don't have this context, use other tools: ListBusinessesTool, ListBranchesTool, ListServicesTool or ask user for more context.
 
         ## Required parameters
         - None
@@ -41,8 +39,8 @@ class ListAssetsTool extends Tool
         - `business_id`: The ID of the business to list assets for.
 
         ## Example use case
-        User wants to book a massage at a specific business.
-        Use this tool to find assets like massage tables or therapists ("masseur", "Josh")
+        - User wants to book a massage at a specific business.
+        - Use this tool to find assets like massage tables or therapists ("masseur", "Josh")
     MARKDOWN;
 
     public function __construct(

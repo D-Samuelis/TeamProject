@@ -26,7 +26,7 @@ class GetAvailableSlotsTool extends Tool
 
         ## When to use
         Use this tool when a user wants to book a service and you need to show them
-        what times are available. Always call ListServiceTool first to obtain a valid
+        what times are available. Always call ListServicesTool first to obtain a valid
         `service_id`, and ensure you have an `asset_id` before calling this tool.
 
         ## Required parameters
@@ -36,7 +36,6 @@ class GetAvailableSlotsTool extends Tool
         ## Optional parameters
         - `from`: Start date of the range to check (format: YYYY-MM-DD). Defaults to today.
         - `to`: End date of the range to check (format: YYYY-MM-DD). Defaults to 6 days after `from` (a full week).
-
 
         ## Response format
         Returns a map of dates to available time slots, e.g.:

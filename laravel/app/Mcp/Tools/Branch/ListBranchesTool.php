@@ -26,8 +26,6 @@ class ListBranchesTool extends Tool
 
         ## When to use
         Use this tool when you need to find, look up, or browse branches.
-        Use this only after you know what business and service user wants.
-        - If you don't have this context, use other tools: ListBusinessesTool, ListServicesTool or ask user for more context.
 
         ## Required parameters
         - None.
@@ -40,8 +38,8 @@ class ListBranchesTool extends Tool
         - `page`: Page number (default: 1).
 
         ## Example use case
-        - User wants to book a haircut in Bratislava — after identifying the business and service,
-          use this tool with `business_id` and `city: "Bratislava"` to find the right branch.
+        - User wants to book a haircut in Bratislava.
+        - Use this tool with `business_id` and `city: "Bratislava"` to find the right branch.
     MARKDOWN;
 
     public function __construct(
