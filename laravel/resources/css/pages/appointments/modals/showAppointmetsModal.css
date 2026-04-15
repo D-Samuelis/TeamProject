@@ -1,0 +1,119 @@
+/* Kontajner v modale */
+.apt-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px;
+}
+
+/* Karta stretnutia */
+.apt-card {
+    background: #fff;
+    border: 1px solid var(--color-border-light, #eee);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.apt-card__header {
+    padding: 10px 16px;
+    background: #fcfcfc;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.apt-card__time {
+    font-weight: 700;
+    color: var(--color-primary, #2196f3);
+    font-size: 0.95rem;
+}
+
+.apt-card__body {
+    padding: 16px;
+}
+
+.apt-card__section {
+    margin-bottom: 12px;
+}
+
+.apt-card__section label {
+    display: block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: #999;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.apt-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.apt-card__subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 2px;
+}
+
+.apt-card__grid {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f5f5f5;
+}
+
+.apt-card__info {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.apt-card__subinfo {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Note sekcia */
+.apt-card__note {
+    margin-top: 15px;
+    padding: 10px 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    display: flex;
+    gap: 10px;
+    font-style: italic;
+}
+
+.apt-card__note i {
+    color: #ccc;
+    font-size: 0.8rem;
+}
+
+.apt-card__note p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* Badges */
+.apt-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.apt-badge--pending { background: #fff3e0; color: #ef6c00; }
+.apt-badge--confirmed { background: #e8f5e9; color: #2e7d32; }
+.apt-badge--canceled { background: #ffebee; color: #c62828; }
+
+/* Akcent podľa statusu na celej karte */
+.apt-card.is-pending { border-left: 4px solid #ff9800; }
+.apt-card.is-confirmed { border-left: 4px solid #4caf50; }
+.apt-card.is-canceled { border-left: 4px solid #f44336; }

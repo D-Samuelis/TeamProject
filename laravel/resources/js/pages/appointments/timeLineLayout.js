@@ -301,7 +301,8 @@ function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, le
     const height = (duration * (slotHeight / 60));
 
     const appEl = document.createElement('div');
-    appEl.className = `timeline__appointment is-${app.status}`;
+    appEl.className = `timeline__appointment is-${app.status} js-open-appointment-detail`;
+    appEl.dataset.appointments = JSON.stringify([app]);
     
     appEl.style.top = `${top}px`;
     appEl.style.height = `${height}px`;
@@ -330,7 +331,8 @@ function renderSummaryBlock(columnEl, group, slotHeight, offsetTop) {
     const top = (minStart.getHours() * slotHeight) + (minStart.getMinutes() * (slotHeight / 60)) + offsetTop;
     
     const appEl = document.createElement('div');
-    appEl.className = `timeline__appointment is-multiple`;
+    appEl.className = `timeline__appointment is-multiple js-open-appointment-detail`;
+    appEl.dataset.appointments = JSON.stringify(group);
     appEl.style.top = `${top}px`;
     appEl.style.height = `60px`;
 

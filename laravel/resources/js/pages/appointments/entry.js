@@ -3,6 +3,7 @@ import { initCalendarFilters } from './calendarFilter.js';
 import { initStatusFilters } from './statusFilters.js';
 import { initViewToggle } from './viewToggle.js';
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
+import { initAppointmentDetailModal } from './modals/initAppointmentDetailModal.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCalendar();
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('filterList');
     
     initViewToggle(); 
+    initAppointmentDetailModal();
 });
 
 window.addEventListener('dateChanged', (e) => {
