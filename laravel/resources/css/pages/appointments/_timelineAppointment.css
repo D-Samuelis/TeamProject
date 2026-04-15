@@ -1,0 +1,75 @@
+.timeline__day-column {
+    position: relative;
+    width: 100%;
+}
+
+.timeline__appointment {
+    position: absolute;
+    z-index: 100;
+    border-radius: .15rem;
+    overflow: hidden;
+    border: 1px solid var(--color-border-light);
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.timeline__appointment:hover {
+    z-index: 150;
+    transform: scale(102%);
+}
+
+.timeline__appointment:not(.is-multiple) {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    min-height: 40px;
+    background: linear-gradient(135deg, var(--color-bg-complement-light) 0%, var(--color-bg-complement-gradient-light) 100%);
+}
+
+.appointment-time-sidebar {
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: .8rem;
+    text-align: center;
+    line-height: 1.1;
+    gap: .25rem;
+}
+
+.appointment-content-inner {
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    font-size: 0.85rem;
+    color: var(--color-text);
+}
+
+.appointment-content-inner span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timeline__appointment.is-multiple {
+    left: 5px;
+    right: 5px;
+    background: linear-gradient(135deg, var(--color-bg-complement-light) 0%, var(--color-bg-complement-gradient-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    color: var(--color-text);
+    gap: .75rem;
+}
+
+.timeline__appointment.is-multiple i {
+    color: var(--color-border-light);
+}
+
+.timeline__appointment.is-confirmed { border-left: 4px solid #4caf50; }
+.timeline__appointment.is-pending   { border-left: 4px solid #ff9800; }
+.timeline__appointment.is-canceled  { border-left: 4px solid #f44336; }
+.timeline__appointment.is-booked    { border-left: 4px solid #2196f3; }
