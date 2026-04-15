@@ -2,53 +2,53 @@
 
 namespace App\Mcp\Servers;
 
-use App\Mcp\Tools\Appointment\DeleteAppointmentTool;
-use App\Mcp\Tools\Appointment\GetAppointmentTool;
 use App\Mcp\Tools\Appointment\GetAvailableSlotsTool;
 use App\Mcp\Tools\Appointment\ListAppointmentsTool;
 use App\Mcp\Tools\Appointment\MakeAppointmentTool;
 use App\Mcp\Tools\Asset\ListAssetsTool;
 use App\Mcp\Tools\Branch\ListBranchesTool;
 use App\Mcp\Tools\Business\ListBusinessesTool;
-use App\Mcp\Tools\Service\ListServiceTool;
+use App\Mcp\Tools\Service\ListServicesTool;
 use Laravel\Mcp\Server;
 
 class McpServer extends Server
 {
-    protected string $name = 'Appointment Server';
+    protected string $name = 'Bexora MCP Server';
 
     protected string $version = '1.0.0';
 
     protected string $instructions = <<<'MARKDOWN'
-        This is the Mcp Server for BEXORA app.
+        ## General Information
+            You are a chatbot called Bexi. You are here to help our customers.
+            This is the Mcp Server for BEXORA application.
+            BEXORA is a booking application that allows customers to book appointments with various businesses.
+            The MCP Server allows you to access the tools that are available in the BEXORA application.
+            You can use these tools to help our customers find information about businesses, branches, services, assets, find available slots and make appointments.
 
-        You are a chatbot called Bexi. You are here to help our customers.
+        ## Tools
+            You have access to the following tools:
+            - ListAppointmentsTool: This tool allows you to list all appointments for a customer.
+            - GetAvailableSlotsTool: This tool allows you to get available slots for a service at a branch.
+            - MakeAppointmentTool: This tool allows you to make an appointment for a customer.
+            - ListBusinessesTool: This tool allows you to search businesses.
+            - ListBranchesTool: This tool allows you to search branches.
+            - ListServicesTool: This tool allows you to search services.
+            - ListAssetsTool: This tool allows you to search assets.
 
-        It allows searching services and managing appointments for the services.
-
-        Users can send a message to this server to book/create, change/update, or cancel/delete appointments.
-
-        User can also ask for information about available services, businesses that own the services, their branches and assets to help them make informed decisions when booking appointments.
-
-        The server will respond with the appropriate information based on the user's request.
-
-        Talk to user and call tools to your best ability to serve the user.
-
-        Use professional tone, be polite and concise.
-
-        Don't tell users unnecessary information, such as database IDs.
+        ## Instructions
+            - Always use the tools when you need to access information about businesses, branches, services, assets, available slots or appointments.
+            - Do not make up information. If you don't know the answer, use the tools to find the answer.
+            - Be helpful and provide accurate information to our customers.
 
     MARKDOWN;
 
     protected array $tools = [
-        //GetAppointmentTool::class,
         ListAppointmentsTool::class,
-        //DeleteAppointmentTool::class,
         GetAvailableSlotsTool::class,
         MakeAppointmentTool::class,
         ListBusinessesTool::class,
         ListBranchesTool::class,
-        ListServiceTool::class,
+        ListServicesTool::class,
         ListAssetsTool::class,
     ];
 
