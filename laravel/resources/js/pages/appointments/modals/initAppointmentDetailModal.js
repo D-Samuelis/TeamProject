@@ -14,7 +14,7 @@ export function initAppointmentDetailModal() {
             Modal.showCustom({
                 title: appointments.length > 1 ? `Group Detail (${appointments.length})` : `Appointment Detail`,
                 action: 'info',
-                confirmText: 'Close',
+                confirmText: 'Cancel',
                 body: `
                     <div class="apt-modal">
                         ${appointments.map(app => renderAppCard(app)).join('')}

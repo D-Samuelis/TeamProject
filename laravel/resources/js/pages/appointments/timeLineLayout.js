@@ -2,8 +2,6 @@ let currentView = 'timeline';
 
 /**
  * Main entry point for the timeline layout
- * @param {Date} baseDate
- * @param {number} daysCount
  */
 export function initTimelineLayout(data = [], baseDate = new Date(), daysCount = 3) {
     const container = document.getElementById('timelineContainer');
@@ -28,7 +26,11 @@ export function initTimelineLayout(data = [], baseDate = new Date(), daysCount =
 
     renderNowIndicator(bodyWrapper);
     setupAutoScroll(bodyWrapper);
-    initIndicatorLoop();
+    
+    if (!window.indicatorIntervalStarted) {
+        initIndicatorLoop();
+        window.indicatorIntervalStarted = true;
+    }
 }
 
 /**
@@ -93,7 +95,6 @@ function renderDayHeaders(parent, dates) {
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
         const dayNumber = dateObj.getDate().toString().padStart(2, '0');
 
-        // Tu môžeš pridať filter na dáta, aby si zistil reálny počet:
         const count = window.BE_DATA.appointments.filter(a => 
             new Date(a.date).toDateString() === dateObj.toDateString()
         ).length;
@@ -251,9 +252,7 @@ function renderAppointments(parent, data, visibleDates) {
         const columnEl = columns[colIndex];
         const dayApps = data.filter(app => {
             const d = new Date(app.date);
-            return d.getDate() === dateObj.getDate() &&
-                   d.getMonth() === dateObj.getMonth() &&
-                   d.getFullYear() === dateObj.getFullYear();
+            return d.toDateString() === dateObj.toDateString();
         }).sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
 
         const groups = [];
@@ -283,7 +282,7 @@ function renderAppointments(parent, data, visibleDates) {
                 renderSummaryBlock(columnEl, group, SLOT_HEIGHT, OFFSET_TOP);
             } else {
                 group.forEach((app, idx) => {
-                    const width = 98 / group.length; // 98% alebo 46%
+                    const width = 98 / group.length; 
                     const left = idx * width;
                     renderSingleAppointment(columnEl, app, SLOT_HEIGHT, OFFSET_TOP, width, left);
                 });
@@ -309,8 +308,8 @@ function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, le
     appEl.style.left = `${left}%`;
     appEl.style.width = `${width}%`;
 
-    const formatTime = (date) => `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-    const serviceName = app.service_name || (app.service ? app.service.name : 'Service');
+    const formatTime = (date) => `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    const serviceName = app.service?.name || app.service_name || 'Service';
 
     appEl.innerHTML = `
         <div class="appointment-time-sidebar">
@@ -326,21 +325,32 @@ function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, le
 }
 
 function renderSummaryBlock(columnEl, group, slotHeight, offsetTop) {
-    const starts = group.map(a => new Date(a.start_at).getTime());
-    const minStart = new Date(Math.min(...starts));
+    const times = group.map(a => {
+        const start = new Date(a.start_at).getTime();
+        const end = start + (a.duration || 60) * 60000;
+        return { start, end };
+    });
+
+    const minStart = new Date(Math.min(...times.map(t => t.start)));
+    const maxEnd = new Date(Math.max(...times.map(t => t.end)));
+    
     const top = (minStart.getHours() * slotHeight) + (minStart.getMinutes() * (slotHeight / 60)) + offsetTop;
     
+    const durationMinutes = (maxEnd - minStart) / 60000;
+    const height = durationMinutes * (slotHeight / 60);
+
     const appEl = document.createElement('div');
     appEl.className = `timeline__appointment is-multiple js-open-appointment-detail`;
     appEl.dataset.appointments = JSON.stringify(group);
+    
     appEl.style.top = `${top}px`;
-    appEl.style.height = `60px`;
+    appEl.style.height = `${height}px`;
+    appEl.style.minHeight = `40px`; 
 
     appEl.innerHTML = `
         <i class="fa-solid fa-layer-group"></i>
         <span>${group.length} Appointments</span>
     `;
     
-    appEl.onclick = () => console.log("Rozkliknúť zoznam:", group);
     columnEl.appendChild(appEl);
 }

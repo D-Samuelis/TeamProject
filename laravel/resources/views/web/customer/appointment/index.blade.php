@@ -46,7 +46,6 @@
                                 <i class="fa-solid fa-list-ul"></i>
                                 <div id="listCount">0</div> Appointments
                             </div>
-                            {{-- Tu môžeš pridať ďalšie štatistiky ak chceš (napr. Confirmed, Pending) --}}
                         </div>
                     </div>
 
@@ -65,7 +64,7 @@
 
                 <div class="business__body-wrapper">
                     <div id="appointmentTableContainer" class="list-view__body-wrapper">
-                        {{-- SEM TableRenderer vloží <table> s triedou appointments-table --}}
+                        {{-- js inserted table --}}
                     </div>
                 </div>
             </div>
