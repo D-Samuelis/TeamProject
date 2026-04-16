@@ -36,6 +36,7 @@
 </footer>
 
 @include('web.layouts.partials.overlays')
+@include('web.layouts.partials.chatbot')
 
 </body>
 

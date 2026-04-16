@@ -27,13 +27,12 @@ class ListAssetsTool extends Tool
         or employees (for example name like "Josh" or role like "masseur").
 
         ## When to use
-        Use this tool when you need to find, look up, or browse assets.
+        Use this tool when you need to find, look up, or browse assets. Best to use this only when you have business_id.
 
         ## Required parameters
         - None
 
         ## Optional parameters
-        - `q`: Search query to filter assets by name or description.
         - `per_page`: Number of results per page (default: 10).
         - `page`: Page number (default: 1).
         - `business_id`: The ID of the business to list assets for.
@@ -52,7 +51,6 @@ class ListAssetsTool extends Tool
         try {
             $validated = $request->validate([
                 'business_id' => 'nullable|integer',
-                'q'           => 'nullable|string',
                 'per_page'    => 'nullable|integer|min:1|max:100',
                 'page'        => 'nullable|integer|min:1',
             ]);
@@ -61,7 +59,6 @@ class ListAssetsTool extends Tool
                 filters: [
                     'target'      => 'asset',
                     'business_id' => $validated['business_id'] ?? null,
-                    'q'           => $validated['q'] ?? null,
                     'per_page'    => $validated['per_page'] ?? 10,
                     'page'        => $validated['page'] ?? 1,
                 ],
@@ -87,7 +84,6 @@ class ListAssetsTool extends Tool
     {
         return [
             'business_id' => $schema->integer('The ID of the business whose assets to list.'),
-            'q'           => $schema->string('Optional search query to filter assets by name or description.'),
             'per_page'    => $schema->integer('Number of results per page. Defaults to 10.'),
             'page'        => $schema->integer('Page number for pagination. Defaults to 1.'),
         ];

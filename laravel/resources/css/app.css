@@ -20,6 +20,7 @@
 @import "./components/modal.css";
 @import "./components/table.css";
 @import "./components/breadcrumbs.css";
+@import "./components/chatbot/index.css";
 
 @import "./pages/welcome/index.css";
 @import "./pages/appointments/index.css";
@@ -28,4 +29,4 @@
 @import "./pages/businesses/index.css";
 @import "./pages/notifications/index.css";
 @import "./pages/assets/index.css";
-@import "./pages/booking/index.css"
+@import "./pages/booking/index.css";

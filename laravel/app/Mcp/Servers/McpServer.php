@@ -8,6 +8,7 @@ use App\Mcp\Tools\Appointment\MakeAppointmentTool;
 use App\Mcp\Tools\Asset\ListAssetsTool;
 use App\Mcp\Tools\Branch\ListBranchesTool;
 use App\Mcp\Tools\Business\ListBusinessesTool;
+use App\Mcp\Tools\General\GetCurrentDateTool;
 use App\Mcp\Tools\Service\ListServicesTool;
 use Laravel\Mcp\Server;
 
@@ -27,6 +28,7 @@ class McpServer extends Server
 
         ## Tools
             You have access to the following tools:
+            - GetCurrentDateTool: This tool allows you to get the current date and time.
             - ListAppointmentsTool: This tool allows you to list all appointments for a customer.
             - GetAvailableSlotsTool: This tool allows you to get available slots for a service at a branch.
             - MakeAppointmentTool: This tool allows you to make an appointment for a customer.
@@ -50,6 +52,7 @@ class McpServer extends Server
         ListBranchesTool::class,
         ListServicesTool::class,
         ListAssetsTool::class,
+        GetCurrentDateTool::class,
     ];
 
     protected array $resources = [

@@ -1,5 +1,5 @@
 import { sendChat } from "./api.js";
-import { addMessage, addToolStep, setStatus } from "./ui.js";
+import { addMessage, setStatus } from "./ui.js";
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
 
@@ -38,7 +38,7 @@ export async function handleMessage(sessionId, text, elements) {
     addMessage("You", text);
     appendToHistory("user", text);
 
-    const thinkingMsg = addMessage("Bexi", "Let me think…");
+    const thinkingMsg = addMessage("Bexi", "Thinking...");
 
     try {
         const history = getStoredHistory();
@@ -46,10 +46,6 @@ export async function handleMessage(sessionId, text, elements) {
         const data = await sendChat(sessionId, text, history);
 
         messagesEl.removeChild(thinkingMsg);
-
-        for (const step of data.steps || []) {
-            addToolStep(step);
-        }
 
         addMessage("Bexi", data.reply);
         appendToHistory("assistant", data.reply);

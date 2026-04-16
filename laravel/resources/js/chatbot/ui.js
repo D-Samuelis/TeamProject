@@ -9,11 +9,14 @@ export function addMessage(role, text) {
     label.textContent = role;
 
     const bubble = document.createElement("div");
+    bubble.className = "msg-bubble";
 
     if (role === "Bexi") {
         bubble.innerHTML = marked.parse(text);
+        wrap.classList.add("msg-bot");
     } else {
         bubble.textContent = text;
+        wrap.classList.add("msg-user");
     }
 
     wrap.appendChild(label);
@@ -23,28 +26,6 @@ export function addMessage(role, text) {
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
     return wrap;
-}
-
-export function addToolStep(step) {
-    const wrap = document.createElement("div");
-    wrap.className = "tool-step";
-
-    const header = document.createElement("div");
-    header.className = "tool-step-header";
-    header.textContent = step.tool;
-
-    const body = document.createElement("div");
-    body.className = "tool-step-body";
-    body.textContent =
-        `Args: ${JSON.stringify(step.args, null, 2)}\nResult: ${step.result}`;
-
-    header.addEventListener("click", () => {
-        body.classList.toggle("hidden");
-    });
-
-    wrap.appendChild(header);
-    wrap.appendChild(body);
-    messagesEl.appendChild(wrap);
 }
 
 export function setStatus(statusEl, msg, isError = false) {
