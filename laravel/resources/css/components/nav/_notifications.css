@@ -62,6 +62,7 @@
     padding: 1.5rem;
     border: 1px solid var(--color-border-light);
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    animation: dropdownReveal 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .notifications-menu__title {
@@ -171,4 +172,15 @@
  
 .notifications.is-active {
     z-index: 201;
+}
+
+@keyframes dropdownReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

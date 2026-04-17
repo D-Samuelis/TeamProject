@@ -72,6 +72,7 @@
     padding: 1.5rem;
     border: 1px solid var(--color-border-light-very);
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    animation: dropdownReveal 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .profile-menu__title {
@@ -170,15 +171,13 @@
     z-index: 201;
 }
 
-/* V oboch CSS súboroch */
-.profile, .notifications {
-    position: relative;
-    z-index: 1; 
-    transition: opacity 0.2s ease;
-}
-
-/* Toto zabezpečí, že aktívny prvok ostane vidieť */
-.profile.is-active, .notifications.is-active {
-    opacity: 1 !important;
-    z-index: 202;
+@keyframes dropdownReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-10px); /* Začne o 10px vyššie */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);    /* Skončí na pôvodnom mieste */
+    }
 }
