@@ -1,29 +1,54 @@
-import { renderCalendar } from './calendar.js';
 import { initTimelineLayout } from './timeLineLayout.js';
 import { initAppointmentListView } from './listView.js';
 import { APP_VIEW_PREFERENCE_KEY } from '../../config/storageKeys.js';
 
-export function initAppointmentWatchers() {
-    window.addEventListener('dateChanged', (e) => {
-        handleDateChange(e.detail);
-    });
+/**
+ * Convert time
+ * @param {string} isoStr 
+ * @returns {Date}
+ */
+function parseISO(isoStr) {
+    if (!isoStr) return new Date();
+    const [year, month, day] = isoStr.split('-').map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0);
 }
 
 /**
- * Coordinates updates when the date changes
- * @param {string} isoDateString 
+ * Main funciton to refresh middle pannel
+ * @param {string|null} forcedDateStr - Optional iso from string
  */
-function handleDateChange(isoDateString) {
-    const selectedDate = new Date(isoDateString);
+export function refreshActiveView(forcedDateStr = null) {
+    const dateEl = document.getElementById('selectedDateText');
+    
+    const currentIso = forcedDateStr || dateEl?.dataset.isoDate || new Date().toLocaleDateString('en-CA');
+    
+    const selectedDate = parseISO(currentIso);
+    
     const allAppointments = window.BE_DATA?.appointments || [];
-    const timelineView = document.getElementById('timelineView');
     const savedView = localStorage.getItem(APP_VIEW_PREFERENCE_KEY) || 'timeline';
 
-    if (savedView === 'timeline' && timelineView && !timelineView.classList.contains('hidden')) {
-        initTimelineLayout(allAppointments, selectedDate, 3);
-    } else if (savedView === 'list') {
-        initAppointmentListView(allAppointments);
-    }
+    const filtered = allAppointments; 
 
-    renderCalendar(selectedDate.getFullYear(), selectedDate.getMonth() + 1);
+    if (savedView === 'timeline') {
+        initTimelineLayout(filtered, selectedDate, 3);
+        window.dispatchEvent(new Event('resize'));
+    } else {
+        initAppointmentListView(filtered);
+    }
+}
+
+export function initAppointmentWatchers() {
+    window.addEventListener('dateChanged', (e) => {
+        refreshActiveView(e.detail);
+    });
+
+    window.addEventListener('viewChanged', () => {
+        refreshActiveView();
+    });
+
+    window.addEventListener('filtersChanged', () => {
+        refreshActiveView();
+    });
+    
+    refreshActiveView();
 }
