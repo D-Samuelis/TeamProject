@@ -6,26 +6,37 @@ export default function initNotificationsMenu() {
     const settingsOverlay = document.getElementById('settingsOverlay');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
+    const profileMenuButton = document.getElementById('profileButton');
+
     if (!notificationsMenuButton || !notificationsMenuContent) {
         return;
     }
 
-    let isHoveringButton = false;
-    let isHoveringContent = false;
+    function toggleMenu() {
+        const isHidden = notificationsMenuContent.classList.contains('hidden');
+        if (isHidden) {
+            openMenu();
+        } else {
+            closeMenu();
+        }
+    }
 
     function openMenu() {
         notificationsMenuContent.classList.remove('hidden');
         settingsOverlay?.classList.remove('hidden');
+
+        profileMenuButton.classList.add('hidden');
     }
 
     function closeMenu() {
         notificationsMenuContent.classList.add('hidden');
         settingsOverlay?.classList.add('hidden');
+
+        profileMenuButton.classList.remove('hidden');
     }
 
     function updateBadgeCount() {
         if (!notificationCount) return;
-
         const currentCount = parseInt(notificationCount.textContent || '0', 10);
         const newCount = Math.max(0, currentCount - 1);
 
@@ -38,7 +49,6 @@ export default function initNotificationsMenu() {
 
     function renderEmptyStateIfNeeded() {
         if (!notificationList) return;
-
         const items = notificationList.querySelectorAll('.notifications-menu__item');
         if (items.length === 0) {
             notificationList.innerHTML = '<p class="notifications-menu__empty">You have no new notifications.</p>';
@@ -47,7 +57,6 @@ export default function initNotificationsMenu() {
 
     async function markAsRead(notificationId) {
         if (!notificationId || !csrfToken) return false;
-
         try {
             const response = await fetch(`/notifications/${notificationId}/read`, {
                 method: 'POST',
@@ -57,7 +66,6 @@ export default function initNotificationsMenu() {
                     'Accept': 'application/json',
                 },
             });
-
             return response.ok;
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
@@ -65,47 +73,29 @@ export default function initNotificationsMenu() {
         }
     }
 
-    notificationsMenuButton.addEventListener('mouseenter', () => {
-        isHoveringButton = true;
-        openMenu();
+    notificationsMenuButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu();
     });
 
-    notificationsMenuButton.addEventListener('mouseleave', () => {
-        isHoveringButton = false;
-        if (!isHoveringContent) closeMenu();
-    });
-
-    notificationsMenuContent.addEventListener('mouseenter', () => {
-        isHoveringContent = true;
-        openMenu();
-    });
-
-    notificationsMenuContent.addEventListener('mouseleave', () => {
-        isHoveringContent = false;
-        if (!isHoveringButton) closeMenu();
-    });
-
-    settingsOverlay?.addEventListener('click', closeMenu);
-
-    notificationsMenuContent.addEventListener('click', async (e) => {
+    notificationsMenuContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
         const dismissButton = e.target.closest('.notifications-menu__dismiss');
         const clickableBody = e.target.closest('.notifications-menu__item-body--clickable');
 
         if (dismissButton) {
             e.preventDefault();
-            e.stopPropagation();
-
             const notificationId = dismissButton.dataset.notificationId;
             const item = document.getElementById(`notification-${notificationId}`);
 
-            const success = await markAsRead(notificationId);
-
-            if (success && item) {
-                item.remove();
-                updateBadgeCount();
-                renderEmptyStateIfNeeded();
-            }
-
+            markAsRead(notificationId).then(success => {
+                if (success && item) {
+                    item.remove();
+                    updateBadgeCount();
+                    renderEmptyStateIfNeeded();
+                }
+            });
             return;
         }
 
@@ -116,11 +106,19 @@ export default function initNotificationsMenu() {
             const notificationId = item.dataset.notificationId;
             const targetUrl = item.dataset.url;
 
-            const success = await markAsRead(notificationId);
+            markAsRead(notificationId).then(success => {
+                if (success) {
+                    window.location.href = targetUrl;
+                }
+            });
+        }
+    });
 
-            if (success) {
-                window.location.href = targetUrl;
-            }
+    settingsOverlay?.addEventListener('click', closeMenu);
+
+    document.addEventListener('click', (e) => {
+        if (!notificationsMenuContent.classList.contains('hidden')) {
+            closeMenu();
         }
     });
 }

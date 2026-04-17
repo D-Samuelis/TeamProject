@@ -3,14 +3,22 @@ export default function initProfileMenu() {
     const content = document.getElementById('profileMenuContent');
     const overlay = document.getElementById('settingsOverlay');
     const navNotif = document.getElementById('notificationsMenu');
+
+    const notificationsMenuButton = document.getElementById('notificationsMenu');
     
     const info = document.getElementById('profileInfo');
     const icon = document.getElementById('profileIcon');
 
     if (!profileMenuButton || !content) return;
 
-    let isHoveringButton = false;
-    let isHoveringContent = false;
+    function toggleProfile() {
+        const isHidden = content.classList.contains('hidden');
+        if (isHidden) {
+            showProfile();
+        } else {
+            hideProfile();
+        }
+    }
 
     function showProfile() {
         content.classList.remove('hidden');
@@ -19,6 +27,8 @@ export default function initProfileMenu() {
         
         info?.classList.add('profile-wanish');
         icon?.classList.add('profile-move-icon');
+
+        notificationsMenuButton.classList.add('hidden');
     }
 
     function hideProfile() {
@@ -28,33 +38,24 @@ export default function initProfileMenu() {
 
         info?.classList.remove('profile-wanish');
         icon?.classList.remove('profile-move-icon');
+
+        notificationsMenuButton.classList.remove('hidden');
     }
 
-    // Hover icon
-    profileMenuButton.addEventListener('mouseenter', () => {
-        isHoveringButton = true;
-        showProfile();
+    profileMenuButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleProfile();
     });
 
-    profileMenuButton.addEventListener('mouseleave', () => {
-        isHoveringButton = false;
-        
-        setTimeout(() => {
-            if (!isHoveringContent) hideProfile();
-        }, 50); 
+    content.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 
-    // Hover content
-    content.addEventListener('mouseenter', () => {
-        isHoveringContent = true;
-        showProfile();
-    });
-
-    content.addEventListener('mouseleave', () => {
-        isHoveringContent = false;
-        if (!isHoveringButton) hideProfile();
-    });
-
-    // Close on overlay click
     overlay?.addEventListener('click', hideProfile);
+
+    document.addEventListener('click', (e) => {
+        if (!content.classList.contains('hidden')) {
+            hideProfile();
+        }
+    });
 }
