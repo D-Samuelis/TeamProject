@@ -3,7 +3,7 @@
     gap: 1rem;
     align-items: center;
     justify-content: space-between;
-    font-family: 'Inter-SemiBold';
+    font-family: 'Inter-SemiBold', sans-serif;  
 }
 
 .calendar__select {
@@ -13,6 +13,7 @@
     font-size: var(--font-size-base);
     cursor: pointer;
     outline: none;
+    transition: color 0.2s ease;
 }
 
 .calendar__select:focus {
@@ -26,44 +27,47 @@
     font-family: 'Inter-Regular', sans-serif;
 }
 
-.calendar__header {
+/* --- Grid Structure --- */
+.calendar__header,
+.calendar__grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); 
-    gap: .1rem;
-    margin-top: .5rem;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar__header {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     border-top: 1px solid var(--color-border-light);
 }
 
+/* --- Base Cell Styles --- */
+.calendar__cell,
 .calendar__weekday {
     aspect-ratio: 1 / 1;
     width: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: .15rem;
-    color: var(--color-text-unimportant);
+    border-radius: .2rem;
+    font-size: 1rem;
 }
 
-.calendar__grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr); 
-    gap: .1rem;
+.calendar__weekday {
+    color: var(--color-text-unimportant);
+    font-family: 'Inter-Medium', sans-serif;
 }
 
 .calendar__cell {
-    aspect-ratio: 1 / 1;
-    width: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: .15rem;
+    position: relative;
     cursor: pointer;
-    transition: background-color .2s;
-    font-family: 'Inter-Medium', sans-serif;
     color: var(--color-text);
+    font-family: 'Inter-Medium', sans-serif;
+    transition: all 0.2s ease;
 }
 
-.calendar__cell:hover {
+/* --- Interactive States --- */
+.calendar__cell:hover:not(.calendar__cell--empty) {
     background-color: var(--color-primary-hover);
     color: var(--color-white);
 }
@@ -74,10 +78,34 @@
 }
 
 .calendar__cell--active {
-    background-color: var(--color-primary);
+    background-color: var(--color-primary) !important;
     color: var(--color-text-white) !important;
+    font-family: 'Inter-SemiBold', sans-serif;
 }
 
-.calendar__cell--today {
+.calendar__cell--in-range {
+    background-color: rgba(99, 102, 241, 0.15);
+    color: var(--color-primary);
+}
+
+.calendar__cell--hover-range {
+    background-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+.calendar__cell--today:not(.calendar__cell--active) {
     border: 1px solid var(--color-primary);
+}
+
+.calendar__cell-dot {
+    width: 12px;
+    height: 2px;
+    background-color: var(--color-primary);
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.calendar__cell--active .calendar__cell-dot {
+    background-color: var(--color-text-white);
 }
