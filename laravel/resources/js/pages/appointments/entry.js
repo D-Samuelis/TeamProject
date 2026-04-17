@@ -7,14 +7,12 @@ import { initAppointmentDetailModal } from './modals/initAppointmentDetailModal.
 import { initAppointmentWatchers } from './watcher.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI Components
     initCalendar();
     initCalendarFilters();
     initStatusFilters();
-    initCollapsibleList('filterList');
-    initViewToggle(); 
+    initViewToggle();
     initAppointmentDetailModal();
+    initCollapsibleList('filterList');
 
-    // Logic & Event Watchers
-    initAppointmentWatchers();
+    initAppointmentWatchers(); 
 });
