@@ -1,38 +1,46 @@
-/* --- BLOCK: Profile (Trigger) --- */
 .profile {
     position: relative;
     display: inline-block;
 }
 
 .profile__button {
-    position: relative;
-    width: 10rem;
-    height: 2.5rem;
-    cursor: pointer;
     background: transparent;
     border: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 .profile__card {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    width: 100%;
-    height: 100%;
+    gap: 0.75rem;
+    height: 3rem;
+    padding: 0 0.5rem;
     color: var(--color-text);
     font-size: var(--font-size-small);
-    transition: color 0.2s ease;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
 }
 
-.profile__icon {
+.profile__user-icon {
+    font-size: 1.1rem;
+    color: var(--color-text-unimportant);
+    transition: color 0.2s ease;
     display: flex;
-    justify-content: center;
     align-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: .0625rem solid var(--color-primary);
-    background-color: var(--color-bg-complement);
+}
+
+.profile__card:hover {
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.profile__card:hover .profile__user-icon,
+.profile__card:hover .profile__name {
+    color: var(--color-primary);
+}
+
+.profile__card:hover .profile__role {
+    color: var(--color-text-unimportant-dark);
 }
 
 .profile__info {
@@ -44,6 +52,7 @@
 
 .profile__name {
     font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .profile__role {
@@ -51,23 +60,25 @@
     color: var(--color-text-unimportant);
 }
 
-/* --- BLOCK: Profile Menu (Dropdown) --- */
 .profile-menu {
     position: absolute;
-    top: -0.1rem;
-    right: 0rem;
+    top: .5rem;
+    right: 0;
     background-color: var(--color-bg-complement);
     min-width: 25rem;
-    z-index: -1;
+    z-index: 50;
     border-radius: 0.5rem;
     color: var(--color-text-unimportant-dark);
-    padding: .75rem 1rem 2rem 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border-light-very);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    animation: dropdownReveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .profile-menu__title {
-    margin-bottom: 1rem;
     font-size: var(--font-size-base);
     color: var(--color-text);
+    margin-bottom: 0.5rem;
 }
 
 .profile-menu__overview {
@@ -85,7 +96,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: .0625rem solid var(--color-primary);
+    border: 1px solid var(--color-primary);
     background-color: var(--color-bg-complement);
 }
 
@@ -113,7 +124,7 @@
 }
 
 .profile-menu__divider {
-    height: .0625rem;
+    height: 1px;
     background-color: var(--color-border-light);
     margin: 1rem 0;
 }
@@ -147,16 +158,26 @@
     cursor: pointer;
 }
 
-/* --- Animations --- */
+.profile-menu.hidden {
+    display: none;
+}
+
 .profile-wanish {
     opacity: 0;
-    transform: translateX(7.5rem);
-    transition: all 0.45s ease-out;
     pointer-events: none;
 }
 
-.profile-move-icon {
-    position: absolute;
-    transform: translateX(7.5rem);
-    transition: transform 0.45s ease-out;
+.profile.is-active {
+    z-index: 201;
+}
+
+@keyframes dropdownReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-10px); /* Začne o 10px vyššie */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);    /* Skončí na pôvodnom mieste */
+    }
 }

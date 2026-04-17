@@ -5,7 +5,7 @@
 
 .timeline__appointment {
     position: absolute;
-    z-index: 100;
+    z-index: 30;
     border-radius: .15rem;
     overflow: hidden;
     border: 1px solid var(--color-border-light);

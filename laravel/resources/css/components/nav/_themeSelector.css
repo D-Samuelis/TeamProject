@@ -14,7 +14,7 @@
     height: 2.5rem;
     border: none;
     background: transparent;
-    color: var(--color-text);
+    color: var(--color-text-unimportant);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -24,13 +24,18 @@
 }
 
 .theme-toggle__btn:hover {
-    color: var(--color-primary);
+    color: var(--color-text);
+}
+
+.theme-toggle__btn.is-active {
+    color: var(--color-text-white) !important;
 }
 
 .theme-toggle__slider {
     position: absolute;
-    left: .1rem;
-    width: calc((100% - .15rem) / 3);
+    top: 0;
+    left: 0; 
+    width: 33.333%;
     height: 100%;
     background: var(--color-primary-hover);
     border-radius: .1rem;
