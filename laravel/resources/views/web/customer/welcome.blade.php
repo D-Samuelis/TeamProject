@@ -5,7 +5,8 @@
 @section('content')
 <div class="welcome">
     <div class="welcome__hero">
-        <h1 class="welcome__title">Your effortless bookings.</h1>
+        <h1 class="welcome__title">Book an appointment.</h1>
+        <input id="aiBookingInput" type="text" class="welcome__input" placeholder="">
     </div>
 
     <div class="welcome__actions">
