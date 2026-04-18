@@ -1,6 +1,7 @@
 import json
 import uuid
 import os
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Header
@@ -50,6 +51,90 @@ def mcp_tool_to_openai(tool) -> dict:
     }
 
 
+# ── Navigation helpers ────────────────────────────────────────────────────────
+
+TOOL_ENTITY_MAP = {
+    "list-services-tool":   "service",
+    "list-businesses-tool": "business",
+    "list-branches-tool":   "branch",
+}
+
+
+def _parse_entities(result_text: str, entity_type: str) -> list[dict]:
+    stripped = result_text.strip()
+    record_boundary = re.compile(rf'(?={re.escape(entity_type)} id\s*:)', re.IGNORECASE)
+    raw_records = [r.strip() for r in record_boundary.split(stripped) if r.strip()]
+    if not raw_records:
+        raw_records = [stripped]
+
+    entities = []
+    kv_pattern = re.compile(r'[\w\s]+:\s*[^,\n]+')
+
+    for record in raw_records:
+        pairs: dict[str, str] = {}
+        for match in kv_pattern.finditer(record):
+            token = match.group(0).strip().rstrip(",")
+            if ":" not in token:
+                continue
+            key, _, value = token.partition(":")
+            key = re.sub(rf'^{re.escape(entity_type)} ', "", key.strip().lower())
+            pairs[key] = value.strip()
+
+        if eid := pairs.get("id"):
+            entities.append({
+                "id":          eid,
+                "name":        pairs.get("name") or eid,
+                "business_id": pairs.get("business_id"),
+            })
+
+    return entities
+
+
+
+def build_navigations(steps: list[dict]) -> list[dict]:
+    seen: dict[tuple, dict] = {}
+
+    for step in steps:
+        entity_type = TOOL_ENTITY_MAP.get(step.get("tool", ""))
+        if not entity_type:
+            continue
+
+        for entity in _parse_entities(step.get("result", ""), entity_type):
+            eid = entity["id"]
+            url = _build_url(entity_type, eid, entity.get("business_id"))
+            if url is None:
+                continue
+
+            seen[(entity_type, eid)] = {
+                "type":  entity_type,
+                "id":    eid,
+                "name":  entity["name"],
+                "url":   url,
+                "label": f"View {entity['name']}",
+            }
+
+    return list(seen.values())
+
+
+def _build_url(entity_type: str, entity_id: str, business_id_ctx: str | None) -> str | None:
+    """Build the frontend URL for an entity."""
+    match entity_type:
+        case "business":
+            return f"/book/business/{entity_id}"
+        case "service":
+            if business_id_ctx is None:
+                return None  # can't build without business scope
+            return f"/book/business/{business_id_ctx}/service/{entity_id}"
+        case "branch":
+            if business_id_ctx is None:
+                return None
+            return f"/book/business/{business_id_ctx}?branch_id={entity_id}"
+        case _:
+            return None
+
+
+# ── Agent ─────────────────────────────────────────────────────────────────────
+
 async def agent_turn(messages: list, token: str) -> dict:
     steps = []
 
@@ -67,7 +152,7 @@ async def agent_turn(messages: list, token: str) -> dict:
                 response = client.chat.completions.create(
                     model=MODEL,
                     messages=full_messages,
-                    tools=tools or None,  # OpenAI errors if tools=[]
+                    tools=tools or None,
                     tool_choice="auto",
                 )
 
@@ -76,7 +161,12 @@ async def agent_turn(messages: list, token: str) -> dict:
                 messages.append(msg)
 
                 if not msg.tool_calls:
-                    return {"reply": msg.content or "", "steps": steps}
+                    navigations = build_navigations(steps)
+                    return {
+                        "reply":       msg.content or "",
+                        "steps":       steps,
+                        "navigations": navigations,
+                    }
 
                 for tc in msg.tool_calls:
                     tool_name = tc.function.name
@@ -94,7 +184,11 @@ async def agent_turn(messages: list, token: str) -> dict:
                     }
                     full_messages.append(tool_msg)
                     messages.append(tool_msg)
-                    steps.append({"tool": tool_name, "args": tool_args, "result": result_text})
+                    steps.append({
+                        "tool":   tool_name,
+                        "args":   tool_args,
+                        "result": result_text,
+                    })
 
 
 # ── FastAPI app ───────────────────────────────────────────────────────────────
@@ -104,7 +198,12 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class NewSessionResponse(BaseModel):
@@ -120,9 +219,17 @@ class ToolStep(BaseModel):
     args: dict
     result: str
 
+class NavigationSuggestion(BaseModel):
+    type:  str          # "business" | "service" | "branch"
+    id:    str
+    name:  str
+    url:   str          # e.g. "/book/business/7/service/41"
+    label: str          # e.g. "View Private Sauna Session"
+
 class ChatResponse(BaseModel):
-    reply: str
-    steps: list[ToolStep] = []
+    reply:       str
+    steps:       list[ToolStep]             = []
+    navigations: list[NavigationSuggestion] = []
 
 
 @app.post("/session", response_model=NewSessionResponse)
@@ -141,7 +248,11 @@ async def chat(req: ChatRequest, authorization: str = Header(...)):
     messages.append({"role": "user", "content": req.message})
 
     turn = await agent_turn(messages, token)
-    return {"reply": turn["reply"], "steps": turn["steps"]}
+    return {
+        "reply":       turn["reply"],
+        "steps":       turn["steps"],
+        "navigations": turn["navigations"],
+    }
 
 @app.delete("/session/{session_id}")
 def delete_session(session_id: str):

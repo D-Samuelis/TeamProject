@@ -1,5 +1,6 @@
 import { sendChat } from "./api.js";
 import { addMessage, setStatus } from "./ui.js";
+import { showNavigations } from "./snackbar.js";
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
 
@@ -49,6 +50,10 @@ export async function handleMessage(sessionId, text, elements) {
 
         addMessage("Bexi", data.reply);
         appendToHistory("assistant", data.reply);
+
+        if (data.navigations?.length) {
+            showNavigations(data.navigations);
+        }
 
     } catch (e) {
         messagesEl.removeChild(thinkingMsg);

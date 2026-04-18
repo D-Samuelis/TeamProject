@@ -73,11 +73,12 @@ class ListBranchesTool extends Tool
 
             return Response::text(
                 $branches->map(function ($item) {
-                    return "id: " . $item['id']
-                        . " name: " . $item['name']
-                        . " city: " . $item['city']
-                        . " address: " . $item['address_line_1'];
-                })
+                    return "branch id: " . $item['id']
+                        . ", branch name: " . $item['name']
+                        . ", branch city: " . $item['city']
+                        . ", branch address: " . $item['address_line_1']
+                        . ", business_id: " . $item['business_id'];
+                })->implode("\n")
             );
         } catch (ValidationException $e) {
             logger()->warning('ListBranchesTool validation failed', ['errors' => $e->errors()]);
