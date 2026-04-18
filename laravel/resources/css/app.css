@@ -21,6 +21,7 @@
 @import "./components/table.css";
 @import "./components/breadcrumbs.css";
 @import "./components/chatbot/index.css";
+@import "./components/overlay.css";
 
 @import "./pages/welcome/index.css";
 @import "./pages/appointments/index.css";

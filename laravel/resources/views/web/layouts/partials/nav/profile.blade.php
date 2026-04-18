@@ -1,12 +1,12 @@
 <div class="profile">
-    <button id="profileButton" class="profile__button">
+        <button id="profileButton" class="profile__button">
         <div class="profile__card">
-            <div class="profile__icon" id="profileIcon">
-                <i class="fa-solid fa-user"></i>
+            <div class="profile__user-icon">
+                <i class="fa-regular fa-user"></i>
             </div>
             <div class="profile__info" id="profileInfo">
                 <div class="profile__name">{{ auth()->user()->name ?? 'Guest User' }}</div>
-                <div class="profile__role">{{ auth()->check() ? 'Client' : '' }}</div>
+                <div class="profile__role">{{ auth()->user()->email ?? 'Email' }}</div>
             </div>
         </div>
     </button>
@@ -15,13 +15,10 @@
 <div class="profile-menu hidden" id="profileMenuContent">
     <h3 class="profile-menu__title">Profile</h3>
 
+    <div class="profile-menu__divider"></div>
+
     <div class="profile-menu__content">
         <div class="profile-menu__overview">
-            <div class="profile-menu__avatar-wrapper">
-                <div class="profile-menu__avatar">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-            </div>
             <div class="profile-menu__user-details">
                 <div class="profile-menu__name">{{ auth()->user()->name ?? 'Guest User' }}</div>
                 <div class="profile-menu__email">{{ auth()->user()->email ?? 'user@gmail.com' }}</div>
@@ -29,7 +26,7 @@
         </div>
 
         <div class="profile-menu__status">
-            <div class="profile-menu__badge">Client</div>
+            <div class="profile-menu__badge">{{ auth()->check() ? 'Client' : '' }}</div>
             <div class="profile-menu__date">Joined:
                 @auth
                     {{ auth()->user()->created_at->format('d.m.Y') }}

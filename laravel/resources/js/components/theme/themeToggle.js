@@ -25,6 +25,8 @@ export default function initTheme() {
     function moveSliderTo(theme) {
         const index = { light: 0, dark: 1, system: 2 }[theme] ?? 2;
         slider.style.transform = `translateX(${index * 100}%)`;
+        
+        buttons.forEach((btn, i) => btn.classList.toggle('is-active', i === index));
     }
 
     function loadInitialTheme() {

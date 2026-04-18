@@ -1,23 +1,40 @@
 .nav-main {
     position: sticky;
     top: 0;
-    padding: 2rem 3rem;
-    z-index: 100;
+    padding: 1.5rem 3rem;
+    padding-bottom: 1rem;
+    z-index: 48;
+    transition: background 0.3s ease;
+}
+
+.nav-main.nav-focus-mode {
+    z-index: 201;
+}
+
+.nav-main.nav-focus-mode .nav-main__logo,
+.nav-main.nav-focus-mode .nav-main__items > div:not(.is-active) {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .nav-main__container {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .nav-main__logo {
     font-size: var(--font-size-logo);
     font-family: Novelin-Light, sans-serif;
-    font-weight: 100;
+    font-weight: 500;
     color: var(--color-text);
     text-decoration: none;
     letter-spacing: .5rem;
+    flex-shrink: 0;
 }
 
 .nav-main__logo span {
@@ -25,11 +42,21 @@
 }
 
 .nav-main__items {
-    position: absolute;
-    right: 3rem;
     display: flex;
     align-items: center;
-    gap: 2.5rem;
+    gap: 2rem;
     flex-shrink: 0;
-    z-index: 0;
+    position: relative;
+    z-index: 101;
+}
+
+#settingsOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 200;
 }

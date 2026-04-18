@@ -77,13 +77,6 @@
     color: var(--color-primary);
 }
 
-.display-column {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
-}
-
 .public-business-detail__main {
     min-width: 0;
     height: 100%;
