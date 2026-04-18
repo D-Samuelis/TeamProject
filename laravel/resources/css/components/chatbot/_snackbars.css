@@ -1,6 +1,6 @@
 #snackbar-stack {
     position: absolute;
-    top: 0;
+    top: 1rem;
     right: calc(100% + 0.75rem);
     display: flex;
     flex-direction: column;
@@ -17,7 +17,6 @@
     overflow: hidden;
     pointer-events: auto;
 
-    /* entry / exit */
     opacity: 0;
     transform: translateX(1rem);
     transition:

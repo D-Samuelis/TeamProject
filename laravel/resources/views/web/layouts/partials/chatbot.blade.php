@@ -4,12 +4,12 @@
     <div id="chat-widget">
         @include('components.ui.snackbars')
 
-
+        {{-- Sidebar panel --}}
         <div id="chat-panel" class="chat-hidden">
             <div id="chat-header">
                 <span>BEXI</span>
                 <span id="status">Loading…</span>
-                <button id="chat-close">✕</button>
+                <button id="chat-close" title="Close sidebar">✕</button>
             </div>
             <div id="messages"></div>
             <div id="input-bar">
@@ -19,7 +19,9 @@
             </div>
         </div>
 
-        <button id="chat-toggle">🤖</button>
+        <button id="chat-toggle" title="Open BEXI assistant">
+            <span id="chat-toggle-label">Ask BEXI</span>
+        </button>
     </div>
 
     @vite('resources/js/chatbot/main.js')

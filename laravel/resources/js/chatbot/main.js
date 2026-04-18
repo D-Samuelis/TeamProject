@@ -9,19 +9,32 @@ const sendBtn    = document.getElementById("send-btn");
 const statusEl   = document.getElementById("status");
 const messagesEl = document.getElementById("messages");
 const clearBtn   = document.getElementById("clear-btn");
-const panel      = document.getElementById('chat-panel');
+const panel      = document.getElementById("chat-panel");
+const widget     = document.getElementById("chat-widget");
 
-const wasOpen = sessionStorage.getItem('bexi-open') === 'true';
+function openSidebar() {
+    panel.classList.remove("chat-hidden");
+    widget.classList.remove("sidebar-closed");
+    document.body.classList.add("sidebar-open");
+    sessionStorage.setItem("bexi-open", "true");
+}
 
-if (wasOpen) panel.classList.remove('chat-hidden');
-document.getElementById('chat-toggle').addEventListener('click', () => {
-    const isHidden = panel.classList.toggle('chat-hidden');
-    sessionStorage.setItem('bexi-open', !isHidden);
-});
-document.getElementById('chat-close').addEventListener('click', () => {
-    panel.classList.add('chat-hidden');
-    sessionStorage.setItem('bexi-open', 'false');
-});
+function closeSidebar() {
+    panel.classList.add("chat-hidden");
+    widget.classList.add("sidebar-closed");
+    document.body.classList.remove("sidebar-open");
+    sessionStorage.setItem("bexi-open", "false");
+}
+
+const wasOpen = sessionStorage.getItem("bexi-open") === "true";
+if (wasOpen) {
+    openSidebar();
+} else {
+    widget.classList.add("sidebar-closed");
+}
+
+document.getElementById("chat-toggle").addEventListener("click", openSidebar);
+document.getElementById("chat-close").addEventListener("click", closeSidebar);
 
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
@@ -36,7 +49,7 @@ async function init() {
             sessionId = sd.session_id;
             localStorage.setItem(storageKey("chat_session_id"), sessionId);
         } else {
-            const history = JSON.parse(localStorage.getItem(storageKey("chat_history")) || "[]")
+            const history = JSON.parse(localStorage.getItem(storageKey("chat_history")) || "[]");
             for (const msg of history) {
                 if (msg.role === "user") {
                     addMessage("You", msg.content);
@@ -60,7 +73,6 @@ async function init() {
 sendBtn.addEventListener("click", () => {
     const text = inputEl.value.trim();
     if (!text || !sessionId) return;
-
     handleMessage(sessionId, text, { sendBtn, inputEl, statusEl, messagesEl });
 });
 
@@ -76,8 +88,7 @@ clearBtn?.addEventListener("click", () => {
 });
 
 window.bexiOpenAndSend = (text) => {
-    panel.classList.remove('chat-hidden');
-    sessionStorage.setItem('bexi-open', 'true');
+    openSidebar();
 
     if (!sessionId) {
         const poll = setInterval(() => {
