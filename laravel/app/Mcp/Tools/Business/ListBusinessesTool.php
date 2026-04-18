@@ -87,10 +87,10 @@ class ListBusinessesTool extends Tool
 
             return Response::text(
                 $businesses->map(function ($item) {
-                    return "id: " . $item['id']
-                        . " name: " . $item['name']
-                        . " description: " . $item['description'];
-                })
+                    return "business id: " . $item['id']
+                        . ", business name: " . $item['name']
+                        . ", business description: " . $item['description'];
+                })->implode("\n")
             );
         } catch (ValidationException $e) {
             logger()->warning('ListBusinessesTool validation failed', ['errors' => $e->errors()]);

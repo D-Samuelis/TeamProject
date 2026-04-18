@@ -26,6 +26,7 @@ document.getElementById('chat-close').addEventListener('click', () => {
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
 }
+
 async function init() {
     try {
         sessionId = localStorage.getItem(storageKey("chat_session_id"));
@@ -45,8 +46,7 @@ async function init() {
             }
         }
 
-        const td    = await getTools();
-        const names = td.tools;
+        await getTools();
 
         setStatus(statusEl, "I'm ready!");
         sendBtn.disabled = false;
@@ -61,12 +61,7 @@ sendBtn.addEventListener("click", () => {
     const text = inputEl.value.trim();
     if (!text || !sessionId) return;
 
-    handleMessage(sessionId, text, {
-        sendBtn,
-        inputEl,
-        statusEl,
-        messagesEl
-    });
+    handleMessage(sessionId, text, { sendBtn, inputEl, statusEl, messagesEl });
 });
 
 inputEl.addEventListener("keydown", e => {
@@ -79,5 +74,21 @@ inputEl.addEventListener("keydown", e => {
 clearBtn?.addEventListener("click", () => {
     clearHistory(sessionId);
 });
+
+window.bexiOpenAndSend = (text) => {
+    panel.classList.remove('chat-hidden');
+    sessionStorage.setItem('bexi-open', 'true');
+
+    if (!sessionId) {
+        const poll = setInterval(() => {
+            if (!sessionId) return;
+            clearInterval(poll);
+            handleMessage(sessionId, text, { sendBtn, inputEl, statusEl, messagesEl });
+        }, 100);
+        return;
+    }
+
+    handleMessage(sessionId, text, { sendBtn, inputEl, statusEl, messagesEl });
+};
 
 init();

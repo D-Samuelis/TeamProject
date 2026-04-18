@@ -2,6 +2,8 @@
     <meta name="user-id" content="{{ auth()->id() }}">
 
     <div id="chat-widget">
+        <div id="snackbar-stack"></div>
+
         <div id="chat-panel" class="chat-hidden">
             <div id="chat-header">
                 <span>BEXI</span>

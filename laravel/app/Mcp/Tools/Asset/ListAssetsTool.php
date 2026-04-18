@@ -66,8 +66,10 @@ class ListAssetsTool extends Tool
 
             return Response::text(
                 $assets->map(function ($item) {
-                    return "id: " . $item['id'] . " name: " . $item['name'] . " description: " . $item['description'];
-                })
+                    return "asset id: " . $item['id']
+                        . ", asset name: " . $item['name']
+                        . ", asset description: " . $item['description'];
+                })->implode("\n")
             );
         } catch (ValidationException $e) {
             logger()->warning('ListAssetsTool validation failed', ['errors' => $e->errors()]);
