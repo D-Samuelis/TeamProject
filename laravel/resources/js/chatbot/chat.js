@@ -2,8 +2,6 @@ import { sendChat } from "./api.js";
 import { addMessage, setStatus } from "./ui.js";
 import { showNavigations } from "./snackbar.js";
 
-// ── localStorage helpers ──────────────────────────────────────────────────────
-
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
 }
@@ -27,8 +25,6 @@ export function clearHistory(sessionId) {
     }
     location.reload();
 }
-
-// ── Chat handler ──────────────────────────────────────────────────────────────
 
 export async function handleMessage(sessionId, text, elements) {
     const { sendBtn, inputEl, statusEl, messagesEl } = elements;
