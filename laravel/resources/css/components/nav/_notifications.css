@@ -53,7 +53,7 @@
 .notifications-menu {
     position: absolute;
     top: .5rem;
-    right: -2rem;
+    right: -12rem;
     background-color: var(--color-bg-complement);
     min-width: 25rem;
     z-index: 50;
@@ -166,8 +166,8 @@
     text-decoration: underline;
 }
 
-.notifications-menu.hidden {
-    display: none;
+.notifications-menu.vanished {
+    display: hidden!important;
 }
  
 .notifications.is-active {

@@ -29,6 +29,10 @@ body {
     display: none !important;
 }
 
+.vanished {
+    visibility: hidden!important;
+}
+
 .debug-text {
     font-size: inherit;
     color: var(--color-red);
