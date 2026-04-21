@@ -25,14 +25,14 @@ export default function initNotificationsMenu() {
         notificationsMenuContent.classList.remove('hidden');
         settingsOverlay?.classList.remove('hidden');
 
-        profileMenuButton.classList.add('hidden');
+        profileMenuButton.classList.add('vanished');
     }
 
     function closeMenu() {
         notificationsMenuContent.classList.add('hidden');
         settingsOverlay?.classList.add('hidden');
 
-        profileMenuButton.classList.remove('hidden');
+        profileMenuButton.classList.remove('vanished');
     }
 
     function updateBadgeCount() {

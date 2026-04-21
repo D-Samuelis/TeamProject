@@ -28,7 +28,7 @@ export default function initProfileMenu() {
         info?.classList.add('profile-wanish');
         icon?.classList.add('profile-move-icon');
 
-        notificationsMenuButton.classList.add('hidden');
+        notificationsMenuButton.classList.add('vanished');
     }
 
     function hideProfile() {
@@ -39,7 +39,7 @@ export default function initProfileMenu() {
         info?.classList.remove('profile-wanish');
         icon?.classList.remove('profile-move-icon');
 
-        notificationsMenuButton.classList.remove('hidden');
+        notificationsMenuButton.classList.remove('vanished');
     }
 
     profileMenuButton.addEventListener('click', (e) => {

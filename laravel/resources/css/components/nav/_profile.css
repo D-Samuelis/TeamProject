@@ -19,7 +19,6 @@
     color: var(--color-text);
     font-size: var(--font-size-small);
     border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
 }
 
 .profile__user-icon {
@@ -158,13 +157,8 @@
     cursor: pointer;
 }
 
-.profile-menu.hidden {
-    display: none;
-}
-
-.profile-wanish {
-    opacity: 0;
-    pointer-events: none;
+.profile-menu.vanished {
+    display: hidden!important;
 }
 
 .profile.is-active {
