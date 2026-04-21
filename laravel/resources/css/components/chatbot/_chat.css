@@ -4,22 +4,43 @@
     gap: 0.6rem;
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--color-border-light);
-    background-color: var(--color-primary);
+    background-color: var(--color-bg-complement-v2);
     flex-shrink: 0;
+    justify-content: space-between;
 }
 
-#chat-header span:first-child {
-    font-size: 0.98rem;
-    font-weight: 700;
-    color: var(--color-text-white);
-    letter-spacing: 0.03em;
+#chat-header .chat__title {
+    font-size: 1.15rem;
+    color: var(--color-text);
+    letter-spacing: .15rem;
     margin-right: auto;
 }
 
+#chat-header .chat__tagline {
+    font-size: 0.8rem;
+    color: var(--color-text-unimportant);
+    letter-spacing: .1rem;
+    margin-right: auto;
+}
+
+.chat__status-container {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-bg-complement-v2);
+    border-bottom: 1px solid var(--color-border-light);
+    font-size: .85rem;
+}
+
+.chat__status-label {
+    color: var(--color-text-unimportant);
+}
+
 #status {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--color-text-unimportant-dark);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -32,9 +53,9 @@
     height: 1.75rem;
     border-radius: 0.45rem;
     border: none;
-    background-color: rgba(255, 255, 255, 0.15);
-    color: var(--color-text-white);
-    font-size: 0.82rem;
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -45,7 +66,7 @@
 }
 
 #chat-close:hover {
-    background-color: rgba(255, 255, 255, 0.28);
+    color: var(--color-danger);
 }
 
 #messages {
@@ -55,7 +76,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    background-color: var(--color-bg);
+    background-color: var(--color-bg-complement-v2);
     scroll-behavior: smooth;
     align-items: flex-start;
 }
@@ -181,7 +202,7 @@
     align-items: flex-end;
     padding: 0.75rem;
     border-top: 1px solid var(--color-border-light);
-    background-color: var(--color-bg);
+    background-color: var(--color-bg-complement-v2);
     flex-shrink: 0;
 }
 
@@ -210,9 +231,9 @@
 
 #send-btn,
 #clear-btn {
-    height: 4rem;
+    height: 2rem;
     padding: 0 0.9rem;
-    border-radius: 0.6rem;
+    border-radius: 0.25rem;
     border: 1px solid var(--color-border-light);
     font-size: 0.85rem;
     font-weight: 600;
@@ -238,7 +259,7 @@
 #send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 #clear-btn {
-    background-color: var(--color-bg-complement);
+    background-color: var(--color-bg);
     color: var(--color-text-unimportant-dark);
 }
 

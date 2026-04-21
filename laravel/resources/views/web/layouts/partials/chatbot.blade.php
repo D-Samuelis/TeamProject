@@ -7,15 +7,25 @@
         {{-- Sidebar panel --}}
         <div id="chat-panel" class="chat-hidden">
             <div id="chat-header">
-                <span>BEXI</span>
-                <span id="status">Loading…</span>
+                <div class="display-row">
+                    <div class="display-column">
+                        <span class="chat__title">BEXI</span>
+                        <span class="chat__tagline">Effortless booking AI</span>
+                    </div>
+                </div>
                 <button id="chat-close" title="Close sidebar">✕</button>
+            </div>
+            <div class="chat__status-container">
+                <p class="chat__status-label">Status:</p>
+                <span id="status">Loading…</span>
             </div>
             <div id="messages"></div>
             <div id="input-bar">
                 <textarea id="msg-input" placeholder="Message…"></textarea>
-                <button id="send-btn">Send</button>
-                <button id="clear-btn">Clear</button>
+                <div class="display-column">
+                    <button id="send-btn">Send</button>
+                    <button id="clear-btn">Clear</button>
+                </div>
             </div>
         </div>
 
