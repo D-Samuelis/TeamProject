@@ -329,18 +329,24 @@
                 const branchId   = this.getAttribute('data-branch-id');
                 const branchName = this.querySelector('.member-name').innerText;
 
+                const url = new URL(window.location);
+                if (branchId) {
+                    url.searchParams.set('branch', branchId);
+                } else {
+                    url.searchParams.delete('branch');
+                }
+                window.history.replaceState({}, '', url);
+
                 filterItems.forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
 
                 titleHeader.innerText = filter === 'all' ? 'Business Overview' : 'Branch: ' + branchName;
 
-                // Toggle Header Actions
                 headerActions.style.display = (filter === 'all') ? 'none' : 'flex';
                 actionGroups.forEach(g => {
                     g.style.display = g.getAttribute('data-branch-id') === branchId ? 'flex' : 'none';
                 });
 
-                // Filter Members & Services
                 members.forEach(m => {
                     const belongs = m.getAttribute('data-belongs-to');
                     m.style.display = (filter === 'all' || belongs === filter || belongs === 'all') ? 'flex' : 'none';
@@ -352,6 +358,13 @@
                 });
             });
         });
+
+        const params = new URLSearchParams(window.location.search);
+        const branchParam = params.get('branch');
+        if (branchParam) {
+            const branchItem = document.querySelector(`.branch-filter-item[data-branch-id="${branchParam}"]`);
+            if (branchItem) branchItem.click();
+        }
     });
 </script>
 
