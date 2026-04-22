@@ -10,12 +10,6 @@ export function initProfileEditValidator() {
             required: { value: true, message: "Email address is required" },
             isEmail: { value: true, message: "This email format is incorrect" },
         },
-        country: {
-            required: { value: true, message: "Country is a required field" },
-        },
-        city: {
-            required: { value: true, message: "City is a required field" },
-        },
         phone_number: {
             isPhone: { value: true, message: "Format: +421 9xx xxx xxx" },
         },
@@ -42,9 +36,9 @@ export function initProfileEditValidator() {
         if (!rules) return true;
 
         const value = input.value.trim();
-        const group = input.closest(".auth-form__group, .form__group");
+        const group = input.closest(".auth-form__group, .form__group, .modal-form__group");
         const errorDiv = group?.querySelector(
-            ".invalid-input-field, .form-error",
+            ".invalid-input-field, .form-error, .modal-form__error",
         );
 
         const show = (msg) => {
@@ -95,7 +89,7 @@ export function initProfileEditValidator() {
             const target = form.querySelector(
                 `input[name="${rules.match.value}"]`,
             );
-            if (target && value !== target.value) {
+            if (target && (value || target.value) && value !== target.value) {
                 show(rules.match.message);
                 return false;
             }
