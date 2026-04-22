@@ -92,6 +92,10 @@
     padding-top: 0;
 }
 
+.profile-page .business__header-wrapper {
+    grid-template-columns: 0 minmax(0, 1fr);
+}
+
 .profile-page .business__header-info {
     min-width: 0;
 }

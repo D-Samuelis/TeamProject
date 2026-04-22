@@ -59,11 +59,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="business__header-right">
-                    <div class="business__header-right-section_1"></div>
-                    <div class="business__header-right-section_2"></div>
-                </div>
             </header>
 
             <div class="profile-page__body">
