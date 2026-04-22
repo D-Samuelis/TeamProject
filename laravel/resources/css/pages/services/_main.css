@@ -1,0 +1,32 @@
+.combobox-multi-tags {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.combobox-tag {
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--color-primary);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border-radius: .2rem;
+    padding: .2rem .5rem;   
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.combobox-tag button {
+    background: none;
+    border: none;
+    color: var(--color-danger);
+    cursor: pointer;
+    padding: 0;
+    font-size: 20px;
+}
+
+.combobox-tag button:hover { 
+    color: var(--color-danger-hover);
+}

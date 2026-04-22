@@ -76,21 +76,25 @@
     </div>
 </div>
 
-<script>
-    window.BE_DATA = {
-        // Zlúčime aktívne a vymazané služby (soft deletes)
-        services: @json($services->merge($deletedServices ?? [])),
-        routes: {
-            store: "{{ route('manage.service.store') }}",
-            restore: "{{ route('manage.service.restore', ':id') }}",
-            delete: "{{ route('manage.service.delete', ':id') }}",
-            update: "{{ route('manage.service.update', ':id') }}",
-            show: "{{ route('manage.service.show', ':id') }}"
-        },
-        csrf: "{{ csrf_token() }}"
-    };
+@php
+    $beData = json_encode([
+        'services'   => $services->merge($deletedServices ?? []),
+        'businesses' => $businesses->map(function($b) { return ['id' => $b->id, 'name' => $b->name]; })->values(),
+        'branches'   => $branches->map(function($b) { return ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id]; })->values(),
+        'routes'     => [
+            'store'   => route('manage.service.store'),
+            'restore' => route('manage.service.restore', ':id'),
+            'delete'  => route('manage.service.delete', ':id'),
+            'update'  => route('manage.service.update', ':id'),
+            'show'    => route('manage.service.show', ':id'),
+        ],
+        'csrf' => csrf_token(),
+    ]);
+@endphp
 
-    console.log(window.BE_DATA['services'][0]); // Debug: Skontrolujte načítanie dát do JS
+<script>
+    window.BE_DATA = {!! $beData !!};
+    console.log(window.BE_DATA.branches[0]);
 </script>
 
 @vite('resources/js/pages/services/entry.js')
