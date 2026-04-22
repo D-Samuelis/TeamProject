@@ -1,65 +1,54 @@
 <?php
 
-namespace App\Application\Auth\DTO;
+namespace App\Application\Branch\DTO;
 
-use App\Http\Requests\Auth\UpdateUserRequest;
+use App\Http\Requests\Branch\UpdateBranchRequest;
 
-class UpdateUserDTO
+class UpdateBranchDTO
 {
     public function __construct(
         public int $id,
         public ?string $name = null,
-        public ?string $email = null,
-        public ?string $password = null,
+        public ?string $type = null,
+        public ?string $address_line_1 = null,
+        public ?string $address_line_2 = null,
         public ?string $city = null,
+        public ?string $postal_code = null,
         public ?string $country = null,
-        public ?string $title_prefix = null,
-        public ?\DateTimeImmutable $birth_date = null,
-        public ?string $title_suffix = null,
-        public ?string $phone_number = null,
-        public ?string $gender = null,
+        public ?bool $is_active = null,
     ) {}
 
     /**
      * Map the request data to the DTO.
      */
-    public static function fromRequest(int $userId, UpdateUserRequest $request): self
+    public static function fromRequest(int $branchId, UpdateBranchRequest $request): self
     {
         $validated = $request->validated();
 
         return new self(
-            id: $userId,
+            id: $branchId,
             name: $validated['name'] ?? null,
-            email: $validated['email'] ?? null,
-            password: $validated['password'] ?? null,
+            type: $validated['type'] ?? null,
+            address_line_1: $validated['address_line_1'] ?? null,
+            address_line_2: $validated['address_line_2'] ?? null,
             city: $validated['city'] ?? null,
+            postal_code: $validated['postal_code'] ?? null,
             country: $validated['country'] ?? null,
-            title_prefix: $validated['title_prefix'] ?? null,
-            birth_date: isset($validated['birth_date'])
-                ? new \DateTimeImmutable($validated['birth_date'])
-                : null,
-            title_suffix: $validated['title_suffix'] ?? null,
-            phone_number: $validated['phone_number'] ?? null,
-            gender: $validated['gender'] ?? null,
+            is_active: $request->has('is_active') ? $request->boolean('is_active') : null,
         );
     }
 
-    /**
-     * Convert to array, filtering out null values.
-     */
     public function toArray(): array
     {
         return array_filter([
             'name' => $this->name,
-            'email' => $this->email,
-            'password' => $this->password,
+            'type' => $this->type,
+            'address_line_1' => $this->address_line_1,
+            'address_line_2' => $this->address_line_2,
             'city' => $this->city,
+            'postal_code' => $this->postal_code,
             'country' => $this->country,
-            'title_prefix' => $this->title_prefix,
-            'birth_date' => $this->birth_date?->format('Y-m-d'),
-            'title_suffix' => $this->title_suffix,
-            'phone_number' => $this->phone_number,
-            'gender' => $this->gender,
+            'is_active' => $this->is_active,
         ], fn($value) => !is_null($value));
     }
 }

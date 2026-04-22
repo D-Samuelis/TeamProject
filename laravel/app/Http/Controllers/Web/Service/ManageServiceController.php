@@ -66,14 +66,22 @@ class ManageServiceController extends Controller
 
     public function assign(int $serviceId, int $branchId, AssignServiceToBranch $useCase)
     {
-        $useCase->execute($serviceId, $branchId, Auth::user());
+        try {
+            $useCase->execute($serviceId, $branchId, Auth::user());
+        } catch (\DomainException $exception) {
+            return redirect()->route('manage.service.show', $serviceId)->with('error', $exception->getMessage());
+        }
         return redirect()->route('manage.service.show', $serviceId)->with('success', 'Service assigned to branch.');
     }
 
     public function unassign(int $serviceId, int $branchId, UnassignServiceFromBranch $useCase)
     {
-        $useCase->execute($serviceId, $branchId, Auth::user());
-        return redirect()->route('manage.branch.show', $branchId)->with('success', 'Service removed from branch.');
+        try {
+            $useCase->execute($serviceId, $branchId, Auth::user());
+        } catch (\Exception $exception) {
+            return redirect()->route('manage.service.show', $serviceId)->with('error', $exception->getMessage());
+        }
+        return redirect()->route('manage.service.show', $serviceId)->with('success', 'Service removed from branch.');
     }
 
     public function book(int $serviceId, GetService $useCase)
