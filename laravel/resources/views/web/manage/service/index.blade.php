@@ -1,76 +1,101 @@
-{{-- resources/views/pages/private/service/index.blade.php --}}
+@extends('web.layouts.app')
 
-@if (session('success'))
-    <p style="color:green;">{{ session('success') }}</p>
-@endif
+@section('title', 'Bexora | My Services')
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <h1>Services</h1>
-    <button onclick="openModal('createServiceModal')">+ New Service</button>
-</div>
-
-@forelse($services as $service)
-    <div
-        style="border:1px solid #ddd;border-radius:6px;padding:1rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-            <a href="{{ route('manage.service.show', $service->id) }}"
-                style="font-weight:500;{{ $service->trashed() ? 'text-decoration:line-through;color:#991b1b;' : '' }}">{{ $service->name }}</a>
-            <span style="font-size:12px;color:#888;margin-left:8px;">{{ $service->duration_minutes }}min</span>
-            <span style="font-size:12px;color:#aaa;margin-left:4px;">· €{{ number_format($service->price, 2) }}</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-            <span
-                style="font-size:12px;padding:2px 8px;border-radius:20px;background:{{ $service->is_active ? '#d1fae5' : '#fee2e2' }};color:{{ $service->is_active ? '#065f46' : '#991b1b' }};">
-                {{ $service->is_active ? 'Active' : 'Inactive' }}
-            </span>
-            @if ($service->trashed())
-                @can('restore', $service)
-                    <form method="POST" action="{{ route('manage.service.restore', $service->id) }}">
-                        @csrf @method('PATCH')
-                        <button type="submit"
-                            style="color:#2563eb;background:none;border:none;cursor:pointer;font-size:13px;">Restore</button>
-                    </form>
-                @endcan
-            @else
-                @can('delete', $service)
-                    <form method="POST" action="{{ route('manage.service.delete', $service->id) }}"
-                        onsubmit="return confirm('Delete this service?')">
-                        @csrf @method('DELETE')
-                        <button type="submit"
-                            style="color:red;background:none;border:none;cursor:pointer;font-size:13px;">Delete</button>
-                    </form>
-                @endcan
-            @endif
-        </div>
-    </div>
-@empty
-    <p style="color:#888;">No services yet.</p>
-@endforelse
-
-<div id="createServiceModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('createServiceModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">New Service</h2>
-        <form method="POST" action="{{ route('manage.service.store') }}">
-            @csrf
-            @include('web.manage.service.partials.service-form', [
-                'prefix' => 'create',
-                'service' => null,
-                'businesses' => $businesses,
-                'branches' => $branches,
-            ])
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('createServiceModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Create Service</button>
+@section('content')
+<div class="business"> {{-- Ponechávame triedu .business kvôli CSS konzistencii --}}
+    <aside class="business__sidebar">
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
+            <div id="managementList" class="dropdown__mini-list">
+                <a href="{{ route('manage.service.index') }}" class="business__nav-link is-active">
+                    <i class="fa-solid fa-list"></i><span>All Services</span>
+                </a>
+                <button type="button" class="business__nav-link" data-modal-target="create-service-modal">
+                    <i class="fa-solid fa-plus"></i><span>New Service</span>
+                </button>
             </div>
-        </form>
+        </section>
+
+        <section class="business__status-filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
+            <div id="statusList" class="dropdown__mini-list">
+                {{-- Sem JS renderuje filtre (Active, Inactive, Archived) --}}
+            </div>
+        </section>
+    </aside>
+
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        
+        <main class="business__main">
+            <header class="business__header-wrapper business__header-wrapper--simple">
+                <div class="business__header-corner"></div>
+
+                <div class="business__header-info">
+                    <h2 class="business-header__title">My Services</h2>
+                    
+                    <div class="business-info">
+                        <div class="stat-item stat-item--all">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <div id="countAll">0</div> Total services
+                        </div>
+                        <div class="stat-item stat-item--published">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div id="countActive">0</div> Active
+                        </div>
+                        <div class="stat-item stat-item--hidden">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            <div id="countInactive">0</div> Inactive
+                        </div>
+                        <div class="stat-item stat-item--deleted">
+                            <i class="fa-solid fa-trash"></i>
+                            <div id="countDeleted">0</div> Archived
+                        </div>
+                    </div>
+                </div>
+
+                <div class="business__header-right">
+                    <div class="business__header-right-section_1"> </div>
+                    <div class="business__header-right-section_2">
+                        <div class="list-view__search-wrapper">
+                            <div class="search-container">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="serviceSearchInput" placeholder="Search services...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="business__body-wrapper">
+                {{-- Kontajner, do ktorého JS vloží tabuľku/zoznam --}}
+                <div id="serviceTableContainer" class="list-view__body-wrapper"></div>
+            </div>
+        </main>
     </div>
 </div>
 
-@include('web.manage.service.partials.modal-styles-scripts')
+@php
+    $beData = json_encode([
+        'services'   => $services->merge($deletedServices ?? []),
+        'businesses' => $businesses->map(function($b) { return ['id' => $b->id, 'name' => $b->name]; })->values(),
+        'branches'   => $branches->map(function($b) { return ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id]; })->values(),
+        'routes'     => [
+            'store'   => route('manage.service.store'),
+            'restore' => route('manage.service.restore', ':id'),
+            'delete'  => route('manage.service.delete', ':id'),
+            'update'  => route('manage.service.update', ':id'),
+            'show'    => route('manage.service.show', ':id'),
+        ],
+        'csrf' => csrf_token(),
+    ]);
+@endphp
 
-@if ($errors->any())
-    <script>
-        openModal('createServiceModal');
-    </script>
-@endif
+<script>
+    window.BE_DATA = {!! $beData !!};
+    console.log(window.BE_DATA.branches[0]);
+</script>
+
+@vite('resources/js/pages/services/entry.js')
+@endsection
