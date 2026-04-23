@@ -116,7 +116,7 @@ export function initServicesListView(data = []) {
                     
                     <button 
                         type="button" 
-                        class="button-icon button-icon--danger js-archive-business-btn" 
+                        class="button-icon button-icon--danger js-archive-service-btn" 
                         title="Archive"
                         data-id="${item.id}"
                         data-name="${item.name}">
