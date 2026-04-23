@@ -1,10 +1,8 @@
 <?php
 
 namespace App\Application\Branch\DTO;
-namespace App\Application\Auth\DTO;
 
 use App\Http\Requests\Branch\UpdateBranchRequest;
-use App\Http\Requests\Auth\UpdateUserRequest;
 
 class UpdateBranchDTO
 {
@@ -40,7 +38,7 @@ class UpdateBranchDTO
         );
     }
 
-public function toArray(): array
+    public function toArray(): array
     {
         return array_filter([
             'name' => $this->name,

@@ -11,19 +11,13 @@ export function initProfileSidebar() {
         const activeNav = document.querySelector(`[data-section-target="${target}"]`);
         const activePanel = document.querySelector(`[data-section-panel="${target}"]`);
 
-        if (activeNav) {
-            activeNav.classList.add("is-active");
-        }
-
-        if (activePanel) {
-            activePanel.classList.add("is-active");
-        }
+        activeNav?.classList.add("is-active");
+        activePanel?.classList.add("is-active");
     }
 
     navItems.forEach((item) => {
         item.addEventListener("click", () => {
             const target = item.dataset.sectionTarget;
-
             activateSection(target);
             window.location.hash = target;
         });
