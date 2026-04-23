@@ -6,16 +6,25 @@
 
 .filter-item {
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.25rem 0.5rem;
+    width: 6rem;
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
     background: color-mix(in srgb, var(--color-border), transparent 98%);
-    border: 1px solid color-mix(in srgb, var(--color-border), transparent 95%);
-    border-radius: .15rem;
+    border: 2px solid color-mix(in srgb, var(--status-color), transparent 50%);
+    border-radius: 1rem;
     box-shadow: none;
+}
+
+.filter-item .filter-item__label {
+    color: color-mix(in srgb, var(--status-text), transparent 30%)!important;
+}
+
+.filter-item:hover {
+    background: color-mix(in srgb, var(--status-color), transparent 75%);
 }
 
 .filter-item:active {
@@ -24,44 +33,23 @@
 
 .filter-item .filter-item__label {
     color: var(--color-text-unimportant);
+    font-size: .85rem;
 }
 
 .filter-item.is-active {
-    background: var(--status-color);
-    border: 1px solid color-mix(in srgb, var(--status-color), transparent 80%);
+    background: color-mix(in srgb, var(--status-color), transparent 60%);
+    border: 2px solid color-mix(in srgb, var(--status-color), transparent 30%);
     box-shadow: 0 0 4px rgba(0,0,0,0.1);
 }
 
 .filter-item.is-active:hover {
-    background: var(--status-hover);
+    background: color-mix(in srgb, var(--status-color), transparent 15%);
 }
 
 .filter-item.is-active .filter-item__label {
-    color: var(--status-text);
+    color: color-mix(in srgb, var(--status-text), transparent 10%)!important;
 }
 
 .filter-item__checkbox {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: .8rem;
-    background: var(--color-bg-dark);
-    border: 1px solid var(--color-border-light);
-    color: transparent;
-    transition: all 0.2s ease;
-    box-shadow: none;
-}
-
-.filter-item.is-active .filter-item__checkbox {
-    background: var(--status-color);
-    border-color: var(--status-color);
-    color: var(--status-text);
-}
-
-.filter-item.is-active:hover .filter-item__checkbox {
-    background: var(--status-hover);
-    border-color: var(--status-hover);
+    display: none;
 }
