@@ -5,6 +5,7 @@ namespace App\Mcp\Tools\Appointment;
 use App\Application\Appointment\DTO\CreateAppointmentDTO;
 use App\Application\Appointment\UseCases\CreateAppointment;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -21,104 +22,89 @@ use Illuminate\Support\Facades\Auth;
 class MakeAppointmentTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        This tool creates a new appointments for currently authenticated user.
+        This tool creates a new appointment for the current user.
 
-        Appointments are bookings made by users for specific services to specific assets.
+        Appointments are bookings made by users for a specific service at a specific asset
+        on a given date and time slot.
 
         ## When to use
-        Use this tool when a user wants to book, schedule, or make an appointment for a specific
-        service at a specific asset on a given date and time slot.
+        Use this tool only when you have all required parameters. Gather context first using:
+        - `ListBusinessesTool` — to find the business
+        - `ListBranchesTool` — to find the branch
+        - `ListServicesTool` — to find the service and its ID
+        - `ListAssetsTool` (with `service_id`, `from`, `to`) — to find an asset and its available slots
 
-       Use this tool only when you have enough context, the context is best to receive using other tools
-        - ListServicesTool
-        - ListAssetsTool
-        - ListBusinessesTool
-        - ListBranchesTool
-        - GetAvailableSlotsTool
-
-        or ask the user for more context to be able to provide required parameters.
+        Do not guess IDs. Do not proceed without a confirmed available slot from `ListAssetsTool`.
 
         ## Required parameters
-        - service_id: The ID of the service to book. If you don't have context about service, ask user which service to book.
-        - asset_id: The ID of the asset (e.g. room, chair, court) to book. If you don't have context about asset, ask user which asset to use.
-        - date: The date of the appointment in YYYY-MM-DD format. If you don't have date provided ask at what date user wants the appointment to be.
-        - start_at: The desired start time in HH:MM format (e.g. "09:00"). Must be a slot. If you don't have time provided ask at what time user wants the appointment to be.
+        - `asset_id`: ID of the asset to book.
+        - `service_id`: ID of the service to book.
+        - `date`: The date of the appointment (e.g. "2025-06-01").
+        - `start_at`: The start time of the slot (e.g. "09:00"). Must be a slot returned by ListAssetsTool.
 
         ## Validation
-        If the requested slot is no longer available (e.g. taken by another user between
-        slot-check and booking), the tool will return an error asking the user to pick another time.
-
-        ## Example use case
-        User says: "Book a haircut at for me 23.5.2026 at 10am."
-        → Resolve service_id for haircut - If you don't have the ID use ListServicesTool to get more info about service or ask user to provide more context.
-        → Resolve asset_id - If you don't have the ID use ListAssetsTool to provide more info about asset or ask user for more context.
-        → Resolve date - Use date 2026-05-23
-        → start_at - Use time provided - 10:00
+        - The slot must be available — the use case will reject double-bookings.
+        - The asset must be active.
+        - `start_at` must match an available slot exactly for the given `date`.
 
     MARKDOWN;
 
     public function __construct(
-        private readonly CreateAppointment $createAppointment
+        private readonly CreateAppointment $createAppointment,
     ) {}
 
     public function handle(Request $request): Response
     {
-        $user =  Auth::user();
-
-        logger()->debug('User: ', ['$user' => $user]);
+        $user = Auth::user();
 
         if (! $user) {
             return Response::text('Unauthorized: you must be logged in to book an appointment.');
         }
 
-        $validated = $request->validate([
-            'service_id' => 'nullable|integer',
-            'asset_id'   => 'nullable|integer',
-            'date'       => 'nullable|date_format:Y-m-d',
-            'start_at'   => 'nullable|date_format:H:i',
-        ]);
+        try {
+            $validated = $request->validate([
+                'asset_id'   => 'required|integer',
+                'service_id' => 'required|integer',
+                'date'       => 'required|date_format:Y-m-d',
+                'start_at'   => ['required', 'string', 'regex:/^\d{2}:\d{2}$/'],
+            ]);
 
-        if (!$validated['service_id']) {
-            return Response::text('service_id argument is missing. Ask which service the user wants to use.');
-        }
-
-        if (!$validated['asset_id']) {
-            return Response::text('asset_id argument is missing. Ask which asset the user wants to use.');
-        }
-
-        if (!$validated['date']) {
-            return Response::text('date argument is missing. Ask at what date user wants the appointment to be.');
-        }
-
-        if (!$validated['start_at']) {
-            return Response::text('start_at argument is missing. Ask at what time user wants the appointment to be.');
-        }
-
-        $appointment = $this->createAppointment->execute(
-            new CreateAppointmentDTO(
-                assetId: $validated['asset_id'],
+            $dto = new CreateAppointmentDTO(
+                assetId:   $validated['asset_id'],
                 serviceId: $validated['service_id'],
-                date: $validated['date'],
-                startAt: $validated['start_at'],
-            ),
-            $user->id,
-            $user
-        );
+                date:      $validated['date'],
+                startAt:   $validated['start_at'],
+            );
 
-        return Response::text(
-            "Appointment booked successfully. " .
-            "date: {$appointment->date} " .
-            "start_at: {$appointment->start_at} "
-        );
+            $appointment = $this->createAppointment->execute($dto, $user->id);
+
+            return Response::text(
+                "appointment id: {$appointment->id}"
+                . ", service id: {$appointment->service_id}"
+                . ", asset id: {$appointment->asset_id}"
+                . ", date: {$appointment->date}"
+                . ", time: {$appointment->start_at}"
+                . ", status: {$appointment->status}"
+            );
+
+        } catch (ValidationException $e) {
+            logger()->warning('MakeAppointmentTool validation failed', ['errors' => $e->errors()]);
+
+            return Response::text('Booking failed: ' . implode(' ', array_merge(...array_values($e->errors()))));
+        } catch (\Throwable $e) {
+            logger()->error('MakeAppointmentTool failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+            return Response::text('Failed to book appointment. Please try again later.');
+        }
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
-            'service_id' => $schema->integer()->description('The ID of the service to book.'),
-            'asset_id' => $schema->integer()->description('The ID of the asset to book.'),
-            'date' => $schema->string()->description('The appointment date in YYYY-MM-DD format.'),
-            'start_at' => $schema->string()->description('The start time slot in HH:MM format (e.g. "09:00").'),
+            'asset_id'   => $schema->integer('The ID of the asset to book (e.g. a therapist or room).'),
+            'service_id' => $schema->integer('The ID of the service to book.'),
+            'date'       => $schema->string('The date of the appointment in Y-m-d format (e.g. "2025-06-01").'),
+            'start_at'   => $schema->string('The start time of the slot in HH:MM format (e.g. "09:00"). Must match an available slot.'),
         ];
     }
 }

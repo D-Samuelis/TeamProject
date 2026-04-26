@@ -40,6 +40,7 @@ class ListBranchesTool extends Tool
         ## Example use case
         - User wants to book a haircut in Bratislava.
         - Use this tool with `business_id` and `city: "Bratislava"` to find the right branch.
+
     MARKDOWN;
 
     public function __construct(
@@ -95,8 +96,8 @@ class ListBranchesTool extends Tool
     {
         return [
             'business_id' => $schema->integer('The ID of the business whose branches to list.'),
-            'q'           => $schema->string('Optional search query to filter branches by name.'),
-            'city'        => $schema->string('Optional city name to filter branches by location.'),
+            'q'           => $schema->string('Search query to filter branches by name.'),
+            'city'        => $schema->string('City name to filter branches.'),
             'per_page'    => $schema->integer('Number of results per page. Defaults to 10.'),
             'page'        => $schema->integer('Page number for pagination. Defaults to 1.'),
         ];

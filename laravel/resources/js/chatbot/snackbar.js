@@ -5,6 +5,7 @@ const TYPE_LABELS = {
     business: "Business",
     service:  "Service",
     branch:   "Branch",
+    appointments: ""
 };
 
 let stackEl   = null;
