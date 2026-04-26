@@ -7,7 +7,7 @@ use App\Application\Auth\DTO\UpdateUserSettingsDTO;
 use App\Application\Auth\UseCases\DeleteUser;
 use App\Application\Auth\UseCases\UpdateUser;
 use App\Application\Auth\UseCases\UpdateUserSettings;
-use App\Exceptions\CannotDeleteAccountException;
+use App\Exceptions\Auth\CannotDeleteAccountException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\DestroyProfileRequest;
 use App\Http\Requests\Auth\UpdateUserRequest;

@@ -14,7 +14,7 @@ interface BusinessRepositoryInterface
      * PUBLIC: Find a business by ID for the public profile page.
      * Must return only published and active data.
      */
-    public function findActive(int $id): Business;
+    public function findActive(int $id): Business | null;
 
     /**
      * PUBLIC: Search for businesses in the marketplace.
@@ -25,7 +25,7 @@ interface BusinessRepositoryInterface
      * MANAGEMENT: Find a business by ID for owner/admin actions.
      * Should include soft-deleted records for restoration or auditing.
      */
-    public function findForManagement(int $id): Business;
+    public function findForManagement(int $id): Business | null;
 
     /**
      * MANAGEMENT: List businesses owned by a specific user.
@@ -35,9 +35,9 @@ interface BusinessRepositoryInterface
     /**
      * DATA PERSISTENCE
      */
-    public function save(array $data): Business;
+    public function save(array $data): Business | null;
 
-    public function update(int $id, array $data): Business;
+    public function update(Business $business, array $data): Business | null;
 
     public function delete(Business $business): void;
 
@@ -46,7 +46,7 @@ interface BusinessRepositoryInterface
     /**
      * ACCESS CONTROL & RELATIONSHIPS
      */
-    public function existsOwner(int $userId): bool;
+    public function existsOwner(int $userId, ?int $businessId = null): bool;
 
     public function attachUser(Business $business, int $userId, BusinessRoleEnum $role): void;
 
