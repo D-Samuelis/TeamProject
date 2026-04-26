@@ -13,8 +13,10 @@
 
     @if ($errors->any())
         <div class="form-alert form-alert--error">
-            Please check your settings and try saving again.
+            {{ $errors->first() }}
         </div>
+    @elseif (session('error'))
+        <div class="form-alert form-alert--error">{{ session('error') }}</div>
     @elseif (session('success'))
         <div class="form-alert form-alert--success">{{ session('success') }}</div>
     @endif
@@ -72,9 +74,49 @@
             <div class="danger-zone__desc">Permanently remove your account and related profile data.</div>
         </div>
 
-        <button class="btn-danger" type="button" disabled>
+        <button class="btn-danger" type="button"
+            onclick="document.getElementById('delete-confirm').classList.toggle('hidden')">
             <i class="fa-solid fa-trash"></i>
-            <span>Delete account</span>
+            <span class="text-black">Delete account</span>
         </button>
     </div>
+
+    <form id="delete-confirm" action="{{ route('profile.destroy') }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+
+        <div class="danger-zone danger-zone--confirm">
+            <div>
+                <div class="danger-zone__title">Are you sure?</div>
+                <div class="danger-zone__desc">
+                    This action is irreversible. All your data will be permanently deleted and upcoming appointments
+                    cancelled.
+                    If you own a business, you must delete or transfer it first.
+                </div>
+
+                @if (session('error'))
+                    <div class="danger-zone__error">{{ session('error') }}</div>
+                @endif
+
+                <div class="danger-zone__input-wrap">
+                    <input type="password" name="password" placeholder="Confirm your password"
+                        class="input @error('password') input--error @enderror" autocomplete="current-password">
+                    @error('password')
+                        <span class="input__error">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="danger-zone__actions">
+                <button type="submit" class="btn-danger">
+                    <i class="fa-solid fa-trash"></i>
+                    <span class="text-black">Delete</span>
+                </button>
+                <button type="button" class="btn-ghost"
+                    onclick="document.getElementById('delete-confirm').classList.add('hidden')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </form>
 </div>

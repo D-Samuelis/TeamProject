@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 use App\Domain\Branch\Enums\BranchRoleEnum;
 use App\Domain\Business\Enums\BusinessRoleEnum;
+use App\Models\Business\Appointment;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
 use App\Models\Business\Service;
@@ -82,6 +83,11 @@ class User extends Authenticatable
     public function services()
     {
         return $this->morphedByMany(Service::class, 'model', 'model_has_users')->withPivot('role');
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     /**
