@@ -187,5 +187,9 @@ class BranchRepository implements BranchRepositoryInterface
         if (!empty($dto->locationTypes)) {
             $query->whereIn('type', $dto->locationTypes);
         }
+
+        if ($dto->categoryId) {
+            $query->whereHas('services', fn($q) => $q->where('category_id', $dto->categoryId));
+        }
     }
 }

@@ -24,7 +24,8 @@ class UpdateBusinessRequest extends FormRequest
         return [
             'name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'is_published' => 'sometimes|boolean'
+            'is_published' => 'sometimes|boolean',
+            'category_id' => 'nullable|integer|exists:categories,id',
         ];
     }
 }
