@@ -1,6 +1,7 @@
 import { createSession, getTools } from "./api.js";
 import { setStatus, addMessage } from "./ui.js";
 import { handleMessage, clearHistory } from "./chat.js";
+import { createVoiceRecorder } from "./voice.js";
 
 let sessionId = null;
 
@@ -11,6 +12,7 @@ const messagesEl = document.getElementById("messages");
 const clearBtn   = document.getElementById("clear-btn");
 const panel      = document.getElementById("chat-panel");
 const widget     = document.getElementById("chat-widget");
+const micBtn     = document.getElementById("mic-btn");
 
 function openSidebar() {
     panel.classList.remove("chat-hidden");
@@ -39,6 +41,36 @@ document.getElementById("chat-close").addEventListener("click", closeSidebar);
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
 }
+
+const recorder = createVoiceRecorder({
+    onTranscript(text) {
+        handleMessage(sessionId, text, { sendBtn, inputEl, statusEl, messagesEl });
+    },
+    onError(msg) {
+        setStatus(statusEl, "Voice error: " + msg, true);
+    },
+    onStateChange(state) {
+        if (state === "recording") {
+            micBtn.innerHTML = '<span class="material-icons">stop_circle</span>';
+            micBtn.classList.add("recording");
+        } else if (state === "transcribing") {
+            micBtn.innerHTML = '<span class="material-icons">hourglass_top</span>';
+            micBtn.disabled = true;
+        } else {
+            micBtn.innerHTML = '<span class="material-icons">mic</span>';
+            micBtn.disabled = false;
+            micBtn.classList.remove("recording");
+        }
+    }
+});
+
+micBtn.addEventListener("click", () => {
+    if (recorder.isRecording()) {
+        recorder.stop();
+    } else {
+        recorder.start();
+    }
+});
 
 async function init() {
     try {

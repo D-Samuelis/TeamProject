@@ -4,12 +4,22 @@ from redis_queue import push_job
 from config import AUDIO_DIR
 from pydub import AudioSegment
 
+from redis_queue import get_result
+
+
 app = FastAPI()
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
+
+@app.get("/result/{job_id}")
+async def get_transcription_result(job_id: str):
+    result = get_result(job_id)
+    if result is None:
+        return {"status": "pending"}
+    return result
 
 @app.post("/transcribe")
 async def transcribe(file: UploadFile = File(...), language: str = "sk"):

@@ -197,7 +197,7 @@
 
 #input-bar {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto auto auto;
     gap: 0.5rem;
     align-items: flex-end;
     padding: 0.75rem;
@@ -216,7 +216,7 @@
     font-size: 0.9rem;
     font-family: inherit;
     line-height: 1.45;
-    height: 4rem;
+    height: 6rem;
     overflow-y: auto;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     outline: none;
@@ -242,6 +242,7 @@
     white-space: nowrap;
     transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
     outline: none;
+    margin-top: 0.2rem;
 }
 
 #send-btn {
@@ -260,11 +261,54 @@
 #clear-btn {
     background-color: var(--color-bg);
     color: var(--color-text-unimportant-dark);
-    margin-top: 0.2rem;
 }
 
 #clear-btn:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
     background-color: var(--color-bg);
+}
+
+#mic-btn {
+    height: 1.9rem;
+    padding: 0;
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border-light);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-white);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    outline: none;
+    flex-shrink: 0;
+}
+
+#mic-btn .material-icons {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+#mic-btn:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+#mic-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#mic-btn.recording {
+    background-color: var(--status-red);
+    border-color: var(--status-red);
+    color: var(--color-text-white);
+}
+
+#mic-btn.recording:hover {
+    background-color: var(--status-red-hover);
+    border-color: var(--status-red-hover);
+    color: var(--color-text-white);
 }

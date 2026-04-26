@@ -77,8 +77,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointment.store');
 
-    Route::get('/chatbot', [ChatbotController::class, 'index']);
     Route::post('/chatbot/token', [ChatbotController::class, 'issueToken']);
+    Route::post('/chatbot/transcribe', [ChatbotController::class, 'transcribe']);
+    Route::get('/chatbot/transcribe/{jobId}', [ChatbotController::class, 'transcribeResult']);
 
     /*
     |--------------------------------------------------------------------------

@@ -23,9 +23,13 @@
             <div id="input-bar">
                 <textarea id="msg-input" placeholder="Message…"></textarea>
                 <div class="display-column">
+                    <button id="mic-btn" title="Voice input">
+                        <span class="material-icons">mic</span>
+                    </button>
                     <button id="send-btn">Send</button>
                     <button id="clear-btn">Clear</button>
                 </div>
+
             </div>
         </div>
 
