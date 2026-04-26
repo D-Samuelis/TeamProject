@@ -27,9 +27,9 @@ class RescheduleAppointment
 
         $this->authService->ensureCanUpdateAppointment($user, $appointment);
 
-        if (!$user->isAdmin() && in_array($appointment->status, ['cancelled', 'confirmed'])) {
+        if (!$user->isAdmin() && in_array($appointment->status, ['cancelled', 'reserved'])) {
             throw ValidationException::withMessages([
-                'status' => 'Cancelled or confirmed appointments cannot be rescheduled.',
+                'status' => 'Cancelled or reserved appointments cannot be rescheduled.',
             ]);
         }
 

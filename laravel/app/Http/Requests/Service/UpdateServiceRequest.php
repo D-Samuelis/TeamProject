@@ -20,6 +20,8 @@ class UpdateServiceRequest extends FormRequest
         $this->merge([
             'id' => $this->route('serviceId'),
             'is_active' => $this->has('is_active') ? $this->boolean('is_active') : null,
+            'requires_manual_acceptance' => $this->boolean('requires_manual_acceptance'),
+            'cancellation_period' => $this->input('cancellation_period'),
         ]);
     }
 
@@ -38,6 +40,8 @@ class UpdateServiceRequest extends FormRequest
             'description' => 'nullable|string|max:1000',
             'duration_minutes' => 'sometimes|integer|min:1',
             'price' => 'sometimes|numeric|min:0',
+            'requires_manual_acceptance' => 'boolean',
+            'cancellation_period' => ['nullable', 'string', 'regex:/^(\d+\s*[wdhm]\s*)+$/i'],
             'location_type' => ['sometimes', Rule::in(['branch', 'online', 'hybrid'])],
             'is_active' => 'nullable|boolean',
 

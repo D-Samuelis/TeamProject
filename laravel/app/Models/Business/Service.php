@@ -20,7 +20,9 @@ class Service extends Model
         'duration_minutes',
         'price',
         'location_type',
-        'is_active'
+        'is_active',
+        'requires_manual_acceptance',
+        'cancellation_period_minutes'
     ];
 
     public function business()

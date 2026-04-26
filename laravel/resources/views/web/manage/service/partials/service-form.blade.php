@@ -97,3 +97,25 @@
         Active
     </label>
 </div>
+
+<div style="margin-bottom:1rem;">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" name="requires_manual_acceptance" value="1"
+            {{ old('requires_manual_acceptance', $service->requires_manual_acceptance ?? true) ? 'checked' : '' }}>
+        Requires manual acceptance
+    </label>
+</div>
+
+{{-- Cancellation Period --}}
+<div style="margin-bottom:1rem;">
+    <label>Cancellation Period</label><br>
+    <input type="text" name="cancellation_period"
+           value="{{ old('cancellation_period', isset($service) ? App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes) : '') }}"
+           placeholder="e.g. 2d 3h, 1w, 90m"
+           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+    <p style="font-size:12px;color:#888;margin-top:4px;">
+        How far in advance a customer must cancel. Leave empty for no restriction.<br>
+        Supported units: <strong>w</strong> (weeks), <strong>d</strong> (days), <strong>h</strong> (hours), <strong>m</strong> (minutes)
+    </p>
+    @error('cancellation_period') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror
+</div>

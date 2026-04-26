@@ -48,7 +48,7 @@ class CreateAppointment
                 'user_id'    => $userId,
                 'service_id' => $service->id,
                 'asset_id'   => $asset->id,
-                'status'     => 'pending',
+                'status'     => $service->requires_manual_acceptance ? 'pending' : 'reserved',
                 'duration'   => $service->duration_minutes,
                 'date'       => $date->toDateString(),
                 'start_at'   => $dto->startAt . ':00',

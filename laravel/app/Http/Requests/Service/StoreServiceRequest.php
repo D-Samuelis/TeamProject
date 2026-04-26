@@ -19,6 +19,8 @@ class StoreServiceRequest extends FormRequest
         $this->merge([
             'business_id' => $this->input('business_id'),
             'is_active' => $this->boolean('is_active'),
+            'requires_manual_acceptance' => $this->boolean('requires_manual_acceptance'),
+            'cancellation_period' => $this->input('cancellation_period'),
         ]);
     }
 
@@ -37,6 +39,8 @@ class StoreServiceRequest extends FormRequest
             'price' => 'required|numeric|min:0',
             'location_type' => 'nullable|in:branch,online,hybrid',
             'is_active' => 'boolean',
+            'requires_manual_acceptance' => 'boolean',
+            'cancellation_period' => ['nullable', 'string', 'regex:/^(\d+\s*[wdhm]\s*)+$/i'],
             'branch_ids' => 'array',
             'branch_ids.*' => 'exists:branches,id',
         ];
