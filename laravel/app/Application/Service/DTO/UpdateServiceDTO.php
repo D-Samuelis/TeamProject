@@ -2,6 +2,7 @@
 
 namespace App\Application\Service\DTO;
 
+use App\Application\Service\Services\DurationParser;
 use App\Http\Requests\Service\UpdateServiceRequest;
 
 class UpdateServiceDTO
@@ -15,6 +16,8 @@ class UpdateServiceDTO
         public ?string $location_type = null,
         public ?bool $is_active = null,
         public ?array $branch_ids = null,
+        public ?int $cancellation_period_minutes = null,
+        public bool $requires_manual_acceptance = false,
     ) {}
 
     /**
@@ -33,12 +36,14 @@ class UpdateServiceDTO
             location_type: $validated['location_type'] ?? null,
             is_active: $request->has('is_active') ? $request->boolean('is_active') : null,
             branch_ids: $validated['branch_ids'] ?? null,
+            cancellation_period_minutes: DurationParser::toMinutes($validated['cancellation_period'] ?? null),
+            requires_manual_acceptance: $request->boolean('requires_manual_acceptance'),
         );
     }
 
     public function toArray(): array
     {
-        return array_filter([
+        $data =  array_filter([
             'name' => $this->name,
             'description' => $this->description,
             'duration_minutes' => $this->duration_minutes,
@@ -46,6 +51,11 @@ class UpdateServiceDTO
             'location_type' => $this->location_type,
             'is_active' => $this->is_active,
             'branch_ids' => $this->branch_ids,
+            'requires_manual_acceptance' => $this->requires_manual_acceptance,
         ], fn($value) => !is_null($value));
+
+        $data['cancellation_period_minutes'] = $this->cancellation_period_minutes;
+
+        return $data;
     }
 }

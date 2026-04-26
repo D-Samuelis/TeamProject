@@ -69,7 +69,7 @@ class AppointmentSeeder extends Seeder
         // HISTORY – 80 past appointments spread over last 60 days
         // Slot index cycles sequentially; day + status come from seeded mt_rand
         // ------------------------------------------------------------------
-        $historyStatuses = ['confirmed', 'confirmed', 'confirmed', 'cancelled', 'no_show'];
+        $historyStatuses = ['reserved', 'reserved', 'reserved', 'cancelled', 'no_show'];
 
         for ($i = 0; $i < 80; $i++) {
             $slot = $validSlots[$i % $validSlots->count()];
@@ -97,7 +97,7 @@ class AppointmentSeeder extends Seeder
                     'client'  => $clients->get($this->nextClient()),
                     'service' => $services[$slot['service']],
                     'asset'   => $assets[$slot['asset']],
-                    'status'  => ($slotIndex % 5 === 0) ? 'pending' : 'confirmed',
+                    'status'  => ($slotIndex % 5 === 0) ? 'pending' : 'reserved',
                     'date'    => $today->format('Y-m-d'),
                     'start'   => $todayTimes[($slotIndex + $t) % count($todayTimes)],
                 ];
@@ -124,7 +124,7 @@ class AppointmentSeeder extends Seeder
                         'client'  => $clients->get($this->nextClient()),
                         'service' => $services[$slot['service']],
                         'asset'   => $assets[$slot['asset']],
-                        'status'  => ($slotIndex % 7 === 0) ? 'pending' : 'confirmed',
+                        'status'  => ($slotIndex % 7 === 0) ? 'pending' : 'reserved',
                         'date'    => $targetDate,
                         'start'   => $futureTimes[($slotIndex + $t) % count($futureTimes)],
                     ];

@@ -23,7 +23,7 @@ class UpdateAppointmentRequest extends FormRequest
         return [
             'date'     => 'sometimes|date',
             'start_at' => 'sometimes|date_format:H:i',
-            'status'   => 'sometimes|in:pending,confirmed,cancelled',
+            'status'   => 'sometimes|in:pending,reserved,cancelled,show,no_show',
         ];
     }
 }

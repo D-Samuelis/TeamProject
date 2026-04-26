@@ -63,6 +63,22 @@
 </p>
 
 <div style="margin-top:1rem;">
+    <strong>Acceptance:</strong>
+    <p style="margin-bottom:0.5rem;">
+    <span
+        style="font-size:12px;padding:2px 8px;border-radius:20px;background:{{ $service->is_active ? '#d1fae5' : '#fee2e2' }};color:{{ $service->is_active ? '#065f46' : '#991b1b' }};">
+        {{ $service->requires_manual_acceptance ? 'Manual' : 'Automatic' }}
+    </span>
+    </p>
+</div>
+
+
+
+<div style="margin-top:1rem;">
+    <strong>Cancel period:</strong> {{ App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes) }}
+</div>
+
+<div style="margin-top:1rem;">
     <strong>Business:</strong><a
         href="{{ route('manage.business.show', $service->business->id) }}">{{ $service->business->name }}</a>
 </div>

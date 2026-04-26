@@ -65,13 +65,21 @@
                     @cannot('updateStatus', [$appointment, 'pending']) disabled @endcannot>
                         Pending
                     </option>
-                    <option value="confirmed" {{ $appointment->status === 'confirmed' ? 'selected' : '' }}
-                    @cannot('updateStatus', [$appointment, 'confirmed']) disabled @endcannot>
-                        Confirmed
+                    <option value="reserved" {{ $appointment->status === 'reserved' ? 'selected' : '' }}
+                    @cannot('updateStatus', [$appointment, 'reserved']) disabled @endcannot>
+                        Reserved
                     </option>
                     <option value="cancelled" {{ $appointment->status === 'cancelled' ? 'selected' : '' }}
                     @cannot('updateStatus', [$appointment, 'cancelled']) disabled @endcannot>
                         Cancelled
+                    </option>
+                    <option value="show" {{ $appointment->status === 'show' ? 'selected' : '' }}
+                    @cannot('updateStatus', [$appointment, 'show']) disabled @endcannot>
+                        Show
+                    </option>
+                    <option value="no_show" {{ $appointment->status === 'no_show' ? 'selected' : '' }}
+                    @cannot('updateStatus', [$appointment, 'no_show']) disabled @endcannot>
+                        No show
                     </option>
                 </select>
                 @error('status') <p style="color:red;font-size:13px;">{{ $message }}</p> @enderror

@@ -57,7 +57,7 @@ class AppointmentAuthorizationService
         $branchRole = $this->userRepo->getBranchRole($user, $appointment->asset->branch);
         if ($branchRole && $branchRole->canUpdate()) return;
 
-        throw new DomainException('You do not have permission to update this appointment.');
+        throw new DomainException('You do not have permission to delete this appointment.');
     }
 
     public function ensureCanChangeStatus(User $user, Appointment $appointment, string $status): void
@@ -71,9 +71,32 @@ class AppointmentAuthorizationService
         if ($branchRole && $branchRole->canUpdate()) return;
 
         $currentStatus = $this->appointmentRepo->getCurrentStatus($appointment);
-        // Customer who booked can only cancel
-        if ($appointment->user_id === $user->id && $status === 'cancelled' && $currentStatus->canChangeSatatus()) return;
 
+        if ($appointment->user_id === $user->id && $status === 'cancelled') {
+            $this->ensureCancellationPeriodAllows($appointment);
+            return;
+        }
         throw new \DomainException('You do not have permission to set this status.');
+    }
+
+    private function ensureCancellationPeriodAllows(Appointment $appointment): void
+    {
+        $minutes = $appointment->service->cancellation_period_minutes;
+
+        if (is_null($minutes)) return;
+
+        $appointmentDateTime = \Carbon\Carbon::parse($appointment->date->toDateString())
+            ->setHour($appointment->start_at->hour)
+            ->setMinute($appointment->start_at->minute)
+            ->setSecond(0);
+        $cancelDeadline = $appointmentDateTime->subMinutes($minutes);
+
+        if (now()->isAfter($cancelDeadline)) {
+            throw new \DomainException(
+                'This appointment can no longer be cancelled. ' .
+                'Cancellations must be made at least ' .
+                \App\Application\Service\Services\DurationParser::fromMinutes($minutes) . ' before the appointment.'
+            );
+        }
     }
 }

@@ -5,8 +5,10 @@ namespace App\Domain\Appointment\Enums;
 enum AppointmentStatusEnum: string
 {
     case PENDING = 'pending';
-    case CONFIRMED = 'confirmed';
+    case RESERVED = 'reserved';
     case CANCELLED = 'cancelled';
+    case SHOW = 'show';
+    case NO_SHOW = 'no_show';
 
     public function canChangeSatatus(): bool
     {
