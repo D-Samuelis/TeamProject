@@ -37,7 +37,6 @@ class UpdateBusiness
             }
 
             $this->authService->ensureCanUpdateBusiness($user, $business);
-
             return $this->businessRepo->update($business, $dto->toArray());
         });
     }

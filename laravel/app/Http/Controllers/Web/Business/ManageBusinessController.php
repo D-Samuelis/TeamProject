@@ -90,13 +90,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $useCase->execute($businessId, Auth::user());
-            return back()->with('success', 'Business deleted successfully.');
+            return redirect()->route('manage.business.index')->with('success', 'Business deleted successfully.');
         } catch (BusinessNotFoundException $e) {
-            return back()->with('error', 'Business not found.');
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (AuthorizationException $e) {
-            return back()->with('error', $e->getMessage());
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return redirect()->route('manage.business.index')->with('error', 'Something went wrong. Please try again.');
         }
     }
 
@@ -104,13 +104,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $useCase->execute($businessId, Auth::user());
-            return back()->with('success', 'Business restored successfully.');
+            return redirect()->route('manage.business.index')->with('success', 'Business restored successfully.');
         } catch (BusinessNotFoundException $e) {
-            return back()->with('error', 'Business not found.');
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (AuthorizationException $e) {
-            return back()->with('error', $e->getMessage());
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return redirect()->route('manage.business.index')->with('error', 'Something went wrong. Please try again.');
         }
     }
 }
