@@ -108,7 +108,7 @@ class BusinessRepository implements BusinessRepositoryInterface
     {
         $query = Business::whereHas('users', function ($q) use ($userId) {
             $q->where('model_has_users.user_id', $userId)
-            ->where('model_has_users.role', BusinessRoleEnum::OWNER->value);
+                ->where('model_has_users.role', BusinessRoleEnum::OWNER->value);
         });
 
         if ($businessId) {
@@ -174,6 +174,10 @@ class BusinessRepository implements BusinessRepositoryInterface
 
         if (!empty($dto->locationTypes)) {
             $query->whereHas('services', fn($q) => $q->where('is_active', true)->whereIn('location_type', $dto->locationTypes));
+        }
+
+        if ($dto->categoryId) {
+            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('category_id', $dto->categoryId));
         }
     }
 }

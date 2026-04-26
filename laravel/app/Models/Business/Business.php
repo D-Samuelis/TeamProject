@@ -18,7 +18,8 @@ class Business extends Model
         'description',
         'state',
         'is_published',
-        'delete_after'
+        'delete_after',
+        'category_id',
     ];
 
     protected $casts = [
@@ -41,5 +42,10 @@ class Business extends Model
     public function services()
     {
         return $this->hasMany(Service::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

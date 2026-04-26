@@ -14,6 +14,7 @@ class Service extends Model
 
     protected $fillable = [
         'business_id',
+        'category_id',
         'name',
         'description',
         'duration_minutes',
@@ -35,6 +36,11 @@ class Service extends Model
     public function assets()
     {
         return $this->belongsToMany(Asset::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function users()

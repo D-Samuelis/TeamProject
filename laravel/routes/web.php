@@ -16,6 +16,7 @@ use App\Http\Controllers\Web\Rule\RuleController;
 use App\Http\Controllers\Web\Appointment\AppointmentController;
 use App\Http\Controllers\Web\Book\BookController;
 use App\Http\Controllers\Web\ProfileController;
+use App\Http\Controllers\Admin\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,8 +34,8 @@ Route::prefix('search')->name('search.')->controller(SearchController::class)->g
 });
 
 Route::controller(BookController::class)->prefix('book')->name('book.')->group(function () {
-    Route::get('/business/{businessId}',                                    'business')->name('business');
-    Route::get('/business/{businessId}/service/{serviceId}',                'service')->name('service');
+    Route::get('/business/{businessId}',                                     'business')->name('business');
+    Route::get('/business/{businessId}/service/{serviceId}',                 'service')->name('service');
     Route::get('/business/{businessId}/service/{serviceId}/asset/{assetId}', 'asset')->name('asset');
 });
 
@@ -60,9 +61,12 @@ Route::middleware('guest')->controller(AuthController::class)->group(function ()
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
+
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/settings', [ProfileController::class, 'updateSettings'])->name('profile.settings');
+    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');
@@ -80,6 +84,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/chatbot/token', [ChatbotController::class, 'issueToken']);
     Route::post('/chatbot/transcribe', [ChatbotController::class, 'transcribe']);
     Route::get('/chatbot/transcribe/{jobId}', [ChatbotController::class, 'transcribeResult']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('categories', CategoryController::class)->except('show');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -105,7 +118,6 @@ Route::middleware('auth')->group(function () {
             });
         });
 
-        // Branches
         Route::prefix('branches')->name('branch.')->controller(ManageBranchController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{branchId}', 'show')->name('show');
@@ -115,7 +127,6 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{branchId}/restore', 'restore')->name('restore');
         });
 
-        // Services
         Route::prefix('services')->name('service.')->controller(ManageServiceController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{serviceId}', 'show')->name('show');
@@ -127,7 +138,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{serviceId}/branches/{branchId}/unassign', 'unassign')->name('branch.unassign');
         });
 
-        // Assets
         Route::prefix('assets')->name('asset.')->controller(AssetController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{assetId}', 'show')->name('show');
@@ -137,7 +147,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/{assetId}/restore', 'restore')->name('restore');
         });
 
-        // Rules
         Route::prefix('rules')->name('rule.')->controller(RuleController::class)->group(function () {
             Route::post('/', 'store')->name('store');
             Route::put('/{ruleId}', 'update')->name('update');
@@ -146,7 +155,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/reorder-all', 'reorderAll')->name('reorder_all');
         });
 
-        // Manage Appointments
         Route::prefix('appointments')->name('appointment.')->controller(AppointmentController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{appointmentId}', 'show')->name('show');

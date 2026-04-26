@@ -48,6 +48,7 @@ class UpdateServiceRequest extends FormRequest
                     $query->where('business_id', $this->input('business_id'));
                 }),
             ],
+            'category_id' => 'nullable|integer|exists:categories,id',
         ];
     }
 

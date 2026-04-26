@@ -87,6 +87,6 @@ class ManageServiceController extends Controller
     public function book(int $serviceId, GetService $useCase)
     {
         $service = $useCase->execute($serviceId);
-        return view('web.customer.book.service.book', compact('service'));
+        return view('book.service.book', compact('service'));
     }
 }

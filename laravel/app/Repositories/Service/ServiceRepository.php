@@ -19,7 +19,7 @@ class ServiceRepository implements ServiceRepositoryInterface
     public function findActive(int $id): Service
     {
         return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))
-            ->with(['assets' => function($query) {
+            ->with(['assets' => function ($query) {
                 $query->where('is_active', true);
             }])
             ->findOrFail($id);
@@ -183,6 +183,10 @@ class ServiceRepository implements ServiceRepositoryInterface
 
         if ($dto->businessId) {
             $query->where('business_id', $dto->businessId);
+        }
+
+        if ($dto->categoryId) {
+            $query->where('category_id', $dto->categoryId);
         }
     }
 }
