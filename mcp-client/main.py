@@ -15,11 +15,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MCP_URL   = os.getenv("MCP_SERVER")
-MODEL     = os.getenv("MCP_OPENAI_MODEL", "gpt-4o")
+MODEL     = os.getenv("MCP_OPENAI_MODEL")
 API_KEY   = os.getenv("OPENAI_API_KEY")
 
 PROMPTS_DIR  = Path("prompts")
-PROMPT_FILES = ["identity.md", "capabilities.md", "tools.md", "rules.md"]
+PROMPT_FILES = ["identity.md", "tools.md", "rules.md"]
 
 client = OpenAI(api_key=API_KEY)
 
@@ -59,6 +59,22 @@ TOOL_ENTITY_MAP = {
     "list-branches-tool":   "branch",
 }
 
+STATIC_NAVIGATIONS = {
+    "list-appointments-tool": {
+        "type":  "appointments",
+        "id":    "appointments",
+        "name":  "your appointments",
+        "url":   "/my-appointments",
+        "label": "View My Appointments",
+    },
+    "make-appointment-tool": {
+        "type":  "appointments",
+        "id":    "appointments",
+        "name":  "your appointments",
+        "url":   "/my-appointments",
+        "label": "View My Appointments",
+    },
+}
 
 def _parse_entities(result_text: str, entity_type: str) -> list[dict]:
     stripped = result_text.strip()
@@ -95,7 +111,14 @@ def build_navigations(steps: list[dict]) -> list[dict]:
     seen: dict[tuple, dict] = {}
 
     for step in steps:
-        entity_type = TOOL_ENTITY_MAP.get(step.get("tool", ""))
+
+        tool_name = step.get("tool", "")
+        if tool_name in STATIC_NAVIGATIONS:
+            nav = STATIC_NAVIGATIONS[tool_name]
+            seen[(nav["type"], nav["id"])] = nav
+            continue
+
+        entity_type = TOOL_ENTITY_MAP.get(tool_name)
         if not entity_type:
             continue
 
@@ -220,11 +243,11 @@ class ToolStep(BaseModel):
     result: str
 
 class NavigationSuggestion(BaseModel):
-    type:  str          # "business" | "service" | "branch"
+    type:  str
     id:    str
     name:  str
-    url:   str          # e.g. "/book/business/7/service/41"
-    label: str          # e.g. "View Private Sauna Session"
+    url:   str
+    label: str
 
 class ChatResponse(BaseModel):
     reply:       str

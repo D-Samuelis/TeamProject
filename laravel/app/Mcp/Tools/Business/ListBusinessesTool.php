@@ -46,6 +46,7 @@ class ListBusinessesTool extends Tool
         ## Example use case
         - User wants a massage in Bratislava.
         - Use this tool with `q: "massage"` and `city: "Bratislava"` to find matching businesses.
+
     MARKDOWN;
 
     public function __construct(

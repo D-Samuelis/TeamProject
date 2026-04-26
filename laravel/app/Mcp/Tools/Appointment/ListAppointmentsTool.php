@@ -20,14 +20,13 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListAppointmentsTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        This tool retrieves a list of appointments for the currently authenticated user.
+        This tool retrieves a list of appointments for the current user.
 
         Appointments are bookings made by users for specific services at a business.
 
         ## When to use
         Use this tool when you need to find, look up, or browse appointments for the current user.
-        The user must be authenticated. Use this tool to answer questions like
-        "What are my upcoming appointments?" or "Show me my bookings".
+        Use this tool to answer questions like "What are my upcoming appointments?" or "Show me my bookings".
 
         ## Required parameters
         None.
@@ -72,15 +71,23 @@ class ListAppointmentsTool extends Tool
             }
 
             return Response::text(
-                $appointments->map(function ($item) {
-                    return "id: " . $item['id']
-                        . " service: " . $item['service_name']
-                        . " business: " . $item['business_name']
-                        . " date: " . $item['date']
-                        . " time: " . $item['time']
-                        . " status: " . $item['status']
-                        . " price: " . $item['price'];
-                })
+                $appointments->map(function ($appointment) {
+                    $service  = $appointment->service?->name ?? 'Unknown service';
+                    $business = $appointment->asset?->branch?->business?->name ?? 'Unknown business';
+                    $branch   = $appointment->asset?->branch?->name ?? 'Unknown branch';
+                    $asset    = $appointment->asset?->name ?? 'Unknown asset';
+                    $time     = \Carbon\Carbon::parse($appointment->start_at)->format('H:i');
+
+                    return "appointment id: {$appointment->id}"
+                        . ", service: {$service}"
+                        . ", business: {$business}"
+                        . ", branch: {$branch}"
+                        . ", asset: {$asset}"
+                        . ", date: {$appointment->date}"
+                        . ", time: {$time}"
+                        . ", duration: {$appointment->duration} min"
+                        . ", status: {$appointment->status}";
+                })->implode("\n")
             );
 
         } catch (ValidationException $e) {
