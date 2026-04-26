@@ -49,3 +49,33 @@ export async function sendChat(sessionId, message) {
     });
     return res.json();
 }
+
+export async function transcribeAudio(audioBlob) {
+    const form = new FormData();
+    form.append("audio", audioBlob, "recording.webm");
+
+    const res = await fetch("/chatbot/transcribe", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+        },
+        credentials: "include",
+        body: form
+    });
+    return res.json(); // { job_id }
+}
+
+export async function pollTranscription(jobId, { interval = 800, timeout = 30000 } = {}) {
+    const deadline = Date.now() + timeout;
+
+    while (Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, interval));
+        const res = await fetch(`/chatbot/transcribe/${jobId}`, { credentials: "include" });
+        const data = await res.json();
+
+        if (data.status === "success") return data.text;
+        if (data.status === "error") throw new Error(data.message || "Transcription failed");
+    }
+
+    throw new Error("Transcription timed out");
+}

@@ -133,18 +133,10 @@ The MCP setup consists of **1 server** and **1 client**.
 Add the following variables to your `.env` file to enable MCP client-server communication:
 
 ```env
-MCP_SERVER=http://localhost:8000/mcp            
-MCP_OLLAMA_URL=http://localhost:11434/api/chat  // If you run it locally
-MCP_OLLAMA_MODEL=qwen3:8b                       
+OPENAI_API_KEY=sk-...        
+MCP_OPENAI_MODEL=gpt-4o
+MCP_SERVER=http://localhost:8000/mcp
 MCP_CLIENT_URL=http://127.0.0.1:8002
-VITE_MCP_CLIENT_URL=http://127.0.0.1:8002           
+VITE_MCP_CLIENT_URL=http://127.0.0.1:
+WHISPER_URL=http://localhost:8001
 ```
-### Running the MCP Server
-
-The MCP server starts automatically after `php artisan serve`. 
-
-### Running the MCP Client
-MCP client runs in docker.
-
-<small>Make sure you run the LLM, the client is currently set up to communicate to Ollama LLMs</small>
-
