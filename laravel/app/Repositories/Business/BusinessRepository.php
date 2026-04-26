@@ -15,7 +15,7 @@ class BusinessRepository implements BusinessRepositoryInterface
     /**
      * PUBLIC METHODS
      */
-    public function findActive(int $id): Business
+    public function findActive(int $id): Business | null
     {
         return Business::query()
             ->where('is_published', true)
@@ -23,7 +23,7 @@ class BusinessRepository implements BusinessRepositoryInterface
                 'branches' => fn($q) => $q->where('is_active', true),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
-            ->findOrFail($id);
+            ->find($id);
     }
 
     public function search(SearchDTO $dto)
@@ -64,27 +64,26 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->get();
     }
 
-    public function findForManagement(int $id): Business
+    public function findForManagement(int $id): Business | null
     {
         return Business::withTrashed()
             ->with([
                 'branches' => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ])
-            ->findOrFail($id);
+            ->find($id);
     }
 
     /**
      * DATA PERSISTENCE
      */
-    public function save(array $data): Business
+    public function save(array $data): Business | null
     {
         return Business::create($data);
     }
 
-    public function update(int $id, array $data): Business
+    public function update(Business $business, array $data): Business | null
     {
-        $business = $this->findForManagement($id);
         $business->update($data);
         return $business;
     }

@@ -4,7 +4,7 @@ namespace App\Application\Auth\UseCases;
 
 
 use App\Domain\Business\Enums\BusinessRoleEnum;
-use App\Exceptions\CannotDeleteAccountException;
+use App\Exceptions\Auth\CannotDeleteAccountException;
 use App\Models\Auth\User;
 
 class DeleteUser
