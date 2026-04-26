@@ -1,0 +1,24 @@
+.toolbar__base {
+    position: fixed;
+    top: 82vh;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    width: auto;
+    min-width: 400px;
+    background: var(--color-bg-complement);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 10px #16161627;
+    border-radius: 2rem;
+    padding: 10px 25px;
+    z-index: 39;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toolbar__container {
+    display: flex;
+    flex-direction: row;
+}
+
+.toolbar__base.translate-y-0 {
+    transform: translateX(-50%) translateY(0);
+}

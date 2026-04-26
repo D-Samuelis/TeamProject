@@ -11,6 +11,7 @@ import { initAssetStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS
 import { initConnectionsModal } from './modals/connectionsModal.js';
 import { initRuleDetailModal } from './modals/ruleDetailModal.js';
 import { initCreateAssetModal } from './modals/createAssetModal.js';
+import { initToolbar } from './toolbar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */
@@ -49,4 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchiveAssetModal();
     initDeleteRuleModal();
     initListSearch('#ruleSearchInput', '.filterable-rule', '.js-search-data');
+
+    initToolbar();
 });
