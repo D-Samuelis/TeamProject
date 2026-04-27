@@ -18,6 +18,19 @@
             deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
             restoreAsset: "{{ route('manage.asset.restore', ':id') }}",
             deleteRule: '{{ route("manage.rule.delete", ":id") }}'
+        },
+        toolbar: {
+            showStatus: false,
+            centerAction: {
+                label: 'Add Rule',
+                icon: 'fa-plus',
+                modal: 'create-rule-modal'
+            },
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
         }
     };
 </script>
@@ -316,6 +329,7 @@
                 </div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
@@ -508,3 +522,7 @@
 @endif
 
 @endsection
+
+<div id="tpl-connections" style="display: none;">
+    @include('components.connections', ['asset' => $asset])
+</div>

@@ -5,3 +5,4 @@ export const BUSINESS_FILTERS_KEY = 'filters_business';
 export const APPOINTMENT_FILTERS_KEY = 'filters_appointments';
 export const ASSET_FILTERS_KEY = 'filters_asset';
 export const SERVICE_FILTERS_KEY = 'filters_service';
+export const BEXI_SIDEBAR_KEY = 'bexi_sidebar_open';

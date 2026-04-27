@@ -18,17 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
 
+    initToolbar();
+
     initAssetListView(window.BE_DATA.assets);
 
     initListSearch('#assetSearchInput', '.asset-table__row', 'strong');
 
-    const createBtn = document.querySelector('[data-modal-target="create-asset-modal"]');
-    if (createBtn) {
-        createBtn.addEventListener('click', () => {
-            const modal = document.getElementById('createAssetModal');
-            if (modal) modal.style.display = 'flex';
-        });
-    }
     initConnectionsModal();
     initRuleDetailModal();
     initCreateAssetModal();
@@ -49,6 +44,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchiveAssetModal();
     initDeleteRuleModal();
     initListSearch('#ruleSearchInput', '.filterable-rule', '.js-search-data');
-
-    initToolbar();
 });

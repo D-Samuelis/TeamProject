@@ -17,7 +17,20 @@
             deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
             restoreAsset: "{{ route('manage.asset.restore', ':id') }}"
         },
-        csrf: "{{ csrf_token() }}"
+        csrf: "{{ csrf_token() }}",
+        toolbar: {
+            showStatus: true,
+            centerAction: {
+                label: 'Create Asset',
+                icon: 'fa-plus',
+                modal: 'create-asset-modal'
+            },
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
+        }
     };
 </script>
 
@@ -29,9 +42,6 @@
                 <a href="{{ route('manage.asset.index') }}" class="business__nav-link is-active">
                     <i class="fa-solid fa-list"></i><span>All Assets</span>
                 </a>
-                <button type="button" class="business__nav-link" data-modal-target="create-asset-modal">
-                    <i class="fa-solid fa-plus"></i><span>New Asset</span>
-                </button>
             </div>
         </section>
         <section class="business__status-filters">
@@ -95,3 +105,7 @@
 @vite('resources/js/pages/assets/entry.js')
 
 @endsection
+
+<div id="tpl-status-filters" style="display: none;">
+    @include('components.statuses_asset')
+</div>

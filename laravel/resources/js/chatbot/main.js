@@ -12,14 +12,14 @@ const clearBtn   = document.getElementById("clear-btn");
 const panel      = document.getElementById("chat-panel");
 const widget     = document.getElementById("chat-widget");
 
-function openSidebar() {
+export function openSidebar() {
     panel.classList.remove("chat-hidden");
     widget.classList.remove("sidebar-closed");
     document.body.classList.add("sidebar-open");
     sessionStorage.setItem("bexi-open", "true");
 }
 
-function closeSidebar() {
+export function closeSidebar() {
     panel.classList.add("chat-hidden");
     widget.classList.add("sidebar-closed");
     document.body.classList.remove("sidebar-open");
@@ -32,9 +32,6 @@ if (wasOpen) {
 } else {
     widget.classList.add("sidebar-closed");
 }
-
-document.getElementById("chat-toggle").addEventListener("click", openSidebar);
-document.getElementById("chat-close").addEventListener("click", closeSidebar);
 
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
