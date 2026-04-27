@@ -6,8 +6,8 @@ const assetStatuses = [
     { id: 'deleted',   label: 'Archived',  color: 'red',   active: false }
 ];
 
-export function initAssetStatusFilters() {
-    const container = document.getElementById('statusList');
+export function initAssetStatusFilters(containerId = 'statusList') {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     const savedFilters = localStorage.getItem(ASSET_FILTERS_KEY);
@@ -31,7 +31,9 @@ export function initAssetStatusFilters() {
             <span class="filter-item__label">${status.label}</span>
         `;
 
-        filterItem.addEventListener('click', () => {
+        filterItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+
             status.active = !status.active;
             filterItem.classList.toggle('is-active');
             

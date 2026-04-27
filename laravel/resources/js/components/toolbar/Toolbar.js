@@ -5,16 +5,20 @@ export const Toolbar = {
     get right() { return document.getElementById('toolbar-right'); },
 
     setActions(config) {
-        if (!this.el) {
-            console.warn('Toolbar base (#main-toolbar) not found in DOM.');
-            return;
-        }
+        if (!this.el) return;
 
         this.clear();
         
-        if (config.left) this.left.innerHTML = config.left;
-        if (config.center) this.center.innerHTML = config.center;
-        if (config.right) this.right.innerHTML = config.right;
+        const updateSection = (el, content) => {
+            if (el) {
+                el.innerHTML = content || '';
+                el.style.display = content ? 'flex' : 'none'; 
+            }
+        };
+
+        updateSection(this.left, config.left);
+        updateSection(this.center, config.center);
+        updateSection(this.right, config.right);
 
         this.show();
     },
@@ -28,7 +32,6 @@ export const Toolbar = {
     },
 
     clear() {
-        // Safe check pred mazaním
         if (this.left) this.left.innerHTML = '';
         if (this.center) this.center.innerHTML = '';
         if (this.right) this.right.innerHTML = '';

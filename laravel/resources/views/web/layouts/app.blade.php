@@ -34,8 +34,6 @@
     @yield('content')
 </main>
 
-@include('components.ui.toolbar')
-
 <footer>
     @include('web.layouts.partials.footer')
 </footer>

@@ -88,6 +88,7 @@
                 </div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 

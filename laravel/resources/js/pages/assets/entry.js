@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('statusList');
 
     initAssetListView(window.BE_DATA.assets);
-    initAssetStatusFilters();
 
     initListSearch('#assetSearchInput', '.asset-table__row', 'strong');
 
