@@ -2,10 +2,11 @@
 
 namespace App\Application\Service\UseCases;
 
-use App\Application\Auth\Services\ServiceAuthorizationService;
-use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Service;
+
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Application\Auth\Services\ServiceAuthorizationService;
 
 class GetService
 {
@@ -14,6 +15,12 @@ class GetService
         private readonly ServiceAuthorizationService $authService
     ) {}
 
+    /**
+     * Executes the get service use case. It checks if the user has permission to view the service and returns it if found.
+     * @param int $serviceId The ID of the service to retrieve.
+     * @param User|null $user The user requesting the service, or null for unauthenticated access.
+     * @return Service The retrieved service.
+     */
     public function execute(int $serviceId, ?User $user = null): Service
     {
         if ($user) {
@@ -22,6 +29,7 @@ class GetService
             return $service;
         }
 
-        return $this->serviceRepo->findActive($serviceId);
+        $service = $this->serviceRepo->findActive($serviceId);
+        return $service;
     }
 }

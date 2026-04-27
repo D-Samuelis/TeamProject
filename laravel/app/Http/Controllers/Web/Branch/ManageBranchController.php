@@ -11,16 +11,19 @@ use App\Models\Business\Business;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
+
+use App\Application\Branch\DTO\StoreBranchDTO;
+use App\Application\Branch\DTO\UpdateBranchDTO;
+
 use App\Application\Branch\UseCases\StoreBranch;
 use App\Application\Branch\UseCases\UpdateBranch;
 use App\Application\Branch\UseCases\DeleteBranch;
 use App\Application\Branch\UseCases\RestoreBranch;
 use App\Application\Branch\UseCases\ListBranches;
 use App\Application\Branch\UseCases\GetBranch;
-use App\Application\Branch\DTO\StoreBranchDTO;
-use App\Application\Branch\DTO\UpdateBranchDTO;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Service\UseCases\ListServices;
 
@@ -62,25 +65,25 @@ class ManageBranchController extends Controller
     public function store(StoreBranchRequest $request, StoreBranch $useCase)
     {
         $branch = $useCase->execute(StoreBranchDTO::fromRequest($request), Auth::user());
-        return back()->with('success', "Branch '{$branch->name}' created.");
+        return response()->json(['message' => "Branch '{$branch->name}' created successfully.", 'data' => $branch], 201);
     }
 
     public function update(int $branchId, UpdateBranchRequest $request, UpdateBranch $useCase)
     {
         $branch = $useCase->execute(UpdateBranchDTO::fromRequest($branchId, $request), Auth::user());
-        return back()->with('success', "Branch '{$branch->name}' updated successfully.");
+        return response()->json(['message' => "Branch '{$branch->name}' updated successfully.", 'data' => $branch]);
     }
 
     public function delete(int $branchId, DeleteBranch $useCase)
     {
         $useCase->execute($branchId, Auth::user());
-        return back()->with('success', 'Branch moved to trash.');
+        return response()->json(['message' => 'Branch deleted successfully.', 'data' => $branchId]);
     }
 
     public function restore(int $branchId, RestoreBranch $useCase)
     {
-        $useCase->execute($branchId, Auth::user());
-        return back()->with('success', 'Branch restored.');
+        $branch = $useCase->execute($branchId, Auth::user());
+        return response()->json(['message' => 'Branch restored successfully.', 'data' => $branch]);
     }
 
     public function search(Request $request): JsonResponse

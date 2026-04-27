@@ -7,7 +7,11 @@ use App\Application\DTO\ServiceSearchDTO;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+
 use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 
 class ListServices
 {

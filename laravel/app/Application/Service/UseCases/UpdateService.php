@@ -18,6 +18,12 @@ class UpdateService
         private readonly ServiceAuthorizationService $authService
     ) {}
 
+    /**
+     * Executes the update service use case. It checks if the user has permission to update the service and then updates it with the provided data.
+     * @param UpdateServiceDTO $dto The data transfer object containing the service ID and the data to update.
+     * @param User $user The user performing the update operation.
+     * @return Service The updated service.
+     */
     public function execute(UpdateServiceDTO $dto, User $user): Service
     {
         return DB::transaction(function () use ($dto, $user) {

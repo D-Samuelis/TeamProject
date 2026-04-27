@@ -11,6 +11,14 @@ use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+use App\Models\Business\Branch;
+
+use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 
 class BranchRepository implements BranchRepositoryInterface
 {
@@ -19,7 +27,10 @@ class BranchRepository implements BranchRepositoryInterface
      */
     public function findActive(int $id): Branch
     {
-        return Branch::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
+        return Branch::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->findOrFail($id);
     }
 
     public function search(BranchSearchDTO $dto, User $user)
@@ -83,7 +94,6 @@ class BranchRepository implements BranchRepositoryInterface
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
 
-        // Apply the branch-specific filters
         $this->applyBranchFilters($query, $dto);
 
         return $query
@@ -140,8 +150,8 @@ class BranchRepository implements BranchRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all' => $query->withTrashed(),
-            default => $query,
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query->get();
@@ -154,6 +164,9 @@ class BranchRepository implements BranchRepositoryInterface
             ->firstOrFail();
     }
 
+    /**
+     * DATA PERSISTENCE
+     */
     public function save(array $data): Branch
     {
         return Branch::create($data);
@@ -174,12 +187,16 @@ class BranchRepository implements BranchRepositoryInterface
         $branch->delete();
     }
 
-    public function restore(Branch $branch): void
+    public function restore(Branch $branch): Branch
     {
         $branch->update(['delete_after' => null]);
         $branch->restore();
+        return $branch;
     }
 
+    /**
+     * RELATIONSHIPS & ASSIGNMENTS
+     */
     public function attachServices(Branch $branch, array $serviceIds): void
     {
         $branch->services()->sync($serviceIds);
@@ -190,7 +207,7 @@ class BranchRepository implements BranchRepositoryInterface
         $branch->users()->attach($userId, ['role' => $role->value]);
     }
 
-    public function detachUser($branch, $userId): int
+    public function detachUser(Branch $branch, int $userId): int
     {
         return $branch->users()->detach($userId);
     }
@@ -199,7 +216,7 @@ class BranchRepository implements BranchRepositoryInterface
     {
         return [
             'services' => $branch->services()->pluck('id')->all(),
-            'users' => $branch->users()->pluck('id')->all(),
+            'users'    => $branch->users()->pluck('id')->all(),
         ];
     }
 
@@ -224,11 +241,7 @@ class BranchRepository implements BranchRepositoryInterface
             $query->where(function ($sub) use ($keyword) {
                 $sub->where('name', 'like', "%{$keyword}%")
                     ->orWhere('city', 'like', "%{$keyword}%")
-                    ->orWhereHas(
-                        'business',
-                        fn($b) =>
-                        $b->where('name', 'like', "%{$keyword}%")
-                    );
+                    ->orWhereHas('business', fn($b) => $b->where('name', 'like', "%{$keyword}%"));
             });
         }
 

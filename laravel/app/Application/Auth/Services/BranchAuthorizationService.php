@@ -5,8 +5,10 @@ namespace App\Application\Auth\Services;
 use App\Models\Auth\User;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
+
 use App\Domain\User\Interfaces\UserRepositoryInterface;
-use Illuminate\Auth\Access\AuthorizationException;
+
+use App\Exceptions\UnauthorizedException;
 
 class BranchAuthorizationService
 {
@@ -23,7 +25,7 @@ class BranchAuthorizationService
         $role = $this->userRepo->getBusinessRole($user, $business);
 
         if (!$role || !$role->canUpdate()) {
-            throw new AuthorizationException('You do not have permission to create branches.');
+            throw new UnauthorizedException('You do not have permission to create branches.');
         }
     }
 
@@ -38,7 +40,7 @@ class BranchAuthorizationService
             return;
         }
 
-        throw new AuthorizationException('You do not have permission to update this branch.');
+        throw new UnauthorizedException('You do not have permission to update this branch.');
     }
 
     public function ensureCanDeleteBranch(User $user, Branch $branch): void
@@ -52,7 +54,7 @@ class BranchAuthorizationService
             return;
         }
 
-        throw new AuthorizationException('You do not have permission to delete this branch.');
+        throw new UnauthorizedException('You do not have permission to delete this branch.');
     }
 
     public function ensureCanManageBranchStaff(User $user, Branch $branch): void
@@ -71,7 +73,7 @@ class BranchAuthorizationService
             return;
         }
 
-        throw new AuthorizationException('You are not authorized to manage staff for this branch.');
+        throw new UnauthorizedException('You are not authorized to manage staff for this branch.');
     }
 
     /**
@@ -82,7 +84,7 @@ class BranchAuthorizationService
         if ($branch->is_active) return;
 
         if (!$user) {
-            throw new AuthorizationException('This branch is private.');
+            throw new UnauthorizedException('This branch is private.');
         }
 
         if ($user->isAdmin()) return;
@@ -93,6 +95,6 @@ class BranchAuthorizationService
         $branchRole = $this->userRepo->getBranchRole($user, $branch);
         if ($branchRole) return;
 
-        throw new AuthorizationException('You do not have permission to view this branch.');
+        throw new UnauthorizedException('You do not have permission to view this branch.');
     }
 }

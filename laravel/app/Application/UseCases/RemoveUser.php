@@ -3,15 +3,20 @@
 namespace App\Application\UseCases;
 
 use App\Models\Auth\User;
+
+use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Notifications\EntityRemovedNotification;
+
 use Exception;
 
 class RemoveUser
 {
     public function __construct(
-        private \App\Repositories\Business\BusinessRepository $businessRepo,
-        private \App\Repositories\Branch\BranchRepository $branchRepo,
-        private \App\Repositories\Service\ServiceRepository $serviceRepo
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly BranchRepositoryInterface $branchRepo,
+        private readonly ServiceRepositoryInterface $serviceRepo
     ) {}
 
     public function execute(int $businessId, int $userId, string $targetType, int $targetId): void

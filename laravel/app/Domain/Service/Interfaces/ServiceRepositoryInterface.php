@@ -41,7 +41,7 @@ interface ServiceRepositoryInterface
 
     public function delete(Service $service): void;
 
-    public function restore(Service $service): void;
+    public function restore(Service $service): Service;
 
     /**
      * RELATIONSHIPS
