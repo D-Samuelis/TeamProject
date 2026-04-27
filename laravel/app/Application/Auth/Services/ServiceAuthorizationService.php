@@ -3,11 +3,13 @@
 namespace App\Application\Auth\Services;
 
 use App\Models\Auth\User;
-use App\Models\Business\Service;
-use App\Domain\User\Interfaces\UserRepositoryInterface;
-use App\Models\Business\Branch;
 use App\Models\Business\Business;
-use Illuminate\Auth\Access\AuthorizationException;
+use App\Models\Business\Branch;
+use App\Models\Business\Service;
+
+use App\Domain\User\Interfaces\UserRepositoryInterface;
+
+use App\Exceptions\UnauthorizedException;
 
 class ServiceAuthorizationService
 {
@@ -22,7 +24,7 @@ class ServiceAuthorizationService
         $role = $this->userRepo->getBusinessRole($user, $business);
 
         if (!$role || !$role->canUpdate()) {
-            throw new AuthorizationException('You do not have permission to create services.');
+            throw new UnauthorizedException('You do not have permission to create services.');
         }
     }
 
@@ -33,7 +35,7 @@ class ServiceAuthorizationService
         $businessRole = $this->userRepo->getBusinessRole($user, $service->business);
         if ($businessRole && $businessRole->canUpdate()) return;
 
-        throw new AuthorizationException('You do not have permission to update this service.');
+        throw new UnauthorizedException('You do not have permission to update this service.');
     }
 
     public function ensureCanDeleteService(User $user, Service $service): void
@@ -43,7 +45,7 @@ class ServiceAuthorizationService
         $businessRole = $this->userRepo->getBusinessRole($user, $service->business);
         if ($businessRole && $businessRole->canDelete()) return;
 
-        throw new AuthorizationException('You do not have permission to delete this service.');
+        throw new UnauthorizedException('You do not have permission to delete this service.');
     }
 
     public function ensureCanAssignServiceToBranch(User $user, Business $business, Branch $branch): void
@@ -56,7 +58,7 @@ class ServiceAuthorizationService
         $branchRole = $this->userRepo->getBranchRole($user, $branch);
         if ($branchRole && $branchRole->canAssign()) return;
 
-        throw new AuthorizationException('You do not have permission to assign services to this branch.');
+        throw new UnauthorizedException('You do not have permission to assign services to this branch.');
     }
 
     public function ensureCanViewService(User $user, Service $service): void
@@ -71,6 +73,6 @@ class ServiceAuthorizationService
             if ($branchRole) return;
         }
 
-        throw new AuthorizationException('You do not have permission to view this service.');
+        throw new UnauthorizedException('You do not have permission to view this service.');
     }
 }

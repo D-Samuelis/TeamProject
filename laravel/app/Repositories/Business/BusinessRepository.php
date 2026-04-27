@@ -2,20 +2,22 @@
 
 namespace App\Repositories\Business;
 
-use App\Application\DTO\SearchDTO;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
-use App\Domain\Business\Enums\BusinessRoleEnum;
+
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Business\Enums\BusinessRoleEnum;
 
 class BusinessRepository implements BusinessRepositoryInterface
 {
     /**
      * PUBLIC METHODS
      */
-    public function findActive(int $id): Business | null
+    public function findActive(int $id): Business
     {
         return Business::query()
             ->where('is_published', true)
@@ -23,7 +25,7 @@ class BusinessRepository implements BusinessRepositoryInterface
                 'branches' => fn($q) => $q->where('is_active', true),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
-            ->find($id);
+            ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)
@@ -64,25 +66,25 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->get();
     }
 
-    public function findForManagement(int $id): Business | null
+    public function findForManagement(int $id): Business
     {
         return Business::withTrashed()
             ->with([
                 'branches' => fn($q) => $q->withTrashed(),
                 'services' => fn($q) => $q->withTrashed(),
             ])
-            ->find($id);
+            ->findOrFail($id);
     }
 
     /**
      * DATA PERSISTENCE
      */
-    public function save(array $data): Business | null
+    public function save(array $data): Business
     {
         return Business::create($data);
     }
 
-    public function update(Business $business, array $data): Business | null
+    public function update(Business $business, array $data): Business
     {
         $business->update($data);
         return $business;
@@ -97,10 +99,11 @@ class BusinessRepository implements BusinessRepositoryInterface
         $business->delete();
     }
 
-    public function restore(Business $business): void
+    public function restore(Business $business): Business
     {
         $business->update(['delete_after' => null]);
         $business->restore();
+        return $business;
     }
 
     public function existsOwner(int $userId, ?int $businessId = null): bool
@@ -131,7 +134,6 @@ class BusinessRepository implements BusinessRepositoryInterface
     {
         $query = Business::query()->where('is_published', true);
 
-        // Reuse the exact same filter logic
         $this->applySearchFilters($query, $dto);
 
         return $query->count();
@@ -142,23 +144,18 @@ class BusinessRepository implements BusinessRepositoryInterface
      */
     private function applySearchFilters(Builder $query, SearchDTO $dto): void
     {
-        // Keyword Deep Search
         if ($dto->query) {
             $keyword = $dto->query;
 
             $query->where(function ($sub) use ($keyword) {
-                // Check Business Name/Description
                 $sub->orWhere('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%");
 
-                // Check if any ACTIVE branch matches city or name
                 $sub->orWhereHas('branches', fn($b) => $b->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('city', 'like', "%{$keyword}%")));
 
-                // Check if any ACTIVE service matches name or description
                 $sub->orWhereHas('services', fn($s) => $s->where('is_active', true)->where(fn($q) => $q->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%")));
             });
         }
 
-        // Other Exact Column Checks
         if ($dto->city) {
             $query->whereHas('branches', fn($q) => $q->where('is_active', true)->where('city', $dto->city));
         }

@@ -2,10 +2,11 @@
 
 namespace App\Application\Branch\UseCases;
 
-use App\Application\Auth\Services\BranchAuthorizationService;
-use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Branch;
+
+use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+use App\Application\Auth\Services\BranchAuthorizationService;
 
 class GetBranch
 {
@@ -14,6 +15,12 @@ class GetBranch
         private readonly BranchAuthorizationService $authService
     ) {}
 
+    /**
+     * Executes the get branch use case. It checks if the user has permission to view the branch and returns it if found.
+     * @param int $branchId The ID of the branch to retrieve.
+     * @param User|null $user The user requesting the branch, or null for unauthenticated access.
+     * @return Branch The retrieved branch.
+     */
     public function execute(int $branchId, ?User $user = null): Branch
     {
         if ($user) {
@@ -22,6 +29,7 @@ class GetBranch
             return $branch;
         }
 
-        return $this->branchRepo->findActive($branchId);
+        $branch = $this->branchRepo->findActive($branchId);
+        return $branch;
     }
 }

@@ -2,14 +2,16 @@
 
 namespace App\Repositories\Service;
 
-use Illuminate\Database\Eloquent\Builder;
-use App\Application\DTO\SearchDTO;
-use App\Domain\Service\Enums\ServiceRoleEnum;
-use Illuminate\Support\Collection;
-use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 use App\Models\Business\Service;
+
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Service\Enums\ServiceRoleEnum;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {
@@ -18,20 +20,21 @@ class ServiceRepository implements ServiceRepositoryInterface
      */
     public function findActive(int $id): Service
     {
-        return Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))
-            ->with(['assets' => function ($query) {
-                $query->where('is_active', true);
-            }])
+        return Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->with(['assets' => fn($q) => $q->where('is_active', true)])
             ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)
     {
-        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
-        #return $query->with('business')->latest()->paginate($dto->perPage);
         return $query->with(['business', 'branches'])->latest()->paginate($dto->perPage);
     }
 
@@ -60,8 +63,8 @@ class ServiceRepository implements ServiceRepositoryInterface
 
         match ($scope) {
             'deleted' => $query->onlyTrashed(),
-            'all' => $query->withTrashed(),
-            default => $query,
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query
@@ -79,20 +82,14 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function findWithinBusiness(int $serviceId, int $businessId): Service
     {
-        return Service::where('id', $serviceId)->where('business_id', $businessId)->firstOrFail();
+        return Service::where('id', $serviceId)
+            ->where('business_id', $businessId)
+            ->firstOrFail();
     }
 
-    public function update(Service $service, array $data): Service
-    {
-        if (isset($data['branch_ids'])) {
-            $service->branches()->sync($data['branch_ids']);
-            unset($data['branch_ids']);
-        }
-
-        $service->update($data);
-        return $service;
-    }
-
+    /**
+     * DATA PERSISTENCE
+     */
     public function save(array $data): Service
     {
         $branchIds = $data['branch_ids'] ?? [];
@@ -107,25 +104,39 @@ class ServiceRepository implements ServiceRepositoryInterface
         return $service;
     }
 
+    public function update(Service $service, array $data): Service
+    {
+        if (isset($data['branch_ids'])) {
+            $service->branches()->sync($data['branch_ids']);
+            unset($data['branch_ids']);
+        }
+
+        $service->update($data);
+        return $service;
+    }
+
     public function delete(Service $service): void
     {
         $service->update([
-            'is_active' => false,
+            'is_active'    => false,
             'delete_after' => now()->addDays(7),
         ]);
         $service->delete();
     }
 
-    public function restore(Service $service): void
+    public function restore(Service $service): Service
     {
         $service->update([
             'delete_after' => null,
-            'is_active' => true,
+            'is_active'    => true,
         ]);
-
         $service->restore();
+        return $service;
     }
 
+    /**
+     * RELATIONSHIPS
+     */
     public function attachBranches(Service $service, array $branchIds): void
     {
         $service->branches()->sync($branchIds);
@@ -143,7 +154,9 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function count(SearchDTO $dto): int
     {
-        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
