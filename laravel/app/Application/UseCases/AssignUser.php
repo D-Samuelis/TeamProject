@@ -3,19 +3,19 @@
 namespace App\Application\UseCases;
 
 use App\Application\DTO\AssignUserDTO;
-use App\Repositories\Business\BusinessRepository;
-use App\Repositories\User\UserRepository;
-use App\Repositories\Branch\BranchRepository; // Assuming you have these
-use App\Repositories\Service\ServiceRepository;
+use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+use App\Domain\User\Interfaces\UserRepositoryInterface;
 use App\Notifications\EntityAssignedNotification;
 
 class AssignUser
 {
     public function __construct(
-        private BusinessRepository $businessRepo,
-        private UserRepository $userRepo,
-        private BranchRepository $branchRepo,
-        private ServiceRepository $serviceRepo
+        private readonly BusinessRepositoryInterface $businessRepo,
+        private readonly UserRepositoryInterface $userRepo,
+        private readonly BranchRepositoryInterface $branchRepo,
+        private readonly ServiceRepositoryInterface $serviceRepo
     ) {}
 
     public function execute(AssignUserDTO $dto): void

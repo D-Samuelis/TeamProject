@@ -1,9 +1,12 @@
 <?php
 
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Exceptions\UnauthorizedException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -21,15 +24,25 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-
-        // Domain/business rule violations (not auth-related)
-        $exceptions->render(function (\DomainException $e, Request $request) {
-            if (!$request->expectsJson()) {
-                return back()->withInput()->with('error', $e->getMessage());
+        $exceptions->render(function (ModelNotFoundException $e, Request $request) {
+            $entity = class_basename($e->getModel());
+            if ($request->expectsJson()) {
+                return response()->json(['error' => "{$entity} not found."], 404);
             }
-            return response()->json(['message' => $e->getMessage()], 422);
+            return redirect()->back()->with('error', "{$entity} not found.");
         });
 
-        // AuthorizationException is already handled by Laravel as 403
-        // — no need to register it here
+        $exceptions->render(function (UnauthorizedException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $e->getMessage()], 403);
+            }
+            return redirect()->back()->with('error', $e->getMessage());
+        });
+
+        $exceptions->render(function (\InvalidArgumentException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $e->getMessage()], 422);
+            }
+            return redirect()->back()->with('error', $e->getMessage());
+        });
     })->create();

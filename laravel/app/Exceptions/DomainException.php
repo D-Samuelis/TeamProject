@@ -1,5 +1,5 @@
 <?php
 
-namespace App\Exceptions\Base;
+namespace App\Exceptions;
 
 class DomainException extends \RuntimeException {}

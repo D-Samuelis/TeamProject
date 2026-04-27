@@ -20,6 +20,12 @@ class StoreService
         private readonly ServiceAuthorizationService $authService
     ) {}
 
+    /**
+     * Executes the store service use case. It checks if the user has permission to create a service and then creates it with the provided data.
+     * @param StoreServiceDTO $dto The data transfer object containing the data for the new service.
+     * @param User $user The user performing the create operation.
+     * @return Service The created service.
+     */
     public function execute(StoreServiceDTO $dto, User $user): Service
     {
         return DB::transaction(function () use ($dto, $user) {
