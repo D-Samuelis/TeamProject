@@ -12,6 +12,7 @@ use App\Models\Business\Business;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 
+
 class BusinessRepository implements BusinessRepositoryInterface
 {
     /**

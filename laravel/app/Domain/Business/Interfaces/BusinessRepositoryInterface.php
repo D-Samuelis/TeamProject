@@ -7,6 +7,7 @@ use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Business;
 use App\Models\Auth\User;
+
 use App\Domain\Business\Enums\BusinessRoleEnum;
 
 interface BusinessRepositoryInterface

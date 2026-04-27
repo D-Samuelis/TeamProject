@@ -12,6 +12,7 @@ use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 
+
 class BranchRepository implements BranchRepositoryInterface
 {
     /**
