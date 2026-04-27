@@ -50,7 +50,7 @@ class ManageBusinessController extends Controller
             $business = $useCase->execute($businessId, Auth::user());
             return view('web.manage.business.show', compact('business'));
         } catch (BusinessNotFoundException $e) {
-            return redirect()->route('manage.business.index')->with('error', 'Business not found.');
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (AuthorizationException $e) {
             return redirect()->route('manage.business.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
@@ -62,13 +62,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
-            return back()->with('success', "Business '{$business->name}' created successfully.");
+            return response()->json(['message' => "Business '{$business->name}' created successfully."]);
         } catch (AuthorizationException $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 403);
         } catch (BusinessCreationFailedException $e) {
-            return back()->with('error', 'Something went wrong while creating the business.');
+            return response()->json(['error' => $e->getMessage()], 500);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
     }
 
@@ -76,13 +76,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
-            return back()->with('success', 'Business updated successfully!');
+            return response()->json(['message' => 'Business updated successfully!']);
         } catch (BusinessNotFoundException $e) {
-            return redirect()->route('manage.business.index')->with('error', 'Business not found.');
+            return response()->json(['error' => $e->getMessage()], 404);
         } catch (AuthorizationException $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 403);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Something went wrong. Please try again.');
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
     }
 
@@ -90,13 +90,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $useCase->execute($businessId, Auth::user());
-            return redirect()->route('manage.business.index')->with('success', 'Business deleted successfully.');
+            return response()->json(['message' => 'Business deleted successfully.']);
         } catch (BusinessNotFoundException $e) {
-            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 404);
         } catch (AuthorizationException $e) {
-            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 403);
         } catch (\Throwable $e) {
-            return redirect()->route('manage.business.index')->with('error', 'Something went wrong. Please try again.');
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
     }
 
@@ -104,13 +104,13 @@ class ManageBusinessController extends Controller
     {
         try {
             $useCase->execute($businessId, Auth::user());
-            return redirect()->route('manage.business.index')->with('success', 'Business restored successfully.');
+            return response()->json(['message' => 'Business restored successfully.']);
         } catch (BusinessNotFoundException $e) {
-            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 404);
         } catch (AuthorizationException $e) {
-            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 403);
         } catch (\Throwable $e) {
-            return redirect()->route('manage.business.index')->with('error', 'Something went wrong. Please try again.');
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
     }
 }
