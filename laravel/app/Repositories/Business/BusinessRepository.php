@@ -2,11 +2,14 @@
 
 namespace App\Repositories\Business;
 
+<<<<<<< HEAD
 use App\Application\DTO\SearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Domain\Business\Enums\BusinessStateEnum;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 

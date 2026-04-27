@@ -27,6 +27,7 @@ class ManageBusinessController extends Controller
 {
     public function index(Request $request, ListBusinesses $useCase)
     {
+<<<<<<< HEAD
         $user = Auth::user();
 
         try {
@@ -60,10 +61,17 @@ class ManageBusinessController extends Controller
         } catch (\Throwable $e) {
             return back()->with('error', 'Something went wrong. Please try again.');
         }
+=======
+        return view('web.manage.business.index', [
+            'activeBusinesses'  => $useCase->execute(Auth::user(), 'active'),
+            'deletedBusinesses' => $useCase->execute(Auth::user(), 'deleted'),
+        ]);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function show(int $businessId, GetBusiness $useCase)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         $business = $useCase->execute($businessId, Auth::user());
         return view('web.manage.business.show', compact('business'));
@@ -79,10 +87,15 @@ class ManageBusinessController extends Controller
             return back()->with('error', 'Something went wrong. Please try again.');
         }
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
+=======
+        $business = $useCase->execute($businessId, Auth::user());
+        return view('web.manage.business.show', compact('business'));
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function store(StoreBusinessRequest $request, StoreBusiness $useCase)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
         return response()->json(['message' => "Business '{$business->name}' created successfully.", 'data' => $business], 201);
@@ -98,10 +111,15 @@ class ManageBusinessController extends Controller
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
+=======
+        $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
+        return response()->json(['message' => "Business '{$business->name}' created successfully.", 'data' => $business], 201);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function update(int $businessId, UpdateBusinessRequest $request, UpdateBusiness $useCase)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         $business = $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
         return response()->json(['message' => "Business '{$business->name}' updated successfully.", 'data' => $business]);
@@ -117,10 +135,15 @@ class ManageBusinessController extends Controller
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
+=======
+        $business = $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
+        return response()->json(['message' => "Business '{$business->name}' updated successfully.", 'data' => $business]);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function delete(int $businessId, DeleteBusiness $useCase)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         $useCase->execute($businessId, Auth::user());
         return response()->json(['message' => 'Business deleted successfully.', 'data' => $businessId]);
@@ -136,10 +159,15 @@ class ManageBusinessController extends Controller
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
+=======
+        $useCase->execute($businessId, Auth::user());
+        return response()->json(['message' => 'Business deleted successfully.', 'data' => $businessId]);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function restore(int $businessId, RestoreBusiness $useCase)
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         $business = $useCase->execute($businessId, Auth::user());
         return response()->json(['message' => 'Business restored successfully.', 'data' => $business]);
@@ -180,5 +208,9 @@ class ManageBusinessController extends Controller
         return response()->json($results);
 =======
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
+=======
+        $business = $useCase->execute($businessId, Auth::user());
+        return response()->json(['message' => 'Business restored successfully.', 'data' => $business]);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Repositories\Service;
 
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 use App\Models\Business\Service;
@@ -105,12 +108,18 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function publicSearch(SearchDTO $dto)
     {
-        $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
 
         $this->applyServiceFilters($query, $dto);
 
+<<<<<<< HEAD
         #return $query->with('business')->latest()->paginate($dto->perPage);
         return $query->with(['business', 'branches', 'category'])->latest()->paginate($dto->perPage);
+=======
+        return $query->with(['business', 'branches'])->latest()->paginate($dto->perPage);
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function findMultipleByIds(array $ids): Collection
