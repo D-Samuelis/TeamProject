@@ -22,6 +22,7 @@ use App\Application\Service\UseCases\GetService;
 use App\Application\Service\UseCases\ListServices;
 use App\Application\Service\UseCases\AssignServiceToBranch;
 use App\Application\Service\UseCases\UnassignServiceFromBranch;
+<<<<<<< HEAD
 use App\Models\Auth\User;
 use App\Models\Business\Category;
 use App\Models\Business\Business;
@@ -30,6 +31,10 @@ use App\Notifications\CategoryRequestedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+=======
+use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Business\UseCases\ListBusinesses;
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 
 class ManageServiceController extends Controller
 {
@@ -40,6 +45,7 @@ class ManageServiceController extends Controller
         $paginator = $listServices->execute($dto, $user);
 
         return view('web.manage.service.index', [
+<<<<<<< HEAD
             'services' => $paginator->getCollection(),
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
@@ -52,6 +58,11 @@ class ManageServiceController extends Controller
             'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
             'selectedBusiness' => $request->business_id ? Business::find((int) $request->business_id, ['id', 'name']) : null,
             'categories' => Category::orderBy('name')->get(),
+=======
+            'services'   => $listServices->execute(Auth::user(), scope: 'all'),
+            'businesses' => $listBusinesses->execute(Auth::user()),
+            'branches'   => $listBranches->execute(Auth::user()),
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
         ]);
     }
 
@@ -59,10 +70,16 @@ class ManageServiceController extends Controller
     {
         $service = $getService->execute($serviceId, Auth::user());
         return view('web.manage.service.show', [
+<<<<<<< HEAD
             'service' => $service,
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'categories' => Category::orderBy('name')->get(),
+=======
+            'service'    => $service,
+            'businesses' => $listBusinesses->execute(Auth::user()),
+            'branches'   => $listBranches->execute(Auth::user()),
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
         ]);
     }
 
@@ -76,6 +93,7 @@ class ManageServiceController extends Controller
     {
         $service = $useCase->execute(UpdateServiceDTO::fromRequest($serviceId, $request), Auth::user());
         return response()->json(['message' => "Service '{$service->name}' updated successfully.", 'data' => $service]);
+<<<<<<< HEAD
     }
 
     public function requestCategory(Request $request)
@@ -128,6 +146,8 @@ class ManageServiceController extends Controller
             )));
 
         return back()->with('success', 'Category request was sent to admin.');
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function delete(int $serviceId, DeleteService $useCase)
@@ -153,6 +173,7 @@ class ManageServiceController extends Controller
         $useCase->execute($serviceId, $branchId, Auth::user());
         return response()->json(['message' => 'Service removed from branch successfully.', 'data' => $serviceId]);
     }
+<<<<<<< HEAD
 
     public function search(Request $request, ListServices $listServices): JsonResponse
     {
@@ -173,4 +194,6 @@ class ManageServiceController extends Controller
 
         return response()->json($results);
     }
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 }

@@ -2,9 +2,12 @@
 
 namespace App\Domain\Business\Interfaces;
 
+<<<<<<< HEAD
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 use App\Models\Business\Business;
 use App\Models\Auth\User;
 

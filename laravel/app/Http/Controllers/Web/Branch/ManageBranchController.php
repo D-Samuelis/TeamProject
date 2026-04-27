@@ -84,6 +84,7 @@ class ManageBranchController extends Controller
     {
         $branch = $useCase->execute($branchId, Auth::user());
         return response()->json(['message' => 'Branch restored successfully.', 'data' => $branch]);
+<<<<<<< HEAD
     }
 
     public function search(Request $request): JsonResponse
@@ -103,5 +104,7 @@ class ManageBranchController extends Controller
             ->get(['id', 'name']);
 
         return response()->json($businesses);
+=======
+>>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 }
