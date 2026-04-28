@@ -7,7 +7,7 @@ export function initToolbar() {
     const config = window.BE_DATA?.toolbar || {};
     const actions = { left: '', center: '', right: '' };
 
-    // --- STATUSY ---
+    // --- LEFT (Statusy a Connections) ---
     const tplStatus = document.getElementById('tpl-status-filters');
     if (tplStatus) {
         actions.left += `
@@ -19,7 +19,6 @@ export function initToolbar() {
             </div>`;
     }
 
-    // --- CONNECTIONS ---
     const tplConnections = document.getElementById('tpl-connections');
     if (tplConnections) {
         actions.left += `
@@ -33,35 +32,58 @@ export function initToolbar() {
             </div>`;
     }
 
-    // --- CENTER ACTIONS ---
-    if (Array.isArray(config.centerActions)) {
-        actions.center = config.centerActions.map(action => `
-            <button type="button" class="toolbar__action-button ${action.class || ''}" data-modal-target="${action.modal}">
-                <i class="fa-solid ${action.icon}"></i> ${action.label}
-            </button>
-        `).join('');
+    console.log(config.centerGroups);
+
+    // --- CENTER ---
+    if (Array.isArray(config.centerGroups)) {
+        actions.center = config.centerGroups.map(group => {
+            const buttonsHtml = group.actions.map(action => {
+                const btnHtml = `
+                    <button type="${action.isForm ? 'submit' : 'button'}" 
+                        class="toolbar__action-button ${action.class || ''}" 
+                        ${action.modal ? `data-modal-target="${action.modal}"` : ''}
+                        ${action.id ? `data-id="${action.id}"` : ''}>
+                        <i class="fa-solid ${action.icon}"></i> ${action.label}
+                    </button>
+                `;
+
+                if (action.isForm) {
+                    return `
+                        <form action="${action.action}" method="POST" style="display:inline;">
+                            <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                            ${btnHtml}
+                        </form>
+                    `;
+                }
+
+                return btnHtml;
+            }).join('');
+
+            const divider = group.hasDivider ? '<div class="toolbar__divider"></div>' : '';
+
+            return `<div class="toolbar__group">${divider}${buttonsHtml}</div>`;
+        }).join('');
     }
 
-    // --- RIGHT ACTION (Bexi Toggle) ---
-    actions.right = `
-        <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
-            <i class="fa-solid fa-message"></i> <span>Ask Bexi</span>
-        </button>
-    `;
+    // --- RIGHT ACTION (Bexi) ---
+    if (config.rightAction) {
+        actions.right = `
+            <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
+                <i class="fa-solid fa-message"></i> <span>${config.rightAction.label}</span>
+            </button>
+        `;
+    }
 
-    // Renderujeme toolbar
+    // Vykreslenie do DOMu cez tvoju Toolbar komponentu
     Toolbar.setActions(actions);
 
-    // Inicializácia prepínača Bexi
+    // Re-inicializácia eventov (Bexi, Dropdowny)
     initBexiToggle();
-
-    // Inicializácia dropdownov
     if (tplStatus) {
         setupDropdown('toolbarStatusBtn', 'toolbarStatusDropdown', () => {
             initAssetStatusFilters('toolbarStatusDropdown'); 
         });
     }
-
     if (tplConnections) {
         setupDropdown('toolbarConnectionsBtn', 'toolbarConnectionsDropdown');
     }

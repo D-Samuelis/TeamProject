@@ -19,26 +19,51 @@
             restoreAsset: "{{ route('manage.asset.restore', ':id') }}",
             deleteRule: '{{ route("manage.rule.delete", ":id") }}'
         },
+        permissions: {
+            canUpdate: @json(auth()->user()->can('update', $asset)),
+            canDelete: @json(auth()->user()->can('delete', $asset)),
+        },
         toolbar: {
             showStatus: false,
-            centerAction: {
-                label: 'Add Rule',
-                icon: 'fa-plus',
-                modal: 'create-rule-modal'
-            },
-            centerActions: [
+            centerGroups: [
+                @can('delete', $asset)
                 {
-                    label: 'Archive Asset',
-                    icon: 'fa-box-archive',
-                    modal: 'archive-asset-modal',
-                    class: 'toolbar__action-button--secondary'
+                    groupId: 'danger-zone',
+                    actions: [
+                        @if($asset->trashed())
+                            {
+                                label: 'Restore Asset',
+                                icon: 'fa-rotate-left',
+                                class: '',
+                                isForm: true,
+                                action: '{{ route("manage.asset.restore", $asset->id) }}'
+                            }
+                        @else
+                            {
+                                label: 'Archive Asset',
+                                icon: 'fa-box-archive',
+                                modal: 'archive-asset-modal',
+                                class: 'toolbar__action-button--danger',
+                                id: '{{ $asset->id }}',
+                                name: '{{ $asset->name }}'
+                            }
+                        @endif
+                    ]
                 },
+                @endcan
                 {
-                    label: 'Add Rule',
-                    icon: 'fa-plus',
-                    modal: 'create-rule-modal',
-                    class: ''
-                },
+                    groupId: 'manage',
+                    hasDivider: true,
+                    actions: [
+                        @can('update', $asset)
+                        {
+                            label: 'Create Rule',
+                            icon: 'fa-plus',
+                            modal: 'create-rule-modal'
+                        }
+                        @endcan
+                    ]
+                }
             ],
             rightAction: {
                 label: 'Ask Bexi',

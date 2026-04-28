@@ -20,12 +20,16 @@
         csrf: "{{ csrf_token() }}",
         toolbar: {
             showStatus: true,
-            centerActions: [
+            centerGroups: [
                 {
-                    label: 'Create Asset',
-                    icon: 'fa-plus',
-                    modal: 'create-asset-modal',
-                    class: ''
+                    groupId: 'manage',
+                    actions: [
+                        {
+                            label: 'Create Asset',
+                            icon: 'fa-plus',
+                            modal: 'create-asset-modal'
+                        }
+                    ]
                 }
             ],
             rightAction: {

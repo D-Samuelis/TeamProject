@@ -60,3 +60,20 @@
 .toolbar__base.translate-y-0 {
     transform: translateX(-50%) translateY(0);
 }
+
+.toolbar__group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toolbar__divider {
+    width: 1px;
+    height: 24px;
+    background: var(--color-border-light);
+    margin-right: .5rem;
+}
+
+.toolbar__action-button--danger {
+    color: var(--color-danger);
+}
