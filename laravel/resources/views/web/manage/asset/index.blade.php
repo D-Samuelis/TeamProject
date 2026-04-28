@@ -20,11 +20,14 @@
         csrf: "{{ csrf_token() }}",
         toolbar: {
             showStatus: true,
-            centerAction: {
-                label: 'Create Asset',
-                icon: 'fa-plus',
-                modal: 'create-asset-modal'
-            },
+            centerActions: [
+                {
+                    label: 'Create Asset',
+                    icon: 'fa-plus',
+                    modal: 'create-asset-modal',
+                    class: ''
+                }
+            ],
             rightAction: {
                 label: 'Ask Bexi',
                 icon: 'fa-message',
@@ -36,19 +39,7 @@
 
 <div class="business">
     <aside class="business__sidebar">
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
-            <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('manage.asset.index') }}" class="business__nav-link is-active">
-                    <i class="fa-solid fa-list"></i><span>All Assets</span>
-                </a>
-            </div>
-        </section>
-        <section class="business__status-filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
-            <div id="statusList" class="dropdown__mini-list">
-            </div>
-        </section>
+        
     </aside>
 
     <div class="display-column">

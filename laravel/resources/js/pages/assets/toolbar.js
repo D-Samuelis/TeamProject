@@ -33,12 +33,13 @@ export function initToolbar() {
             </div>`;
     }
 
-    // --- CENTER ACTION ---
-    if (config.centerAction) {
-        actions.center = `
-            <button type="button" class="toolbar__action-button" data-modal-target="${config.centerAction.modal}">
-                <i class="fa-solid ${config.centerAction.icon}"></i> ${config.centerAction.label}
-            </button>`;
+    // --- CENTER ACTIONS ---
+    if (Array.isArray(config.centerActions)) {
+        actions.center = config.centerActions.map(action => `
+            <button type="button" class="toolbar__action-button ${action.class || ''}" data-modal-target="${action.modal}">
+                <i class="fa-solid ${action.icon}"></i> ${action.label}
+            </button>
+        `).join('');
     }
 
     // --- RIGHT ACTION (Bexi Toggle) ---
