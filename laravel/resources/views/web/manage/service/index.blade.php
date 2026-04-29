@@ -3,26 +3,9 @@
 @section('title', 'Bexora | My Services')
 
 @section('content')
-<div class="business"> {{-- Ponechávame triedu .business kvôli CSS konzistencii --}}
+<div class="business">
     <aside class="business__sidebar">
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
-            <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('manage.service.index') }}" class="business__nav-link is-active">
-                    <i class="fa-solid fa-list"></i><span>All Services</span>
-                </a>
-                <button type="button" class="business__nav-link" data-modal-target="create-service-modal">
-                    <i class="fa-solid fa-plus"></i><span>New Service</span>
-                </button>
-            </div>
-        </section>
 
-        <section class="business__status-filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
-            <div id="statusList" class="dropdown__mini-list">
-                {{-- Sem JS renderuje filtre (Active, Inactive, Archived) --}}
-            </div>
-        </section>
     </aside>
 
     <div class="display-column">
@@ -34,7 +17,6 @@
 
                 <div class="business__header-info">
                     <h2 class="business-header__title">My Services</h2>
-                    
                     <div class="business-info">
                         <div class="stat-item stat-item--all">
                             <i class="fa-solid fa-layer-group"></i>
@@ -56,7 +38,7 @@
                 </div>
 
                 <div class="business__header-right">
-                    <div class="business__header-right-section_1"> </div>
+                    <div class="business__header-right-section_1"></div>
                     <div class="business__header-right-section_2">
                         <div class="list-view__search-wrapper">
                             <div class="search-container">
@@ -69,18 +51,25 @@
             </header>
 
             <div class="business__body-wrapper">
-                {{-- Kontajner, do ktorého JS vloží tabuľku/zoznam --}}
                 <div id="serviceTableContainer" class="list-view__body-wrapper"></div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
+
+{{-- Šablóny pre ľavú časť Toolbaru (Status filtre) --}}
+<template id="tpl-status-filters">
+    <div id="statusFilterContainer">
+        {{-- Sem JS vloží Checkboxy (Active/Inactive/Archived) cez initServiceStatusFilters --}}
+    </div>
+</template>
 
 @php
     $beData = json_encode([
         'services'   => $services->merge($deletedServices ?? []),
-        'businesses' => $businesses->map(function($b) { return ['id' => $b->id, 'name' => $b->name]; })->values(),
-        'branches'   => $branches->map(function($b) { return ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id]; })->values(),
+        'businesses' => $businesses->map(fn($b) => ['id' => $b->id, 'name' => $b->name])->values(),
+        'branches'   => $branches->map(fn($b) => ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id])->values(),
         'routes'     => [
             'store'   => route('manage.service.store'),
             'restore' => route('manage.service.restore', ':id'),
@@ -89,13 +78,35 @@
             'show'    => route('manage.service.show', ':id'),
         ],
         'csrf' => csrf_token(),
+        'toolbar' => [
+            'centerGroups' => [
+                [
+                    'groupId' => 'manage',
+                    'hasDivider' => false,
+                    'actions' => [
+                        [
+                            'label' => 'Create Service',
+                            'icon' => 'fa-plus',
+                            'modal' => 'create-service-modal'
+                        ]
+                    ]
+                ]
+            ],
+            'rightAction' => [
+                'label' => 'Ask Bexi',
+                'icon' => 'fa-message'
+            ]
+        ]
     ]);
 @endphp
 
 <script>
     window.BE_DATA = {!! $beData !!};
-    console.log(window.BE_DATA.branches[0]);
 </script>
 
 @vite('resources/js/pages/services/entry.js')
 @endsection
+
+<div id="tpl-service-filters" style="display: none;">
+    @include('components.statuses_service')
+</div>

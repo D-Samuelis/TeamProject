@@ -49,7 +49,49 @@
         branches: @json($branchesJsData),
         routes: {
             update: '{{ route("manage.service.update", $service->id) }}',
-            delete: '{{ route("manage.service.delete", ":id") }}'
+            delete: '{{ route("manage.service.delete", $service->id) }}'
+        },
+        toolbar: {
+            centerGroups: [
+                {
+                    groupId: 'service-status',
+                    actions: [
+                        {
+                            label: `Status: ${@json($service->is_active) ? 'Active' : 'Inactive'}`,
+                            icon: @json($service->is_active) ? 'fa-circle text-green' : 'fa-circle text-yellow',
+                            isForm: true,
+                            action: '{{ route("manage.service.update", $service->id) }}',
+                            hiddenFields: [
+                                { name: 'is_active', value: @json($service->is_active) ? 0 : 1 },
+                                { name: '_method', value: 'PUT' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    groupId: 'service-manage',
+                    hasDivider: true,
+                    actions: [
+                        {
+                            label: 'Edit Service',
+                            icon: 'fa-gear',
+                            modal: 'edit-service-modal',
+                            serviceData: @json($serviceJsData)
+                        },
+                        {
+                            label: 'Archive',
+                            icon: 'fa-box-archive',
+                            class: 'delete-action',
+                            id: @json($service->id),
+                            modal: 'archive-service-modal'
+                        }
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message'
+            }
         }
     };
 </script>
@@ -93,63 +135,6 @@
                 </div>
             </div>
         </section>
-
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Connections</h3>
-            <div id="serviceConnections" class="dropdown__mini-list service-settings__sidebar-list">
-                <div class="service-settings__sidebar-group">
-                    <p class="service-settings__sidebar-group-title">Business</p>
-                    <a href="{{ route('manage.business.show', $service->business->id) }}" class="team-member-item service-settings__sidebar-link">
-                        <div class="member-info">
-                            <span class="member-name">{{ $service->business->name }}</span>
-                            <span class="member-role">Open business detail</span>
-                        </div>
-                        <i class="fa-solid fa-briefcase"></i>
-                    </a>
-                </div>
-
-                <div class="service-settings__sidebar-group">
-                    <p class="service-settings__sidebar-group-title">Branches</p>
-                    @forelse($service->branches as $branch)
-                        <a href="{{ route('manage.branch.show', $branch->id) }}" class="team-member-item service-settings__sidebar-link">
-                            <div class="member-info">
-                                <span class="member-name">{{ $branch->name }}</span>
-                                <span class="member-role">{{ $branch->city ?: 'Open branch detail' }}</span>
-                            </div>
-                            <i class="fa-solid fa-location-dot"></i>
-                        </a>
-                    @empty
-                        <div class="team-member-item service-settings__sidebar-link service-settings__sidebar-link--muted">
-                            <div class="member-info">
-                                <span class="member-name">No branches assigned</span>
-                                <span class="member-role">Assign branches in settings</span>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
-
-                <div class="service-settings__sidebar-group">
-                    <p class="service-settings__sidebar-group-title">Assets</p>
-                    @forelse($visibleAssets as $asset)
-                        <a href="{{ route('manage.asset.show', $asset->id) }}" class="team-member-item service-settings__sidebar-link">
-                            <div class="member-info">
-                                <span class="member-name">{{ $asset->name }}</span>
-                                <span class="member-role">{{ $asset->branch?->name ?: 'Open asset detail' }}</span>
-                            </div>
-                            <i class="fa-regular fa-gem"></i>
-                        </a>
-                    @empty
-                        <div class="team-member-item service-settings__sidebar-link service-settings__sidebar-link--muted">
-                            <div class="member-info">
-                                <span class="member-name">No assets connected</span>
-                                <span class="member-role">Assets are managed from asset detail</span>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
     </aside>
 
     <div class="display-column">
@@ -242,7 +227,8 @@
                                             type="button"
                                             class="branch-dropdown__item delete-action js-archive-service-btn"
                                             data-id="{{ $service->id }}"
-                                            data-name="{{ $service->name }}">
+                                            data-name="{{ $service->name }}"
+                                            data-modal-target="archive-service-modal">
                                             <i class="fa-solid fa-box-archive"></i> Archive Service
                                         </button>
                                     @endcan
@@ -448,8 +434,13 @@
                 @endif
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
 @vite('resources/js/pages/services/entry.js')
 @endsection
+
+<div id="tpl-connections" style="display: none;">
+    @include('components.connections_service', ['service' => $service])
+</div>

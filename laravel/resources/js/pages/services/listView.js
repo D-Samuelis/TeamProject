@@ -74,7 +74,7 @@ export function initServicesListView(data = []) {
                 }
             },
             { 
-                label: 'Status', key: 'is_active', sortable: true, 
+                label: 'Status', key: 'is_active', sortable: false, 
                 render: (val, item) => {
                     if (item.deleted_at) return `<span class="status-cell filter-item--red">Archived</span>`;
                     return val 

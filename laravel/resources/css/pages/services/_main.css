@@ -30,3 +30,20 @@
 .combobox-tag button:hover { 
     color: var(--color-danger-hover);
 }
+
+.service__connections {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.placeholder-box {
+    font-size: 11px;
+    color: #888;
+    padding: 15px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    background: #f9f9f9;
+    margin: 0;
+}
