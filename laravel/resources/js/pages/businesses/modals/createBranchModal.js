@@ -1,93 +1,94 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initCreateBranchModal() {
-    const btn = document.querySelector('[data-modal-target="create-branch-modal"]');
-    if (!btn) return;
+    // Delegácia eventov pre dynamicky generovaný toolbar
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-modal-target="create-branch-modal"]');
+        if (!btn) return;
 
-    btn.addEventListener('click', () => {
-        Modal.showCustom({
-            title:       'Create New Branch',
-            confirmText: 'Create Branch',
-            action:      'create',
-            rules: {
-                name: { required: { value: true, message: 'Branch name is required' } },
-            },
-            body: `
-                <form id="createBranchForm" method="POST" action="${window.BE_DATA.routes.branchStore}">
-                    <input type="hidden" name="_token"       value="${window.BE_DATA.csrf}">
-                    <input type="hidden" name="business_id"  value="${window.BE_DATA.business.id}">
+        e.preventDefault();
+        openCreateBranchModal();
+    });
+}
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Name</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input"
-                                placeholder=" " required autofocus>
-                        </div>
+function openCreateBranchModal() {
+    Modal.showCustom({
+        title:       'Create New Branch',
+        confirmText: 'Create Branch',
+        action:      'create',
+        body: `
+            <form id="createBranchForm">
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="name" class="modal-form__input" placeholder="Enter branch name" required autofocus>
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Type</label>
-                        <div class="input-wrapper">
-                            <select name="type" class="modal-form__input">
-                                <option value="physical">Physical</option>
-                                <option value="online">Online</option>
-                                <option value="hybrid">Hybrid</option>
-                            </select>
-                        </div>
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Type</label>
+                    <div class="input-wrapper">
+                        <select name="type" class="modal-form__input">
+                            <option value="physical">Physical</option>
+                            <option value="online">Online</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label toggle-label"
-                            style="flex-direction: row; align-items: center; gap: 8px;">
-                            <input type="hidden"   name="is_active" value="0">
-                            <input type="checkbox" name="is_active" value="1" checked>
-                            Active Status
-                        </label>
+                <div class="modal-form__group">
+                    <label class="modal-form__label toggle-label" style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="is_active" value="1" checked>
+                        Active Status
+                    </label>
+                </div>
+
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Street Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="address_line_1" class="modal-form__input" placeholder="Bajkalská 21">
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Street Address</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="address_line_1" class="modal-form__input" placeholder="Bajkalská 21">
-                        </div>
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="address_line_2" class="modal-form__input" placeholder="2nd floor / door number 6">
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="address_line_2" class="modal-form__input" placeholder="2nd floor / door number 6">
-                        </div>
+                <div class="modal-form__group" style="flex: 2;">
+                    <label class="modal-form__label">City</label>
+                    <input type="text" name="city" class="modal-form__input">
+                </div>
+                
+                <div class="modal-form__group" style="flex: 1;">
+                    <label class="modal-form__label">Postal Code</label>
+                    <input type="text" name="postal_code" class="modal-form__input">
+                </div>
+
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Country</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="country" class="modal-form__input" value="Slovakia">
                     </div>
+                </div>
+            </form>
+        `,
+        onConfirm: async (modal) => {
+            const form = modal.querySelector('#createBranchForm');
+            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
+            
+            if (submitBtn) submitBtn.disabled = true;
+            Modal.clearFieldErrors(modal);
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">City</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="city" class="modal-form__input" placeholder=" ">
-                        </div>
-                    </div>
+            const formData = new FormData(form);
+            // Dáta, ktoré ťaháme z BE_DATA
+            formData.append('_token', window.BE_DATA.csrf);
+            formData.append('business_id', window.BE_DATA.business.id);
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Postal Code</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="postal_code" class="modal-form__input" placeholder=" ">
-                        </div>
-                    </div>
-
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Country</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="country" class="modal-form__input" placeholder=" ">
-                        </div>
-                    </div>
-                </form>
-            `,
-            onConfirm: async (modal) => {
-                Modal.clearFieldErrors(modal);
-
-                const form = modal.querySelector('#createBranchForm');
-                const formData = new FormData(form);
-
-                const res = await fetch(form.action, {
+            try {
+                const res = await fetch(window.BE_DATA.routes.branchStore, {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
@@ -104,11 +105,14 @@ export function initCreateBranchModal() {
                 if (res.status === 422) {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
-                    return;
+                } else {
+                    console.error('Server error');
                 }
-
-                alert('Something went wrong. Please try again.');
+            } catch (error) {
+                console.error('Fetch error:', error);
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
-        });
+        }
     });
 }

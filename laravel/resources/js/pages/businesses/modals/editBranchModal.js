@@ -1,106 +1,106 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initEditBranchModal() {
+    // Delegácia pre dynamické prvky (či už v toolbare alebo v zozname pobočiek)
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-modal-target="edit-branch-modal"]');
         if (!btn) return;
 
-        const branch = JSON.parse(btn.dataset.branch);
+        e.preventDefault();
+        
+        try {
+            const branch = JSON.parse(btn.dataset.branch);
+            openEditBranchModal(branch);
+        } catch (err) {
+            console.error("Chyba pri parsovaní dát pobočky:", err);
+        }
+    });
+}
 
-        Modal.showCustom({
-            title:       'Edit Branch',
-            confirmText: 'Update Branch',
-            action:      'edit',
-            rules: {
-                branchName: { required: { value: true, message: 'Branch name is required' } },
-            },
-            body: `
-                <form id="editBranchForm" method="POST" action="${window.BE_DATA.routes.branchUpdate.replace(':id', branch.id)}">
-                    <input type="hidden" name="_token"      value="${window.BE_DATA.csrf}">
-                    <input type="hidden" name="_method"     value="PUT">
-                    <input type="hidden" name="business_id" value="${window.BE_DATA.business.id}">
+function openEditBranchModal(branch) {
+    const updateUrl = window.BE_DATA.routes.branchUpdate.replace(':id', branch.id);
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Name</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input"
-                                value="${_esc(branch.name)}" placeholder=" " required autofocus>
-                        </div>
+    Modal.showCustom({
+        title: 'Edit Branch',
+        confirmText: 'Save Changes',
+        action: 'edit',
+        body: `
+            <form id="editBranchForm">
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="name" class="modal-form__input"
+                            value="${_esc(branch.name)}" placeholder="Branch name" required autofocus>
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Type</label>
-                        <div class="input-wrapper">
-                            <select name="type" class="modal-form__input">
-                                ${['physical', 'online', 'hybrid'].map(t => `
-                                    <option value="${t}" ${branch.type === t ? 'selected' : ''}>
-                                        ${t.charAt(0).toUpperCase() + t.slice(1)}
-                                    </option>
-                                `).join('')}
-                            </select>
-                        </div>
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Type</label>
+                    <div class="input-wrapper">
+                        <select name="type" class="modal-form__input">
+                            ${['physical', 'online', 'hybrid'].map(t => `
+                                <option value="${t}" ${branch.type === t ? 'selected' : ''}>
+                                    ${t.charAt(0).toUpperCase() + t.slice(1)}
+                                </option>
+                            `).join('')}
+                        </select>
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label toggle-label"
-                            style="flex-direction: row; align-items: center; gap: 8px;">
-                            <input type="hidden"   name="is_active" value="0">
-                            <input type="checkbox" name="is_active" value="1"
-                                ${branch.is_active == 1 ? 'checked' : ''}>
-                            Active Status
-                        </label>
+                <div class="modal-form__group">
+                    <label class="modal-form__label toggle-label" style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="is_active" value="1" ${branch.is_active == 1 ? 'checked' : ''}>
+                        Active Status
+                    </label>
+                </div>
+
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Street Address</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="address_line_1" class="modal-form__input"
+                            value="${_esc(branch.address_line_1 ?? '')}" placeholder="Street and number">
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Street Address</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="address_line_1" class="modal-form__input"
-                                value="${_esc(branch.address_line_1 ?? '')}" placeholder="Bajkalská 21">
-                        </div>
-                    </div>
-
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="address_line_2" class="modal-form__input"
-                                value="${_esc(branch.address_line_2 ?? '')}" placeholder="2nd floor, door number 6">
-                        </div>
-                    </div>
-
-                    <div class="modal-form__group">
+                <div class="modal-form__row" style="display: flex; gap: 1rem;">
+                    <div class="modal-form__group" style="flex: 2;">
                         <label class="modal-form__label">City</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="city" class="modal-form__input"
-                                value="${_esc(branch.city ?? '')}" placeholder=" ">
-                        </div>
+                        <input type="text" name="city" class="modal-form__input" value="${_esc(branch.city ?? '')}">
                     </div>
-
-                    <div class="modal-form__group">
+                    <div class="modal-form__group" style="flex: 1;">
                         <label class="modal-form__label">Postal Code</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="postal_code" class="modal-form__input"
-                                value="${_esc(branch.postal_code ?? '')}" placeholder=" ">
-                        </div>
+                        <input type="text" name="postal_code" class="modal-form__input" value="${_esc(branch.postal_code ?? '')}">
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Country</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="country" class="modal-form__input"
-                                value="${_esc(branch.country ?? '')}" placeholder=" ">
-                        </div>
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Country</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="country" class="modal-form__input" value="${_esc(branch.country ?? '')}">
                     </div>
-                </form>
-            `,
-            onConfirm: async (modal) => {
-                const form = modal.querySelector('#editBranchForm');
-                const formData = new FormData(form);
-                const data = new URLSearchParams(formData);
+                </div>
+            </form>
+        `,
+        onConfirm: async (modal) => {
+            const form = modal.querySelector('#editBranchForm');
+            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
+            
+            if (submitBtn) submitBtn.disabled = true;
+            Modal.clearFieldErrors(modal);
 
-                const res = await fetch(form.action, {
+            const formData = new FormData(form);
+            formData.append('_token', window.BE_DATA.csrf);
+            formData.append('_method', 'PUT');
+            formData.append('business_id', window.BE_DATA.business.id);
+
+            try {
+                const res = await fetch(updateUrl, {
                     method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: data,
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData,
                 });
 
                 if (res.ok) {
@@ -111,16 +111,18 @@ export function initEditBranchModal() {
                 if (res.status === 422) {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
-                    return;
                 }
-
-                alert('Something went wrong. Please try again.');
+            } catch (error) {
+                console.error('Update branch error:', error);
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
-        });
+        }
     });
 }
 
 function _esc(str) {
+    if (!str) return '';
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')

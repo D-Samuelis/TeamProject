@@ -11,10 +11,13 @@ import { initListSearch } from '../../components/table/searchBar.js';
 import { initArchiveBranchModal } from './modals/archiveBranchModal.js';
 import { initRemoveUserModal } from './modals/removeEmployeeModal.js';
 import { initArchiveBusinessModal } from './modals/archiveBusinessModal.js';
+import { initToolbar } from './toolbar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
+
+    initToolbar();
     
     initBusinessListView(window.BE_DATA.businesses);
     initBusinessStatusFilters();
