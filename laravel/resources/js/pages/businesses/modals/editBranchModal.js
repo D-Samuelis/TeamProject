@@ -1,7 +1,6 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initEditBranchModal() {
-    // Delegácia pre dynamické prvky (či už v toolbare alebo v zozname pobočiek)
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-modal-target="edit-branch-modal"]');
         if (!btn) return;
@@ -9,10 +8,17 @@ export function initEditBranchModal() {
         e.preventDefault();
         
         try {
-            const branch = JSON.parse(btn.dataset.branch);
+            // Skúsime vytiahnuť dáta z dataset.branch (objekt) alebo dataset.branchData (ak ide z Toolbaru)
+            const rawData = btn.dataset.branch || btn.dataset.branchData;
+            const branch = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+            
+            if (!branch || !branch.id) {
+                throw new Error("Missing branch ID");
+            }
+            
             openEditBranchModal(branch);
         } catch (err) {
-            console.error("Chyba pri parsovaní dát pobočky:", err);
+            console.error("Error parsing branch data for edit:", err);
         }
     });
 }
@@ -48,7 +54,7 @@ function openEditBranchModal(branch) {
                 </div>
 
                 <div class="modal-form__group">
-                    <label class="modal-form__label toggle-label" style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+                    <label class="modal-form__label toggle-label" style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" name="is_active" value="1" ${branch.is_active == 1 ? 'checked' : ''}>
                         Active Status
                     </label>
@@ -62,7 +68,7 @@ function openEditBranchModal(branch) {
                     </div>
                 </div>
 
-                <div class="modal-form__row" style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 12px;">
                     <div class="modal-form__group" style="flex: 2;">
                         <label class="modal-form__label">City</label>
                         <input type="text" name="city" class="modal-form__input" value="${_esc(branch.city ?? '')}">
@@ -76,7 +82,7 @@ function openEditBranchModal(branch) {
                 <div class="modal-form__group">
                     <label class="modal-form__label">Country</label>
                     <div class="input-wrapper">
-                        <input type="text" name="country" class="modal-form__input" value="${_esc(branch.country ?? '')}">
+                        <input type="text" name="country" class="modal-form__input" value="${_esc(branch.country ?? 'Slovakia')}">
                     </div>
                 </div>
             </form>
@@ -90,7 +96,7 @@ function openEditBranchModal(branch) {
 
             const formData = new FormData(form);
             formData.append('_token', window.BE_DATA.csrf);
-            formData.append('_method', 'PUT');
+            formData.append('_method', 'PUT'); // Laravel vyžaduje PUT cez POST pre uploady/formy
             formData.append('business_id', window.BE_DATA.business.id);
 
             try {
@@ -98,7 +104,8 @@ function openEditBranchModal(branch) {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.BE_DATA.csrf
                     },
                     body: formData,
                 });
@@ -111,6 +118,9 @@ function openEditBranchModal(branch) {
                 if (res.status === 422) {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
+                } else {
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Error updating branch.');
                 }
             } catch (error) {
                 console.error('Update branch error:', error);

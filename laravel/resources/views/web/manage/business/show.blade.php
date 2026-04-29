@@ -2,6 +2,8 @@
 
 @extends('web.layouts.app')
 
+@section('title', 'Bexora | Business Info')
+
 @section('content')
 
 <script>
@@ -132,9 +134,11 @@
 
                 @foreach ($business->branches as $branch)
                     <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}"
-                         data-filter="branch-{{ $branch->id }}"
-                         data-branch-id="{{ $branch->id }}"
-                         style="cursor: pointer;">
+                        data-filter="branch-{{ $branch->id }}"
+                        data-branch-id="{{ $branch->id }}"
+                        data-name="{{ $branch->name }}"
+                        data-branch='{{ json_encode($branch) }}'
+                        style="cursor: pointer;">
                         <div class="member-info">
                             <span class="member-name">{{ $branch->name }}</span>
                             <span class="member-role">
@@ -143,19 +147,6 @@
                         </div>
                     </div>
                 @endforeach
-            </div>
-        </section>
-
-        {{-- Employee Management Section --}}
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Manage Employees</h3>
-            <div id="manageEmployeesList" class="dropdown__mini-list">
-                <button type="button" 
-                        class="business__nav-link is-active" 
-                        style="width: 100%; border: none; cursor: pointer; text-align: left; padding: 10px;" 
-                        data-modal-target="assign-employee-modal">
-                    <i class="fa-solid fa-user-plus"></i> Assign Employee
-                </button>
             </div>
         </section>
     </aside>

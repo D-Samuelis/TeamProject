@@ -1,7 +1,6 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initCreateBusinessModal() {
-    // Použijeme delegáciu eventov na document
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-modal-target="create-business-modal"]');
         if (!btn) return;
@@ -28,7 +27,7 @@ function openCreateBusinessModal() {
                 <div class="modal-form__group">
                     <label class="modal-form__label">Description</label>
                     <div class="input-wrapper">
-                        <textarea name="description" class="modal-form__input" placeholder="Optional description..." style="min-height: 100px;"></textarea>
+                        <textarea name="description" class="modal-form__input" placeholder="Optional description..." style="min-height: 100px; resize: vertical;"></textarea>
                     </div>
                 </div>
             </form>
@@ -38,6 +37,7 @@ function openCreateBusinessModal() {
             const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
             
             if (submitBtn) submitBtn.disabled = true;
+            Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
             formData.append('_token', window.BE_DATA.csrf);
@@ -47,7 +47,8 @@ function openCreateBusinessModal() {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.BE_DATA.csrf
                     },
                     body: formData,
                 });
@@ -61,7 +62,8 @@ function openCreateBusinessModal() {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
                 } else {
-                    console.error('Server error during business creation');
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Error creating business.');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);

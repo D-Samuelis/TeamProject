@@ -2,7 +2,7 @@
 
 @extends('web.layouts.app')
 
-@section('title', 'Bexora | My Businesses')
+@section('title', 'Bexora |  Asset Info')
 
 @section('content')
 

@@ -3,7 +3,6 @@ import { getFutureDateData } from '../../../utils/date.js';
 
 export function initArchiveBusinessModal() {
     document.addEventListener('click', (e) => {
-        // Selektujeme podľa data-modal-target, aby to sedelo na Toolbar
         const btn = e.target.closest('[data-modal-target="archive-business-modal"]');
         if (!btn) return;
 
@@ -33,8 +32,6 @@ export function initArchiveBusinessModal() {
             onConfirm: async (modal) => {
                 const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
                 const expiryTimestamp = modal.querySelector('#archive-expiry-select-business').value;
-                
-                // Dynamická cesta z routes definovaných v BE_DATA
                 const url = window.BE_DATA.routes.delete.replace(':id', id);
 
                 if (submitBtn) submitBtn.disabled = true;
@@ -46,11 +43,12 @@ export function initArchiveBusinessModal() {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.BE_DATA.csrf
                         },
                         body: JSON.stringify({
                             _token: window.BE_DATA.csrf,
                             _method: 'DELETE',
-                            delete_at: expiryTimestamp // Pripravené pre tvoj backend
+                            delete_at: expiryTimestamp 
                         }),
                     });
 
@@ -59,10 +57,10 @@ export function initArchiveBusinessModal() {
                     } else {
                         const data = await res.json();
                         alert(data.message || 'Error archiving business.');
+                        if (submitBtn) submitBtn.disabled = false;
                     }
                 } catch (error) {
-                    console.error('Archive error:', error);
-                } finally {
+                    console.error('Archive business error:', error);
                     if (submitBtn) submitBtn.disabled = false;
                 }
             }

@@ -25,7 +25,7 @@ function openEditBusinessModal() {
                     <label class="modal-form__label">Business Name</label>
                     <div class="input-wrapper">
                         <input type="text" name="name" class="modal-form__input"
-                            value="${name}" placeholder="Enter business name" required autofocus>
+                            value="${_esc(name)}" placeholder="Enter business name" required autofocus>
                     </div>
                 </div>
 
@@ -33,7 +33,7 @@ function openEditBusinessModal() {
                     <label class="modal-form__label">Description</label>
                     <div class="input-wrapper">
                         <textarea name="description" class="modal-form__input"
-                            placeholder="Optional description" style="min-height: 100px;">${description ?? ''}</textarea>
+                            placeholder="Optional description" style="min-height: 100px; resize: vertical;">${_esc(description ?? '')}</textarea>
                     </div>
                 </div>
             </form>
@@ -46,7 +46,6 @@ function openEditBusinessModal() {
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            // Laravel vyžaduje _method=PUT pre Route::put, ak posielame cez POST fetch
             formData.append('_token', window.BE_DATA.csrf);
             formData.append('_method', 'PUT');
 
@@ -55,7 +54,8 @@ function openEditBusinessModal() {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.BE_DATA.csrf
                     },
                     body: formData,
                 });
@@ -69,7 +69,8 @@ function openEditBusinessModal() {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
                 } else {
-                    console.error('Update failed');
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Update failed');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -78,4 +79,17 @@ function openEditBusinessModal() {
             }
         }
     });
+}
+
+/**
+ * Jednoduchý escaping pre XSS ochranu a integritu HTML v value/textarea
+ */
+function _esc(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }

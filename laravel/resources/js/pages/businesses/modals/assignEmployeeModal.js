@@ -1,19 +1,21 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initAssignEmployeeModal() {
-    // Event delegation pre toolbar
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-modal-target="assign-user-modal"]');
-        // Pozor: v BE_DATA si predtým použil 'assign-user-modal', 
-        // tak som to zjednotil, aby to sedelo na toolbar config.
         if (!btn) return;
 
         e.preventDefault();
-        openAssignEmployeeModal();
+        
+        // Zistíme, či je nejaká pobočka aktívna v sidebare
+        const activeBranchEl = document.querySelector('.branch-filter-item.is-active');
+        const activeBranchId = activeBranchEl ? activeBranchEl.dataset.branchId : null;
+
+        openAssignEmployeeModal(activeBranchId);
     });
 }
 
-function openAssignEmployeeModal() {
+function openAssignEmployeeModal(activeBranchId = null) {
     const business = window.BE_DATA.business;
 
     Modal.showCustom({
@@ -30,9 +32,11 @@ function openAssignEmployeeModal() {
                             
                             ${business.branches?.length ? `
                                 <optgroup label="Branches">
-                                    ${business.branches.map(b => 
-                                        `<option value="branch" data-id="${b.id}">${b.name}</option>`
-                                    ).join('')}
+                                    ${business.branches.map(b => {
+                                        // Ak sa ID pobočky zhoduje s aktívnou pobočkou, označíme ju ako selected
+                                        const isSelected = String(b.id) === String(activeBranchId) ? 'selected' : '';
+                                        return `<option value="branch" data-id="${b.id}" ${isSelected}>${b.name}</option>`;
+                                    }).join('')}
                                 </optgroup>
                             ` : ''}
 
@@ -75,8 +79,6 @@ function openAssignEmployeeModal() {
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            
-            // Prilepíme potrebné BE dáta a dynamické ID zo selectu
             formData.append('_token', window.BE_DATA.csrf);
             formData.append('target_type', selector.value);
             formData.append('target_id', selectedOption.dataset.id);
@@ -86,7 +88,8 @@ function openAssignEmployeeModal() {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.BE_DATA.csrf
                     },
                     body: formData,
                 });
@@ -100,7 +103,8 @@ function openAssignEmployeeModal() {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
                 } else {
-                    console.error('Assignment failed');
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Assignment failed');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);

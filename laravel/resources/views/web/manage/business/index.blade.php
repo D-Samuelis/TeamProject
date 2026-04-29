@@ -5,23 +5,7 @@
 @section('content')
 <div class="business">
     <aside class="business__sidebar">
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
-            <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('manage.business.index') }}" class="business__nav-link is-active">
-                    <i class="fa-solid fa-list"></i><span>All Businesses</span>
-                </a>
-                <button type="button" class="business__nav-link" data-modal-target="create-business-modal">
-                    <i class="fa-solid fa-plus"></i><span>New Business</span>
-                </button>
-            </div>
-        </section>
-        <section class="business__status-filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
-            <div id="statusList" class="dropdown__mini-list">
-                
-            </div>
-        </section>
+
     </aside>
 
     <div class="display-column">
@@ -108,6 +92,9 @@
     };
 </script>
 
-
 @vite('resources/js/pages/businesses/entry.js')
 @endsection
+
+<div id="tpl-business-filters" style="display: none;">
+    @include('components.statuses_business')
+</div>

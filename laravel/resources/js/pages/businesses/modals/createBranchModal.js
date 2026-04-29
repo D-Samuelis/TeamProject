@@ -13,7 +13,7 @@ export function initCreateBranchModal() {
 
 function openCreateBranchModal() {
     Modal.showCustom({
-        title:       'Create New Branch',
+        title:      'Create New Branch',
         confirmText: 'Create Branch',
         action:      'create',
         body: `
@@ -37,7 +37,7 @@ function openCreateBranchModal() {
                 </div>
 
                 <div class="modal-form__group">
-                    <label class="modal-form__label toggle-label" style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+                    <label class="modal-form__label toggle-label" style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" name="is_active" value="1" checked>
                         Active Status
                     </label>
@@ -57,14 +57,16 @@ function openCreateBranchModal() {
                     </div>
                 </div>
 
-                <div class="modal-form__group" style="flex: 2;">
-                    <label class="modal-form__label">City</label>
-                    <input type="text" name="city" class="modal-form__input">
-                </div>
-                
-                <div class="modal-form__group" style="flex: 1;">
-                    <label class="modal-form__label">Postal Code</label>
-                    <input type="text" name="postal_code" class="modal-form__input">
+                <div style="display: flex; gap: 12px;">
+                    <div class="modal-form__group" style="flex: 2;">
+                        <label class="modal-form__label">City</label>
+                        <input type="text" name="city" class="modal-form__input">
+                    </div>
+                    
+                    <div class="modal-form__group" style="flex: 1;">
+                        <label class="modal-form__label">Postal Code</label>
+                        <input type="text" name="postal_code" class="modal-form__input">
+                    </div>
                 </div>
 
                 <div class="modal-form__group">
@@ -83,7 +85,6 @@ function openCreateBranchModal() {
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            // Dáta, ktoré ťaháme z BE_DATA
             formData.append('_token', window.BE_DATA.csrf);
             formData.append('business_id', window.BE_DATA.business.id);
 
@@ -92,7 +93,8 @@ function openCreateBranchModal() {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.BE_DATA.csrf
                     },
                     body: formData,
                 });
@@ -106,7 +108,8 @@ function openCreateBranchModal() {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
                 } else {
-                    console.error('Server error');
+                    const errorData = await res.json();
+                    alert(errorData.message || 'Server error occurred');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);

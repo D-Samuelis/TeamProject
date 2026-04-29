@@ -1,6 +1,6 @@
 @extends('web.layouts.app')
 
-@section('title', 'Bexora | Assets')
+@section('title', 'Bexora | My Assets')
 
 @section('content')
 

@@ -14,15 +14,15 @@ import { initArchiveBusinessModal } from './modals/archiveBusinessModal.js';
 import { initToolbar } from './toolbar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    /* index */
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
-
-    initToolbar();
     
     initBusinessListView(window.BE_DATA.businesses);
-    initBusinessStatusFilters();
 
     initCreateBusinessModal();
+
+    /* show */
     initEditBusinessMetaDataModal();
 
     initCreateBranchModal();
@@ -42,4 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchiveBranchModal();
     initRemoveUserModal();
     initArchiveBusinessModal();
+
+    initToolbar();
 });
