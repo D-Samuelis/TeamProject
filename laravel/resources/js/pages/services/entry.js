@@ -4,6 +4,7 @@ import { initServiceConnectionsModal } from './modals/connectionsModal.js';
 import { initServiceStatusFilters } from './statusFilters.js';
 import { initCreateServiceModal } from './modals/createServiceModal.js';
 import { initArchiveServiceModal } from './modals/archiveServiceModal.js';
+import { initServiceShowPage } from './show.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');
@@ -15,4 +16,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCreateServiceModal();
     initArchiveServiceModal();
+    initServiceShowPage();
 });
