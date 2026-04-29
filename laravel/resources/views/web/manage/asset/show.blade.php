@@ -528,5 +528,5 @@
 @endsection
 
 <div id="tpl-connections" style="display: none;">
-    @include('components.connections', ['asset' => $asset])
+    @include('components.connections_asset', ['asset' => $asset])
 </div>

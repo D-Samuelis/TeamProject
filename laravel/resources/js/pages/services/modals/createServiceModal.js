@@ -1,14 +1,15 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initCreateServiceModal() {
-    const createBtn = document.querySelector('[data-modal-target="create-service-modal"]');
+    // Použijeme delegovanie na document, aby sme chytili aj dynamicky pridané tlačidlá z Toolbaru
+    document.addEventListener('click', (e) => {
+        const createBtn = e.target.closest('[data-modal-target="create-service-modal"]');
+        if (!createBtn) return;
 
-    if (!createBtn) return;
-
-    createBtn.addEventListener('click', (e) => {
         e.preventDefault();
-
-        const { csrf, routes, businesses = [], branches = [] } = window.BE_DATA;
+        
+        // Načítanie dát z BE_DATA
+        const { csrf, routes, businesses = [], branches = [] } = window.BE_DATA || {};
 
         Modal.showCustom({
             title: 'Create New Service',
@@ -24,20 +25,13 @@ export function initCreateServiceModal() {
                     <input type="hidden" name="_token" value="${csrf}">
                     <input type="hidden" name="business_id" id="business_id_input">
 
-                    <div class="modal-form__group" style="position:relative;">
+                    <div class="modal-form__group">
                         <label class="modal-form__label">Business</label>
-                        <div class="searchable-select-wrapper">
-                            <input
-                                type="text"
-                                id="business_search"
-                                class="modal-form__input"
-                                placeholder="Search and select business..."
-                                autocomplete="off"
-                            >
+                        <div class="searchable-select-wrapper" style="position:relative;">
+                            <input type="text" id="business_search" class="modal-form__input" 
+                                   placeholder="Search and select business..." autocomplete="off">
                             <div id="business_dropdown" class="custom-dropdown" style="display:none;">
-                                ${businesses.map(b => `
-                                    <div class="dropdown-item" data-value="${b.id}">${b.name}</div>
-                                `).join('')}
+                                ${businesses.map(b => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join('')}
                             </div>
                         </div>
                     </div>
@@ -45,47 +39,38 @@ export function initCreateServiceModal() {
                     <div class="modal-form__group">
                         <label class="modal-form__label">Name</label>
                         <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input" placeholder=" " required autofocus>
+                            <input type="text" name="name" class="modal-form__input" placeholder="Service name" required>
                         </div>
                     </div>
 
                     <div class="modal-form__group">
                         <label class="modal-form__label">Description (Optional)</label>
                         <div class="input-wrapper">
-                            <textarea name="description" class="modal-form__input" placeholder=" " style="min-height:100px;"></textarea>
+                            <textarea name="description" class="modal-form__input" placeholder="Brief description..." style="min-height:80px;"></textarea>
                         </div>
                     </div>
 
-                    <div class="modal-form__row">
-                        <div class="modal-form__group">
-                            <label class="modal-form__label">Duration (minutes)</label>
-                            <div class="input-wrapper">
-                                <input type="number" name="duration_minutes" min="1" class="modal-form__input" placeholder=" " required>
-                            </div>
+                    <div class="modal-form__row" style="display: flex; gap: 15px;">
+                        <div class="modal-form__group" style="flex: 1;">
+                            <label class="modal-form__label">Duration (min)</label>
+                            <input type="number" name="duration_minutes" min="1" class="modal-form__input" placeholder="30" required>
                         </div>
-                        <div class="modal-form__group">
-                            <label class="modal-form__label">Price</label>
-                            <div class="input-wrapper">
-                                <input type="number" name="price" min="0" step="0.01" class="modal-form__input" placeholder=" " required>
-                            </div>
+                        <div class="modal-form__group" style="flex: 1;">
+                            <label class="modal-form__label">Price (€)</label>
+                            <input type="number" name="price" min="0" step="0.01" class="modal-form__input" placeholder="0.00" required>
                         </div>
                     </div>
 
-                    <div class="modal-form__group" style="position:relative;">
+                    <div class="modal-form__group">
                         <label class="modal-form__label">Branches</label>
-                        <div id="branch-combobox-wrapper" style="margin-top: .75rem;">
-                            <p id="branch_placeholder" style="font-size:11px;color:var(--color-text-light);padding:20px;text-align:center;border:1px solid var(--color-border-light);border-radius:4px;background:var(--color-bg-light);margin:0;">
-                                <i class="fa-solid fa-arrow-up" style="margin-right:5px;"></i> Firstly, choose a business to see available branches
+                        <div id="branch-combobox-wrapper" style="margin-top: .5rem;">
+                            <p id="branch_placeholder" class="placeholder-box">
+                                <i class="fa-solid fa-arrow-up"></i> Select a business first
                             </p>
-                            <div class="searchable-select-wrapper" id="branch_select_wrapper" style="display:none;">
+                            <div class="searchable-select-wrapper" id="branch_select_wrapper" style="display:none; position:relative;">
                                 <div class="combobox-multi-tags" id="branch_tags">
-                                    <input
-                                        type="text"
-                                        id="branch_search"
-                                        class="modal-form__input"
-                                        placeholder="Search branches..."
-                                        autocomplete="off"
-                                    >
+                                    <input type="text" id="branch_search" class="modal-form__input" 
+                                           placeholder="Search branches..." autocomplete="off">
                                 </div>
                                 <div id="branch_dropdown" class="custom-dropdown" style="display:none;"></div>
                             </div>
@@ -93,84 +78,59 @@ export function initCreateServiceModal() {
                         <div id="branch_hidden_inputs"></div>
                     </div>
 
-                    <div class="modal-form__group">
+                    <div class="modal-form__group checkbox-group">
                         <label class="modal-form__checkbox-label">
                             <input type="checkbox" name="is_active" value="1" checked>
-                            Active
+                            <span>Active and visible</span>
                         </label>
                     </div>
                 </form>
             `,
             onConfirm: async (modal) => {
-                const submitBtn = modal.querySelector('.btn-confirm');
-                console.log("onConfirm konečne beží!"); 
-                
+                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
                 const form = modal.querySelector('#modalForm');
-                // Vyčistíme staré chyby (aj tie z modalu)
+                
                 Modal.clearFieldErrors(modal);
 
-                const errors = {};
+                // Ručná validácia pre selecty
                 const businessId = modal.querySelector('#business_id_input').value;
-                const branches = modal.querySelectorAll('input[name="branch_ids[]"]');
+                const branchesSelected = modal.querySelectorAll('input[name="branch_ids[]"]');
 
-                // Ručná validácia pre tvoje špeciálne prvky
-                if (!businessId) {
-                    errors['business_id'] = ['Business is required'];
-                }
-                if (branches.length === 0) {
-                    errors['branch_ids'] = ['At least one branch must be selected'];
-                }
-
-                if (Object.keys(errors).length > 0) {
-                    // Zobrazíme naše chyby
-                    Modal.showFieldErrors(modal, errors);
-                    
-                    // Špeciálny vizuálny feedback pre searchable selecty, 
-                    // pretože showFieldErrors ich nemusí trafiť (keďže sú hidden)
-                    if (errors['business_id']) {
-                        modal.querySelector('#business_search').classList.add('input-error');
-                    }
-                    if (errors['branch_ids']) {
-                        modal.querySelector('#branch_search').classList.add('input-error');
-                    }
+                if (!businessId || branchesSelected.length === 0) {
+                    if (!businessId) modal.querySelector('#business_search').classList.add('input-error');
+                    if (branchesSelected.length === 0) modal.querySelector('#branch_search').classList.add('input-error');
                     return;
                 }
- 
+
                 if (submitBtn) submitBtn.disabled = true;
- 
+
                 try {
                     const res = await fetch(routes.store, {
                         method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                        },
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
                         body: new FormData(form),
                     });
- 
+
                     if (res.ok) {
                         window.location.reload();
-                        return;
-                    }
- 
-                    if (res.status === 422) {
+                    } else if (res.status === 422) {
                         const json = await res.json();
                         Modal.showFieldErrors(modal, json.errors);
                     } else {
-                        alert('Server error. Please try again.');
+                        alert('Server error occurred.');
                     }
                 } catch (error) {
                     console.error('Fetch error:', error);
-                    alert('Network error. Check your connection.');
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
                 }
             },
         });
- 
-        requestAnimationFrame(() => {
+
+        // Inicializácia pomocných funkcií po vykreslení modalu
+        setTimeout(() => {
             setupBusinessSelect(businesses, branches);
-        });
+        }, 10);
     });
 }
 
