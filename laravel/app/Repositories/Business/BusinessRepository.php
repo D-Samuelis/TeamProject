@@ -20,7 +20,9 @@ class BusinessRepository implements BusinessRepositoryInterface
         return Business::query()
             ->where('is_published', true)
             ->with([
-                'branches' => fn($q) => $q->where('is_active', true),
+                'branches' => fn($q) => $q->where('is_active', true)->with([
+                    'services' => fn($sq) => $sq->where('is_active', true),
+                ]),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
             ->find($id);
@@ -34,7 +36,9 @@ class BusinessRepository implements BusinessRepositoryInterface
 
         return $query
             ->with([
-                'branches' => fn($q) => $q->where('is_active', true),
+                'branches' => fn($q) => $q->where('is_active', true)->with([
+                    'services' => fn($sq) => $sq->where('is_active', true),
+                ]),
                 'services' => fn($q) => $q->where('is_active', true),
             ])
             ->latest()

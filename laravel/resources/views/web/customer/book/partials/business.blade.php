@@ -33,6 +33,8 @@
             $branch->address_line_2 ||
             $branch->postal_code;
 
+        $activeServices = $branch->services->where('is_active', true)->values();
+
         return [
             'id' => $branch->id,
             'name' => $branch->name,
@@ -41,8 +43,8 @@
             'address' => $branchAddress,
             'map_query' => $branchMapQuery,
             'has_map_data' => $hasMapData,
-            'services_count' => $branch->services->count(),
-            'services' => $branch->services->map(function ($service) use ($branch, $branchAddress) {
+            'services_count' => $activeServices->count(),
+            'services' => $activeServices->map(function ($service) use ($branch, $branchAddress) {
                 $locationType = strtolower($service->location_type);
 
                 $locationLabel = match ($locationType) {
