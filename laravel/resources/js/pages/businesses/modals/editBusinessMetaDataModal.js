@@ -1,54 +1,63 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initEditBusinessMetaDataModal() {
-    console.log("DEBUG: initEditBranchModal sa spustil pri loade stránky.");
-    
-    const btn = document.querySelector('[data-modal-target="edit-business-modal"]');
+    // Delegácia eventov pre dynamický toolbar
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-modal-target="edit-business-modal"]');
+        if (!btn) return;
 
-    if (!btn) return;
+        e.preventDefault();
+        openEditBusinessModal();
+    });
+}
 
-    btn.addEventListener('click', () => {
-        const { name, description } = window.BE_DATA.business;
-        const action = window.BE_DATA.routes.update;
+function openEditBusinessModal() {
+    const { name, description } = window.BE_DATA.business;
+    const updateUrl = window.BE_DATA.routes.update;
 
-        Modal.showCustom({
-            title: 'Edit Business Info',
-            confirmText: 'Save Changes',
-            action:      'edit',
-            rules: {
-                name: { required: { value: true, message: 'Business name is required' } },
-            },
-            body: `
-                <form id="editBusinessForm" method="POST" action="${action}">
-                    <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
-                    <input type="hidden" name="_method" value="PUT">
-
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Business Name</label>
-                        <div class="input-wrapper">
-                            <input type="text" name="name" class="modal-form__input"
-                                value="${name}" placeholder=" " required autofocus>
-                        </div>
+    Modal.showCustom({
+        title: 'Edit Business Info',
+        confirmText: 'Save Changes',
+        action: 'edit',
+        body: `
+            <form id="editBusinessForm">
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Business Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="name" class="modal-form__input"
+                            value="${name}" placeholder="Enter business name" required autofocus>
                     </div>
+                </div>
 
-                    <div class="modal-form__group">
-                        <label class="modal-form__label">Description</label>
-                        <div class="input-wrapper">
-                            <textarea name="description" class="modal-form__input"
-                                placeholder=" " style="min-height: 100px;">${description ?? ''}</textarea>
-                        </div>
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Description</label>
+                    <div class="input-wrapper">
+                        <textarea name="description" class="modal-form__input"
+                            placeholder="Optional description" style="min-height: 100px;">${description ?? ''}</textarea>
                     </div>
-                </form>
-            `,
-            onConfirm: async (modal) => {
-                Modal.clearFieldErrors(modal);
+                </div>
+            </form>
+        `,
+        onConfirm: async (modal) => {
+            const form = modal.querySelector('#editBusinessForm');
+            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
+            
+            if (submitBtn) submitBtn.disabled = true;
+            Modal.clearFieldErrors(modal);
 
-                const form = modal.querySelector('#editBusinessForm');
+            const formData = new FormData(form);
+            // Laravel vyžaduje _method=PUT pre Route::put, ak posielame cez POST fetch
+            formData.append('_token', window.BE_DATA.csrf);
+            formData.append('_method', 'PUT');
 
-                const res = await fetch(form.action, {
+            try {
+                const res = await fetch(updateUrl, {
                     method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: new FormData(form),
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData,
                 });
 
                 if (res.ok) {
@@ -59,11 +68,14 @@ export function initEditBusinessMetaDataModal() {
                 if (res.status === 422) {
                     const json = await res.json();
                     Modal.showFieldErrors(modal, json.errors);
-                    return;
+                } else {
+                    console.error('Update failed');
                 }
-
-                alert('Something went wrong. Please try again.');
+            } catch (error) {
+                console.error('Fetch error:', error);
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
-        });
+        }
     });
 }

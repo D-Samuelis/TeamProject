@@ -18,6 +18,58 @@
             deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
             restoreAsset: "{{ route('manage.asset.restore', ':id') }}",
             deleteRule: '{{ route("manage.rule.delete", ":id") }}'
+        },
+        permissions: {
+            canUpdate: @json(auth()->user()->can('update', $asset)),
+            canDelete: @json(auth()->user()->can('delete', $asset)),
+        },
+        toolbar: {
+            showStatus: false,
+            centerGroups: [
+                @can('delete', $asset)
+                {
+                    groupId: 'danger-zone',
+                    actions: [
+                        @if($asset->trashed())
+                            {
+                                label: 'Restore Asset',
+                                icon: 'fa-rotate-left',
+                                class: '',
+                                isForm: true,
+                                action: '{{ route("manage.asset.restore", $asset->id) }}'
+                            }
+                        @else
+                            {
+                                label: 'Archive Asset',
+                                icon: 'fa-box-archive',
+                                modal: 'archive-asset-modal',
+                                class: 'toolbar__action-button--danger',
+                                id: '{{ $asset->id }}',
+                                name: '{{ $asset->name }}'
+                            }
+                        @endif
+                    ]
+                },
+                @endcan
+                {
+                    groupId: 'manage',
+                    hasDivider: true,
+                    actions: [
+                        @can('update', $asset)
+                        {
+                            label: 'Create Rule',
+                            icon: 'fa-plus',
+                            modal: 'create-rule-modal'
+                        }
+                        @endcan
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
         }
     };
 </script>
@@ -61,42 +113,6 @@
             return compact('bg', 'border', 'text', 'dot');
         }
         @endphp
-
-        {{-- Branches & Services Tree --}}
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branches & Services</h3>
-            <div id="branchesList" class="dropdown__mini-list">
-                @if($asset->branch)
-                    @php
-                        $c = branchColor($asset->branch->id);
-                        $branchServices = $asset->services->filter(
-                            fn($s) => $s->branches->contains('id', $asset->branch->id)
-                        );
-                    @endphp
-
-                    {{-- Branch row (folder) --}}
-                    <div class="service-item" style="background:{{ $c['bg'] }};border-left:3px solid {{ $c['border'] }};border-radius:0 6px 6px 0;">
-                        <div class="member-info">
-                            <span class="member-name" style="color:{{ $c['text'] }};">{{ $asset->branch->name }}</span>
-                        </div>
-                    </div>
-
-                    {{-- Services under this branch --}}
-                    @forelse($branchServices as $s)
-                        <div class="branch-item">
-                            <div class="icon">
-                                <i class="fa-solid fa-circle" style="color:{{ $c['dot'] }};font-size:6px;"></i>
-                            </div>
-                            <div class="member-info">
-                                <span class="member-name">{{ $s->name }}</span>
-                            </div>
-                        </div>
-                    @empty
-                        <p style="font-size:12px;color:#bbb;font-style:italic;padding-left:24px;">No services</p>
-                    @endforelse
-                @endif
-            </div>
-        </section>
 
     </aside>
 
@@ -168,7 +184,8 @@
                                         @can('delete', $asset)
                                             <button type="button" class="branch-dropdown__item delete-action js-archive-asset-btn"
                                                 data-id="{{ $asset->id }}"
-                                                data-name="{{ $asset->name }}">
+                                                data-name="{{ $asset->name }}"
+                                                data-modal-target="archive-asset-modal">
                                                 <i class="fa-solid fa-box-archive"></i> Archive Asset
                                             </button>
                                         @endcan
@@ -316,6 +333,7 @@
                 </div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
@@ -508,3 +526,7 @@
 @endif
 
 @endsection
+
+<div id="tpl-connections" style="display: none;">
+    @include('components.connections', ['asset' => $asset])
+</div>

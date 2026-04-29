@@ -12,12 +12,10 @@
                         <span class="chat__title">BEXI</span>
                         <span class="chat__tagline">Effortless booking AI</span>
                     </div>
+                    <div class="chat__status-container">
+                        <span id="status">Loading…</span>
+                    </div>
                 </div>
-                <button id="chat-close" title="Close sidebar">✕</button>
-            </div>
-            <div class="chat__status-container">
-                <p class="chat__status-label">Status:</p>
-                <span id="status">Loading…</span>
             </div>
             <div id="messages"></div>
             <div id="input-bar">
@@ -32,10 +30,6 @@
 
             </div>
         </div>
-
-        <button id="chat-toggle" title="Open BEXI assistant">
-            <span id="chat-toggle-label">Ask BEXI</span>
-        </button>
     </div>
 
     @vite('resources/js/chatbot/main.js')

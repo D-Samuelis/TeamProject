@@ -17,28 +17,33 @@
             deleteAsset: "{{ route('manage.asset.delete', ':id') }}",
             restoreAsset: "{{ route('manage.asset.restore', ':id') }}"
         },
-        csrf: "{{ csrf_token() }}"
+        csrf: "{{ csrf_token() }}",
+        toolbar: {
+            showStatus: true,
+            centerGroups: [
+                {
+                    groupId: 'manage',
+                    actions: [
+                        {
+                            label: 'Create Asset',
+                            icon: 'fa-plus',
+                            modal: 'create-asset-modal'
+                        }
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
+        }
     };
 </script>
 
 <div class="business">
     <aside class="business__sidebar">
-        <section class="business__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Management</h3>
-            <div id="managementList" class="dropdown__mini-list">
-                <a href="{{ route('manage.asset.index') }}" class="business__nav-link is-active">
-                    <i class="fa-solid fa-list"></i><span>All Assets</span>
-                </a>
-                <button type="button" class="business__nav-link" data-modal-target="create-asset-modal">
-                    <i class="fa-solid fa-plus"></i><span>New Asset</span>
-                </button>
-            </div>
-        </section>
-        <section class="business__status-filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status</h3>
-            <div id="statusList" class="dropdown__mini-list">
-            </div>
-        </section>
+        
     </aside>
 
     <div class="display-column">
@@ -88,9 +93,14 @@
                 </div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
 @vite('resources/js/pages/assets/entry.js')
 
 @endsection
+
+<div id="tpl-status-filters" style="display: none;">
+    @include('components.statuses_asset')
+</div>

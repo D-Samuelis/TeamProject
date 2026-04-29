@@ -11,24 +11,19 @@ import { initAssetStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS
 import { initConnectionsModal } from './modals/connectionsModal.js';
 import { initRuleDetailModal } from './modals/ruleDetailModal.js';
 import { initCreateAssetModal } from './modals/createAssetModal.js';
+import { initToolbar } from './toolbar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
 
+    initToolbar();
+
     initAssetListView(window.BE_DATA.assets);
-    initAssetStatusFilters();
 
     initListSearch('#assetSearchInput', '.asset-table__row', 'strong');
 
-    const createBtn = document.querySelector('[data-modal-target="create-asset-modal"]');
-    if (createBtn) {
-        createBtn.addEventListener('click', () => {
-            const modal = document.getElementById('createAssetModal');
-            if (modal) modal.style.display = 'flex';
-        });
-    }
     initConnectionsModal();
     initRuleDetailModal();
     initCreateAssetModal();

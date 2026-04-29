@@ -70,6 +70,7 @@
                 <div id="businessTableContainer" class="list-view__body-wrapper"></div>
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
@@ -83,7 +84,27 @@
             update: "{{ route('manage.business.update', ':id') }}",
             show: "{{ route('manage.business.show', ':id') }}"
         },
-        csrf: "{{ csrf_token() }}"
+        csrf: "{{ csrf_token() }}",
+        toolbar: {
+            showStatus: false,
+            centerGroups: [
+                {
+                    groupId: 'manage',
+                    actions: [
+                        {
+                            label: 'Create Business',
+                            icon: 'fa-plus',
+                            modal: 'create-business-modal'
+                        }
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
+        }
     };
 </script>
 

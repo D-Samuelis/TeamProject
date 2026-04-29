@@ -17,7 +17,54 @@
             updateUser:    "{{ route('manage.business.users.update', [$business->id, ':id']) }}",
             deleteUser:    "{{ route('manage.business.users.delete', [$business->id, ':id']) }}",
         },
-        csrf: "{{ csrf_token() }}"
+        csrf: "{{ csrf_token() }}",
+        toolbar: {
+            centerGroups: [
+                {
+                    groupId: 'danger-zone',
+                    actions: [
+                        @if($business->trashed())
+                            {
+                                label: 'Restore Business',
+                                icon: 'fa-rotate-left',
+                                isForm: true,
+                                action: '{{ route("manage.business.restore", $business->id) }}'
+                            }
+                        @else
+                            {
+                                label: 'Archive Business',
+                                icon: 'fa-box-archive',
+                                modal: 'archive-business-modal',
+                                class: 'toolbar__action-button--danger',
+                                id: '{{ $business->id }}',
+                                name: '{{ $business->name }}'
+                            }
+                        @endif
+                    ]
+                },
+                {
+                    groupId: 'manage',
+                    hasDivider: true,
+                    actions: [
+                        {
+                            label: 'Add Branch',
+                            icon: 'fa-code-branch',
+                            modal: 'create-branch-modal'
+                        },
+                        {
+                            label: 'Assign User',
+                            icon: 'fa-user-plus',
+                            modal: 'assign-user-modal'
+                        }
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
+        }
     };
 </script>
 
@@ -309,6 +356,7 @@
                 </div> 
             </div>
         </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
