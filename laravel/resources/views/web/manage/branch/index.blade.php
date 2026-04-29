@@ -54,7 +54,7 @@
         <h2 style="margin-bottom:1.5rem;">New Branch</h2>
         <form method="POST" action="{{ route('manage.branch.store') }}">
             @csrf
-            @include('web.manage.branch.web.layouts.partials.branch-form', [
+            @include('web.manage.branch.partials.branch-form', [
                 'prefix' => 'create',
                 'branch' => null,
                 'businesses' => $businesses,
@@ -67,7 +67,7 @@
     </div>
 </div>
 
-@include('web.manage.branch.web.layouts.partials.modal-styles-scripts')
+@include('web.manage.branch.partials.modal-styles-scripts')
 
 @if ($errors->any())
     <script>

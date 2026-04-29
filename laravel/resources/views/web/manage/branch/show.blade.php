@@ -129,7 +129,7 @@ manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
 
         <form method="POST" action="{{ route('manage.branch.update', $branch->id) }}">
             @csrf @method('PUT')
-            @include('web.manage.branch.web.layouts.partials.branch-form', [
+            @include('web.manage.branch.partials.branch-form', [
                 'prefix' => 'edit',
                 'branch' => $branch,
                 'businesses' => $businesses,
@@ -143,7 +143,7 @@ manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
     </div>
 </div>
 
-@include('web.manage.branch.web.layouts.partials.modal-styles-scripts')
+@include('web.manage.branch.partials.modal-styles-scripts')
 
 @if ($errors->any())
     <script>
