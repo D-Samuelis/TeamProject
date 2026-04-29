@@ -15,4 +15,5 @@ COPY . .
 
 RUN composer install
 
-CMD ["php-fpm"]
+# CMD ["php-fpm"]
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
