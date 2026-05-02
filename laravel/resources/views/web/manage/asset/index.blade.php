@@ -43,7 +43,76 @@
 
 <div class="business">
     <aside class="business__sidebar">
-        
+        <div class="business__sidebar-header">
+            <h2 class="business__sidebar-title">Dashboard</h2>
+            <div class="display-column">
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    <div class="business__sidebar-type">ADMIN</div>
+                    <div class="business__sidebar-description">
+                        You are currently in the admin dashboard. Here you can manage everything from one place.
+                    </div>
+                    <div class="business__sidebar-switch">
+                        Switch to <button class="switch-dashboard-button" id="switchDashboardButton">Manager view</button>
+                    </div>
+                @else
+                    <div class="business__sidebar-type">MANAGER</div>
+                    <div class="business__sidebar-description">
+                        You are currently in the manager dashboard. Here you can manage your assigned resources.
+                    </div>
+                    <div class="business__sidebar-switch">
+                        Switch to <button class="switch-dashboard-button" id="switchDashboardButton">Admin view</button>
+                    </div>
+                @endif
+            </div>
+        </div>
+        <div class="business__sidebar-links">
+            <a href="{{ route('manage.business.index') }}" class="business__sidebar-link">
+                <i class="fa-solid fa-layer-group"></i>
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    Businesses
+                @else
+                    My Businesses
+                @endif
+            </a>
+            <a href="{{ route('manage.branch.index') }}" class="business__sidebar-link">
+                <i class="fa-solid fa-location-dot"></i>
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    Branches
+                @else
+                    My Branches
+                @endif
+            </a>
+            <a href="{{ route('manage.service.index') }}" class="business__sidebar-link">
+                <i class="fa-solid fa-bell-concierge"></i>
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    Services
+                @else
+                    My Services
+                @endif
+            </a>
+            <a href="{{ route('manage.asset.index') }}" class="business__sidebar-link business__sidebar-link--active">
+                <i class="fa-regular fa-gem"></i>
+                @if(auth()->user() && auth()->user()->isAdmin())
+                    Assets
+                @else
+                    My Assets
+                @endif
+            </a>
+        </div>
+
+        @if(auth()->user() && auth()->user()->isAdmin())
+            <div class="business__sidebar-links">
+                <a href="#" class="business__sidebar-link">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Users
+                </a>
+
+                <a href="{{ route('admin.categories.index') }}" class="business__sidebar-link">
+                    <i class="fa-solid fa-layer-group"></i>
+                    Categories
+                </a>
+            </div>
+        @endif
     </aside>
 
     <div class="display-column">

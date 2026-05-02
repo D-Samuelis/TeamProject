@@ -34,20 +34,6 @@ body {
     visibility: hidden!important;
 }
 
-.debug-text {
-    font-size: inherit;
-    color: var(--color-red);
-}
-
-.debug-text::after {
-    position: absolute;
-    content: '<debug>';
-    color: var(--color-red);
-    font-weight: bold;
-    font-size: .65rem;
-    margin-top: -.1rem;
-}
-
 .display-column {
     display: flex;
     flex-direction: column;
