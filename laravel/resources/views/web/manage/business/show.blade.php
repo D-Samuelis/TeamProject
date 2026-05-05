@@ -92,6 +92,8 @@
 
     {{-- SIDEBAR --}}
     <aside class="business__sidebar">
+
+        @include('components.partials.dashboard_sidebar_info', ['active' => 'businesses'])
         
         {{-- Business Info Section --}}
         <section class="business__filters">

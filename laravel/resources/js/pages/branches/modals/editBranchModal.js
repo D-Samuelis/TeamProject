@@ -8,6 +8,7 @@ export function initEditBranchModal() {
         e.preventDefault();
         
         try {
+            // Skúsime vziať dáta z tlačidla, ak nie sú, fallback na globálne dáta o pobočke
             const rawData = btn.dataset.branch || btn.dataset.branchData;
             let branch = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
             
@@ -30,6 +31,7 @@ function openEditBranchModal(branch) {
     const updateUrl = window.BE_DATA.routes.update.replace(':id', branch.id);
     const businesses = window.BE_DATA?.businesses || [];
     
+    // Nájdenie aktuálne priradeného biznisu pre zobrazenie mena v inpute
     const currentBusiness = businesses.find(b => b.id == branch.business_id);
 
     Modal.showCustom({
@@ -156,6 +158,7 @@ function openEditBranchModal(branch) {
         }
     });
 
+    // Inicializácia vyhľadávania po renderi modalu
     setTimeout(setupEditBusinessSearch, 50);
 }
 
@@ -180,6 +183,7 @@ function setupEditBusinessSearch() {
             item.style.display = text.includes(filter) ? 'block' : 'none';
         });
         
+        // Ak používateľ zmaže text, vyčistíme ID
         if (!searchInput.value) hiddenInput.value = '';
     });
 

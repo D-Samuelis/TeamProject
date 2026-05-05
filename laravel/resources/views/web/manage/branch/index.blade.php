@@ -1,76 +1,100 @@
-{{-- resources/views/pages/private/branch/index.blade.php --}}
+@extends('web.layouts.app')
 
-@if (session('success'))
-    <p style="color:green;">{{ session('success') }}</p>
-@endif
+@section('title', 'Bexora | My Branches')
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <h1>Branches</h1>
-    <button onclick="openModal('createBranchModal')">+ New Branch</button>
-</div>
+@section('content')
 
-@forelse($branches as $branch)
-    <div
-        style="border:1px solid #ddd;border-radius:6px;padding:1rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-            <a href="{{ route('manage.branch.show', $branch->id) }}" style="font-weight:500;">{{ $branch->name }}</a>
-            <span style="font-size:12px;color:#888;margin-left:8px;">{{ ucfirst($branch->type) }}</span>
-            @if ($branch->city)
-                <span style="font-size:12px;color:#aaa;margin-left:4px;">· {{ $branch->city }}</span>
-            @endif
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-            <span
-                style="font-size:12px;padding:2px 8px;border-radius:20px;background:{{ $branch->is_active ? '#d1fae5' : '#fee2e2' }};color:{{ $branch->is_active ? '#065f46' : '#991b1b' }};">
-                {{ $branch->is_active ? 'Active' : 'Inactive' }}
-            </span>
-            @if ($branch->trashed())
-                @can('restore', $branch)
-                    <form method="POST" action="{{ route('manage.branch.restore', $branch->id) }}">
-                        @csrf @method('PATCH')
-                        <button type="submit"
-                            style="color:#2563eb;background:none;border:none;cursor:pointer;font-size:13px;">Restore</button>
-                    </form>
-                @endcan
-            @else
-                @can('delete', $branch)
-                    <form method="POST" action="{{ route('manage.branch.delete', $branch->id) }}"
-                        onsubmit="return confirm('Delete this branch?')">
-                        @csrf @method('DELETE')
-                        <button type="submit"
-                            style="color:red;background:none;border:none;cursor:pointer;font-size:13px;">Delete</button>
-                    </form>
-                @endcan
-            @endif
-        </div>
-    </div>
-@empty
-    <p style="color:#888;">No branches yet.</p>
-@endforelse
+<script>
+    window.BE_DATA = {
+        csrf: '{{ csrf_token() }}',
+        branches: @json($branches),
+        businesses: @json($businesses),
+        routes: {
+            store: "{{ route('manage.branch.store') }}",
+            show: "{{ route('manage.branch.show', ':id') }}",
+            update: "{{ route('manage.branch.update', ':id') }}",
+            delete: "{{ route('manage.branch.delete', ':id') }}",
+            restore: "{{ route('manage.branch.restore', ':id') }}"
+        },
+        toolbar: {
+            showStatus: true,
+            centerGroups: [
+                {
+                    groupId: 'manage',
+                    actions: [
+                        {
+                            label: 'Create Branch',
+                            icon: 'fa-plus',
+                            modal: 'create-branch-modal'
+                        }
+                    ]
+                }
+            ],
+            rightAction: {
+                label: 'Ask Bexi',
+                icon: 'fa-message',
+                modal: 'xxx'
+            }
+        }
+    };
+</script>
 
-<div id="createBranchModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('createBranchModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">New Branch</h2>
-        <form method="POST" action="{{ route('manage.branch.store') }}">
-            @csrf
-            @include('web.manage.branch.partials.branch-form', [
-                'prefix' => 'create',
-                'branch' => null,
-                'businesses' => $businesses,
-            ])
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('createBranchModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Create Branch</button>
+<div class="business">
+    <aside class="business__sidebar">
+        @include('components.partials.dashboard_sidebar_info', ['active' => 'branches'])
+    </aside>
+
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="business__main">
+            <header class="business__header-wrapper business__header-wrapper--simple">
+                <div class="business__header-corner"></div>
+
+                <div class="business__header-info">
+                    <h2 class="business-header__title">My Branches</h2>
+
+                    <div class="business-info">
+                        <div class="stat-item stat-item--all">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div id="countAll">{{ $branches->count() }}</div> Total
+                        </div>
+                        <div class="stat-item stat-item--published">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div id="countPublished">{{ $branches->where('is_active', true)->count() }}</div> Active
+                        </div>
+                        <div class="stat-item stat-item--deleted">
+                            <i class="fa-solid fa-trash"></i>
+                            <div id="countDeleted">{{ $branches->whereNotNull('deleted_at')->count() }}</div> Archived
+                        </div>
+                    </div>
+                </div>
+
+                <div class="business__header-right">
+                    <div class="business__header-right-section_2">
+                        <div class="list-view__search-wrapper">
+                            <div class="search-container">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="branchSearchInput" placeholder="Search branches...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="business__body-wrapper">
+                <div id="branchTableContainer" class="list-view__body-wrapper">
+                    {{-- Renderované cez JavaScript podobne ako Asset listView.js --}}
+                </div>
             </div>
-        </form>
+        </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
-@include('web.manage.branch.partials.modal-styles-scripts')
+@vite('resources/js/pages/branches/entry.js')
 
-@if ($errors->any())
-    <script>
-        openModal('createBranchModal');
-    </script>
-@endif
+@endsection
+
+<div id="tpl-status-filters" style="display: none;">
+    @include('components.statuses_branch')
+</div>
