@@ -16,8 +16,12 @@
         </section>
 
         <section class="appointments__filters">
-            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Status Filters</h3>
-            <div id="filterList" class="dropdown__mini-list"></div>
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.customer.appointment.partials.filter-sidebar')
         </section>
 
         <section class="appointments__pending">
@@ -40,7 +44,7 @@
 
                     <div class="business__header-info">
                         <h2 class="business-header__title" id="listDateText">My Appointments</h2>
-                        
+
                         <div class="business-info">
                             <div class="stat-item stat-item--all">
                                 <i class="fa-solid fa-list-ul"></i>
@@ -67,6 +71,8 @@
                         {{-- js inserted table --}}
                     </div>
                 </div>
+
+                <div id="paginationContainer" class="pagination"></div>
             </div>
         </main>
     </div>
@@ -75,6 +81,7 @@
 <script>
     window.BE_DATA = {
         appointments: @json($appointments),
+        meta: @json($meta),
         user: @json(auth()->user()),
         csrf: "{{ csrf_token() }}"
     };

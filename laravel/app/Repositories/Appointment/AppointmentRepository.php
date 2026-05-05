@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Appointment;
 
-use App\Application\DTO\SearchDTO;
+use App\Application\DTO\AppointmentSearchDTO;
 use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
 use Carbon\Carbon;
@@ -32,66 +32,64 @@ class AppointmentRepository implements AppointmentRepositoryInterface
         return Appointment::find($id);
     }
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null)
+    public function search(AppointmentSearchDTO $dto, ?User $user = null)
     {
-        $query = Appointment::query()->with(['user', 'service', 'asset.branch.business']);
+        $query = Appointment::query()
+            ->with(['user', 'service', 'asset.branch.business']);
 
-        // 1. If not an Admin, strictly limit to the user's own bookings
         if ($user && !$user->isAdmin()) {
             $query->where('user_id', $user->id);
         }
 
-        // 2. Apply Optional Filters (from SearchDTO)
-        if (!empty($dto->filters['status'])) {
-            $query->where('status', $dto->filters['status']);
+        if ($user?->isAdmin() && $dto->userId) {
+            $query->where('user_id', $dto->userId);
         }
 
-        if (!empty($dto->filters['date'])) {
-            $query->whereDate('date', $dto->filters['date']);
+        if ($dto->dateFrom) {
+            $query->whereDate('date', '>=', $dto->dateFrom);
+        }
+        if ($dto->dateTo) {
+            $query->whereDate('date', '<=', $dto->dateTo);
         }
 
-        return $query->latest('start_at')->paginate($dto->perPage);
-    }
+        if ($dto->timeFrom) {
+            $query->whereTime('start_at', '>=', $dto->timeFrom);
+        }
+        if ($dto->timeTo) {
+            $query->whereTime('start_at', '<=', $dto->timeTo);
+        }
 
-    public function search(SearchDTO $dto, ?User $user = null)
-    {
-        $query = Appointment::query()->with(['user', 'service', 'asset.branch']);
+        if (!empty($dto->statuses)) {
+            $query->whereIn('status', $dto->statuses);
+        }
 
-        if ($user && !$user->isAdmin()) {
-            $query->where(function ($q) use ($user) {
-                // 1. Always show appointments where the user is the customer
-                $q->where('user_id', $user->id)
+        if ($dto->durationMin !== null) {
+            $query->where('duration', '>=', $dto->durationMin);
+        }
+        if ($dto->durationMax !== null) {
+            $query->where('duration', '<=', $dto->durationMax);
+        }
 
-                    // 2. OR show appointments in branches where the user has a role (Staff/Manager)
-                    ->orWhereHas('asset.branch', function ($b) use ($user) {
-                        $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
-                    })
+        $needsServiceJoin = $dto->serviceName || $dto->priceMin !== null || $dto->priceMax !== null;
 
-                    // 3. OR show appointments for services the user is assigned to
-                    ->orWhereHas('service', function ($s) use ($user) {
-                        $s->whereHas('users', fn($u) => $u->where('users.id', $user->id));
-                    })
-
-                    // 4. OR show appointments in businesses the user manages/owns
-                    ->orWhereHas('asset.branch.business', function ($biz) use ($user) {
-                        $biz->whereHas('users', function ($u) use ($user) {
-                            $u->where('users.id', $user->id)
-                                ->whereIn('model_has_users.role', ['owner', 'manager']);
-                        });
-                    });
+        if ($needsServiceJoin) {
+            $query->whereHas('service', function ($q) use ($dto) {
+                if ($dto->serviceName) {
+                    $q->where('name', 'like', '%' . $dto->serviceName . '%');
+                }
+                if ($dto->priceMin !== null) {
+                    $q->where('price', '>=', $dto->priceMin);
+                }
+                if ($dto->priceMax !== null) {
+                    $q->where('price', '<=', $dto->priceMax);
+                }
             });
         }
 
-        // Apply filters from SearchDTO
-        if (!empty($dto->filters['status'])) {
-            $query->where('status', $dto->filters['status']);
-        }
-
-        if (!empty($dto->filters['date'])) {
-            $query->whereDate('date', $dto->filters['date']);
-        }
-
-        return $query->latest('start_at')->get();
+        return $query
+            ->orderBy('date', 'desc')
+            ->orderBy('start_at', 'desc')
+            ->paginate($dto->perPage, ['*'], 'page', $dto->page);
     }
 
     public function update(Appointment $appointment, array $data): Appointment

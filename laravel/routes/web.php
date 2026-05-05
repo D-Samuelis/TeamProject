@@ -5,7 +5,8 @@ use App\Http\Controllers\Web\{
     SearchController,
     NotificationController,
     ChatbotController,
-    RoleAssignmentController
+    RoleAssignmentController,
+    User\UserController
 };
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\Business\ManageBusinessController;
@@ -66,7 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/settings', [ProfileController::class, 'updateSettings'])->name('profile.settings');
-    
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');
@@ -162,6 +163,10 @@ Route::middleware('auth')->group(function () {
             Route::put('/{appointmentId}', 'update')->name('update');
             Route::patch('/{appointmentId}/reschedule', 'reschedule')->name('reschedule');
             Route::delete('/{appointmentId}', 'delete')->name('delete');
+        });
+
+        Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+            Route::get('/search', 'search')->name('search');
         });
     });
 });
