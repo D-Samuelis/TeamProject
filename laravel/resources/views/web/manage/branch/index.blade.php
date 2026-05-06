@@ -37,6 +37,8 @@
             }
         }
     };
+
+    console.log('BE_DATA:', window.BE_DATA.branches);
 </script>
 
 <div class="business">

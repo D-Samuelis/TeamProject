@@ -47,7 +47,6 @@ function renderToolbar() {
 
 function renderButtons(buttons) {
     return buttons.map(action => {
-        // Podpora pre Form (napr. Status toggle) alebo klasické tlačidlo (napr. Create Modal)
         const btnHtml = `
             <button type="${action.isForm ? 'submit' : 'button'}" 
                 class="toolbar__action-button ${action.class || ''}" 
@@ -62,8 +61,12 @@ function renderButtons(buttons) {
             const hiddens = (action.hiddenFields || []).map(f => 
                 `<input type="hidden" name="${f.name}" value="${f.value}">`
             ).join('');
+
             return `<form action="${action.action}" method="POST" style="display:inline;">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
+                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                        <input type="hidden" name="_method" value="PATCH">
+                        ${hiddens}
+                        ${btnHtml}
                     </form>`;
         }
         return btnHtml;
