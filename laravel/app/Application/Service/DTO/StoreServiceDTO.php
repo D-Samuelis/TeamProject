@@ -10,6 +10,7 @@ class StoreServiceDTO
     public function __construct(
         public int $business_id,
         public string $name,
+        public ?int $category_id = null,
         public ?string $description = null,
         public int $duration_minutes = 0,
         public float $price = 0.0,
@@ -28,6 +29,7 @@ class StoreServiceDTO
         $validated = $request->validated();
         return new self(
             business_id: (int) $validated['business_id'],
+            category_id: isset($validated['category_id']) ? (int) $validated['category_id'] : null,
             name: $validated['name'],
             description: $validated['description'] ?? null,
             duration_minutes: (int) $validated['duration_minutes'],
@@ -47,6 +49,7 @@ class StoreServiceDTO
     {
         return [
             'business_id' => $this->business_id,
+            'category_id' => $this->category_id,
             'name' => $this->name,
             'description' => $this->description,
             'duration_minutes' => $this->duration_minutes,

@@ -17,7 +17,7 @@
 
     <div class="dropdown__mini-list" id="targetList">
         @foreach (['business' => 'Business', 'branch' => 'Branches', 'service' => 'Services'] as $key => $label)
-            <a href="{{ route('search.index', array_merge(request()->query(), ['target' => $key])) }}"
+            <a href="{{ route('search.index', ['target' => $key]) }}"
                 class="booking__nav-link {{ $filters->target === $key ? 'is-active' : '' }}">
                 <i class="fa-solid @if($key == 'business') fa-shop @elseif($key == 'branch') fa-location-dot @else fa-scissors @endif"></i>
                 <span>{{ $label }}</span>
@@ -80,24 +80,80 @@
                     </div>
 
                     @if ($results->hasPages())
+                        @php
+                            $currentPage = $results->currentPage();
+                            $lastPage = $results->lastPage();
+                            $windowStart = max(1, $currentPage - 1);
+                            $windowEnd = min($lastPage, $currentPage + 1);
+                        @endphp
+
                         <div class="booking__pagination">
                             @if ($results->onFirstPage())
                                 <span class="booking__pagination-button booking__pagination-button--disabled">
-                                    &larr;
+                                    <i class="fa-solid fa-angles-left"></i>
+                                </span>
+                                <span class="booking__pagination-button booking__pagination-button--disabled">
+                                    <i class="fa-solid fa-angle-left"></i>
                                 </span>
                             @else
+                                <a
+                                    href="{{ $results->appends(request()->query())->url(1) }}"
+                                    class="booking__pagination-button"
+                                    aria-label="First page"
+                                >
+                                    <i class="fa-solid fa-angles-left"></i>
+                                </a>
                                 <a
                                     href="{{ $results->appends(request()->query())->previousPageUrl() }}"
                                     class="booking__pagination-button"
                                     aria-label="Previous page"
                                 >
-                                    &larr;
+                                    <i class="fa-solid fa-angle-left"></i>
                                 </a>
                             @endif
 
-                            <span class="booking__pagination-info">
-                                Page {{ $results->currentPage() }} of {{ $results->lastPage() }}
-                            </span>
+                            <div class="booking__pagination-pages" aria-label="Pagination pages">
+                                @if ($windowStart > 1)
+                                    <a
+                                        href="{{ $results->appends(request()->query())->url(1) }}"
+                                        class="booking__pagination-page"
+                                    >
+                                        1
+                                    </a>
+
+                                    @if ($windowStart > 2)
+                                        <span class="booking__pagination-ellipsis">...</span>
+                                    @endif
+                                @endif
+
+                                @for ($page = $windowStart; $page <= $windowEnd; $page++)
+                                    @if ($page === $currentPage)
+                                        <span class="booking__pagination-page booking__pagination-page--active">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a
+                                            href="{{ $results->appends(request()->query())->url($page) }}"
+                                            class="booking__pagination-page"
+                                        >
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                @endfor
+
+                                @if ($windowEnd < $lastPage)
+                                    @if ($windowEnd < $lastPage - 1)
+                                        <span class="booking__pagination-ellipsis">...</span>
+                                    @endif
+
+                                    <a
+                                        href="{{ $results->appends(request()->query())->url($lastPage) }}"
+                                        class="booking__pagination-page"
+                                    >
+                                        {{ $lastPage }}
+                                    </a>
+                                @endif
+                            </div>
 
                             @if ($results->hasMorePages())
                                 <a
@@ -105,11 +161,21 @@
                                     class="booking__pagination-button"
                                     aria-label="Next page"
                                 >
-                                    &rarr;
+                                    <i class="fa-solid fa-angle-right"></i>
+                                </a>
+                                <a
+                                    href="{{ $results->appends(request()->query())->url($lastPage) }}"
+                                    class="booking__pagination-button"
+                                    aria-label="Last page"
+                                >
+                                    <i class="fa-solid fa-angles-right"></i>
                                 </a>
                             @else
                                 <span class="booking__pagination-button booking__pagination-button--disabled">
-                                    &rarr;
+                                    <i class="fa-solid fa-angle-right"></i>
+                                </span>
+                                <span class="booking__pagination-button booking__pagination-button--disabled">
+                                    <i class="fa-solid fa-angles-right"></i>
                                 </span>
                             @endif
                         </div>

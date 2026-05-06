@@ -5,10 +5,20 @@
                 $firstBranch = $item->branches->first();
                 $branchesCount = $item->branches->count();
             @endphp
+            @php
+                $locationType = strtolower($item->location_type);
+                $locationTypeLabel = [
+                    'branch' => 'Physical',
+                    'online' => 'Online',
+                    'hybrid' => 'Hybrid',
+                ][$locationType] ?? ucfirst($locationType);
+                $locationTypeClass = in_array($locationType, ['online', 'hybrid'], true) ? $locationType : 'physical';
+            @endphp
 
             <div class="js-search-data" hidden>
                 {{ $item->name }}
                 {{ $item->description }}
+                {{ $item->category?->name }}
                 {{ $item->location_type }}
                 {{ $item->business->name }}
                 {{ $item->duration_minutes }}
@@ -23,8 +33,8 @@
             </div>
 
             <div class="service-card-top">
-                <span class="service-location-badge service-location-badge--{{ strtolower($item->location_type) === 'online' ? 'online' : 'physical' }}">
-                    {{ strtolower($item->location_type) === 'online' ? 'Online' : 'Physical' }}
+                <span class="service-location-badge service-location-badge--{{ $locationTypeClass }}">
+                    {{ $locationTypeLabel }}
                 </span>
             </div>
 
@@ -74,6 +84,17 @@
                     {{ $item->duration_minutes }} min
                 </span>
             </div>
+
+            @if ($item->category)
+                <div class="card-categories">
+                    <span class="card-categories__label">Category:</span>
+                    <div class="card-categories__list">
+                        <span class="category-badge">
+                            {{ $item->category->name }}
+                        </span>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </a>

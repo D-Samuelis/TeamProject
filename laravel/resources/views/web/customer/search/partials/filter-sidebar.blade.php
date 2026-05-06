@@ -25,20 +25,79 @@
             >
         </div>
 
+        @if (in_array($filters->target, ['business', 'branch', 'service'], true) && isset($categories))
+            <div class="filter-group">
+                @php
+                    $selectedCategory = $categories->firstWhere('id', $filters->categoryId);
+                @endphp
+
+                <label id="category-filter-label" for="category_id">Category</label>
+                <input
+                    type="hidden"
+                    name="category_id"
+                    id="category_id"
+                    value="{{ $selectedCategory?->id }}"
+                >
+
+                <div class="custom-select" data-custom-select>
+                    <button
+                        type="button"
+                        class="custom-select__button"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-labelledby="category-filter-label category-filter-value"
+                    >
+                        <span id="category-filter-value" data-custom-select-label>
+                            {{ $selectedCategory?->name ?? 'All categories' }}
+                        </span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+
+                    <div class="custom-select__menu" role="listbox" hidden>
+                        <button
+                            type="button"
+                            class="custom-select__option {{ $selectedCategory ? '' : 'is-selected' }}"
+                            role="option"
+                            aria-selected="{{ $selectedCategory ? 'false' : 'true' }}"
+                            data-value=""
+                        >
+                            All categories
+                        </button>
+
+                        @foreach ($categories as $category)
+                            <button
+                                type="button"
+                                class="custom-select__option {{ $selectedCategory?->id === $category->id ? 'is-selected' : '' }}"
+                                role="option"
+                                aria-selected="{{ $selectedCategory?->id === $category->id ? 'true' : 'false' }}"
+                                data-value="{{ $category->id }}"
+                            >
+                                {{ $category->name }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if ($filters->target !== 'branch')
             <div class="filter-group">
+                @php
+                    $maxPrice = $filters->maxPrice ?? 400;
+                @endphp
+
                 <label for="max_price">Maximum Price (€)</label>
 
                 <div class="filter-range-header">
                     <span>0 €</span>
-                    <span id="max_price_value">{{ $filters->maxPrice ?? 500 }} €</span>
+                    <span id="max_price_value">{{ $maxPrice }} €</span>
                 </div>
 
                 <input
                     type="range"
                     name="max_price"
                     id="max_price"
-                    value="{{ $filters->maxPrice ?? 500 }}"
+                    value="{{ $maxPrice }}"
                     min="0"
                     max="400"
                     step="5"
@@ -70,14 +129,16 @@
         @endif
 
         <div class="filter-group">
+    @php
+        $locationTypeOptions = $filters->target === 'branch'
+            ? ['physical' => 'Physical', 'online' => 'Online', 'hybrid' => 'Hybrid']
+            : ['branch' => 'Physical', 'online' => 'Online', 'hybrid' => 'Hybrid'];
+    @endphp
+
     <label>Location Type</label>
 
     <div class="checkbox-list">
-        @foreach ([
-            'physical' => 'Physical',
-            'online' => 'Online',
-            'hybrid' => 'Hybrid',
-        ] as $val => $label)
+        @foreach ($locationTypeOptions as $val => $label)
             <label class="checkbox-item checkbox-item--custom">
                 <input
                     type="checkbox"

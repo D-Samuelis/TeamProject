@@ -31,7 +31,7 @@ class BranchRepository implements BranchRepositoryInterface
         $this->applyBranchFilters($query, $dto);
 
         return $query
-            ->with('business')
+            ->with(['business', 'services.category'])
             ->latest()
             ->paginate($dto->perPage);
     }
@@ -189,7 +189,10 @@ class BranchRepository implements BranchRepositoryInterface
         }
 
         if ($dto->categoryId) {
-            $query->whereHas('services', fn($q) => $q->where('category_id', $dto->categoryId));
+            $query->whereHas('services', function ($q) use ($dto) {
+                $q->where('is_active', true)
+                    ->where('services.category_id', $dto->categoryId);
+            });
         }
     }
 }

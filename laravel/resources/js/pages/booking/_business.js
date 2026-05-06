@@ -84,6 +84,15 @@ function initBranchTables(branches) {
                     `
                 },
                 {
+                    label: 'Category',
+                    key: 'category_name',
+                    sortable: true,
+                    searchable: true,
+                    render: (val) => val
+                        ? `<span class="public-business-detail__category-badge">${escapeHtml(val)}</span>`
+                        : `<span class="public-business-detail__muted">No category</span>`
+                },
+                {
                     label: 'Duration',
                     key: 'duration_minutes',
                     sortable: true,
@@ -173,6 +182,13 @@ function bindInfoButtons(branch) {
             <div class="public-business-detail__modal-label">Description</div>
             <div class="public-business-detail__modal-value">
                 ${service.description ? escapeHtml(service.description) : 'No description available.'}
+            </div>
+        </div>
+
+        <div class="public-business-detail__modal-row">
+            <div class="public-business-detail__modal-label">Category</div>
+            <div class="public-business-detail__modal-value">
+                ${service.category_name ? escapeHtml(service.category_name) : 'No category'}
             </div>
         </div>
 

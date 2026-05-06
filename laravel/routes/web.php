@@ -129,6 +129,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('services')->name('service.')->controller(ManageServiceController::class)->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::post('/category-request', 'requestCategory')->name('category.request');
             Route::get('/{serviceId}', 'show')->name('show');
             Route::post('/', 'store')->name('store');
             Route::put('/{serviceId}', 'update')->name('update');

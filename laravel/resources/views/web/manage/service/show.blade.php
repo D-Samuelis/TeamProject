@@ -18,6 +18,8 @@
         'cancellation_period' => App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes),
         'deleted_at' => $service->deleted_at,
         'business_id' => $service->business_id,
+        'category_id' => $service->category_id,
+        'category' => $service->category ? ['id' => $service->category->id, 'name' => $service->category->name] : null,
         'business' => $service->business ? ['id' => $service->business->id, 'name' => $service->business->name] : null,
         'branches' => $service->branches->map(fn ($branch) => [
             'id' => $branch->id,
@@ -47,8 +49,10 @@
         canUpdate: @json(auth()->user()?->can('update', $service)),
         service: @json($serviceJsData),
         branches: @json($branchesJsData),
+        categories: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()),
         routes: {
             update: '{{ route("manage.service.update", $service->id) }}',
+            categoryRequest: '{{ route("manage.service.category.request") }}',
             delete: '{{ route("manage.service.delete", $service->id) }}'
         },
         toolbar: {
@@ -104,6 +108,7 @@
         ? App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes)
         : 'No restriction';
     $acceptanceLabel = $service->requires_manual_acceptance ? 'Manual approval' : 'Automatic';
+    $categoryLabel = $service->category?->name ?? 'No category';
     $businessId = $service->business->id;
     $currentCancellation = $service->cancellation_period_minutes
         ? App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes)
@@ -263,6 +268,12 @@
                         </div>
 
                         <div class="service-settings__facts-grid">
+                            <div class="service-settings__info-tile">
+                                <i class="fa-solid fa-tag"></i>
+                                <span class="service-settings__fact-label">Category</span>
+                                <strong>{{ $categoryLabel }}</strong>
+                            </div>
+
                             <div class="service-settings__info-tile">
                                 <i class="fa-regular fa-clock"></i>
                                 <span class="service-settings__fact-label">Duration</span>

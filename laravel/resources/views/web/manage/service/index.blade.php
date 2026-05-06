@@ -70,8 +70,10 @@
         'services'   => $services->merge($deletedServices ?? []),
         'businesses' => $businesses->map(fn($b) => ['id' => $b->id, 'name' => $b->name])->values(),
         'branches'   => $branches->map(fn($b) => ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id])->values(),
+        'categories' => $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values(),
         'routes'     => [
             'store'   => route('manage.service.store'),
+            'categoryRequest' => route('manage.service.category.request'),
             'restore' => route('manage.service.restore', ':id'),
             'delete'  => route('manage.service.delete', ':id'),
             'update'  => route('manage.service.update', ':id'),

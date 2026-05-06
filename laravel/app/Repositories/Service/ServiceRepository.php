@@ -32,7 +32,7 @@ class ServiceRepository implements ServiceRepositoryInterface
         $this->applyServiceFilters($query, $dto);
 
         #return $query->with('business')->latest()->paginate($dto->perPage);
-        return $query->with(['business', 'branches'])->latest()->paginate($dto->perPage);
+        return $query->with(['business', 'branches', 'category'])->latest()->paginate($dto->perPage);
     }
 
     public function findMultipleByIds(array $ids): Collection
@@ -65,7 +65,7 @@ class ServiceRepository implements ServiceRepositoryInterface
         };
 
         return $query
-            ->with(['business', 'branches', 'assets'])
+            ->with(['business', 'branches', 'assets', 'category'])
             ->latest()
             ->get();
     }
@@ -73,7 +73,7 @@ class ServiceRepository implements ServiceRepositoryInterface
     public function findForManagement(int $id): Service
     {
         return Service::withTrashed()
-            ->with(['business', 'branches', 'assets'])
+            ->with(['business', 'branches', 'assets', 'category'])
             ->findOrFail($id);
     }
 

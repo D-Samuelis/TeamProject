@@ -33,6 +33,7 @@ class StoreServiceRequest extends FormRequest
     {
         return [
             'business_id' => 'required|exists:businesses,id',
+            'category_id' => 'nullable|integer|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'duration_minutes' => 'required|integer|min:1',

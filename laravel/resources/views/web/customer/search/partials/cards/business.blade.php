@@ -1,9 +1,19 @@
 <a href="{{ route('book.business', ['businessId' => $item->id, 'ref' => 'search', 'target' => 'business']) }}" class="card-link">
     <div class="card booking-business-card">
         <div class="card-body">
+            @php
+                $categories = $item->branches
+                    ->flatMap(fn ($branch) => $branch->services)
+                    ->pluck('category')
+                    ->filter()
+                    ->unique('id')
+                    ->values();
+            @endphp
+
             <div class="js-search-data" hidden>
                 {{ $item->name }}
                 {{ $item->description }}
+                {{ $categories->pluck('name')->implode(' ') }}
                 {{ $item->services->count() }}
                 {{ $item->branches->count() }}
             </div>
@@ -32,6 +42,19 @@
                     </div>
                 </div>
             </div>
+
+            @if ($categories->isNotEmpty())
+                <div class="card-categories">
+                    <span class="card-categories__label">Categories:</span>
+                    <div class="card-categories__list">
+                        @foreach ($categories as $category)
+                            <span class="category-badge">
+                                {{ $category->name }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </a>
