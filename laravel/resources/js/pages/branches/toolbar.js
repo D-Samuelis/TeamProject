@@ -1,6 +1,7 @@
 import { Toolbar } from '../../components/toolbar/Toolbar.js';
 import { openSidebar, closeSidebar } from '../../chatbot/main.js';
 import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
+import { initBranchStatusFilters } from './statusFilters.js';
 
 export function initToolbar() {
     renderToolbar();
@@ -101,12 +102,24 @@ function setupEvents() {
     // Status Dropdown Event
     const statusBtn = document.getElementById('toolbarStatusBtn');
     const dropdown = document.getElementById('toolbarStatusDropdown');
+    
     if (statusBtn && dropdown) {
         statusBtn.onclick = (e) => {
             e.stopPropagation();
             const isVisible = dropdown.style.display === 'block';
-            dropdown.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                dropdown.style.display = 'block';
+                initBranchStatusFilters('toolbarStatusDropdown');
+            } else {
+                dropdown.style.display = 'none';
+            }
         };
-        document.addEventListener('click', () => dropdown.style.display = 'none');
+
+        document.addEventListener('click', (e) => {
+            if (!statusBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
     }
 }

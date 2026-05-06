@@ -31,7 +31,6 @@ export function initBranchListView(data = []) {
                 label: 'City', key: 'city', sortable: true, searchable: true,
                 render: (val) => {
                     const city = val || 'No city';
-                    
                     return `<div class="description-cell">
                                 <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i> 
                                 ${city}
@@ -58,7 +57,6 @@ export function initBranchListView(data = []) {
                 render: (val, item) => {
                     const serviceCount = item.services?.length ?? 0;
                     const serviceLabel = serviceCount === 1 ? 'Service' : 'Services';
-
                     return `
                         <div class="stat-badge-group js-open-branch-connections"
                              data-id="${item.id}"
@@ -84,7 +82,6 @@ export function initBranchListView(data = []) {
             if (item.deleted_at) {
                 return `
                     <div class="business__actions">
-                        <!-- Change method to POST -->
                         <form action="${window.BE_DATA.routes.restore.replace(':id', item.id)}" method="POST">
                             <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
                             <input type="hidden" name="_method" value="PATCH">
@@ -104,10 +101,7 @@ export function initBranchListView(data = []) {
                         <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
                         <input type="hidden" name="_method" value="PUT">
                         <input type="hidden" name="is_active" value="${nextStatus}">
-                        
-                        <!-- SEM PRIDAJ TENTO RIADOK -->
                         <input type="hidden" name="business_id" value="${item.business_id}">
-
                         <button type="submit" class="button-icon button-icon--warning">
                             <i class="fa-solid ${toggleIcon}" style="${!item.is_active ? 'opacity: 0.5' : ''}"></i>
                         </button>
@@ -133,6 +127,21 @@ export function initBranchListView(data = []) {
     });
 
     renderer.render(container, sorter.getSortedData(), sorter);
+
+    window.addEventListener('branchFiltersChanged', (e) => {
+        const activeStatuses = e.detail.statuses.filter(s => s.active).map(s => s.id);
+        
+        const filteredData = originalData.filter(item => {
+            let status = 'inactive';
+            if (item.deleted_at) status = 'archived';
+            else if (item.is_active) status = 'active';
+            
+            return activeStatuses.includes(status);
+        });
+
+        sorter.data = filteredData; 
+        renderer.render(container, sorter.getSortedData(), sorter);
+    });
 }
 
 function updateBranchCounts(data) {
