@@ -419,7 +419,7 @@
 
 .business__sidebar-header {
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border-light-very);
+    border-bottom: 1px solid var(--color-border-light);
 }
 
 .business__sidebar-title {
@@ -432,7 +432,6 @@
 .business__sidebar-type {
     letter-spacing: .15rem;
     margin-bottom: .25rem;
-    color: var(--color-primary);
 }
 
 .business__sidebar-description {

@@ -114,6 +114,8 @@
 
 <div class="business service-settings-page">
     <aside class="business__sidebar">
+        @include('components.partials.dashboard_sidebar_info', ['active' => 'services'])
+
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Service Info</h3>
             <div id="serviceInfo" class="dropdown__mini-list">
