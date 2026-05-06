@@ -4,6 +4,7 @@ namespace App\Repositories\Service;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
+use App\Application\DTO\ServiceSearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
@@ -25,7 +26,76 @@ class ServiceRepository implements ServiceRepositoryInterface
             ->findOrFail($id);
     }
 
-    public function search(SearchDTO $dto)
+    public function search(ServiceSearchDTO $dto, ?User $user = null)
+    {
+        $query = Service::query()->with(['business', 'branches', 'assets']);
+
+        // Non-admins only see services belonging to their own businesses/branches
+        if ($user && !$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('business.branches.users', fn($q) => $q->where('user_id', $user->id));
+            });
+        }
+
+        // Deleted scope
+        if ($dto->statuses && in_array('deleted', $dto->statuses)) {
+            $query->onlyTrashed();
+        }
+
+        if ($dto->statuses && in_array('active', $dto->statuses)) {
+            $query->where('is_active', true);
+        }
+
+        if ($dto->statuses && in_array('inactive', $dto->statuses)) {
+            $query->where('is_active', false);
+        }
+
+        // Text filters
+        if ($dto->serviceName) {
+            $query->where('name', 'like', '%' . $dto->serviceName . '%');
+        }
+
+        if ($dto->description) {
+            $query->where('description', 'like', '%' . $dto->description . '%');
+        }
+
+        // Price / duration
+        if ($dto->priceMin !== null) {
+            $query->where('price', '>=', $dto->priceMin);
+        }
+
+        if ($dto->priceMax !== null) {
+            $query->where('price', '<=', $dto->priceMax);
+        }
+
+        if ($dto->durationMin !== null) {
+            $query->where('duration_minutes', '>=', $dto->durationMin);
+        }
+
+        if ($dto->durationMax !== null) {
+            $query->where('duration_minutes', '<=', $dto->durationMax);
+        }
+
+        // Scoped to a specific business
+        if ($dto->businessId) {
+            $query->where('business_id', $dto->businessId);
+        }
+
+        // Admin: filter by user + optional role
+        if ($user?->isAdmin() && $dto->userId) {
+            $query->whereHas('users', function ($q) use ($dto) {
+                $q->where('model_has_users.user_id', $dto->userId);
+                if ($dto->role) {
+                    $q->where('model_has_users.role', $dto->role);
+                }
+            });
+        }
+
+        return $query->latest()->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function publicSearch(SearchDTO $dto)
     {
         $query = Service::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true));
 

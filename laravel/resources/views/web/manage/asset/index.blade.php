@@ -6,10 +6,10 @@
 
 <script>
     window.BE_DATA = {
-        csrf: '{{ csrf_token() }}',
         assets: @json($assets),
         allBranches: @json($branches),
         allServices: @json($services),
+        meta: @json($meta),
         routes: {
             store: "{{ route('manage.asset.store') }}",
             show: "{{ route('manage.asset.show', ':id') }}",
@@ -92,6 +92,8 @@
                 <div id="assetTableContainer" class="list-view__body-wrapper">
                 </div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
         </main>
         @include('components.ui.toolbar')
     </div>

@@ -3,6 +3,7 @@
 namespace App\Repositories\Business;
 
 use App\Application\DTO\SearchDTO;
+use App\Application\DTO\BusinessSearchDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
@@ -28,7 +29,66 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->find($id);
     }
 
-    public function search(SearchDTO $dto)
+    public function search(BusinessSearchDTO $dto, ?User $user = null)
+    {
+        $query = Business::query()
+            ->with([
+                'branches' => fn($q) => $q->where('is_active', true)
+                    ->with(['services' => fn($sq) => $sq->where('is_active', true)]),
+                'services' => fn($q) => $q->where('is_active', true),
+            ]);
+
+        // --- Scope: deleted / all / active ---
+        if ($dto->deleted === 'only') {
+            $query->onlyTrashed();
+        } elseif ($dto->deleted === 'with') {
+            $query->withTrashed();
+        }
+        // default: active only (no trashed)
+
+        // --- Ownership: non-admins only see their own businesses ---
+        if ($user && !$user->isAdmin()) {
+            $query->whereHas('users', fn($q) => $q->where('user_id', $user->id));
+        }
+
+        // --- Admin filtering by specific user ---
+        if ($user?->isAdmin() && $dto->userId) {
+            $query->whereHas('users', function ($q) use ($dto) {
+                $q->where('model_has_users.user_id', $dto->userId);
+                if ($dto->role) {
+                    $q->where('model_has_users.role', $dto->role);
+                }
+            });
+        }
+
+        // --- Published filter ---
+        if ($dto->published === 'yes') {
+            $query->where('is_published', true);
+        } elseif ($dto->published === 'no') {
+            $query->where('is_published', false);
+        }
+
+        // --- Business name ---
+        if ($dto->businessName) {
+            $query->where('name', 'like', '%' . $dto->businessName . '%');
+        }
+
+        // --- Description keyword ---
+        if ($dto->description) {
+            $query->where('description', 'like', '%' . $dto->description . '%');
+        }
+
+        // --- Category (via services) ---
+        if ($dto->categoryId) {
+            $query->whereHas('services', fn($q) => $q->where('category_id', $dto->categoryId));
+        }
+
+        return $query
+            ->latest()
+            ->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function publicSearch(SearchDTO $dto)
     {
         $query = Business::query()->where('is_published', true);
 

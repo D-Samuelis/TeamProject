@@ -12,6 +12,7 @@ import { initConnectionsModal } from './modals/connectionsModal.js';
 import { initRuleDetailModal } from './modals/ruleDetailModal.js';
 import { initCreateAssetModal } from './modals/createAssetModal.js';
 import { initToolbar } from './toolbar.js';
+import {initServiceSearch} from "../../components/displays/serviceSearch.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initToolbar();
 
-    initAssetListView(window.BE_DATA.assets);
+    initAssetListView(window.BE_DATA.assets, window.BE_DATA.meta);
 
     initListSearch('#assetSearchInput', '.asset-table__row', 'strong');
 
@@ -44,4 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchiveAssetModal();
     initDeleteRuleModal();
     initListSearch('#ruleSearchInput', '.filterable-rule', '.js-search-data');
+
+    initServiceSearch();
 });

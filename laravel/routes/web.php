@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('businesses')->name('business.')->group(function () {
             Route::controller(ManageBusinessController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/search', 'search')->name('search');
                 Route::get('/{businessId}', 'show')->name('show');
                 Route::post('/', 'store')->name('store');
                 Route::put('/{businessId}', 'update')->name('update');
@@ -130,6 +131,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('services')->name('service.')->controller(ManageServiceController::class)->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::get('/search', 'search')->name('search');
             Route::post('/category-request', 'requestCategory')->name('category.request');
             Route::get('/{serviceId}', 'show')->name('show');
             Route::post('/', 'store')->name('store');

@@ -1,6 +1,6 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
-import { initPaginator } from './appointmentPaginator.js';
+import { initPaginator } from '../../components/displays/paginator.js';
 
 export function initAppointmentListView(data = [], meta = {}) {
     const container = document.getElementById('appointmentTableContainer');

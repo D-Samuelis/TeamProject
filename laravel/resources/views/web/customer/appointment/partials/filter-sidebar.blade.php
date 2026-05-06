@@ -93,7 +93,9 @@
                 {{-- Show currently selected user if filter is active --}}
                 @if(request('user_id'))
                     <div class="user-search__selected" id="selectedUserBadge">
-                        <span id="selectedUserLabel">User #{{ request('user_id') }}</span>
+                        <span id="selectedUserLabel">
+                            {{ $selectedUser ? $selectedUser->name . ' (' . $selectedUser->email . ')' : 'User #' . request('user_id') }}
+                        </span>
                         <button type="button" id="clearUserBtn" class="user-search__clear">
                             <i class="fa-solid fa-xmark"></i>
                         </button>

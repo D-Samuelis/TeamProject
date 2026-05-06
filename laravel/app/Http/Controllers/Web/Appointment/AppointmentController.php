@@ -13,6 +13,7 @@ use App\Application\DTO\AppointmentSearchDTO;
 use App\Domain\Appointment\Interfaces\AppointmentRepositoryInterface;
 use App\Http\Requests\Appointment\RescheduleAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
+use App\Models\Auth\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class AppointmentController extends Controller
     public function index(Request $request, ListAppointments $listAppointments): mixed
     {
         $user = Auth::user();
-        $dto       = AppointmentSearchDTO::fromArray($request->query());
+        $dto = AppointmentSearchDTO::fromArray($request->query());
         $paginator = $listAppointments->execute($dto, $user);
 
         if ($request->wantsJson()) {
@@ -47,6 +48,7 @@ class AppointmentController extends Controller
                     'per_page'     => $paginator->perPage(),
                     'total'        => $paginator->total(),
                 ],
+                'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
             ]);
         }
 

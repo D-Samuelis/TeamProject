@@ -1,5 +1,5 @@
 import { initCollapsibleList } from '../../components/miniLists/miniList.js';
-import { initBusinessListView } from './listView.js'; 
+import { initBusinessListView } from './listView.js';
 import { initBusinessStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS SHIT INTO ONE FILE (+ assets entry) */
 import { initCreateBusinessModal } from './modals/createBusinessModal.js';
 import { initEditBusinessMetaDataModal } from './modals/editBusinessMetaDataModal.js';
@@ -12,13 +12,14 @@ import { initArchiveBranchModal } from './modals/archiveBranchModal.js';
 import { initRemoveUserModal } from './modals/removeEmployeeModal.js';
 import { initArchiveBusinessModal } from './modals/archiveBusinessModal.js';
 import { initToolbar } from './toolbar.js';
+import {initUserSearch} from "../../components/displays/userSearch.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
-    
-    initBusinessListView(window.BE_DATA.businesses);
+
+    initBusinessListView(window.BE_DATA.businesses, window.BE_DATA.meta);
 
     initCreateBusinessModal();
 
@@ -44,4 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchiveBusinessModal();
 
     initToolbar();
+
+    initUserSearch()
 });

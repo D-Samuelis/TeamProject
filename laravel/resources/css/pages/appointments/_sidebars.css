@@ -17,6 +17,14 @@
     position: relative;
 }
 
+.business-search {
+    position: relative;
+}
+
+.service-search {
+    position: relative;
+}
+
 .user-search__input {
     width: 100%;
 }

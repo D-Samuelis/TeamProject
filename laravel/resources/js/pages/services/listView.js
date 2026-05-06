@@ -1,11 +1,12 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
+import {initPaginator} from "../../components/displays/paginator.js";
 
 let sorter = null;
 let renderer = null;
 let originalData = [];
 
-export function initServicesListView(data = []) {
+export function initServicesListView(data = [], meta = {}) {
     const container = document.getElementById('serviceTableContainer');
     if (!container) return;
 
@@ -19,7 +20,7 @@ export function initServicesListView(data = []) {
         searchId: '#serviceSearchInput',
         rowClass: 'service-table__row',
         columns: [
-            { 
+            {
                 label: 'Service Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
@@ -27,7 +28,7 @@ export function initServicesListView(data = []) {
                         ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ''}
                     </div>`
             },
-            { 
+            {
                 label: 'Description', key: 'description', sortable: false, searchable: true,
                 render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
             },
@@ -35,11 +36,11 @@ export function initServicesListView(data = []) {
                 label: 'Category', key: 'category', sortable: false, searchable: true,
                 render: (val, item) => `<div class="description-cell">${item.category?.name || 'No category'}</div>`
             },
-            { 
+            {
                 label: 'Duration', key: 'duration_minutes', sortable: true, searchable: true,
                 render: (val) => `<div class="description-cell">${val ? val + ' min' : 'No duration'}</div>`
             },
-            { 
+            {
                 label: 'Price', key: 'price', sortable: true, searchable: true,
                 render: (val) => `<div class="description-cell">${val != null ? val + '€' : 'No price'}</div>`
             },
@@ -77,11 +78,11 @@ export function initServicesListView(data = []) {
                         </div>`;
                 }
             },
-            { 
-                label: 'Status', key: 'is_active', sortable: false, 
+            {
+                label: 'Status', key: 'is_active', sortable: false,
                 render: (val, item) => {
                     if (item.deleted_at) return `<span class="status-cell filter-item--red">Archived</span>`;
-                    return val 
+                    return val
                         ? `<span class="status-cell filter-item--green">Active</span>`
                         : `<span class="status-cell filter-item--yellow">Inactive</span>`;
                 }
@@ -117,12 +118,13 @@ export function initServicesListView(data = []) {
                     <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </a>
-                    
-                    <button 
-                        type="button" 
-                        class="button-icon button-icon--danger js-archive-service-btn" 
+
+                    <button
+                        type="button"
+                        class="button-icon button-icon--danger js-archive-service-btn"
                         title="Archive"
                         data-id="${item.id}"
+                        data-modal-target="archive-service-modal"
                         data-name="${item.name}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -134,9 +136,9 @@ export function initServicesListView(data = []) {
     };
 
     renderer = new TableRenderer(tableConfig);
-    
+
     const initialData = originalData;
-    
+
     sorter = new TableSorter(initialData, 'name', 'asc', (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
@@ -145,7 +147,7 @@ export function initServicesListView(data = []) {
 
     window.addEventListener('serviceFiltersChanged', (event) => {
         const statuses = event.detail.statuses;
-        
+
         const activeFilters = statuses.reduce((acc, s) => {
             acc[s.id] = s.active;
             return acc;
@@ -160,11 +162,17 @@ export function initServicesListView(data = []) {
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
         updateCounts(filteredData);
-        
+
         const searchInput = document.querySelector(tableConfig.searchId);
         if (searchInput && searchInput.value) {
             searchInput.dispatchEvent(new Event('input'));
         }
+    });
+
+    initPaginator(meta, (page) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
     });
 }
 

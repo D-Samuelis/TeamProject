@@ -16,7 +16,7 @@
 
                 <div class="business__header-info">
                     <h2 class="business-header__title">My Businesses</h2>
-                    
+
                     <div class="business-info">
                         <div class="stat-item stat-item--all">
                             <i class="fa-solid fa-layer-group"></i>
@@ -53,6 +53,8 @@
             <div class="business__body-wrapper">
                 <div id="businessTableContainer" class="list-view__body-wrapper"></div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
         </main>
         @include('components.ui.toolbar')
     </div>
@@ -60,7 +62,8 @@
 
 <script>
     window.BE_DATA = {
-        businesses: @json($activeBusinesses->merge($deletedBusinesses)),
+        businesses: @json($businesses),
+        meta: @json($meta),
         routes: {
             store: "{{ route('manage.business.store') }}",
             restore: "{{ route('manage.business.restore', ':id') }}",

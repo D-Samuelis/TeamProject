@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Web\Branch;
 
+use App\Application\DTO\BusinessSearchDTO;
 use App\Http\Controllers\Controller;
+use App\Models\Auth\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
@@ -23,16 +27,17 @@ class ManageBranchController extends Controller
     {
         return view('web.manage.branch.index', [
             'branches'   => $listBranches->execute(Auth::user(), null, 'all'),
-            'businesses' => $listBusinesses->execute(Auth::user()),
+            'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
         ]);
     }
 
     public function show(int $branchId, GetBranch $getBranch, ListBusinesses $listBusinesses, ListServices $listServices)
     {
         $branch = $getBranch->execute($branchId, Auth::user());
+        $dto = BusinessSearchDTO::fromArray([]);
         return view('web.manage.branch.show', [
             'branch'     => $branch,
-            'businesses' => $listBusinesses->execute(Auth::user()),
+            'businesses' => $listBusinesses->execute($dto, Auth::user())->getCollection(),
             'services'   => $listServices->execute(Auth::user(), $branch->business),
         ]);
     }
@@ -59,5 +64,24 @@ class ManageBranchController extends Controller
     {
         $useCase->execute($branchId, Auth::user());
         return back()->with('success', 'Branch restored.');
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        abort_unless(Auth::user()->isAdmin(), 403);
+
+        $query = $request->query('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $businesses = User::query()
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('description', 'like', "%{$query}%")
+            ->limit(8)
+            ->get(['id', 'name']);
+
+        return response()->json($businesses);
     }
 }

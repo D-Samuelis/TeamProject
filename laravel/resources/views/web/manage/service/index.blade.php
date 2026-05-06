@@ -10,7 +10,7 @@
 
     <div class="display-column">
         <x-ui.breadcrumbs />
-        
+
         <main class="business__main">
             <header class="business__header-wrapper business__header-wrapper--simple">
                 <div class="business__header-corner"></div>
@@ -70,6 +70,7 @@
         'services'   => $services->merge($deletedServices ?? []),
         'businesses' => $businesses->map(fn($b) => ['id' => $b->id, 'name' => $b->name])->values(),
         'branches'   => $branches->map(fn($b) => ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id])->values(),
+        'meta' => $meta,
         'categories' => $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values(),
         'routes'     => [
             'store'   => route('manage.service.store'),
