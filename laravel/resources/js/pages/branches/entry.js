@@ -5,6 +5,7 @@ import { initCollapsibleList } from '../../components/miniLists/miniList.js';
 import { initBranchConnectionsModal } from './modals/connectionsModal.js';
 import { initCreateBranchModal } from './modals/createBranchModal.js';
 import { initEditBranchModal } from './modals/editBranchModal.js';
+import { initServiceAssigner } from './serviceAssigner.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initToolbar();
@@ -13,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.BE_DATA.branches) {
         initBranchListView(window.BE_DATA.branches);
     }
+
+    initServiceAssigner();
+
 
     initArchiveBranchModal();
     initBranchConnectionsModal();

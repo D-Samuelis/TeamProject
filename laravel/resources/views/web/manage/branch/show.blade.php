@@ -15,7 +15,8 @@
             delete: "{{ route('manage.branch.delete', $branch->id) }}",
             restore: "{{ route('manage.branch.restore', $branch->id) }}",
             unassignService: "{{ route('manage.service.branch.unassign', [':serviceId', $branch->id]) }}",
-            assignService: "{{ route('manage.service.branch.assign', [':serviceId', $branch->id]) }}"
+            assignService: "{{ route('manage.service.branch.assign', [':serviceId', $branch->id]) }}",
+            showService: "{{ route('manage.service.show', ':serviceId') }}"
         },
         toolbar: {
             showStatus: false,
@@ -99,10 +100,6 @@
                                     <i class="fa-solid fa-ellipsis-vertical"></i> <span>Branch Actions</span>
                                 </button>
                                 <div class="branch-dropdown__menu">
-                                    <button type="button" class="branch-dropdown__item" data-modal-target="assign-service-modal">
-                                        <i class="fa-solid fa-plus"></i> Assign Service
-                                    </button>
-                                    <div class="branch-dropdown__divider"></div>
                                     <button type="button" class="branch-dropdown__item delete-action" data-modal-target="archive-branch-modal">
                                         <i class="fa-solid fa-box-archive"></i> Archive Branch
                                     </button>
@@ -114,55 +111,50 @@
             </header>
 
             <div class="business__body-wrapper">
-                <h3 style="margin-bottom: 1rem; color: var(--color-text-dark);">Active Assets</h3>
-                <div class="rule-panel">
-                    @forelse($branch->assets as $asset)
-                        <div class="rule-card">
-                            <div class="rule-card__header">
-                                <div class="rule-card__left">
-                                    <div class="rule-card__priority">#{{ $loop->iteration }}</div>
-                                    <div class="rule-card__meta">
-                                        <a href="{{ route('manage.asset.show', $asset->id) }}" class="rule-card__title">{{ $asset->name }}</a>
-                                        <p class="rule-card__description">{{ Str::limit($asset->description, 50) }}</p>
-                                    </div>
-                                </div>
-                                <div class="rule-card__actions">
-                                    <div class="status__badge {{ $asset->is_active ? 'bg__badge-green' : 'bg__badge-yellow' }}">
-                                        {{ $asset->is_active ? 'Active' : 'Inactive' }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="rule-panel__empty">No assets assigned to this branch.</p>
-                    @endforelse
-                </div>
+                <!-- 1. ASSIGN PANEL -->
+                <section class="service-assigner-panel">
+                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Link Services</h3>
+                    
+                    @php
+                        $availableServices = $services->filter(fn($s) => !$branch->services->contains($s->id));
+                    @endphp
 
-                <h3 style="margin: 2rem 0 1rem; color: var(--color-text-dark);">Linked Services</h3>
-                <div class="rule-panel">
-                    @forelse($branch->services as $service)
-                        <div class="rule-card">
-                            <div class="rule-card__header">
-                                <div class="rule-card__left">
-                                    <div class="rule-card__meta">
-                                        <strong class="rule-card__title">{{ $service->name }}</strong>
-                                    </div>
-                                </div>
-                                <div class="rule-card__actions">
-                                    @can('assign', [$service, $branch])
-                                        <form method="POST" action="{{ route('manage.service.branch.unassign', [$service->id, $branch->id]) }}">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="button-icon button-icon--danger" title="Unassign Service">
-                                                <i class="fa-solid fa-link-slash"></i>
-                                            </button>
-                                        </form>
-                                    @endcan
-                                </div>
+                    <div id="assign-container">
+                        <div id="multiselect-wrapper" style="{{ $availableServices->count() > 0 ? '' : 'display: none;' }}">
+                            <select id="serviceMultiselect" multiple class="custom-multiselect">
+                                @foreach($availableServices as $service)
+                                    <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                @endforeach
+                            </select>
+                            <button id="btnAssignServices" class="btn-assign-full" disabled>
+                                <i class="fa-solid fa-link"></i> Link Selected Services
+                            </button>
+                        </div>
+                        
+                        <div id="empty-select-message" class="select-empty-message" style="{{ $availableServices->count() > 0 ? 'display: none;' : '' }}">
+                            All services are already linked.
+                        </div>
+                    </div>
+                </section>
+
+                <h3 style="margin-bottom: 0.8rem; font-size: 16px;">Linked Services</h3>
+                <div id="linkedServicesList">
+                    @foreach($branch->services as $service)
+                        <div class="service-row" data-id="{{ $service->id }}">
+                            <a href="{{ route('manage.service.show', $service->id) }}" class="service-card-link">
+                                <i class="fa-solid fa-bell-concierge" style="margin-right: 12px; color: var(--color-primary); font-size: 16px;"></i>
+                                <span class="service-card__title">{{ $service->name }}</span>
+                            </a>
+                            <div class="service-card__actions">
+                                <form method="POST" action="{{ route('manage.service.branch.unassign', [$service->id, $branch->id]) }}" class="js-unassign-form">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="button-icon--danger" title="Unlink">
+                                        <i class="fa-solid fa-link-slash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    @empty
-                        <p class="rule-panel__empty">No services linked to this branch.</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
         </main>
