@@ -9,7 +9,7 @@ export function initCreateServiceModal() {
         e.preventDefault();
         
         // Načítanie dát z BE_DATA
-        const { csrf, routes, businesses = [], branches = [] } = window.BE_DATA || {};
+        const { csrf, routes, businesses = [], branches = [], categories = [] } = window.BE_DATA || {};
 
         Modal.showCustom({
             title: 'Create New Service',
@@ -47,6 +47,15 @@ export function initCreateServiceModal() {
                         <label class="modal-form__label">Description (Optional)</label>
                         <div class="input-wrapper">
                             <textarea name="description" class="modal-form__input" placeholder="Brief description..." style="min-height:80px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-form__group">
+                        <label class="modal-form__label">Category</label>
+                        <div class="input-wrapper">
+                            <select name="category_id" class="modal-form__input">
+                                ${renderCategoryOptions(categories)}
+                            </select>
                         </div>
                     </div>
 
@@ -132,6 +141,30 @@ export function initCreateServiceModal() {
             setupBusinessSelect(businesses, branches);
         }, 10);
     });
+}
+
+function renderCategoryOptions(categories, selectedId = null) {
+    const selectedValue = selectedId ? String(selectedId) : '';
+
+    return [
+        '<option value="">No category</option>',
+        ...categories.map((category) => {
+            const value = String(category.id);
+            const selected = value === selectedValue ? ' selected' : '';
+            return `<option value="${escapeAttribute(value)}"${selected}>${escapeHtml(category.name)}</option>`;
+        }),
+    ].join('');
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+}
+
+function escapeAttribute(value) {
+    return escapeHtml(value).replaceAll('"', '&quot;');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -313,8 +346,6 @@ function setupBranchMultiSelect(available) {
     });
 }
  
-
-
 
 
 

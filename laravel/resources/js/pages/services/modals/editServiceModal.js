@@ -8,7 +8,7 @@ export function initEditServiceModal() {
         event.preventDefault();
 
         // Ťaháme dáta z window.BE_DATA (štandard pre show detail)
-        const { service, routes, branches, csrf } = window.BE_DATA || {};
+        const { service, routes, branches, categories = [], csrf } = window.BE_DATA || {};
         
         if (!service || !routes?.update) {
             console.error("Missing service data or update route.");
@@ -47,6 +47,15 @@ export function initEditServiceModal() {
                         <div class="input-wrapper">
                             <textarea name="description" class="modal-form__input" 
                                       style="min-height: 100px;">${escapeHtml(service.description || '')}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-form__group">
+                        <label class="modal-form__label">Category</label>
+                        <div class="input-wrapper">
+                            <select name="category_id" class="modal-form__input">
+                                ${renderCategoryOptions(categories, service.category_id)}
+                            </select>
                         </div>
                     </div>
 
@@ -164,6 +173,19 @@ function renderBranchCheckboxes(branches, selectedBranches) {
             </span>
         </label>
     `).join('');
+}
+
+function renderCategoryOptions(categories, selectedId = null) {
+    const selectedValue = selectedId ? String(selectedId) : '';
+
+    return [
+        '<option value="">No category</option>',
+        ...categories.map((category) => {
+            const value = String(category.id);
+            const selected = value === selectedValue ? ' selected' : '';
+            return `<option value="${escapeAttribute(value)}"${selected}>${escapeHtml(category.name)}</option>`;
+        }),
+    ].join('');
 }
 
 // Pomocné funkcie na escape dát

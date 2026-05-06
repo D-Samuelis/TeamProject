@@ -9,6 +9,8 @@ class UpdateServiceDTO
 {
     public function __construct(
         public int $id,
+        public ?int $category_id = null,
+        public bool $category_id_provided = false,
         public ?string $name = null,
         public ?string $description = null,
         public ?int $duration_minutes = null,
@@ -29,6 +31,8 @@ class UpdateServiceDTO
         $validated = $request->validated();
         return new self(
             id: $serviceId,
+            category_id: isset($validated['category_id']) ? (int) $validated['category_id'] : null,
+            category_id_provided: array_key_exists('category_id', $validated),
             name: $validated['name'] ?? null,
             description: $validated['description'] ?? null,
             duration_minutes: isset($validated['duration_minutes']) ? (int) $validated['duration_minutes'] : null,
@@ -55,6 +59,10 @@ class UpdateServiceDTO
         ], fn($value) => !is_null($value));
 
         $data['cancellation_period_minutes'] = $this->cancellation_period_minutes;
+
+        if ($this->category_id_provided) {
+            $data['category_id'] = $this->category_id;
+        }
 
         return $data;
     }

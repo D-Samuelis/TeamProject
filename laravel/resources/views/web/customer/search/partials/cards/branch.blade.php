@@ -6,10 +6,19 @@
 ]) }}" class="card-link">
     <div class="card branch-card booking-branch-card">
         <div class="card-body">
+            @php
+                $categories = $item->services
+                    ->pluck('category')
+                    ->filter()
+                    ->unique('id')
+                    ->values();
+            @endphp
+
             <div class="js-search-data" hidden>
                 {{ $item->name }}
                 {{ $item->type }}
                 {{ $item->business->name }}
+                {{ $categories->pluck('name')->implode(' ') }}
                 {{ $item->address_line_1 }}
                 {{ $item->address_line_2 }}
                 {{ $item->postal_code }}
@@ -46,6 +55,19 @@
             <p class="card-subtitle">
                 Provided by: {{ $item->business->name }}
             </p>
+
+            @if ($categories->isNotEmpty())
+                <div class="card-categories">
+                    <span class="card-categories__label">Categories:</span>
+                    <div class="card-categories__list">
+                        @foreach ($categories as $category)
+                            <span class="category-badge">
+                                {{ $category->name }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </a>

@@ -17,6 +17,7 @@ use App\Application\Branch\UseCases\ListBranches;
 use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\Service\UseCases\AssignServiceToBranch;
 use App\Application\Service\UseCases\UnassignServiceFromBranch;
+use App\Models\Business\Category;
 use Illuminate\Support\Facades\Auth;
 
 class ManageServiceController extends Controller
@@ -27,6 +28,7 @@ class ManageServiceController extends Controller
             'services' => $listServices->execute(Auth::user(), scope: 'all'),
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
+            'categories' => Category::orderBy('name')->get(),
         ]);
     }
 
@@ -37,6 +39,7 @@ class ManageServiceController extends Controller
             'service' => $service,
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
+            'categories' => Category::orderBy('name')->get(),
         ]);
     }
 

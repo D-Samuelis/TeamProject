@@ -31,6 +31,10 @@ export function initServicesListView(data = []) {
                 label: 'Description', key: 'description', sortable: false, searchable: true,
                 render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
             },
+            {
+                label: 'Category', key: 'category', sortable: false, searchable: true,
+                render: (val, item) => `<div class="description-cell">${item.category?.name || 'No category'}</div>`
+            },
             { 
                 label: 'Duration', key: 'duration_minutes', sortable: true, searchable: true,
                 render: (val) => `<div class="description-cell">${val ? val + ' min' : 'No duration'}</div>`

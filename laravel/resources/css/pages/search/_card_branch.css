@@ -1,5 +1,7 @@
 .branch-card-top {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     justify-content: flex-start;
     width: 100%;
     margin-bottom: -0.1rem;
@@ -43,4 +45,3 @@
 .branch-info p {
     margin: 0;
 }
-

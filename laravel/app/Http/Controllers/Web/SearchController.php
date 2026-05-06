@@ -6,6 +6,7 @@ use App\Application\DTO\SearchDTO;
 use App\Application\Business\UseCases\GetBusiness;
 use App\Application\UseCases\SearchEntities;
 use App\Http\Controllers\Controller;
+use App\Models\Business\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,7 +32,8 @@ class SearchController extends Controller
 
         return view('web.customer.search.index', array_merge($searchData, [
             'dto'     => $dto,
-            'filters' => $dto
+            'filters' => $dto,
+            'categories' => Category::orderBy('name')->get(),
         ]));
     }
 }

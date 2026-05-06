@@ -19,7 +19,6 @@ class Business extends Model
         'state',
         'is_published',
         'delete_after',
-        'category_id',
     ];
 
     protected $casts = [

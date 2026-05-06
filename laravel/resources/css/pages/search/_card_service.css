@@ -20,6 +20,8 @@
 
 .service-card-top {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     justify-content: flex-start;
     width: 100%;
     margin-bottom: -0.1rem;
@@ -45,6 +47,11 @@
 .service-location-badge--online {
     background: var(--status-blue);
     color: var(--status-blue-text);
+}
+
+.service-location-badge--hybrid {
+    background: var(--status-yellow);
+    color: var(--status-yellow-text);
 }
 
 .service-duration {
@@ -73,5 +80,5 @@
 }
 
 .service-card-meta {
-    margin-top: auto;
+    margin-top: 0;
 }

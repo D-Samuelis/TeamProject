@@ -17,7 +17,7 @@
 
     <div class="dropdown__mini-list" id="targetList">
         @foreach (['business' => 'Business', 'branch' => 'Branches', 'service' => 'Services'] as $key => $label)
-            <a href="{{ route('search.index', array_merge(request()->query(), ['target' => $key])) }}"
+            <a href="{{ route('search.index', ['target' => $key]) }}"
                 class="booking__nav-link {{ $filters->target === $key ? 'is-active' : '' }}">
                 <i class="fa-solid @if($key == 'business') fa-shop @elseif($key == 'branch') fa-location-dot @else fa-scissors @endif"></i>
                 <span>{{ $label }}</span>

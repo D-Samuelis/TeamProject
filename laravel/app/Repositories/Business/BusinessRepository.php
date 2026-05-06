@@ -21,9 +21,9 @@ class BusinessRepository implements BusinessRepositoryInterface
             ->where('is_published', true)
             ->with([
                 'branches' => fn($q) => $q->where('is_active', true)->with([
-                    'services' => fn($sq) => $sq->where('is_active', true),
+                    'services' => fn($sq) => $sq->where('is_active', true)->with('category'),
                 ]),
-                'services' => fn($q) => $q->where('is_active', true),
+                'services' => fn($q) => $q->where('is_active', true)->with('category'),
             ])
             ->find($id);
     }
@@ -37,9 +37,9 @@ class BusinessRepository implements BusinessRepositoryInterface
         return $query
             ->with([
                 'branches' => fn($q) => $q->where('is_active', true)->with([
-                    'services' => fn($sq) => $sq->where('is_active', true),
+                    'services' => fn($sq) => $sq->where('is_active', true)->with('category'),
                 ]),
-                'services' => fn($q) => $q->where('is_active', true),
+                'services' => fn($q) => $q->where('is_active', true)->with('category'),
             ])
             ->latest()
             ->paginate($dto->perPage);
@@ -180,7 +180,13 @@ class BusinessRepository implements BusinessRepositoryInterface
         }
 
         if ($dto->categoryId) {
-            $query->whereHas('services', fn($q) => $q->where('is_active', true)->where('category_id', $dto->categoryId));
+            $query->whereHas('branches', function ($branchQuery) use ($dto) {
+                $branchQuery->where('is_active', true)
+                    ->whereHas('services', function ($serviceQuery) use ($dto) {
+                        $serviceQuery->where('is_active', true)
+                            ->where('services.category_id', $dto->categoryId);
+                    });
+            });
         }
     }
 }
