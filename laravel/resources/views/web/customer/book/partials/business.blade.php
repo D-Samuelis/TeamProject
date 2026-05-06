@@ -57,6 +57,7 @@
                     'id' => $service->id,
                     'name' => $service->name,
                     'description' => $service->description,
+                    'category_name' => $service->category?->name,
                     'duration_minutes' => $service->duration_minutes,
                     'price' => $service->price,
                     'location_label' => $locationLabel,

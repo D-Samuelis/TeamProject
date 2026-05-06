@@ -381,6 +381,23 @@
     color: var(--color-text-unimportant);
 }
 
+.public-business-detail__category-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 12rem;
+    padding: 0.22rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-border-light), transparent 15%);
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, var(--color-bg), white 4%);
+    color: var(--color-text-unimportant-dark);
+    font-size: 0.78rem;
+    font-family: 'Inter-SemiBold', sans-serif;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .public-business-detail__actions-wrap {
     display: flex;
     align-items: center;
