@@ -47,3 +47,30 @@
     background: #f9f9f9;
     margin: 0;
 }
+
+.category-request-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 8px 0 0;
+    color: var(--color-text-unimportant);
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.category-request-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.category-request-link:hover {
+    color: var(--color-primary-hover);
+}

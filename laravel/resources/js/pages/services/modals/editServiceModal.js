@@ -1,6 +1,8 @@
 import { Modal } from '../../../components/displays/modal.js';
 
 export function initEditServiceModal() {
+    consumeQueuedPageAlert();
+
     document.addEventListener('click', (event) => {
         const trigger = event.target.closest('[data-modal-target="edit-service-modal"]');
         if (!trigger) return;
@@ -25,6 +27,7 @@ export function initEditServiceModal() {
             action: 'edit',
             rules: {
                 name: { required: { value: true, message: 'Service name is required' } },
+                category_id: { required: { value: true, message: 'Please choose an existing category' } },
                 duration_minutes: { required: { value: true, message: 'Duration is required' } },
                 price: { required: { value: true, message: 'Price is required' } },
             },
@@ -57,6 +60,17 @@ export function initEditServiceModal() {
                                 ${renderCategoryOptions(categories, service.category_id)}
                             </select>
                         </div>
+                        <p class="category-request-hint">
+                            <span>Missing a category?</span>
+                            <button
+                                type="button"
+                                id="open_category_request_modal"
+                                class="category-request-link"
+                            >
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Request new category</span>
+                            </button>
+                        </p>
                     </div>
 
                     <div class="modal-form__grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -154,7 +168,139 @@ export function initEditServiceModal() {
                 }
             },
         });
+
+        setTimeout(() => {
+            setupCategoryRequestButton(routes.categoryRequest, csrf, service);
+        }, 10);
     });
+}
+
+function setupCategoryRequestButton(requestUrl, csrf, service) {
+    const button = document.getElementById('open_category_request_modal');
+
+    if (!button || !requestUrl) return;
+
+    button.addEventListener('click', () => {
+        Modal.close(document.getElementById('dynamic-modal'));
+        openCategoryRequestModal({
+            requestUrl,
+            csrf,
+            serviceId: service.id,
+            serviceName: service.name ?? '',
+            businessId: service.business_id ?? '',
+        });
+    });
+}
+
+function openCategoryRequestModal({ requestUrl, csrf, serviceName = '', businessId = '', serviceId = '' }) {
+    Modal.showCustom({
+        title: 'Request New Category',
+        type: 'New Request',
+        confirmText: 'Request',
+        cancelText: 'Cancel',
+        action: 'create',
+        body: `
+            <form id="categoryRequestForm">
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Requested category</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            name="requested_category_name"
+                            class="modal-form__input"
+                            maxlength="100"
+                            placeholder="Category name"
+                            required
+                            autofocus
+                        >
+                    </div>
+                </div>
+            </form>
+        `,
+        onConfirm: async (modal) => {
+            const input = modal.querySelector('input[name="requested_category_name"]');
+            const confirmButton = modal.querySelector('.btn-confirm');
+            const categoryName = input?.value.trim() ?? '';
+
+            if (!categoryName) {
+                input?.classList.add('input-error');
+                input?.focus();
+                return;
+            }
+
+            input.classList.remove('input-error');
+            if (confirmButton) confirmButton.disabled = true;
+
+            const formData = new FormData();
+            formData.append('_token', csrf);
+            formData.append('requested_category_name', categoryName);
+            formData.append('service_id', serviceId);
+            formData.append('service_name', serviceName);
+            formData.append('business_id', businessId);
+
+            try {
+                const response = await fetch(requestUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Category request failed.');
+                }
+
+                queuePageAlert('success', 'Category request was sent to admin.');
+                window.location.reload();
+            } catch (error) {
+                console.error(error);
+                if (confirmButton) confirmButton.disabled = false;
+                alert('Request failed. Please try again.');
+            }
+        },
+    });
+}
+
+function queuePageAlert(type, message) {
+    sessionStorage.setItem('bexora_page_alert', JSON.stringify({ type, message }));
+}
+
+function consumeQueuedPageAlert() {
+    const rawAlert = sessionStorage.getItem('bexora_page_alert');
+    if (!rawAlert) return;
+
+    sessionStorage.removeItem('bexora_page_alert');
+
+    try {
+        const { type = 'success', message = '' } = JSON.parse(rawAlert);
+        if (!message) return;
+
+        document.querySelector('.alerts-wrapper')?.remove();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'alerts-wrapper';
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert--${type}`;
+        alert.innerHTML = `
+            <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+            <span>${escapeHtml(message)}</span>
+        `;
+
+        wrapper.appendChild(alert);
+
+        const main = document.querySelector('main.main');
+        if (main) {
+            main.before(wrapper);
+        } else {
+            document.body.prepend(wrapper);
+        }
+    } catch (error) {
+        console.error('Failed to show queued alert.', error);
+    }
 }
 
 function renderBranchCheckboxes(branches, selectedBranches) {

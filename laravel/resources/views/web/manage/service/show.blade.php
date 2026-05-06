@@ -52,6 +52,7 @@
         categories: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()),
         routes: {
             update: '{{ route("manage.service.update", $service->id) }}',
+            categoryRequest: '{{ route("manage.service.category.request") }}',
             delete: '{{ route("manage.service.delete", $service->id) }}'
         },
         toolbar: {
