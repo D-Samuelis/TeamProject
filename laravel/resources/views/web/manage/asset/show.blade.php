@@ -82,6 +82,8 @@
 
     <aside class="business__sidebar">
 
+        @include('components.partials.dashboard_sidebar_info', ['active' => 'assets'])
+
         {{-- Asset Info Section --}}
         <section class="business__filters">
             <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Asset Info</h3>

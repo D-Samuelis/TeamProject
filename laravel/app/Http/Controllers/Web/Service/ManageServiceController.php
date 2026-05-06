@@ -81,12 +81,32 @@ class ManageServiceController extends Controller
     {
         try {
             $useCase->execute($serviceId, $branchId, Auth::user());
-        } catch (\Exception $exception) {
-            return redirect()->route('manage.service.show', $serviceId)->with('error', $exception->getMessage());
-        }
-        return redirect()->route('manage.service.show', $serviceId)->with('success', 'Service removed from branch.');
-    }
+            
+            // Ak je to AJAX (z tvojho JS)
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Service removed from branch.'
+                ]);
+            }
 
+            return redirect()->route('manage.service.show', $serviceId)
+                ->with('success', 'Service removed from branch.');
+
+        } catch (\Exception $exception) {
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $exception->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('manage.service.show', $serviceId)
+                ->with('error', $exception->getMessage());
+        }
+    }
+    
     public function book(int $serviceId, GetService $useCase)
     {
         $service = $useCase->execute($serviceId);

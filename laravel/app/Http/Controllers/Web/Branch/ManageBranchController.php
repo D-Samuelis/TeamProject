@@ -22,7 +22,7 @@ class ManageBranchController extends Controller
     public function index(ListBranches $listBranches, ListBusinesses $listBusinesses)
     {
         return view('web.manage.branch.index', [
-            'branches'   => $listBranches->execute(Auth::user()),
+            'branches'   => $listBranches->execute(Auth::user(), null, 'all'),
             'businesses' => $listBusinesses->execute(Auth::user()),
         ]);
     }

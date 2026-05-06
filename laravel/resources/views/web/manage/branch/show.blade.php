@@ -1,152 +1,167 @@
-manage.branch.{{-- resources/views/pages/private/branch/show.blade.php --}}
+@extends('web.layouts.app')
 
-@if (session('success'))
-    <p style="color:green;">{{ session('success') }}</p>
-@endif
+@section('title', 'Bexora | Branch Info')
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <div>
-        <h1>{{ $branch->name }}</h1>
-        <p style="color:#888;font-size:13px;margin:4px 0 0;">
-            {{ ucfirst($branch->type) }}
-            @if ($branch->city)
-                · {{ $branch->city }}
-            @endif
-            @if ($branch->country)
-                · {{ $branch->country }}
-            @endif
-        </p>
-    </div>
-    <div style="display:flex;gap:8px;">
-        @if ($branch->trashed())
-            @can('restore', $branch)
-                <form method="POST" action="{{ route('manage.branch.restore', $branch->id) }}">
-                    @csrf @method('PATCH')
-                    <button type="submit"
-                        style="background:#2563eb;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">
-                        Restore Branch
-                    </button>
-                </form>
-            @endcan
-        @else
-            @can('update', $branch)
-                <button onclick="openModal('editBranchModal')">Edit</button>
-            @endcan
-            @can('delete', $branch)
-                <form method="POST" action="{{ route('manage.branch.delete', $branch->id) }}"
-                    onsubmit="return confirm('Delete this branch?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" style="color:red;background:none;border:none;cursor:pointer;">Delete</button>
-                </form>
-            @endcan
-        @endif
-    </div>
-</div>
+@section('content')
 
-{{-- Details --}}
-<div style="margin-bottom:2rem;">
-    @if ($branch->address_line_1)
-        <p>{{ $branch->address_line_1 }}{{ $branch->address_line_2 ? ', ' . $branch->address_line_2 : '' }}</p>
-        <p>{{ $branch->postal_code }} {{ $branch->city }}, {{ $branch->country }}</p>
-    @endif
-    <p style="margin-top:6px;">
-        <span
-            style="font-size:12px;padding:2px 8px;border-radius:20px;background:{{ $branch->is_active ? '#d1fae5' : '#fee2e2' }};color:{{ $branch->is_active ? '#065f46' : '#991b1b' }};">
-            {{ $branch->is_active ? 'Active' : 'Inactive' }}
-        </span>
-    </p>
-</div>
+<script>
+    window.BE_DATA = {
+        csrf: '{{ csrf_token() }}',
+        branch: @json($branch),
+        businesses: @json($businesses),
+        allServices: @json($services),
+        routes: {
+            update: "{{ route('manage.branch.update', $branch->id) }}",
+            delete: "{{ route('manage.branch.delete', $branch->id) }}",
+            restore: "{{ route('manage.branch.restore', $branch->id) }}",
+            unassignService: "{{ route('manage.service.branch.unassign', [':serviceId', $branch->id]) }}",
+            assignService: "{{ route('manage.service.branch.assign', [':serviceId', $branch->id]) }}",
+            showService: "{{ route('manage.service.show', ':serviceId') }}"
+        },
+        toolbar: {
+            showStatus: false,
+            centerGroups: [
+                {
+                    groupId: 'danger-zone',
+                    actions: [
+                        @if($branch->trashed())
+                            {
+                                label: 'Restore Branch',
+                                icon: 'fa-rotate-left',
+                                isForm: true,
+                                action: '{{ route("manage.branch.restore", $branch->id) }}'
+                            }
+                        @else
+                            {
+                                label: 'Archive Branch',
+                                icon: 'fa-box-archive',
+                                modal: 'archive-branch-modal',
+                                class: 'toolbar__action-button--danger',
+                                id: '{{ $branch->id }}',
+                                name: '{{ $branch->name }}'
+                            }
+                        @endif
+                    ]
+                }
+            ]
+        }
+    };
+</script>
 
-<div style="margin-top:1rem;">
-    <strong>Business:</strong><a
-        href="{{ route('manage.business.show', $branch->business->id) }}">{{ $branch->business->name }}</a>
-</div>
+<div class="business">
+    <aside class="business__sidebar">
+        
+        @include('components.partials.dashboard_sidebar_info', ['active' => 'branches'])
 
-{{-- Services --}}
-<div style="margin-top:0.5rem;">
-    <strong>Services:</strong>
-    @forelse($branch->services as $s)
-        <span>
-            <a href="{{ route('manage.service.show', $s->id) }}">{{ $s->name }}</a>
-            @can('assign', [$s, $branch])
-                <form method="POST" action="{{ route('manage.service.branch.unassign', [$s->id, $branch->id]) }}"
-                    style="display:inline;" onsubmit="return confirm('Remove this service from branch?')">
-                    @csrf @method('DELETE')
-                    <button type="submit"
-                        style="color:red;background:none;border:none;cursor:pointer;font-size:11px;">✕</button>
-                </form>
-            @endcan
-        </span>
-        @unless ($loop->last)
-            ,
-        @endunless
-    @empty
-        <span style="color:#888;">None assigned</span>
-    @endforelse
-</div>
-
-{{-- Assign service --}}
-@php $assignableServices = $services->whereNotIn('id', $branch->services->pluck('id')); @endphp
-@if ($assignableServices->isNotEmpty())
-    <div style="margin-top:0.5rem;">
-        <strong>Assign service:</strong>
-        @foreach ($assignableServices as $s)
-            @can('assign', [$s, $branch])
-                <form method="POST" action="{{ route('manage.service.branch.assign', [$s->id, $branch->id]) }}"
-                    style="display:inline;">
-                    @csrf
-                    <button type="submit"
-                        style="background:none;border:1px solid #ccc;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px;">
-                        + {{ $s->name }}
-                    </button>
-                </form>
-            @endcan
-        @endforeach
-    </div>
-@endif
-
-{{-- Assets --}}
-<div style="margin-top:0.5rem;">
-    <strong>Assets:</strong>
-    @forelse($branch->assets as $a)
-        <a href="{{ route('manage.asset.show', $a->id) }}">{{ $a->name }}</a>
-        @unless ($loop->last)
-            ,
-        @endunless
-    @empty
-        <span style="color:#888;">None assigned</span>
-    @endforelse
-</div>
-
-
-{{-- ══════════════════════════════════════════════════════════════════
-     MODAL: Edit Branch
-══════════════════════════════════════════════════════════════════ --}}
-<div id="editBranchModal" class="modal-backdrop" style="display:none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('editBranchModal')">&times;</button>
-        <h2 style="margin-bottom:1.5rem;">Edit Branch</h2>
-
-        <form method="POST" action="{{ route('manage.branch.update', $branch->id) }}">
-            @csrf @method('PUT')
-            @include('web.manage.branch.partials.branch-form', [
-                'prefix' => 'edit',
-                'branch' => $branch,
-                'businesses' => $businesses,
-            ])
-
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;">
-                <button type="button" onclick="closeModal('editBranchModal')" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Save Changes</button>
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle"><i class="fa-solid fa-chevron-down"></i> Branch Info</h3>
+            <div id="branchInfo" class="dropdown__mini-list">
+                <div class="business-info-card">
+                    <p class="business-info-card__name">{{ $branch->name }}</p>
+                    <div class="business-info-card__address" style="font-size: 13px; color: var(--color-text-light); margin-bottom: 12px;">
+                        <p><i class="fa-solid fa-map-pin"></i> {{ $branch->address_line_1 }}</p>
+                        <p>{{ $branch->postal_code }} {{ $branch->city }}</p>
+                        <p>{{ $branch->country }}</p>
+                    </div>
+                    <p class="business-info-card__desc">
+                        Part of <strong>{{ $branch->business->name }}</strong> business.
+                    </p>
+                    @can('update', $branch)
+                        <button class="business-info-card__edit-btn" type="button" data-modal-target="edit-branch-modal">
+                            <i class="fa-solid fa-gear"></i> Manage Branch
+                        </button>
+                    @endcan
+                </div>
             </div>
-        </form>
+        </section>
+    </aside>
+
+    <div class="display-column">
+        <x-ui.breadcrumbs />
+        <main class="business__main">
+            <header class="business__header-wrapper">
+                <div class="business__header-corner">
+                    <div class="view-switcher">
+                        <button class="view-switcher__btn active"><i class="fa-solid fa-layer-group"></i> Resources</button>
+                    </div>
+                </div>
+
+                <div class="business__header-info">
+                    <div class="business__header-info-text">
+                        <h2 class="business-header__title">Connected Assets & Services</h2>
+                    </div>
+                </div>
+
+                <div class="business__header-right">
+                    <div class="business__header-right-section_1">
+                        @if (!$branch->trashed())
+                            <div class="dropdown branch-dropdown">
+                                <button class="branch-dropdown__trigger" type="button">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i> <span>Branch Actions</span>
+                                </button>
+                                <div class="branch-dropdown__menu">
+                                    <button type="button" class="branch-dropdown__item delete-action" data-modal-target="archive-branch-modal">
+                                        <i class="fa-solid fa-box-archive"></i> Archive Branch
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </header>
+
+            <div class="business__body-wrapper">
+                <!-- 1. ASSIGN PANEL -->
+                <section class="service-assigner-panel">
+                    <h3 style="margin-bottom: 1rem; font-size: 16px;">Link Services</h3>
+                    
+                    @php
+                        $availableServices = $services->filter(fn($s) => !$branch->services->contains($s->id));
+                    @endphp
+
+                    <div id="assign-container">
+                        <div id="multiselect-wrapper" style="{{ $availableServices->count() > 0 ? '' : 'display: none;' }}">
+                            <select id="serviceMultiselect" multiple class="custom-multiselect">
+                                @foreach($availableServices as $service)
+                                    <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                @endforeach
+                            </select>
+                            <button id="btnAssignServices" class="btn-assign-full" disabled>
+                                <i class="fa-solid fa-link"></i> Link Selected Services
+                            </button>
+                        </div>
+                        
+                        <div id="empty-select-message" class="select-empty-message" style="{{ $availableServices->count() > 0 ? 'display: none;' : '' }}">
+                            All services are already linked.
+                        </div>
+                    </div>
+                </section>
+
+                <h3 style="margin-bottom: 0.8rem; font-size: 16px;">Linked Services</h3>
+                <div id="linkedServicesList">
+                    @foreach($branch->services as $service)
+                        <div class="service-row" data-id="{{ $service->id }}">
+                            <a href="{{ route('manage.service.show', $service->id) }}" class="service-card-link">
+                                <i class="fa-solid fa-bell-concierge" style="margin-right: 12px; color: var(--color-primary); font-size: 16px;"></i>
+                                <span class="service-card__title">{{ $service->name }}</span>
+                            </a>
+                            <div class="service-card__actions">
+                                <form method="POST" action="{{ route('manage.service.branch.unassign', [$service->id, $branch->id]) }}" class="js-unassign-form">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="button-icon--danger" title="Unlink">
+                                        <i class="fa-solid fa-link-slash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </main>
+        @include('components.ui.toolbar')
     </div>
 </div>
 
-@include('web.manage.branch.partials.modal-styles-scripts')
+@vite('resources/js/pages/branches/entry.js')
 
-@if ($errors->any())
-    <script>
-        openModal('editBranchModal');
-    </script>
-@endif
+@endsection

@@ -6,17 +6,34 @@ export function initCreateBranchModal() {
         if (!btn) return;
 
         e.preventDefault();
-        openCreateBranchModal();
+        
+        // Načítanie firiem z globálnych dát
+        const businesses = window.BE_DATA?.businesses || [];
+        openCreateBranchModal(businesses);
+        console.log(businesses);
     });
 }
 
-function openCreateBranchModal() {
+function openCreateBranchModal(businesses) {
     Modal.showCustom({
         title:      'Create New Branch',
         confirmText: 'Create Branch',
         action:      'create',
         body: `
             <form id="createBranchForm">
+                <input type="hidden" name="business_id" id="business_id_input">
+
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Business</label>
+                    <div class="searchable-select-wrapper" style="position:relative;">
+                        <input type="text" id="business_search" class="modal-form__input" 
+                               placeholder="Search and select business..." autocomplete="off" required>
+                        <div id="business_dropdown" class="custom-dropdown" style="display:none;">
+                            ${businesses.map(b => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="modal-form__group">
                     <label class="modal-form__label">Name</label>
                     <div class="input-wrapper">
@@ -35,10 +52,10 @@ function openCreateBranchModal() {
                     </div>
                 </div>
 
-                <div class="modal-form__group">
-                    <label class="modal-form__label toggle-label" style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+                <div class="modal-form__group checkbox-group">
+                    <label class="modal-form__checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" name="is_active" value="1" checked>
-                        Active Status
+                        <span>Active Status</span>
                     </label>
                 </div>
 
@@ -46,13 +63,6 @@ function openCreateBranchModal() {
                     <label class="modal-form__label">Street Address</label>
                     <div class="input-wrapper">
                         <input type="text" name="address_line_1" class="modal-form__input" placeholder="Bajkalská 21">
-                    </div>
-                </div>
-
-                <div class="modal-form__group">
-                    <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="address_line_2" class="modal-form__input" placeholder="2nd floor / door number 6">
                     </div>
                 </div>
 
@@ -79,16 +89,22 @@ function openCreateBranchModal() {
         onConfirm: async (modal) => {
             const form = modal.querySelector('#createBranchForm');
             const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
+            const businessId = modal.querySelector('#business_id_input').value;
             
-            if (submitBtn) submitBtn.disabled = true;
             Modal.clearFieldErrors(modal);
+
+            if (!businessId) {
+                modal.querySelector('#business_search').classList.add('input-error');
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
 
             const formData = new FormData(form);
             formData.append('_token', window.BE_DATA.csrf);
-            formData.append('business_id', window.BE_DATA.business.id);
 
             try {
-                const res = await fetch(window.BE_DATA.routes.branchStore, {
+                const res = await fetch(window.BE_DATA.routes.store, {
                     method: 'POST',
                     headers: { 
                         'X-Requested-With': 'XMLHttpRequest',
@@ -115,6 +131,52 @@ function openCreateBranchModal() {
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
+        }
+    });
+
+    setTimeout(() => {
+        setupBusinessSearch();
+    }, 10);
+}
+
+function setupBusinessSearch() {
+    const searchInput = document.getElementById('business_search');
+    const dropdown    = document.getElementById('business_dropdown');
+    const hiddenInput = document.getElementById('business_id_input');
+    const items       = dropdown?.querySelectorAll('.dropdown-item');
+ 
+    if (!searchInput || !dropdown) return;
+ 
+    searchInput.addEventListener('focus', () => {
+        dropdown.style.display = 'block';
+        items.forEach(item => item.style.display = 'block');
+    });
+ 
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        dropdown.style.display = 'block';
+ 
+        items.forEach(item => {
+            item.style.display = item.textContent.toLowerCase().includes(filter) ? 'block' : 'none';
+        });
+
+        if (!searchInput.value) {
+            hiddenInput.value = '';
+        }
+    });
+ 
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            searchInput.value = item.textContent.trim();
+            hiddenInput.value = item.dataset.value;
+            dropdown.style.display = 'none';
+            searchInput.classList.remove('input-error');
+        });
+    });
+ 
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.searchable-select-wrapper')) {
+            dropdown.style.display = 'none';
         }
     });
 }

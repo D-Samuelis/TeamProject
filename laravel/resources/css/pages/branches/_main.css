@@ -1,0 +1,142 @@
+/* Container pre linkovanie */
+.service-assigner-panel {
+    background: var(--color-bg-light, #fff);
+    border: 1px solid var(--color-border, #e0e0e0);
+    padding: 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+/* Moderný Native Multiselect */
+.custom-multiselect {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border, #ccc);
+    background-color: white;
+    font-size: 14px;
+    color: var(--color-text-dark);
+    outline: none;
+    transition: border-color 0.2s;
+    /* Odstránené fixné min-height, prispôsobí sa obsahu alebo defaultu */
+}
+
+.custom-multiselect:focus {
+    border-color: var(--color-primary);
+}
+
+.custom-multiselect option {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    cursor: pointer;
+}
+
+.custom-multiselect option:checked {
+    background: var(--color-primary) linear-gradient(0deg, var(--color-primary) 0%, var(--color-primary) 100%);
+    color: #fff;
+}
+
+/* Štýlové tlačidlo pod selectom */
+.btn-assign-full {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-assign-full:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.btn-assign-full:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Kompaktná karta (riadok služby) */
+.service-row {
+    position: relative;
+    display: flex;
+    align-items: stretch; /* Zabezpečí, že akcie aj link majú rovnakú výšku pre centrovanie */
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.service-row:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg-hover, #f8f9fa);
+}
+
+/* Celá karta ako odkaz */
+.service-card-link {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--color-text-dark);
+}
+
+.service-card__title {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Container pre akcie - oprava centrovania unlink buttonu */
+.service-card__actions {
+    display: flex;
+    align-items: center; /* Vertikálne vycentrovanie buttonu */
+    justify-content: center;
+    padding: 0 16px;
+    border-left: 1px solid transparent; /* Voliteľné: jemné oddelenie */
+}
+
+/* Unlink button (Danger icon) */
+.button-icon--danger {
+    color: #e24b4a;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.button-icon--danger:hover {
+    background: rgba(226, 75, 74, 0.1);
+}
+
+/* Prázdny stav */
+.select-empty-message {
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text-light);
+    font-size: 14px;
+}
