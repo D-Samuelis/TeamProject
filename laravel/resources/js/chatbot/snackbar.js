@@ -19,16 +19,15 @@ export function showNavigations(navigations) {
     }));
 }
 
-export function showSuggestion(text) {
-    if (!text) return;
-    showSnackbar({
+export function showSuggestions(suggestions) {
+    if (!suggestions?.length) return;
+    suggestions.forEach(text => showSnackbar({
         label: text,
-        type: "Reply",
+        type: "Suggested reply",
         proceedIcon: "send",
         onProceed: () => { window.bexiOpenAndSend(text); }
-    });
+    }));
 }
-
 function capByType(navigations, max) {
     const counts = {};
     navigations.forEach(nav => { counts[nav.type] = (counts[nav.type] ?? 0) + 1; });
