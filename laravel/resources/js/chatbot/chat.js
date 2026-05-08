@@ -1,6 +1,6 @@
 import { sendChat } from "./api.js";
 import { addMessage, setStatus } from "./ui.js";
-import { showNavigations, showSuggestion } from "./snackbar.js";
+import { showNavigations, showSuggestions } from "./snackbar.js";
 
 function storageKey(key) {
     return `${key}_${document.querySelector('meta[name="user-id"]').content}`;
@@ -50,8 +50,8 @@ export async function handleMessage(sessionId, text, elements) {
         if (data.navigations?.length) {
             showNavigations(data.navigations);
         }
-        if (data.suggestion) {
-            showSuggestion(data.suggestion);
+        if (data.suggestions?.length) {
+            showSuggestions(data.suggestions);
         }
 
     } catch (e) {

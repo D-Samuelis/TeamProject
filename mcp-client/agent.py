@@ -38,11 +38,12 @@ async def agent_turn(messages: list, token: str) -> dict:
 
                 if not msg.tool_calls:
                     raw_reply = msg.content or ""
-                    suggestion = None
-                    match = re.search(r'\[Suggested Response\]\s*(.+)', raw_reply, re.IGNORECASE)
-                    if match:
-                        suggestion = match.group(1).strip()
-                        reply = raw_reply[:match.start()].strip()
+                    suggestions = []
+
+                    matches = list(re.finditer(r'\[Suggested Response\]\s*(.+)', raw_reply, re.IGNORECASE))
+                    if matches:
+                        suggestions = [m.group(1).strip() for m in matches]
+                        reply = raw_reply[:matches[0].start()].strip()
                     else:
                         reply = raw_reply
 
@@ -50,7 +51,7 @@ async def agent_turn(messages: list, token: str) -> dict:
                         "reply":       reply,
                         "steps":       steps,
                         "navigations": build_navigations(steps),
-                        "suggestion":  suggestion,
+                        "suggestions": suggestions,
                     }
 
                 for tc in msg.tool_calls:
