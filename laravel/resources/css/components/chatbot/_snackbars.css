@@ -67,8 +67,7 @@
     flex-shrink: 0;
 }
 
-.snackbar-proceed,
-.snackbar-close {
+.snackbar-proceed {
     background: none;
     border: none;
     cursor: pointer;
@@ -87,10 +86,6 @@
 
 .snackbar-proceed:hover {
     background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
-}
-
-.snackbar-close {
-    color: var(--color-text-unimportant-dark);
 }
 
 .snackbar-close:hover {
