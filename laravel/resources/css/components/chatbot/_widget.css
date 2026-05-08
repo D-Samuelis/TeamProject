@@ -8,6 +8,7 @@
     align-items: stretch;
     font-family: inherit;
     pointer-events: none;
+    z-index: 1000;
 }
 
 #chat-widget * {
@@ -38,6 +39,7 @@
 
 #chat-toggle {
     position: fixed;
+    z-index: 1001;
     right: 0;
     top: 50%;
     transform: translateY(-50%);
@@ -99,3 +101,45 @@ body {
 body.sidebar-open {
     padding-right: 26rem;
 }
+
+#chat-close {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.45rem;
+    border: none;
+    background: none;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+@media (max-width: 850px) {
+    #chat-widget {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #chat-panel {
+        width: 100%;
+        height: 100%;
+        border-left: none;
+    }
+
+    body.sidebar-open {
+        padding-right: 0;
+        overflow: hidden;
+    }
+
+}
+
+
+
+

@@ -66,7 +66,7 @@
 }
 
 #chat-close:hover {
-    color: var(--color-danger);
+    color: var(--color-primary-hover);
 }
 
 #chat-panel {
@@ -139,7 +139,11 @@
 }
 
 .msg-bot  .msg-bubble { background-color: var(--color-bg-complement); color: var(--color-text); }
-.msg-user .msg-bubble { background-color: var(--color-primary); color: var(--color-text-white); border-color: var(--color-primary); }
+.msg-user .msg-bubble {
+    background-color: transparent;
+    color: var(--color-text);
+    border-color: var(--color-primary);
+}
 .msg-user .msg-bubble { border-bottom-right-radius: 0.3rem; }
 .msg-bot  .msg-bubble { border-bottom-left-radius:  0.3rem; }
 
@@ -204,119 +208,116 @@
 }
 
 #input-bar {
-    display: grid;
-    grid-template-columns: 1fr auto auto auto;
-    gap: 0.5rem;
-    align-items: flex-end;
-    padding: 0.75rem;
-    border-top: 1px solid var(--color-border-light);
+    padding: 0.6rem 0.75rem 0.75rem;
     background-color: var(--color-bg-complement-v2);
+    border-top: 1px solid var(--color-border-light);
     flex-shrink: 0;
+}
+
+#input-box {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border-light);
+    border-radius: 0.75rem;
+    background-color: var(--color-bg-complement);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+#input-box:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-box-shadow);
 }
 
 #msg-input {
     resize: none;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid var(--color-border-light);
-    border-radius: 0.6rem;
-    background-color: var(--color-bg-complement);
+    padding: 0.65rem 0.85rem 0.4rem;
+    border: none;
+    background: transparent;
     color: var(--color-text);
     font-size: 0.9rem;
     font-family: inherit;
     line-height: 1.45;
-    height: 6rem;
+    min-height: 4.2rem;
+    max-height: 8rem;
     overflow-y: auto;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     outline: none;
 }
 
-#msg-input::placeholder { color: var(--color-text-unimportant); }
+#msg-input::placeholder {
+    color: var(--color-text-unimportant);
+}
 
 #msg-input:focus {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-box-shadow);
 }
 
+#input-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    padding: 0.3rem 0.4rem;
+    border-top: 1px solid var(--color-border-light);
+}
+
 #send-btn,
-#clear-btn {
-    height: 1.9rem;
-    padding: 0 0.9rem;
-    border-radius: 0.25rem;
-    border: 1px solid var(--color-border-light);
-    font-size: 0.85rem;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-    outline: none;
-    margin-top: 0.2rem;
-}
-
-#send-btn {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-text-white);
-}
-
-#send-btn:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
-}
-
-#send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-#clear-btn {
-    background-color: var(--color-bg);
-    color: var(--color-text-unimportant-dark);
-}
-
-#clear-btn:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    background-color: var(--color-bg);
-}
-
+#clear-btn,
 #mic-btn {
+    width: 1.9rem;
     height: 1.9rem;
     padding: 0;
-    border-radius: 0.25rem;
-    border: 1px solid var(--color-border-light);
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-text-white);
+    border: none;
+    border-radius: 0.4rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    outline: none;
     flex-shrink: 0;
+    font-family: inherit;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    outline: none;
 }
 
+#send-btn .material-icons,
+#clear-btn .material-icons,
 #mic-btn .material-icons {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1;
 }
 
+#send-btn {
+    color: var( --badge-primary-text-color);
+}
+
+#send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#mic-btn {
+    color: var(--color-text-unimportant-dark);
+}
+
 #mic-btn:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
+    color: var(--color-primary);
 }
 
 #mic-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
 #mic-btn.recording {
-    background-color: var(--status-red);
-    border-color: var(--status-red);
-    color: var(--color-text-white);
+    color: var(--status-red);
 }
 
-#mic-btn.recording:hover {
-    background-color: var(--status-red-hover);
-    border-color: var(--status-red-hover);
-    color: var(--color-text-white);
+#clear-btn {
+    color: var(--color-text-unimportant-dark);
+    margin-right: auto;
+}
+
+#clear-btn:hover {
+    color: var(--color-primary);
 }

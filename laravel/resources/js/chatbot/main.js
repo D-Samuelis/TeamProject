@@ -14,6 +14,8 @@ const panel      = document.getElementById("chat-panel");
 const widget     = document.getElementById("chat-widget");
 const micBtn     = document.getElementById("mic-btn");
 
+window.closeSidebar = closeSidebar;
+
 export function openSidebar() {
     panel.classList.remove("chat-hidden");
     widget.classList.remove("sidebar-closed");

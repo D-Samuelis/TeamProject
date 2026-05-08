@@ -9,23 +9,28 @@
                         <span class="chat__title">BEXI</span>
                         <span class="chat__tagline">Effortless booking AI</span>
                     </div>
-                    <div class="chat__status-container">
-                        <span id="status">Loading…</span>
-                    </div>
                 </div>
+                <button id="chat-close" onclick="closeSidebar()">
+                    <span class="material-icons">close</span>
+                </button>
             </div>
             <div id="messages"></div>
             @include('components.ui.snackbars')
             <div id="input-bar">
-                <textarea id="msg-input" placeholder="Message…"></textarea>
-                <div class="display-column">
-                    <button id="mic-btn" title="Voice input">
-                        <span class="material-icons">mic</span>
-                    </button>
-                    <button id="send-btn">Send</button>
-                    <button id="clear-btn">Clear</button>
+                <div id="input-box">
+                    <textarea id="msg-input" placeholder="Message…" rows="1"></textarea>
+                    <div id="input-actions">
+                        <button id="clear-btn" title="Clear chat">
+                            <span class="material-icons">delete_outline</span>
+                        </button>
+                        <button id="mic-btn" title="Voice input">
+                            <span class="material-icons">mic</span>
+                        </button>
+                        <button id="send-btn" title="Send">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>
