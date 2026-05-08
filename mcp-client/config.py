@@ -9,7 +9,7 @@ MODEL   = os.getenv("MCP_OPENAI_MODEL")
 API_KEY = os.getenv("OPENAI_API_KEY")
 
 PROMPTS_DIR  = Path("prompts")
-PROMPT_FILES = ["identity.md", "tools.md", "rules.md"]
+PROMPT_FILES = ["identity.md", "tools.md", "rules.md", "suggestions.md"]
 
 
 def load_system_prompt() -> str:

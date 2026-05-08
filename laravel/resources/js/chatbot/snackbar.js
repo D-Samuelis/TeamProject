@@ -1,23 +1,29 @@
 const SNACKBAR_DURATION_MS = 8000;
 const TICK_MS = 50;
 
-const TYPE_LABELS = {
-    business: "Business",
-    service:  "Service",
-    branch:   "Branch",
-    appointments: ""
-};
+let stackEl = null;
 
-let stackEl   = null;
-let templateEl = null;
-
-function getStack()    { return stackEl    ??= document.getElementById("snackbar-stack"); }
-function getTemplate() { return templateEl ??= document.getElementById("snackbar-template"); }
+function getStack() { return stackEl ??= document.getElementById("snackbar-stack"); }
 
 export function showNavigations(navigations) {
     if (!navigations?.length) return;
     clearAll();
-    capByType(navigations, 2).forEach(nav => showSnackbar(nav));
+    capByType(navigations, 2).forEach(nav => showSnackbar({
+        label: nav.label,
+        type: nav.type,
+        proceedIcon: "arrow_forward",
+        onProceed: () => { window.location.href = nav.url; }
+    }));
+}
+
+export function showSuggestion(text) {
+    if (!text) return;
+    showSnackbar({
+        label: text,
+        type: "",
+        proceedIcon: "send",
+        onProceed: () => { window.bexiOpenAndSend(text); }
+    });
 }
 
 function capByType(navigations, max) {
@@ -25,48 +31,58 @@ function capByType(navigations, max) {
     navigations.forEach(nav => { counts[nav.type] = (counts[nav.type] ?? 0) + 1; });
     return navigations.filter(nav => counts[nav.type] <= max);
 }
+function scrollMessages() {
+    const messages = document.getElementById("messages");
+    if (messages) messages.scrollTop = messages.scrollHeight;
+}
 
-function showSnackbar(nav) {
+function showSnackbar({ label, type, proceedIcon, onProceed }) {
     const stack = getStack();
     if (!stack) return;
 
-    const label = TYPE_LABELS[nav.type] ?? nav.type;
-
     const sb = document.createElement("div");
-    sb.className  = "snackbar";
-    sb.dataset.id = `${nav.type}-${nav.id}`;
-    sb.appendChild(getTemplate().content.cloneNode(true));
+    sb.className = "snackbar";
 
-    sb.querySelector(".snackbar-type").textContent         = label;
-    sb.querySelector(".snackbar-type-inline").textContent  = label;
-    sb.querySelector(".snackbar-name").textContent         = nav.name;
+    sb.innerHTML = `
+        <div class="snackbar-body">
+            <span class="snackbar-type">${type ?? ""}</span>
+            <p class="snackbar-label">${label}</p>
+            <div class="snackbar-actions">
+                <button class="snackbar-proceed" title="Proceed">
+                    <span class="material-icons">${proceedIcon}</span>
+                </button>
+                <button class="snackbar-close" title="Dismiss">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </div>
+    `;
 
-    const progressBar = sb.querySelector(".snackbar-progress-bar");
-    const proceedBtn  = sb.querySelector(".snackbar-proceed");
-    const dismissBtn  = sb.querySelector(".snackbar-dismiss");
-
-    stack.append(sb);
-    requestAnimationFrame(() => sb.classList.add("snackbar-visible"));
+    stack.appendChild(sb);
+    requestAnimationFrame(() => {
+        sb.classList.add("snackbar-visible");
+        scrollMessages();
+    });
 
     let elapsed = 0;
-    let paused  = false;
+    let paused = false;
 
     const interval = setInterval(() => {
         if (paused) return;
         elapsed += TICK_MS;
-        progressBar.style.width = `${Math.max(0, 100 - (elapsed / SNACKBAR_DURATION_MS) * 100)}%`;
         if (elapsed >= SNACKBAR_DURATION_MS) dismiss();
     }, TICK_MS);
 
     sb.addEventListener("mouseenter", () => { paused = true; });
     sb.addEventListener("mouseleave", () => { paused = false; });
 
-    proceedBtn.addEventListener("click", () => {
+    sb.querySelector(".snackbar-proceed").addEventListener("click", () => {
         clearInterval(interval);
-        window.location.href = nav.url;
+        dismiss();
+        onProceed();
     });
 
-    dismissBtn.addEventListener("click", () => {
+    sb.querySelector(".snackbar-close").addEventListener("click", () => {
         clearInterval(interval);
         dismiss();
     });
@@ -74,10 +90,12 @@ function showSnackbar(nav) {
     function dismiss() {
         sb.classList.remove("snackbar-visible");
         sb.classList.add("snackbar-hidden");
-        sb.addEventListener("transitionend", () => sb.remove(), { once: true });
+        sb.addEventListener("transitionend", () => {
+            sb.remove();
+            scrollMessages();
+        }, { once: true });
     }
 }
-
 export function clearAll() {
     getStack()?.querySelectorAll(".snackbar").forEach(el => el.remove());
 }
