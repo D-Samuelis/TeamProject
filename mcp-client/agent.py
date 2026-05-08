@@ -1,4 +1,5 @@
 import json
+import re
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
@@ -36,10 +37,20 @@ async def agent_turn(messages: list, token: str) -> dict:
                 messages.append(msg)
 
                 if not msg.tool_calls:
+                    raw_reply = msg.content or ""
+                    suggestion = None
+                    match = re.search(r'\[Suggested Response\]\s*(.+)', raw_reply, re.IGNORECASE)
+                    if match:
+                        suggestion = match.group(1).strip()
+                        reply = raw_reply[:match.start()].strip()
+                    else:
+                        reply = raw_reply
+
                     return {
-                        "reply":       msg.content or "",
+                        "reply":       reply,
                         "steps":       steps,
                         "navigations": build_navigations(steps),
+                        "suggestion":  suggestion,
                     }
 
                 for tc in msg.tool_calls:

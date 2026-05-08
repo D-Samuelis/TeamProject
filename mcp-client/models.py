@@ -24,3 +24,4 @@ class ChatResponse(BaseModel):
     reply:       str
     steps:       list[ToolStep]             = []
     navigations: list[NavigationSuggestion] = []
+    suggestion:  str | None                 = None

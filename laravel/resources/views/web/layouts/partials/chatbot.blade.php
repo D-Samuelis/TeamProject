@@ -2,9 +2,6 @@
     <meta name="user-id" content="{{ auth()->id() }}">
 
     <div id="chat-widget">
-        @include('components.ui.snackbars')
-
-        {{-- Sidebar panel --}}
         <div id="chat-panel" class="chat-hidden">
             <div id="chat-header">
                 <div class="display-row">
@@ -18,6 +15,7 @@
                 </div>
             </div>
             <div id="messages"></div>
+            @include('components.ui.snackbars')
             <div id="input-bar">
                 <textarea id="msg-input" placeholder="Message…"></textarea>
                 <div class="display-column">
@@ -31,6 +29,5 @@
             </div>
         </div>
     </div>
-
     @vite('resources/js/chatbot/main.js')
 @endauth
