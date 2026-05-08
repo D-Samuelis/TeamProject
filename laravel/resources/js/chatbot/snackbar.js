@@ -12,7 +12,10 @@ export function showNavigations(navigations) {
         label: nav.label,
         type: nav.type,
         proceedIcon: "arrow_forward",
-        onProceed: () => { window.location.href = nav.url; }
+        onProceed: () => {
+            if (window.innerWidth <= 850 && window.closeSidebar) window.closeSidebar();
+            window.location.href = nav.url;
+        }
     }));
 }
 
