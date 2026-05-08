@@ -20,7 +20,7 @@ export function showSuggestion(text) {
     if (!text) return;
     showSnackbar({
         label: text,
-        type: "",
+        type: "Reply",
         proceedIcon: "send",
         onProceed: () => { window.bexiOpenAndSend(text); }
     });
@@ -51,9 +51,6 @@ function showSnackbar({ label, type, proceedIcon, onProceed }) {
                 <button class="snackbar-proceed" title="Proceed">
                     <span class="material-icons">${proceedIcon}</span>
                 </button>
-                <button class="snackbar-close" title="Dismiss">
-                    <span class="material-icons">close</span>
-                </button>
             </div>
         </div>
     `;
@@ -80,11 +77,6 @@ function showSnackbar({ label, type, proceedIcon, onProceed }) {
         clearInterval(interval);
         dismiss();
         onProceed();
-    });
-
-    sb.querySelector(".snackbar-close").addEventListener("click", () => {
-        clearInterval(interval);
-        dismiss();
     });
 
     function dismiss() {
