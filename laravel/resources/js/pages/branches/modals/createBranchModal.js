@@ -1,13 +1,15 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
 
 export function initCreateBranchModal() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-target="create-branch-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="create-branch-modal"]',
+        );
         if (!btn) return;
 
         e.preventDefault();
-        
-        // Načítanie firiem z globálnych dát
+
         const businesses = window.BE_DATA?.businesses || [];
         openCreateBranchModal(businesses);
         console.log(businesses);
@@ -16,9 +18,9 @@ export function initCreateBranchModal() {
 
 function openCreateBranchModal(businesses) {
     Modal.showCustom({
-        title:      'Create New Branch',
-        confirmText: 'Create Branch',
-        action:      'create',
+        title: "Create New Branch",
+        confirmText: "Create Branch",
+        action: "create",
         body: `
             <form id="createBranchForm">
                 <input type="hidden" name="business_id" id="business_id_input">
@@ -29,7 +31,7 @@ function openCreateBranchModal(businesses) {
                         <input type="text" id="business_search" class="modal-form__input" 
                                placeholder="Search and select business..." autocomplete="off" required>
                         <div id="business_dropdown" class="custom-dropdown" style="display:none;">
-                            ${businesses.map(b => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join('')}
+                            ${businesses.map((b) => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join("")}
                         </div>
                     </div>
                 </div>
@@ -87,34 +89,47 @@ function openCreateBranchModal(businesses) {
             </form>
         `,
         onConfirm: async (modal) => {
-            const form = modal.querySelector('#createBranchForm');
-            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-            const businessId = modal.querySelector('#business_id_input').value;
-            
+            const form = modal.querySelector("#createBranchForm");
+            const submitBtn = modal.querySelector(
+                '[data-modal-action="confirm"]',
+            );
+            const businessId = modal.querySelector("#business_id_input").value;
+
             Modal.clearFieldErrors(modal);
 
             if (!businessId) {
-                modal.querySelector('#business_search').classList.add('input-error');
+                modal
+                    .querySelector("#business_search")
+                    .classList.add("input-error");
                 return;
             }
 
             if (submitBtn) submitBtn.disabled = true;
 
             const formData = new FormData(form);
-            formData.append('_token', window.BE_DATA.csrf);
+            formData.append("_token", window.BE_DATA.csrf);
 
             try {
                 const res = await fetch(window.BE_DATA.routes.store, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': window.BE_DATA.csrf
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        Accept: "application/json",
+                        "X-CSRF-TOKEN": window.BE_DATA.csrf,
                     },
                     body: formData,
                 });
 
                 if (res.ok) {
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Branch created",
+                            message:
+                                "The new branch has been added successfully.",
+                        }),
+                    );
                     window.location.reload();
                     return;
                 }
@@ -124,14 +139,21 @@ function openCreateBranchModal(businesses) {
                     Modal.showFieldErrors(modal, json.errors);
                 } else {
                     const errorData = await res.json();
-                    alert(errorData.message || 'Server error occurred');
+                    Toast.error(
+                        "Create failed",
+                        errorData.message || "A server error occurred.",
+                    );
                 }
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error("Fetch error:", error);
+                Toast.error(
+                    "Create failed",
+                    "An unexpected error occurred. Please try again.",
+                );
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
-        }
+        },
     });
 
     setTimeout(() => {
@@ -140,43 +162,45 @@ function openCreateBranchModal(businesses) {
 }
 
 function setupBusinessSearch() {
-    const searchInput = document.getElementById('business_search');
-    const dropdown    = document.getElementById('business_dropdown');
-    const hiddenInput = document.getElementById('business_id_input');
-    const items       = dropdown?.querySelectorAll('.dropdown-item');
- 
+    const searchInput = document.getElementById("business_search");
+    const dropdown = document.getElementById("business_dropdown");
+    const hiddenInput = document.getElementById("business_id_input");
+    const items = dropdown?.querySelectorAll(".dropdown-item");
+
     if (!searchInput || !dropdown) return;
- 
-    searchInput.addEventListener('focus', () => {
-        dropdown.style.display = 'block';
-        items.forEach(item => item.style.display = 'block');
+
+    searchInput.addEventListener("focus", () => {
+        dropdown.style.display = "block";
+        items.forEach((item) => (item.style.display = "block"));
     });
- 
-    searchInput.addEventListener('input', () => {
+
+    searchInput.addEventListener("input", () => {
         const filter = searchInput.value.toLowerCase();
-        dropdown.style.display = 'block';
- 
-        items.forEach(item => {
-            item.style.display = item.textContent.toLowerCase().includes(filter) ? 'block' : 'none';
+        dropdown.style.display = "block";
+
+        items.forEach((item) => {
+            item.style.display = item.textContent.toLowerCase().includes(filter)
+                ? "block"
+                : "none";
         });
 
         if (!searchInput.value) {
-            hiddenInput.value = '';
+            hiddenInput.value = "";
         }
     });
- 
-    items.forEach(item => {
-        item.addEventListener('click', () => {
+
+    items.forEach((item) => {
+        item.addEventListener("click", () => {
             searchInput.value = item.textContent.trim();
             hiddenInput.value = item.dataset.value;
-            dropdown.style.display = 'none';
-            searchInput.classList.remove('input-error');
+            dropdown.style.display = "none";
+            searchInput.classList.remove("input-error");
         });
     });
- 
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.searchable-select-wrapper')) {
-            dropdown.style.display = 'none';
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".searchable-select-wrapper")) {
+            dropdown.style.display = "none";
         }
     });
 }

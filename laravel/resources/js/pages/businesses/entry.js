@@ -8,7 +8,7 @@ import { initEditBranchModal } from "./modals/editBranchModal.js";
 import { initBusinessViewSwitcher } from "./viewToggle.js";
 import { initAssignEmployeeModal } from "./modals/assignEmployeeModal.js";
 import { initListSearch } from "../../components/table/searchBar.js";
-import { initArchiveBranchModal } from "./modals/archiveBranchModal.js";
+import { initArchiveBranchModal } from "../branches/modals/archiveBranchModal.js";
 import { initRemoveUserModal } from "./modals/removeEmployeeModal.js";
 import { initArchiveBusinessModal } from "./modals/archiveBusinessModal.js";
 import { initToolbar } from "./toolbar.js";
