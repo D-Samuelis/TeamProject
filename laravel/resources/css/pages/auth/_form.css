@@ -6,6 +6,7 @@
 
 .auth-form__content--register {
     flex-direction: column;
+    gap: 1.75rem;
 }
 
 .auth-form__row {
@@ -310,6 +311,41 @@
     position: relative;
     width: 100%;
     z-index: 5;
+}
+
+.input-wrapper--date .auth-form__input {
+    padding-right: 2.75rem;
+}
+
+.date-picker-toggle {
+    position: absolute;
+    right: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .35rem;
+    border: none;
+    background: var(--color-bg);
+    color: var(--color-text-unimportant);
+    font-size: .95rem;
+    cursor: pointer;
+    z-index: 12;
+}
+
+.input-wrapper--date .auth-form__input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.theme-dark .date-picker-toggle,
+.theme-dark .date-picker-toggle {
+    color: var(--color-text);
+}
+
+.date-picker-toggle:hover {
+    color: var(--color-primary);
 }
 
 .password-toggle {

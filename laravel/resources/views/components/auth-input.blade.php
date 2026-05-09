@@ -11,7 +11,7 @@
 <div class="auth-form__group">
     <label for="{{ $id }}" class="auth-form__label">{{ $label }}</label>
     
-    <div class="input-wrapper">
+    <div class="input-wrapper {{ $type === 'date' ? 'input-wrapper--date' : '' }}">
         <input 
             type="{{ $type }}" 
             id="{{ $id }}" 
@@ -24,6 +24,12 @@
         @if($type === 'password')
             <button type="button" class="password-toggle" tabindex="-1">
                 <i class="fa-regular fa-eye"></i>
+            </button>
+        @endif
+
+        @if($type === 'date')
+            <button type="button" class="date-picker-toggle" tabindex="-1" aria-label="Open date picker">
+                <i class="fa-regular fa-calendar"></i>
             </button>
         @endif
     </div>
