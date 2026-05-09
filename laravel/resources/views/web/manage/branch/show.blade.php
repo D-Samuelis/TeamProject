@@ -11,8 +11,8 @@
         businesses: @json($businesses),
         allServices: @json($services),
         routes: {
-            update: "{{ route('manage.branch.update', $branch->id) }}",
-            delete: "{{ route('manage.branch.delete', $branch->id) }}",
+            branchUpdate: "{{ route('manage.branch.update', $branch->id) }}",
+            branchDelete: "{{ route('manage.branch.delete', $branch->id) }}",
             restore: "{{ route('manage.branch.restore', $branch->id) }}",
             unassignService: "{{ route('manage.service.branch.unassign', [':serviceId', $branch->id]) }}",
             assignService: "{{ route('manage.service.branch.assign', [':serviceId', $branch->id]) }}",
@@ -26,11 +26,15 @@
                     actions: [
                         @if($branch->trashed())
                             {
-                                label: 'Restore Branch',
-                                icon: 'fa-rotate-left',
-                                isForm: true,
-                                action: '{{ route("manage.branch.restore", $branch->id) }}'
-                            }
+                                    label: 'Restore Branch',
+                                    icon: 'fa-rotate-left',
+                                    isForm: true,
+                                    action: '{{ route('manage.branch.restore', $branch->id) }}',
+                                    hiddenFields: [{
+                                        name: "_method",
+                                        value: "PATCH"
+                                    }]
+                                }
                         @else
                             {
                                 label: 'Archive Branch',

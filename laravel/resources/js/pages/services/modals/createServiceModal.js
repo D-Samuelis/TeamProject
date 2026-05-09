@@ -1,31 +1,51 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
+import { _esc } from "../../../utils/helpers.js";
 
 export function initCreateServiceModal() {
-    consumeQueuedPageAlert();
-
-    // Použijeme delegovanie na document, aby sme chytili aj dynamicky pridané tlačidlá z Toolbaru
-    document.addEventListener('click', (e) => {
-        const createBtn = e.target.closest('[data-modal-target="create-service-modal"]');
+    document.addEventListener("click", (e) => {
+        const createBtn = e.target.closest(
+            '[data-modal-target="create-service-modal"]',
+        );
         if (!createBtn) return;
 
         e.preventDefault();
-        
-        // Načítanie dát z BE_DATA
-        const { csrf, routes, businesses = [], branches = [], categories = [] } = window.BE_DATA || {};
+
+        const {
+            csrf,
+            routes,
+            businesses = [],
+            branches = [],
+            categories = [],
+        } = window.BE_DATA || {};
 
         Modal.showCustom({
-            title: 'Create New Service',
-            confirmText: 'Create Service',
-            action: 'create',
+            title: "Create New Service",
+            confirmText: "Create Service",
+            action: "create",
             rules: {
-                name:             { required: { value: true, message: 'Service name is required' } },
-                category_id:      { required: { value: true, message: 'Please choose an existing category' } },
-                duration_minutes: { required: { value: true, message: 'Duration is required' } },
-                price:            { required: { value: true, message: 'Price is required' } },
+                name: {
+                    required: {
+                        value: true,
+                        message: "Service name is required",
+                    },
+                },
+                category_id: {
+                    required: {
+                        value: true,
+                        message: "Please choose an existing category",
+                    },
+                },
+                duration_minutes: {
+                    required: { value: true, message: "Duration is required" },
+                },
+                price: {
+                    required: { value: true, message: "Price is required" },
+                },
             },
             body: `
-                <form id="modalForm" method="POST" action="${routes.store}">
-                    <input type="hidden" name="_token" value="${csrf}">
+                <form id="modalForm">
                     <input type="hidden" name="business_id" id="business_id_input">
 
                     <div class="modal-form__group">
@@ -34,7 +54,7 @@ export function initCreateServiceModal() {
                             <input type="text" id="business_search" class="modal-form__input" 
                                    placeholder="Search and select business..." autocomplete="off">
                             <div id="business_dropdown" class="custom-dropdown" style="display:none;">
-                                ${businesses.map(b => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join('')}
+                                ${businesses.map((b) => `<div class="dropdown-item" data-value="${b.id}">${_esc(b.name)}</div>`).join("")}
                             </div>
                         </div>
                     </div>
@@ -110,47 +130,64 @@ export function initCreateServiceModal() {
                 </form>
             `,
             onConfirm: async (modal) => {
-                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-                const form = modal.querySelector('#modalForm');
-                
+                const submitBtn = modal.querySelector(
+                    '[data-modal-action="confirm"]',
+                );
+                const form = modal.querySelector("#modalForm");
+
                 Modal.clearFieldErrors(modal);
 
-                // Ručná validácia pre selecty
-                const businessId = modal.querySelector('#business_id_input').value;
-                const branchesSelected = modal.querySelectorAll('input[name="branch_ids[]"]');
+                const businessId =
+                    modal.querySelector("#business_id_input").value;
+                const branchesSelected = modal.querySelectorAll(
+                    'input[name="branch_ids[]"]',
+                );
 
                 if (!businessId || branchesSelected.length === 0) {
-                    if (!businessId) modal.querySelector('#business_search').classList.add('input-error');
-                    if (branchesSelected.length === 0) modal.querySelector('#branch_search').classList.add('input-error');
+                    if (!businessId)
+                        modal
+                            .querySelector("#business_search")
+                            .classList.add("input-error");
+                    if (branchesSelected.length === 0)
+                        modal
+                            .querySelector("#branch_search")
+                            .classList.add("input-error");
                     return;
                 }
 
                 if (submitBtn) submitBtn.disabled = true;
 
+                const formData = new FormData(form);
+                formData.append("_token", csrf);
+
                 try {
-                    const res = await fetch(routes.store, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                        body: new FormData(form),
+                    await apiFetch(routes.store, {
+                        method: "POST",
+                        body: formData,
                     });
 
-                    if (res.ok) {
-                        window.location.reload();
-                    } else if (res.status === 422) {
-                        const json = await res.json();
-                        Modal.showFieldErrors(modal, json.errors);
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Service created",
+                            message:
+                                "The new service has been added successfully.",
+                        }),
+                    );
+                    window.location.reload();
+                } catch (err) {
+                    if (err.status === 422 && err.errors) {
+                        Modal.showFieldErrors(modal, err.errors);
                     } else {
-                        alert('Server error occurred.');
+                        Toast.error("Could not create service", err.message);
                     }
-                } catch (error) {
-                    console.error('Fetch error:', error);
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
                 }
             },
         });
 
-        // Inicializácia pomocných funkcií po vykreslení modalu
         setTimeout(() => {
             setupBusinessSelect(businesses, branches);
             setupCategoryRequestButton(routes.categoryRequest, csrf);
@@ -158,28 +195,38 @@ export function initCreateServiceModal() {
     });
 }
 
+// ── Category request ─────────────────────────────────────────────────────────
+
 function setupCategoryRequestButton(requestUrl, csrf) {
-    const button = document.getElementById('open_category_request_modal');
-    const form = document.getElementById('modalForm');
+    const button = document.getElementById("open_category_request_modal");
+    const form = document.getElementById("modalForm");
 
     if (!button || !form || !requestUrl) return;
 
-    button.addEventListener('click', () => {
-        const serviceName = form.querySelector('input[name="name"]')?.value ?? '';
-        const businessId = form.querySelector('input[name="business_id"]')?.value ?? '';
+    button.addEventListener("click", () => {
+        const serviceName =
+            form.querySelector('input[name="name"]')?.value ?? "";
+        const businessId =
+            form.querySelector('input[name="business_id"]')?.value ?? "";
 
-        Modal.close(document.getElementById('dynamic-modal'));
+        Modal.close(document.getElementById("dynamic-modal"));
         openCategoryRequestModal({ requestUrl, csrf, serviceName, businessId });
     });
 }
 
-function openCategoryRequestModal({ requestUrl, csrf, serviceName = '', businessId = '', serviceId = '' }) {
+function openCategoryRequestModal({
+    requestUrl,
+    csrf,
+    serviceName = "",
+    businessId = "",
+    serviceId = "",
+}) {
     Modal.showCustom({
-        title: 'Request New Category',
-        type: 'New Request',
-        confirmText: 'Request',
-        cancelText: 'Cancel',
-        action: 'create',
+        title: "Request New Category",
+        type: "New Request",
+        confirmText: "Request",
+        cancelText: "Cancel",
+        action: "create",
         body: `
             <form id="categoryRequestForm">
                 <div class="modal-form__group">
@@ -199,297 +246,250 @@ function openCategoryRequestModal({ requestUrl, csrf, serviceName = '', business
             </form>
         `,
         onConfirm: async (modal) => {
-            const input = modal.querySelector('input[name="requested_category_name"]');
-            const confirmButton = modal.querySelector('.btn-confirm');
-            const categoryName = input?.value.trim() ?? '';
+            const input = modal.querySelector(
+                'input[name="requested_category_name"]',
+            );
+            const confirmButton = modal.querySelector(".btn-confirm");
+            const categoryName = input?.value.trim() ?? "";
 
             if (!categoryName) {
-                input?.classList.add('input-error');
+                input?.classList.add("input-error");
                 input?.focus();
                 return;
             }
 
-            input.classList.remove('input-error');
+            input.classList.remove("input-error");
             if (confirmButton) confirmButton.disabled = true;
 
             const formData = new FormData();
-            formData.append('_token', csrf);
-            formData.append('requested_category_name', categoryName);
-            formData.append('service_name', serviceName);
-            formData.append('business_id', businessId);
-            if (serviceId) formData.append('service_id', serviceId);
+            formData.append("_token", csrf);
+            formData.append("requested_category_name", categoryName);
+            formData.append("service_name", serviceName);
+            formData.append("business_id", businessId);
+            if (serviceId) formData.append("service_id", serviceId);
 
             try {
-                const response = await fetch(requestUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrf,
-                    },
+                await apiFetch(requestUrl, {
+                    method: "POST",
                     body: formData,
                 });
 
-                if (!response.ok) {
-                    throw new Error('Category request failed.');
-                }
-
-                queuePageAlert('success', 'Category request was sent to admin.');
+                sessionStorage.setItem(
+                    "pending_toast",
+                    JSON.stringify({
+                        type: "success",
+                        title: "Request sent",
+                        message: "Category request was sent to admin.",
+                    }),
+                );
                 window.location.reload();
-            } catch (error) {
-                console.error(error);
+            } catch (err) {
+                Toast.error(
+                    "Request failed",
+                    "Could not submit the category request. Please try again.",
+                );
+            } finally {
                 if (confirmButton) confirmButton.disabled = false;
-                alert('Request failed. Please try again.');
             }
         },
     });
 }
 
-function queuePageAlert(type, message) {
-    sessionStorage.setItem('bexora_page_alert', JSON.stringify({ type, message }));
-}
-
-function consumeQueuedPageAlert() {
-    const rawAlert = sessionStorage.getItem('bexora_page_alert');
-    if (!rawAlert) return;
-
-    sessionStorage.removeItem('bexora_page_alert');
-
-    try {
-        const { type = 'success', message = '' } = JSON.parse(rawAlert);
-        if (!message) return;
-
-        document.querySelector('.alerts-wrapper')?.remove();
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'alerts-wrapper';
-
-        const alert = document.createElement('div');
-        alert.className = `alert alert--${type}`;
-        alert.innerHTML = `
-            <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
-            <span>${escapeHtml(message)}</span>
-        `;
-
-        wrapper.appendChild(alert);
-
-        const main = document.querySelector('main.main');
-        if (main) {
-            main.before(wrapper);
-        } else {
-            document.body.prepend(wrapper);
-        }
-    } catch (error) {
-        console.error('Failed to show queued alert.', error);
-    }
-}
+// ── Rendering helpers ────────────────────────────────────────────────────────
 
 function renderCategoryOptions(categories, selectedId = null) {
-    const selectedValue = selectedId ? String(selectedId) : '';
+    const selectedValue = selectedId ? String(selectedId) : "";
 
     return [
         '<option value="">No category</option>',
         ...categories.map((category) => {
             const value = String(category.id);
-            const selected = value === selectedValue ? ' selected' : '';
-            return `<option value="${escapeAttribute(value)}"${selected}>${escapeHtml(category.name)}</option>`;
+            const selected = value === selectedValue ? " selected" : "";
+            return `<option value="${_esc(value)}"${selected}>${_esc(category.name)}</option>`;
         }),
-    ].join('');
+    ].join("");
 }
 
-function escapeHtml(value) {
-    return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
-}
+// ── Business searchable select ───────────────────────────────────────────────
 
-function escapeAttribute(value) {
-    return escapeHtml(value).replaceAll('"', '&quot;');
-}
-
-// ─────────────────────────────────────────────────────────────
-//  Business searchable select
-// ─────────────────────────────────────────────────────────────
 function setupBusinessSelect(businesses, branches) {
-    const searchInput = document.getElementById('business_search');
-    const dropdown    = document.getElementById('business_dropdown');
-    const hiddenInput = document.getElementById('business_id_input');
-    const items       = dropdown.querySelectorAll('.dropdown-item');
- 
+    const searchInput = document.getElementById("business_search");
+    const dropdown = document.getElementById("business_dropdown");
+    const hiddenInput = document.getElementById("business_id_input");
+    const items = dropdown.querySelectorAll(".dropdown-item");
+
     if (!searchInput) return;
- 
-    searchInput.addEventListener('focus', () => {
-        dropdown.style.display = 'block';
-        items.forEach(item => item.style.display = 'block');
+
+    searchInput.addEventListener("focus", () => {
+        dropdown.style.display = "block";
+        items.forEach((item) => (item.style.display = "block"));
     });
- 
-    searchInput.addEventListener('input', () => {
+
+    searchInput.addEventListener("input", () => {
         const filter = searchInput.value.toLowerCase();
-        dropdown.style.display = 'block';
- 
-        items.forEach(item => {
-            item.style.display = item.textContent.toLowerCase().includes(filter) ? 'block' : 'none';
+        dropdown.style.display = "block";
+
+        items.forEach((item) => {
+            item.style.display = item.textContent.toLowerCase().includes(filter)
+                ? "block"
+                : "none";
         });
- 
+
         if (!searchInput.value) {
-            hiddenInput.value = '';
+            hiddenInput.value = "";
             lockBranchSelect();
         }
     });
- 
-    items.forEach(item => {
-        item.addEventListener('click', () => {
+
+    items.forEach((item) => {
+        item.addEventListener("click", () => {
             searchInput.value = item.textContent;
             hiddenInput.value = item.dataset.value;
-            dropdown.style.display = 'none';
+            dropdown.style.display = "none";
             unlockBranchSelect(branches, parseInt(item.dataset.value));
         });
     });
- 
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.searchable-select-wrapper')) {
-            dropdown.style.display = 'none';
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".searchable-select-wrapper")) {
+            dropdown.style.display = "none";
         }
     });
 }
- 
-// ─────────────────────────────────────────────────────────────
-//  Branch lock / unlock
-// ─────────────────────────────────────────────────────────────
+
+// ── Branch lock / unlock ─────────────────────────────────────────────────────
+
 function lockBranchSelect() {
-    const wrapper     = document.getElementById('branch_select_wrapper');
-    const placeholder = document.getElementById('branch_placeholder');
- 
-    if (wrapper) wrapper.style.display = 'none';
- 
+    const wrapper = document.getElementById("branch_select_wrapper");
+    const placeholder = document.getElementById("branch_placeholder");
+
+    if (wrapper) wrapper.style.display = "none";
+
     if (placeholder) {
-        placeholder.style.display = 'block';
-        placeholder.innerHTML     = '<i class="fa-solid fa-arrow-up" style="margin-right:5px;"></i> Firstly, choose a business to see available branches';
+        placeholder.style.display = "block";
+        placeholder.innerHTML =
+            '<i class="fa-solid fa-arrow-up" style="margin-right:5px;"></i> Firstly, choose a business to see available branches';
     }
- 
-    document.querySelectorAll('.combobox-tag').forEach(t => t.remove());
-    document.getElementById('branch_hidden_inputs').innerHTML = '';
+
+    document.querySelectorAll(".combobox-tag").forEach((t) => t.remove());
+    document.getElementById("branch_hidden_inputs").innerHTML = "";
 }
- 
+
 function unlockBranchSelect(allBranches, businessId) {
-    const wrapper     = document.getElementById('branch_select_wrapper');
-    const placeholder = document.getElementById('branch_placeholder');
-    const searchInput = document.getElementById('branch_search');
- 
-    if (wrapper) wrapper.style.display = 'block';
- 
-    if (searchInput) searchInput.value = '';
- 
-    document.querySelectorAll('.combobox-tag').forEach(t => t.remove());
-    document.getElementById('branch_hidden_inputs').innerHTML = '';
- 
-    const available = allBranches.filter(b => b.business_id === businessId);
- 
+    const wrapper = document.getElementById("branch_select_wrapper");
+    const placeholder = document.getElementById("branch_placeholder");
+    const searchInput = document.getElementById("branch_search");
+
+    if (wrapper) wrapper.style.display = "block";
+    if (searchInput) searchInput.value = "";
+
+    document.querySelectorAll(".combobox-tag").forEach((t) => t.remove());
+    document.getElementById("branch_hidden_inputs").innerHTML = "";
+
+    const available = allBranches.filter((b) => b.business_id === businessId);
+
     if (placeholder) {
-        placeholder.style.display = available.length === 0 ? 'block' : 'none';
-        placeholder.innerHTML     = '<i class="fa-solid fa-circle-info" style="margin-right:5px;"></i> No branches available for this business';
+        placeholder.style.display = available.length === 0 ? "block" : "none";
+        placeholder.innerHTML =
+            '<i class="fa-solid fa-circle-info" style="margin-right:5px;"></i> No branches available for this business';
     }
- 
+
     if (available.length > 0) {
         setupBranchMultiSelect(available);
     }
 }
- 
-// ─────────────────────────────────────────────────────────────
-//  Branch multi searchable select
-// ─────────────────────────────────────────────────────────────
+
+// ── Branch multi searchable select ──────────────────────────────────────────
+
 function setupBranchMultiSelect(available) {
-    const searchInput  = document.getElementById('branch_search');
-    const dropdown     = document.getElementById('branch_dropdown');
-    const tagsEl       = document.getElementById('branch_tags');
-    const hiddenInputs = document.getElementById('branch_hidden_inputs');
-    const placeholder  = document.getElementById('branch_placeholder');
- 
+    const searchInput = document.getElementById("branch_search");
+    const dropdown = document.getElementById("branch_dropdown");
+    const tagsEl = document.getElementById("branch_tags");
+    const hiddenInputs = document.getElementById("branch_hidden_inputs");
+    const placeholder = document.getElementById("branch_placeholder");
+
     if (!searchInput) return;
- 
+
     let selected = [];
- 
-    function renderDropdown(filter = '') {
-        const q        = filter.toLowerCase();
-        const filtered = available.filter(b =>
-            b.name.toLowerCase().includes(q) &&
-            !selected.find(s => s.id === b.id)
+
+    function renderDropdown(filter = "") {
+        const q = filter.toLowerCase();
+        const filtered = available.filter(
+            (b) =>
+                b.name.toLowerCase().includes(q) &&
+                !selected.find((s) => s.id === b.id),
         );
- 
+
         dropdown.innerHTML = filtered.length
-            ? filtered.map(b => `
+            ? filtered
+                  .map(
+                      (b) => `
                 <div class="dropdown-item" data-value="${b.id}">
-                    ${b.name}${b.city ? ` <span style="font-size:12px;color:#aaa;">(${b.city})</span>` : ''}
-                </div>`).join('')
+                    ${_esc(b.name)}${b.city ? ` <span style="font-size:12px;color:#aaa;">(${_esc(b.city)})</span>` : ""}
+                </div>`,
+                  )
+                  .join("")
             : `<div class="dropdown-item" style="color:#999;font-style:italic;pointer-events:none;">No results</div>`;
     }
- 
+
     function addTag(branch) {
         selected.push(branch);
- 
-        const hidden   = document.createElement('input');
-        hidden.type    = 'hidden';
-        hidden.name    = 'branch_ids[]';
-        hidden.value   = branch.id;
-        hidden.id      = `branch_hidden_${branch.id}`;
+
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = "branch_ids[]";
+        hidden.value = branch.id;
+        hidden.id = `branch_hidden_${branch.id}`;
         hiddenInputs.appendChild(hidden);
- 
-        const tag      = document.createElement('div');
-        tag.className  = 'combobox-tag';
+
+        const tag = document.createElement("div");
+        tag.className = "combobox-tag";
         tag.dataset.id = branch.id;
-        tag.innerHTML  = `${branch.name}<button type="button" data-remove="${branch.id}">&times;</button>`;
+        tag.innerHTML = `${_esc(branch.name)}<button type="button" data-remove="${branch.id}">&times;</button>`;
         tagsEl.appendChild(tag);
- 
-        if (placeholder) placeholder.style.display = 'none';
+
+        if (placeholder) placeholder.style.display = "none";
     }
- 
+
     function removeTag(id) {
-        selected = selected.filter(s => s.id !== id);
+        selected = selected.filter((s) => s.id !== id);
         document.querySelector(`.combobox-tag[data-id="${id}"]`)?.remove();
         document.getElementById(`branch_hidden_${id}`)?.remove();
         renderDropdown(searchInput.value);
     }
- 
-    searchInput.addEventListener('focus', () => {
+
+    searchInput.addEventListener("focus", () => {
         renderDropdown(searchInput.value);
-        dropdown.style.display = 'block';
+        dropdown.style.display = "block";
     });
- 
-    searchInput.addEventListener('input', () => {
+
+    searchInput.addEventListener("input", () => {
         renderDropdown(searchInput.value);
-        dropdown.style.display = 'block';
+        dropdown.style.display = "block";
     });
- 
-    dropdown.addEventListener('mousedown', (e) => {
-        const item = e.target.closest('.dropdown-item');
-        if (!item || item.style.pointerEvents === 'none') return;
- 
-        const id     = parseInt(item.dataset.value);
-        const branch = available.find(b => b.id === id);
+
+    dropdown.addEventListener("mousedown", (e) => {
+        const item = e.target.closest(".dropdown-item");
+        if (!item || item.style.pointerEvents === "none") return;
+
+        const id = parseInt(item.dataset.value);
+        const branch = available.find((b) => b.id === id);
         if (branch) {
             addTag(branch);
-            searchInput.value = '';
-            dropdown.style.display = 'none';
-            renderDropdown('');
+            searchInput.value = "";
+            dropdown.style.display = "none";
+            renderDropdown("");
         }
     });
- 
-    tagsEl.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-remove]');
+
+    tagsEl.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-remove]");
         if (btn) removeTag(parseInt(btn.dataset.remove));
     });
- 
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#branch-combobox-wrapper')) {
-            dropdown.style.display = 'none';
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest("#branch-combobox-wrapper")) {
+            dropdown.style.display = "none";
         }
     });
 }
- 
-
-
-
-
-
-

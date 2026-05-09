@@ -169,10 +169,107 @@ function renderButtons(buttons) {
                             `<input type="hidden" name="${f.name}" value="${f.value}">`,
                     )
                     .join("");
-                return `<form action="${action.action}" method="POST" style="display:inline;">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
-                    </form>`;
-        }
-        return btnHtml;
-    }).join('');
+
+                // Add class="js-toolbar-form" here
+                return `<form action="${action.action}" method="POST" class="js-toolbar-form" style="display:inline;">
+                <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
+            </form>`;
+            }
+            return btnHtml;
+        })
+        .join("");
+}
+
+function rebindEvents(tplStatus) {
+    // Dropdown
+    const btn = document.getElementById("toolbarStatusBtn");
+    const dropdown = document.getElementById("toolbarStatusDropdown");
+    if (btn && dropdown) {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const isVisible = dropdown.style.display === "block";
+            dropdown.style.display = isVisible ? "none" : "block";
+            if (!isVisible && tplStatus)
+                initBusinessStatusFilters("toolbarStatusDropdown");
+        };
+    }
+
+    // Bexi
+    const bexiBtn = document.getElementById("bexiToggleBtn");
+    if (bexiBtn) {
+        bexiBtn.onclick = (e) => {
+            e.stopPropagation();
+            const willOpen = !bexiBtn.classList.contains("is-active");
+            if (willOpen) {
+                bexiBtn.querySelector("span").textContent = "Close Bexi";
+                bexiBtn.querySelector("i").className = "fa-solid fa-xmark";
+                bexiBtn.classList.add("is-active");
+                localStorage.setItem(BEXI_SIDEBAR_KEY, "true");
+                openSidebar();
+            } else {
+                bexiBtn.querySelector("span").textContent = "Ask Bexi";
+                bexiBtn.querySelector("i").className = "fa-solid fa-message";
+                bexiBtn.classList.remove("is-active");
+                localStorage.setItem(BEXI_SIDEBAR_KEY, "false");
+                closeSidebar();
+            }
+        };
+        if (localStorage.getItem(BEXI_SIDEBAR_KEY) === "true")
+            bexiBtn.classList.add("is-active");
+    }
+
+    document.addEventListener(
+        "click",
+        (e) => {
+            if (
+                btn &&
+                !btn.contains(e.target) &&
+                dropdown &&
+                !dropdown.contains(e.target)
+            ) {
+                dropdown.style.display = "none";
+            }
+        },
+        { once: true },
+    );
+
+    document.querySelectorAll(".js-toolbar-form").forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault(); // This stops the raw JSON from appearing
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true; // Prevent double-clicks
+
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        Accept: "application/json",
+                    },
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Business Restored",
+                            message: result.message || "The business has been successfully restored.",
+                        }),
+                    );
+                    window.location.reload();
+                } else {
+                    alert(result.message || "Something went wrong");
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Action failed", error);
+                submitBtn.disabled = false;
+            }
+        });
+    });
 }

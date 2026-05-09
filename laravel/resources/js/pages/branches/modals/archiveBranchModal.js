@@ -66,7 +66,7 @@ export function initArchiveBranchModal() {
                     sessionStorage.setItem(
                         "pending_toast",
                         JSON.stringify({
-                            type: "success",
+                            type: "warning",
                             title: "Branch archived",
                             message:
                                 "It can be restored before the expiry date.",

@@ -1,10 +1,13 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
 import { initPaginator } from "../../components/displays/paginator.js";
+import { Toast } from "../../components/displays/toast.js";
+import { apiFetch } from "../../utils/apiFetch.js";
 
 let sorter = null;
 let renderer = null;
 let originalData = [];
+let activeFilters = null;
 
 export function initServicesListView(data = [], meta = {}) {
     const container = document.getElementById('serviceTableContainer');
@@ -12,56 +15,81 @@ export function initServicesListView(data = [], meta = {}) {
 
     originalData = data;
 
-    const businessInfo = data[0]?.business ?? null;
-
     updateCounts(originalData);
 
     const tableConfig = {
-        searchId: '#serviceSearchInput',
-        rowClass: 'service-table__row',
+        searchId: "#serviceSearchInput",
+        rowClass: "service-table__row",
         columns: [
             {
-                label: 'Service Name', key: 'name', sortable: true, searchable: true,
+                label: "Service Name",
+                key: "name",
+                sortable: true,
+                searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
                         ${val}
-                        ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ''}
-                    </div>`
+                        ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ""}
+                    </div>`,
             },
             {
-                label: 'Description', key: 'description', sortable: false, searchable: true,
-                render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
+                label: "Description",
+                key: "description",
+                sortable: false,
+                searchable: true,
+                render: (val) =>
+                    `<div class="description-cell">${val || "No description"}</div>`,
             },
             {
-                label: 'Category', key: 'category', sortable: false, searchable: true,
-                render: (val, item) => `<div class="description-cell">${item.category?.name || 'No category'}</div>`
+                label: "Category",
+                key: "category",
+                sortable: false,
+                searchable: true,
+                render: (val, item) =>
+                    `<div class="description-cell">${item.category?.name || "No category"}</div>`,
             },
             {
-                label: 'Duration', key: 'duration_minutes', sortable: true, searchable: true,
-                render: (val) => `<div class="description-cell">${val ? val + ' min' : 'No duration'}</div>`
+                label: "Duration",
+                key: "duration_minutes",
+                sortable: true,
+                searchable: true,
+                render: (val) =>
+                    `<div class="description-cell">${val ? val + " min" : "No duration"}</div>`,
             },
             {
-                label: 'Price', key: 'price', sortable: true, searchable: true,
-                render: (val) => `<div class="description-cell">${val != null ? val + '€' : 'No price'}</div>`
+                label: "Price",
+                key: "price",
+                sortable: true,
+                searchable: true,
+                render: (val) =>
+                    `<div class="description-cell">${val != null ? val + "€" : "No price"}</div>`,
             },
             {
-                label: 'Business', key: 'business', sortable: false, searchable: true,
+                label: "Business",
+                key: "business",
+                sortable: false,
+                searchable: true,
                 render: (val, item) => {
-                    if (!item.business) return `<span class="text-muted">—</span>`;
+                    if (!item.business)
+                        return `<span class="text-muted">—</span>`;
                     return `
                         <a href="/manage/businesses/${item.business.id}" class="stat-badge stat-badge--service" style="width:fit-content; text-decoration:none;">
                             <i class="fa-solid fa-briefcase"></i>
                             <span>${item.business.name}</span>
                         </a>`;
-                }
+                },
             },
             {
-                label: 'Connections', key: 'id', sortable: false, searchable: false,
+                label: "Connections",
+                key: "id",
+                sortable: false,
+                searchable: false,
                 render: (val, item) => {
                     const branchCount = item.branches?.length ?? 0;
-                    const assetCount  = item.assets?.length  ?? 0;
-                    const branchLabel = branchCount === 1 ? 'Branch'  : 'Branches';
-                    const assetLabel  = assetCount  === 1 ? 'Asset'   : 'Assets';
+                    const assetCount = item.assets?.length ?? 0;
+                    const branchLabel =
+                        branchCount === 1 ? "Branch" : "Branches";
+                    const assetLabel = assetCount === 1 ? "Asset" : "Assets";
 
                     return `
                         <div class="stat-badge-group js-open-service-connections"
@@ -69,14 +97,14 @@ export function initServicesListView(data = [], meta = {}) {
                              style="cursor:pointer; display:flex; gap:6px; padding-top: 0px;">
                             <div class="stat-badge stat-badge--branch" title="Branches">
                                 <i class="fa-solid fa-location-dot"></i>
-                                <span>${String(branchCount).padStart(2, '0')} ${branchLabel}</span>
+                                <span>${String(branchCount).padStart(2, "0")} ${branchLabel}</span>
                             </div>
                             <div class="stat-badge stat-badge--service" title="Assets">
                                 <i class="fa-regular fa-gem"></i>
-                                <span>${String(assetCount).padStart(2, '0')} ${assetLabel}</span>
+                                <span>${String(assetCount).padStart(2, "0")} ${assetLabel}</span>
                             </div>
                         </div>`;
-                }
+                },
             },
             {
                 label: 'Status', key: 'is_active', sortable: false,
@@ -85,37 +113,31 @@ export function initServicesListView(data = [], meta = {}) {
                     return val
                         ? `<span class="status-cell filter-item--green">Active</span>`
                         : `<span class="status-cell filter-item--yellow">Inactive</span>`;
-                }
-            }
+                },
+            },
         ],
         renderActions: (item) => {
             if (item.deleted_at) {
                 return `
-                    <form action="${window.BE_DATA.routes.restore.replace(':id', item.id)}" method="POST">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
-                        <input type="hidden" name="_method" value="PATCH">
-                        <button type="submit" class="button-icon" title="Restore">
+                    <div class="business__actions">
+                        <button type="button" class="button-icon button-icon--success js-restore-service-btn" title="Restore" data-id="${item.id}">
                             <i class="fa-solid fa-rotate-left"></i>
                         </button>
-                    </form>`;
+                    </div>`;
             }
 
-            const toggleIcon  = item.is_active ? 'fa-eye' : 'fa-eye-slash';
-            const toggleTitle = item.is_active ? 'Deactivate' : 'Activate';
-            const nextStatus  = item.is_active ? 0 : 1;
+            const toggleIcon = item.is_active ? "fa-eye" : "fa-eye-slash";
+            const toggleTitle = item.is_active ? "Deactivate" : "Activate";
+            const nextStatus = item.is_active ? 0 : 1;
 
             return `
                 <div class="business__actions">
-                    <form action="${window.BE_DATA.routes.update.replace(':id', item.id)}" method="POST">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
-                        <input type="hidden" name="_method" value="PUT">
-                        <input type="hidden" name="is_active" value="${nextStatus}">
-                        <button type="submit" class="button-icon button-icon--warning" title="${toggleTitle}">
-                            <i class="fa-solid ${toggleIcon}" style="${!item.is_active ? 'opacity: 0.5' : ''}"></i>
-                        </button>
-                    </form>
+                    <button type="button" class="button-icon button-icon--warning js-toggle-active-btn"
+                            title="${toggleTitle}" data-id="${item.id}" data-next="${nextStatus}">
+                        <i class="fa-solid ${toggleIcon}" style="${!item.is_active ? "opacity: 0.5" : ""}"></i>
+                    </button>
 
-                    <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
+                    <a href="${window.BE_DATA.routes.show.replace(":id", item.id)}" class="button-icon" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </a>
 
@@ -123,16 +145,17 @@ export function initServicesListView(data = [], meta = {}) {
                         type="button"
                         class="button-icon button-icon--danger js-archive-service-btn"
                         title="Archive"
-                        data-id="${item.id}"
                         data-modal-target="archive-service-modal"
-                        data-name="${item.name}">
+                        data-id="${item.id}"
+                        data-name="${item.name}"
+                        data-business_id="${item.business_id || (item.business ? item.business.id : "")}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>`;
         },
         onRowRender: (tr, item) => {
-            if (item.deleted_at) tr.classList.add('is-archived');
-        }
+            if (item.deleted_at) tr.classList.add("is-archived");
+        },
     };
 
     renderer = new TableRenderer(tableConfig);
@@ -145,7 +168,25 @@ export function initServicesListView(data = [], meta = {}) {
 
     renderer.render(container, sorter.getSortedData(), sorter);
 
-    window.addEventListener('serviceFiltersChanged', (event) => {
+    // ── Delegated handlers ──────────────────────────────────────────────────
+
+    container.addEventListener("click", async (e) => {
+        const restoreBtn = e.target.closest(".js-restore-service-btn");
+        if (restoreBtn) {
+            await handleRestore(restoreBtn);
+            return;
+        }
+
+        const toggleBtn = e.target.closest(".js-toggle-active-btn");
+        if (toggleBtn) {
+            await handleToggleActive(toggleBtn);
+            return;
+        }
+    });
+
+    // ── Filter listener ─────────────────────────────────────────────────────
+
+    window.addEventListener("serviceFiltersChanged", (event) => {
         const statuses = event.detail.statuses;
 
         const activeFilters = statuses.reduce((acc, s) => {
@@ -153,11 +194,7 @@ export function initServicesListView(data = [], meta = {}) {
             return acc;
         }, {});
 
-        const filteredData = originalData.filter(item => {
-            if (item.deleted_at) return activeFilters.archived;
-            if (item.is_active)  return activeFilters.active;
-            return activeFilters.inactive;
-        });
+        const filteredData = applyFilters();
 
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
@@ -165,7 +202,7 @@ export function initServicesListView(data = [], meta = {}) {
 
         const searchInput = document.querySelector(tableConfig.searchId);
         if (searchInput && searchInput.value) {
-            searchInput.dispatchEvent(new Event('input'));
+            searchInput.dispatchEvent(new Event("input"));
         }
     });
 
@@ -176,18 +213,99 @@ export function initServicesListView(data = [], meta = {}) {
     });
 }
 
+// ── Action handlers ─────────────────────────────────────────────────────────
+
+async function handleRestore(btn) {
+    const id = btn.dataset.id;
+    btn.disabled = true;
+
+    try {
+        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({ _method: "PATCH" }),
+        });
+
+        const record = originalData.find((s) => String(s.id) === String(id));
+        if (record) record.deleted_at = null;
+
+        Toast.success(
+            "Service restored",
+            "The service has been moved out of archives.",
+        );
+        rerender();
+    } catch (err) {
+        Toast.error("Restore failed", err.message);
+        btn.disabled = false;
+    }
+}
+
+async function handleToggleActive(btn) {
+    const id = btn.dataset.id;
+    const nextStatus = Number(btn.dataset.next);
+
+    const record = originalData.find((s) => String(s.id) === String(id));
+    if (!record) return;
+
+    btn.disabled = true;
+
+    try {
+        const businessId = record.business_id || record.business?.id;
+
+        await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({
+                _method: "PUT",
+                is_active: nextStatus,
+                business_id: businessId,
+            }),
+        });
+
+        record.is_active = nextStatus;
+        Toast.success(
+            "Status updated",
+            `Service is now ${nextStatus ? "active" : "inactive"}.`,
+        );
+        rerender();
+    } catch (err) {
+        Toast.error("Update failed", err.message);
+        btn.disabled = false;
+    }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function rerender() {
+    updateCounts(originalData);
+    sorter.setData(applyFilters());
+
+    const container = document.getElementById("serviceTableContainer");
+    if (container) renderer.render(container, sorter.getSortedData(), sorter);
+}
+
+function applyFilters() {
+    if (!activeFilters) {
+        return originalData.filter((s) => !s.deleted_at);
+    }
+
+    return originalData.filter((item) => {
+        if (item.deleted_at) return activeFilters.archived;
+        if (item.is_active) return activeFilters.active;
+        return activeFilters.inactive;
+    });
+}
+
 function updateCounts(data) {
     const stats = {
-        all:      data.length,
-        active:   data.filter(b =>  b.is_active && !b.deleted_at).length,
-        inactive: data.filter(b => !b.is_active && !b.deleted_at).length,
-        archived: data.filter(b =>  b.deleted_at).length
+        all: data.length,
+        active: data.filter((s) => s.is_active && !s.deleted_at).length,
+        inactive: data.filter((s) => !s.is_active && !s.deleted_at).length,
+        archived: data.filter((s) => s.deleted_at).length,
     };
 
-    updateStatElement('countAll',      stats.all);
-    updateStatElement('countActive',   stats.active);
-    updateStatElement('countInactive', stats.inactive);
-    updateStatElement('countDeleted',  stats.archived);
+    updateStatElement("countAll", stats.all);
+    updateStatElement("countActive", stats.active);
+    updateStatElement("countInactive", stats.inactive);
+    updateStatElement("countDeleted", stats.archived);
 }
 
 function updateStatElement(id, value) {

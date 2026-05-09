@@ -17,7 +17,7 @@
         'requires_manual_acceptance' => (bool) $service->requires_manual_acceptance,
         'cancellation_period' => App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes),
         'deleted_at' => $service->deleted_at,
-        'business_id' => $service->business_id,
+        'business_id' => $service->business_id ?? $service->business?->id,
         'category_id' => $service->category_id,
         'category' => $service->category ? ['id' => $service->category->id, 'name' => $service->category->name] : null,
         'business' => $service->business ? ['id' => $service->business->id, 'name' => $service->business->name] : null,
@@ -109,7 +109,7 @@
         : 'No restriction';
     $acceptanceLabel = $service->requires_manual_acceptance ? 'Manual approval' : 'Automatic';
     $categoryLabel = $service->category?->name ?? 'No category';
-    $businessId = $service->business->id;
+    $businessId = $service->business_id ?? $service->business?->id;
     $currentCancellation = $service->cancellation_period_minutes
         ? App\Application\Service\Services\DurationParser::fromMinutes($service->cancellation_period_minutes)
         : '';
