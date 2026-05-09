@@ -11,3 +11,18 @@ export function logWindowSizeOnResize() {
 
     logSize();
 }
+
+/**
+ * Escapes HTML characters in a string to prevent XSS when inserting into HTML
+ * @param {*} str 
+ * @returns 
+ */
+export function _esc(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}

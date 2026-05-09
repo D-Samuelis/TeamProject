@@ -4,23 +4,27 @@ import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
 
 export function initToolbar() {
     const params = new URLSearchParams(window.location.search);
-    const branchId = params.get('branch');
-    
+    const branchId = params.get("branch");
+
     if (branchId) {
-        const item = document.querySelector(`.branch-filter-item[data-branch-id="${branchId}"]`);
-        if (item) item.classList.add('is-active');
+        const item = document.querySelector(
+            `.branch-filter-item[data-branch-id="${branchId}"]`,
+        );
+        if (item) item.classList.add("is-active");
     }
 
     renderToolbar();
 
-    const sidebar = document.querySelector('.business__sidebar');
+    const sidebar = document.querySelector(".business__sidebar");
     if (sidebar) {
-        sidebar.addEventListener('click', (e) => {
-            const item = e.target.closest('.branch-filter-item');
+        sidebar.addEventListener("click", (e) => {
+            const item = e.target.closest(".branch-filter-item");
             if (!item) return;
 
-            document.querySelectorAll('.branch-filter-item').forEach(el => el.classList.remove('is-active'));
-            item.classList.add('is-active');
+            document
+                .querySelectorAll(".branch-filter-item")
+                .forEach((el) => el.classList.remove("is-active"));
+            item.classList.add("is-active");
 
             renderToolbar();
         });
@@ -29,55 +33,74 @@ export function initToolbar() {
 
 function renderToolbar() {
     const config = window.BE_DATA?.toolbar || {};
-    const actions = { left: '', center: '', right: '' };
+    const actions = { left: "", center: "", right: "" };
 
-    const activeEl = document.querySelector('.branch-filter-item.is-active') || 
-                     document.querySelector('.branch-filter-item.active');
-    
-    const isRealBranch = activeEl && activeEl.dataset.filter !== 'all';
-    
+    const activeEl =
+        document.querySelector(".branch-filter-item.is-active") ||
+        document.querySelector(".branch-filter-item.active");
+
+    const isRealBranch = activeEl && activeEl.dataset.filter !== "all";
+
     let branchActions = [];
 
     if (isRealBranch) {
         try {
             let branchData = {};
-            
+
             if (activeEl.dataset.branch) {
                 branchData = JSON.parse(activeEl.dataset.branch);
             } else {
                 branchData = {
                     id: activeEl.dataset.branchId,
-                    name: activeEl.querySelector('.member-name')?.textContent.trim() || 'Branch',
-                    is_active: activeEl.querySelector('.member-role')?.textContent.includes('Active') ? 1 : 0
+                    name:
+                        activeEl
+                            .querySelector(".member-name")
+                            ?.textContent.trim() || "Branch",
+                    is_active: activeEl
+                        .querySelector(".member-role")
+                        ?.textContent.includes("Active")
+                        ? 1
+                        : 0,
                 };
             }
 
             branchActions = [
                 {
-                    label: `Status: ${branchData.is_active ? 'Active' : 'Inactive'}`,
-                    icon: branchData.is_active ? 'fa-circle text-green' : 'fa-circle text-yellow',
+                    label: `Status: ${branchData.is_active ? "Active" : "Inactive"}`,
+                    icon: branchData.is_active
+                        ? "fa-circle text-green"
+                        : "fa-circle text-yellow",
                     isForm: true,
-                    action: window.BE_DATA.routes.branchUpdate.replace(':id', branchData.id),
+                    action: window.BE_DATA.routes.branchUpdate.replace(
+                        ":id",
+                        branchData.id,
+                    ),
                     hiddenFields: [
-                        { name: 'business_id', value: window.BE_DATA.business.id },
-                        { name: 'is_active', value: branchData.is_active ? 0 : 1 },
-                        { name: '_method', value: 'PUT' }
-                    ]
+                        {
+                            name: "business_id",
+                            value: window.BE_DATA.business.id,
+                        },
+                        {
+                            name: "is_active",
+                            value: branchData.is_active ? 0 : 1,
+                        },
+                        { name: "_method", value: "PUT" },
+                    ],
                 },
                 {
-                    label: 'Manage Branch',
-                    icon: 'fa-gear',
-                    modal: 'edit-branch-modal',
-                    branchData: branchData 
+                    label: "Manage Branch",
+                    icon: "fa-gear",
+                    modal: "edit-branch-modal",
+                    branchData: branchData,
                 },
                 {
-                    label: 'Archive Branch',
-                    icon: 'fa-box-archive',
-                    class: 'delete-action',
-                    modal: 'archive-branch-modal',
+                    label: "Archive Branch",
+                    icon: "fa-box-archive",
+                    class: "delete-action",
+                    modal: "archive-branch-modal",
                     id: branchData.id,
-                    name: branchData.name
-                }
+                    name: branchData.name,
+                },
             ];
         } catch (e) {
             console.error("Toolbar render error:", e);
@@ -88,29 +111,36 @@ function renderToolbar() {
     
     if (branchActions.length > 0) {
         centerHtml += `<div class="toolbar__group">${renderButtons(branchActions)}</div>`;
-        
-        if (Array.isArray(config.centerGroups) && config.centerGroups.length > 0) {
+
+        if (
+            Array.isArray(config.centerGroups) &&
+            config.centerGroups.length > 0
+        ) {
             centerHtml += `<div class="toolbar__divider"></div>`;
         }
     }
 
     if (Array.isArray(config.centerGroups)) {
-        centerHtml += config.centerGroups.map((group, index) => {
-            const showDivider = group.hasDivider || (index > 0);
-            const dividerHtml = showDivider ? '<div class="toolbar__divider"></div>' : '';
-            
-            return `${dividerHtml}<div class="toolbar__group">${renderButtons(group.actions)}</div>`;
-        }).join('');
+        centerHtml += config.centerGroups
+            .map((group, index) => {
+                const showDivider = group.hasDivider || index > 0;
+                const dividerHtml = showDivider
+                    ? '<div class="toolbar__divider"></div>'
+                    : "";
+
+                return `${dividerHtml}<div class="toolbar__group">${renderButtons(group.actions)}</div>`;
+            })
+            .join("");
     }
     actions.center = centerHtml;
 
     // --- RIGHT (Bexi Chatbot) ---
     if (config.rightAction) {
-        const isBexiOpen = localStorage.getItem(BEXI_SIDEBAR_KEY) === 'true';
+        const isBexiOpen = localStorage.getItem(BEXI_SIDEBAR_KEY) === "true";
         actions.right = `
             <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
-                <i class="fa-solid ${isBexiOpen ? 'fa-xmark' : 'fa-message'}"></i> 
-                <span>${isBexiOpen ? 'Close Bexi' : config.rightAction.label}</span>
+                <i class="fa-solid ${isBexiOpen ? "fa-xmark" : "fa-message"}"></i> 
+                <span>${isBexiOpen ? "Close Bexi" : config.rightAction.label}</span>
             </button>
         `;
     }
@@ -119,23 +149,27 @@ function renderToolbar() {
 }
 
 function renderButtons(buttons) {
-    return buttons.map(action => {
-        const btnHtml = `
-            <button type="${action.isForm ? 'submit' : 'button'}" 
-                class="toolbar__action-button ${action.class || ''}" 
-                ${action.modal ? `data-modal-target="${action.modal}"` : ''}
-                ${action.id ? `data-id="${action.id}"` : ''}
-                ${action.name ? `data-name="${action.name}"` : ''}
-                ${action.branchData ? `data-branch='${JSON.stringify(action.branchData)}'` : ''}>
+    return buttons
+        .map((action) => {
+            const btnHtml = `
+            <button type="${action.isForm ? "submit" : "button"}" 
+                class="toolbar__action-button ${action.class || ""}" 
+                ${action.modal ? `data-modal-target="${action.modal}"` : ""}
+                ${action.id ? `data-id="${action.id}"` : ""}
+                ${action.name ? `data-name="${action.name}"` : ""}
+                ${action.branchData ? `data-branch='${JSON.stringify(action.branchData)}'` : ""}>
                 <i class="fa-solid ${action.icon}"></i> ${action.label}
             </button>
         `;
 
-        if (action.isForm) {
-            const hiddens = (action.hiddenFields || []).map(f => 
-                `<input type="hidden" name="${f.name}" value="${f.value}">`
-            ).join('');
-            return `<form action="${action.action}" method="POST" style="display:inline;">
+            if (action.isForm) {
+                const hiddens = (action.hiddenFields || [])
+                    .map(
+                        (f) =>
+                            `<input type="hidden" name="${f.name}" value="${f.value}">`,
+                    )
+                    .join("");
+                return `<form action="${action.action}" method="POST" style="display:inline;">
                         <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
                     </form>`;
         }

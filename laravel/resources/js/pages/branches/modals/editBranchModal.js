@@ -1,4 +1,5 @@
 import { Modal } from '../../../components/displays/modal.js';
+import { _esc } from '../../../utils/helpers.js';
 
 export function initEditBranchModal() {
     document.addEventListener('click', (e) => {

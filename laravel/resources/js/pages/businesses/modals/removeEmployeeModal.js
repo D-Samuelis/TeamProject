@@ -1,19 +1,21 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initRemoveUserModal() {
-    document.addEventListener('click', (e) => {
-        // Selektor pre tlačidlo "Remove" v zozname zamestnancov
-        const btn = e.target.closest('.js-remove-user-btn');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".js-remove-user-btn");
         if (!btn) return;
 
         e.preventDefault();
 
-        const { userId, userName, displayName, targetType, targetId } = btn.dataset;
+        const { userId, userName, displayName, targetType, targetId } =
+            btn.dataset;
 
         Modal.showCustom({
-            title: 'Remove Employee',
-            confirmText: 'Remove Access',
-            action: 'delete',
+            title: "Remove Employee",
+            confirmText: "Remove Access",
+            action: "delete",
             body: `
                 <div class="modal-confirm-content">
                     <p>Are you sure you want to unassign <strong>${userName}</strong> from <strong>${displayName}</strong>?</p>
@@ -23,43 +25,40 @@ export function initRemoveUserModal() {
                 </div>
             `,
             onConfirm: async (modal) => {
-                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-                
-                // Dynamická URL z BE_DATA.routes.deleteUser (napr. /users/:id/unassign)
-                const url = window.BE_DATA.routes.deleteUser.replace(':id', userId);
+                const submitBtn = modal.querySelector(
+                    '[data-modal-action="confirm"]',
+                );
+                const url = window.BE_DATA.routes.deleteUser.replace(
+                    ":id",
+                    userId,
+                );
 
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': window.BE_DATA.csrf
-                        },
+                    await apiFetch(url, {
+                        method: "POST",
                         body: JSON.stringify({
-                            _token: window.BE_DATA.csrf,
-                            _method: 'DELETE',
-                            target_type: targetType, // business / branch / service
+                            _method: "DELETE",
+                            target_type: targetType,
                             target_id: targetId,
                         }),
                     });
 
-                    if (res.ok) {
-                        window.location.reload();
-                    } else {
-                        const data = await res.json();
-                        alert(data.message || 'Error removing employee.');
-                        if (submitBtn) submitBtn.disabled = false;
-                    }
-                } catch (error) {
-                    console.error('Remove user error:', error);
-                    alert('A network error occurred. Please try again.');
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Employee removed",
+                            message: "Their access has been revoked.",
+                        }),
+                    );
+                    window.location.reload();
+                } catch (err) {
+                    Toast.error("Remove failed", err.message);
                     if (submitBtn) submitBtn.disabled = false;
                 }
-            }
+            },
         });
     });
 }

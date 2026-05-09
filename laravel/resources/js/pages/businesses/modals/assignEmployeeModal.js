@@ -1,15 +1,20 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initAssignEmployeeModal() {
-    document.addEventListener('click', (e) => {
+    document.addEventListener("click", (e) => {
         const btn = e.target.closest('[data-modal-target="assign-user-modal"]');
         if (!btn) return;
 
         e.preventDefault();
-        
-        // Zistíme, či je nejaká pobočka aktívna v sidebare
-        const activeBranchEl = document.querySelector('.branch-filter-item.is-active');
-        const activeBranchId = activeBranchEl ? activeBranchEl.dataset.branchId : null;
+
+        const activeBranchEl = document.querySelector(
+            ".branch-filter-item.is-active",
+        );
+        const activeBranchId = activeBranchEl
+            ? activeBranchEl.dataset.branchId
+            : null;
 
         openAssignEmployeeModal(activeBranchId);
     });
@@ -19,9 +24,9 @@ function openAssignEmployeeModal(activeBranchId = null) {
     const business = window.BE_DATA.business;
 
     Modal.showCustom({
-        title: 'Assign Employee',
-        confirmText: 'Assign & Notify',
-        action: 'create',
+        title: "Assign Employee",
+        confirmText: "Assign & Notify",
+        action: "create",
         body: `
             <form id="assignEmployeeForm">
                 <div class="modal-form__group">
@@ -30,23 +35,39 @@ function openAssignEmployeeModal(activeBranchId = null) {
                         <select id="modal-target-selector" class="modal-form__input">
                             <option value="business" data-id="${business.id}">Entire Business</option>
                             
-                            ${business.branches?.length ? `
+                            ${
+                                business.branches?.length
+                                    ? `
                                 <optgroup label="Branches">
-                                    ${business.branches.map(b => {
-                                        // Ak sa ID pobočky zhoduje s aktívnou pobočkou, označíme ju ako selected
-                                        const isSelected = String(b.id) === String(activeBranchId) ? 'selected' : '';
-                                        return `<option value="branch" data-id="${b.id}" ${isSelected}>${b.name}</option>`;
-                                    }).join('')}
+                                    ${business.branches
+                                        .map((b) => {
+                                            const isSelected =
+                                                String(b.id) ===
+                                                String(activeBranchId)
+                                                    ? "selected"
+                                                    : "";
+                                            return `<option value="branch" data-id="${b.id}" ${isSelected}>${b.name}</option>`;
+                                        })
+                                        .join("")}
                                 </optgroup>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
 
-                            ${business.services?.length ? `
+                            ${
+                                business.services?.length
+                                    ? `
                                 <optgroup label="Services">
-                                    ${business.services.map(s => 
-                                        `<option value="service" data-id="${s.id}">${s.name}</option>`
-                                    ).join('')}
+                                    ${business.services
+                                        .map(
+                                            (s) =>
+                                                `<option value="service" data-id="${s.id}">${s.name}</option>`,
+                                        )
+                                        .join("")}
                                 </optgroup>
-                            ` : ''}
+                            `
+                                    : ""
+                            }
                         </select>
                     </div>
                 </div>
@@ -70,47 +91,45 @@ function openAssignEmployeeModal(activeBranchId = null) {
             </form>
         `,
         onConfirm: async (modal) => {
-            const form = modal.querySelector('#assignEmployeeForm');
-            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-            const selector = modal.querySelector('#modal-target-selector');
+            const form = modal.querySelector("#assignEmployeeForm");
+            const submitBtn = modal.querySelector(
+                '[data-modal-action="confirm"]',
+            );
+            const selector = modal.querySelector("#modal-target-selector");
             const selectedOption = selector.options[selector.selectedIndex];
 
             if (submitBtn) submitBtn.disabled = true;
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            formData.append('_token', window.BE_DATA.csrf);
-            formData.append('target_type', selector.value);
-            formData.append('target_id', selectedOption.dataset.id);
+            formData.append("_token", window.BE_DATA.csrf);
+            formData.append("target_type", selector.value);
+            formData.append("target_id", selectedOption.dataset.id);
 
             try {
-                const res = await fetch(window.BE_DATA.routes.assignUser, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': window.BE_DATA.csrf
-                    },
+                await apiFetch(window.BE_DATA.routes.assignUser, {
+                    method: "POST",
                     body: formData,
                 });
 
-                if (res.ok) {
-                    window.location.reload();
-                    return;
-                }
-
-                if (res.status === 422) {
-                    const json = await res.json();
-                    Modal.showFieldErrors(modal, json.errors);
+                sessionStorage.setItem(
+                    "pending_toast",
+                    JSON.stringify({
+                        type: "success",
+                        title: "Employee assigned",
+                        message: "They will be notified by email.",
+                    }),
+                );
+                window.location.reload();
+            } catch (err) {
+                if (err.status === 422 && err.errors) {
+                    Modal.showFieldErrors(modal, err.errors);
                 } else {
-                    const errorData = await res.json();
-                    alert(errorData.message || 'Assignment failed');
+                    Toast.error("Assignment failed", err.message);
                 }
-            } catch (error) {
-                console.error('Fetch error:', error);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
-        }
+        },
     });
 }
