@@ -65,6 +65,11 @@ class ManageBusinessController extends Controller
     public function show(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId, Auth::user());
+
+        if (request()->expectsJson()) {
+            return response()->json(['data' => $business]);
+        }
+
         return view('web.manage.business.show', compact('business'));
     }
 

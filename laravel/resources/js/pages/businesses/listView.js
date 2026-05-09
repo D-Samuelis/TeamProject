@@ -88,6 +88,7 @@ export function initBusinessListView(data = [], meta = {}) {
                         type="button"
                         class="button-icon button-icon--warning js-toggle-publish-btn"
                         title="${toggleTitle}"
+<<<<<<< HEAD
                         data-id="${item.id}"
                         data-next="${nextStatus}">
                         <i class="fa-solid ${toggleIcon}" style="${!item.is_published ? "opacity: 0.5" : ""}"></i>
@@ -107,6 +108,27 @@ export function initBusinessListView(data = [], meta = {}) {
                         class="button-icon button-icon--danger"
                         data-modal-target="archive-business-modal"
                         data-id="${item.id}"
+=======
+                        data-id="${item.id}"
+                        data-next="${nextStatus}">
+                        <i class="fa-solid ${toggleIcon}" style="${!item.is_published ? "opacity: 0.5" : ""}"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button-icon js-show-business-btn"
+                        title="Settings"
+                        data-id="${item.id}"
+                        data-href="${window.BE_DATA.routes.show.replace(":id", item.id)}">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        class="button-icon button-icon--danger js-archive-business-btn"
+                        data-modal-target="archive-business-modal"
+                        data-id="${item.id}"
+>>>>>>> 0dbcf1c (FEAT: Working Toast for Business actions.)
                         data-name="${item.name}"
                         title="Archive">
                         <i class="fa-solid fa-trash"></i>
