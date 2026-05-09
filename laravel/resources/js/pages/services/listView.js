@@ -1,6 +1,6 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
-import {initPaginator} from "../../components/displays/paginator.js";
+import { initPaginator } from "../../components/displays/paginator.js";
 
 let sorter = null;
 let renderer = null;

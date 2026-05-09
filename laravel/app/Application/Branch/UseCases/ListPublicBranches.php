@@ -3,13 +3,12 @@
 namespace App\Application\Branch\UseCases;
 
 use App\Application\DTO\SearchDTO;
-use App\Application\DTO\BranchSearchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 use Illuminate\Support\Collection;
 
-class ListBranches
+class ListPublicBranches
 {
     public function __construct(
         private readonly BranchRepositoryInterface $branchRepo
@@ -20,7 +19,21 @@ class ListBranches
      * @param string $scope 'active'|'deleted'|'all'|'public'
      * @param array $filters Search/Filter criteria for public browsing
      */
-    public function execute(BranchSearchDTO $dto, ?User $user = null) {
-        return $this->branchRepo->search($dto, $user);
+    public function execute(
+        ?User $user = null,
+        ?Business $business = null,
+        string $scope = 'active',
+        array $filters = []
+    ): Collection {
+        if ($scope === 'public') {
+            $dto = SearchDTO::fromArray($filters);
+            return $this->branchRepo->publicSearch($dto)->getCollection();
+        }
+
+        if (!$user) {
+            throw new \InvalidArgumentException('User is required for non-public branch lists.');
+        }
+
+        return $this->branchRepo->listForUser($user, $business, $scope);
     }
 }

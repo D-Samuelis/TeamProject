@@ -4,7 +4,6 @@ namespace App\Mcp\Tools\Service;
 
 use App\Application\DTO\SearchDTO;
 use App\Application\Service\UseCases\ListPublicServices;
-use App\Application\Service\UseCases\ListServices;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Business\Service;
 use Illuminate\Contracts\JsonSchema\JsonSchema;

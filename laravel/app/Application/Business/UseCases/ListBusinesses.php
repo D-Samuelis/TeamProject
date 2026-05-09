@@ -35,7 +35,6 @@ class ListBusinesses
                 description: $dto->description,
                 statuses: $dto->statuses,
                 published: $dto->published,
-                deleted: $dto->deleted,
                 userId: null,
                 role: $dto->role,
                 categoryId: $dto->categoryId,

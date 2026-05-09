@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Service;
 
+use App\Application\DTO\BranchSearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
 use App\Http\Controllers\Controller;
@@ -39,7 +40,7 @@ class ManageServiceController extends Controller
         return view('web.manage.service.index', [
             'services' => $paginator->getCollection(),
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
-            'branches' => $listBranches->execute(Auth::user()),
+            'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'meta' => [
                 'current_page' => $paginator->currentPage(),
                 'last_page'    => $paginator->lastPage(),
@@ -58,7 +59,7 @@ class ManageServiceController extends Controller
         return view('web.manage.service.show', [
             'service' => $service,
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
-            'branches' => $listBranches->execute(Auth::user()),
+            'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'categories' => Category::orderBy('name')->get(),
         ]);
     }

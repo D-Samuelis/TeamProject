@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Asset;
 
 use App\Application\Asset\UseCases\RestoreAsset;
 use App\Application\DTO\AssetSearchDTO;
+use App\Application\DTO\BranchSearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Asset\StoreAssetRequest;
@@ -123,7 +124,7 @@ class AssetController extends Controller
         ListBranches $listBranches,
         ListServices $listServices
     ): array {
-        $branches = $listBranches->execute($user);
+        $branches = $listBranches->execute(BranchSearchDTO::fromArray([]), $user);
         $services = $listServices->execute(ServiceSearchDTO::fromArray([]), $user);
 
         if (! $user->isAdmin()) {

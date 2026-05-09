@@ -38,17 +38,18 @@ class ServiceRepository implements ServiceRepositoryInterface
             });
         }
 
-        // Deleted scope
-        if ($dto->statuses && in_array('deleted', $dto->statuses)) {
-            $query->onlyTrashed();
-        }
-
-        if ($dto->statuses && in_array('active', $dto->statuses)) {
-            $query->where('is_active', true);
-        }
-
-        if ($dto->statuses && in_array('inactive', $dto->statuses)) {
-            $query->where('is_active', false);
+        if ($dto->statuses) {
+            $query->where(function ($q) use ($dto) {
+                if (in_array('deleted', $dto->statuses)) {
+                    $q->orWhereNotNull('deleted_at');
+                }
+                if (in_array('active', $dto->statuses)) {
+                    $q->orWhere('is_active', true);
+                }
+                if (in_array('inactive', $dto->statuses)) {
+                    $q->orWhere('is_active', false);
+                }
+            });
         }
 
         // Text filters

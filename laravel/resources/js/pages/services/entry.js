@@ -6,8 +6,8 @@ import { initCreateServiceModal } from './modals/createServiceModal.js';
 import { initArchiveServiceModal } from './modals/archiveServiceModal.js';
 import { initServiceShowPage } from './show.js';
 import { initToolbar } from './toolbar.js';
-import {initUserSearch} from "../../components/displays/userSearch.js";
-import {initBusinessSearch} from "../../components/displays/businessSearch.js";
+import { initUserSearch } from "../../components/displays/userSearch.js";
+import { initBusinessSearch } from "../../components/displays/businessSearch.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     initCollapsibleList('managementList');

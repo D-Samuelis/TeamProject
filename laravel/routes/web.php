@@ -168,7 +168,11 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
             Route::get('/search', 'search')->name('search');
+            Route::get('/{userId}', 'show')->name('show');
+            Route::put('/{userId}', 'update')->name('update');
+            Route::delete('/{userId}', 'delete')->name('delete');
         });
     });
 });

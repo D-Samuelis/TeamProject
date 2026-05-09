@@ -2,6 +2,7 @@
 
 namespace App\Repositories\User;
 
+use App\Application\DTO\UserSearchDTO;
 use App\Domain\Branch\Enums\BranchRoleEnum;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 use App\Domain\User\Interfaces\UserRepositoryInterface;
@@ -85,5 +86,47 @@ class UserRepository implements UserRepositoryInterface
             ->first();
 
         return $branch ? BranchRoleEnum::tryFrom($branch->pivot->role) : null;
+    }
+
+    public function search(UserSearchDTO $dto, User $user = null){
+        if ($user && !$user->isAdmin()) {
+            return [];
+        }
+
+        $query = User::query();
+
+        if ($dto->userName) {
+            $query->where('name', 'like', '%' . $dto->userName . '%');
+        }
+
+        if ($dto->userEmail) {
+            $query->where('email', 'like', '%' . $dto->userEmail . '%');
+        }
+
+        if ($dto->phoneNumber) {
+            $query->where('phone_number', 'like', '%' . $dto->phoneNumber . '%');
+        }
+
+        if ($dto->isAdmin) {
+            $query->where('is_admin', true);
+        }
+
+        if ($dto->country) {
+            $query->where('country', 'like', '%' . $dto->country . '%');
+        }
+
+        if ($dto->city) {
+            $query->where('city', 'like', '%' . $dto->city . '%');
+        }
+
+        if ($dto->gender) {
+            $query->where('gender', 'like', '%' . $dto->gender . '%');
+        }
+
+        if ($dto->notificationType) {
+            $query->where('notification_type', 'like', '%' . $dto->notificationType . '%');
+        }
+
+        return $query->latest()->paginate($dto->perPage, ['*'], 'page', $dto->page);
     }
 }

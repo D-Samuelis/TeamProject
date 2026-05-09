@@ -2,6 +2,7 @@
 
 namespace App\Domain\Branch\Interfaces;
 
+use App\Application\DTO\BranchSearchDTO;
 use App\Models\Business\Branch;
 use Illuminate\Support\Collection;
 use App\Application\DTO\SearchDTO;
@@ -16,7 +17,8 @@ interface BranchRepositoryInterface
      */
     public function findActive(int $id): Branch;
 
-    public function search(SearchDTO $dto);
+    public function search(BranchSearchDTO $dto, User $user);
+    public function publicSearch(SearchDTO $dto);
 
     public function findMultipleByIds(array $ids): Collection;
     /**
@@ -45,11 +47,11 @@ interface BranchRepositoryInterface
      * RELATIONSHIPS & ASSIGNMENTS
      */
     public function attachServices(Branch $branch, array $serviceIds): void;
-    
+
     public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void;
 
     public function detachUser($branch, $userId): int;
-    
+
     public function getAssignments(Branch $branch): array;
 
     public function count(SearchDTO $dto): int;

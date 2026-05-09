@@ -2,7 +2,7 @@
 
 namespace App\Mcp\Tools\Branch;
 
-use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Branch\UseCases\ListPublicBranches;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
@@ -44,7 +44,7 @@ class ListBranchesTool extends Tool
     MARKDOWN;
 
     public function __construct(
-        private readonly ListBranches $listBranches,
+        private readonly ListPublicBranches $listPublicBranches,
     ) {}
 
     public function handle(Request $request): Response
@@ -58,7 +58,7 @@ class ListBranchesTool extends Tool
                 'page'        => 'nullable|integer|min:1',
             ]);
 
-            $branches = $this->listBranches->execute(
+            $branches = $this->listPublicBranches->execute(
                 user: null,
                 business: null,
                 scope: 'public',

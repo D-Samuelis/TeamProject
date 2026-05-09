@@ -9,6 +9,7 @@
         csrf: '{{ csrf_token() }}',
         branches: @json($branches),
         businesses: @json($businesses),
+        meta: @json($meta),
         routes: {
             store: "{{ route('manage.branch.store') }}",
             show: "{{ route('manage.branch.show', ':id') }}",
@@ -44,6 +45,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'branches'])
+
+        <section class="branch__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.branch.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">
@@ -88,6 +98,8 @@
                     {{-- Renderované cez JavaScript podobne ako Asset listView.js --}}
                 </div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
         </main>
         @include('components.ui.toolbar')
     </div>

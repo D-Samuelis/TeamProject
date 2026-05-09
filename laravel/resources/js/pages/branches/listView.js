@@ -1,11 +1,12 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { initPaginator } from "../../components/displays/paginator.js";
 
 let sorter = null;
 let renderer = null;
 let originalData = [];
 
-export function initBranchListView(data = []) {
+export function initBranchListView(data = [], meta = {}) {
     const container = document.getElementById('branchTableContainer');
     if (!container) return;
 
@@ -19,7 +20,7 @@ export function initBranchListView(data = []) {
         searchId: '#branchSearchInput',
         rowClass: 'branch-table__row',
         columns: [
-            { 
+            {
                 label: 'Branch Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
@@ -32,7 +33,7 @@ export function initBranchListView(data = []) {
                 render: (val) => {
                     const city = val || 'No city';
                     return `<div class="description-cell">
-                                <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i> 
+                                <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 4px;"></i>
                                 ${city}
                             </div>`;
                 }
@@ -41,7 +42,7 @@ export function initBranchListView(data = []) {
                 label: 'Type', key: 'type', sortable: true, searchable: true,
                 render: (val) => `<div class="description-cell">${val ? val.charAt(0).toUpperCase() + val.slice(1) : 'Standard'}</div>`
             },
-            { 
+            {
                 label: 'Business', key: 'business.name', sortable: false, searchable: true,
                 render: (val, item) => {
                     if (!item.business) return `<span class="text-muted">—</span>`;
@@ -68,11 +69,11 @@ export function initBranchListView(data = []) {
                         </div>`;
                 }
             },
-            { 
+            {
                 label: 'Status', key: 'is_active', sortable: true,
                 render: (val, item) => {
                     if (item.deleted_at) return `<span class="status-cell filter-item--red">Archived</span>`;
-                    return val 
+                    return val
                         ? `<span class="status-cell filter-item--green">Active</span>`
                         : `<span class="status-cell filter-item--yellow">Inactive</span>`;
                 }
@@ -130,17 +131,23 @@ export function initBranchListView(data = []) {
 
     window.addEventListener('branchFiltersChanged', (e) => {
         const activeStatuses = e.detail.statuses.filter(s => s.active).map(s => s.id);
-        
+
         const filteredData = originalData.filter(item => {
             let status = 'inactive';
             if (item.deleted_at) status = 'archived';
             else if (item.is_active) status = 'active';
-            
+
             return activeStatuses.includes(status);
         });
 
-        sorter.data = filteredData; 
+        sorter.data = filteredData;
         renderer.render(container, sorter.getSortedData(), sorter);
+    });
+
+    initPaginator(meta, (page) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
     });
 }
 

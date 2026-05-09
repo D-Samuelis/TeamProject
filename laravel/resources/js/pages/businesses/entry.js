@@ -12,7 +12,7 @@ import { initArchiveBranchModal } from './modals/archiveBranchModal.js';
 import { initRemoveUserModal } from './modals/removeEmployeeModal.js';
 import { initArchiveBusinessModal } from './modals/archiveBusinessModal.js';
 import { initToolbar } from './toolbar.js';
-import {initUserSearch} from "../../components/displays/userSearch.js";
+import { initUserSearch } from "../../components/displays/userSearch.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */

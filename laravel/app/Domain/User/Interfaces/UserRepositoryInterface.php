@@ -2,6 +2,7 @@
 
 namespace App\Domain\User\Interfaces;
 
+use App\Application\DTO\UserSearchDTO;
 use App\Models\Auth\User;
 use App\Models\Business\Asset;
 use App\Models\Business\Branch;
@@ -28,4 +29,6 @@ interface UserRepositoryInterface
     public function getAnyBranchRoleForBusiness(User $user, Business $business): ?BranchRoleEnum;
 
     public function getAssetRole(User $user, Asset $asset): ?string;
+
+    public function search(UserSearchDTO $dto, User $user = null);
 }

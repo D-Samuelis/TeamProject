@@ -12,7 +12,7 @@ import { initConnectionsModal } from './modals/connectionsModal.js';
 import { initRuleDetailModal } from './modals/ruleDetailModal.js';
 import { initCreateAssetModal } from './modals/createAssetModal.js';
 import { initToolbar } from './toolbar.js';
-import {initServiceSearch} from "../../components/displays/serviceSearch.js";
+import { initServiceSearch } from "../../components/displays/serviceSearch.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     /* index */

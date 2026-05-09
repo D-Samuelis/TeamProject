@@ -44,6 +44,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'assets'])
+
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.asset.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">

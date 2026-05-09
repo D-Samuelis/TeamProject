@@ -6,6 +6,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'services'])
+
+        <section class="service__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.service.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">
@@ -53,6 +62,9 @@
             <div class="business__body-wrapper">
                 <div id="serviceTableContainer" class="list-view__body-wrapper"></div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
+
         </main>
         @include('components.ui.toolbar')
     </div>

@@ -6,6 +6,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'businesses'])
+
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.business.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">

@@ -4,6 +4,7 @@ namespace App\Repositories\Business;
 
 use App\Application\DTO\SearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
+use App\Domain\Business\Enums\BusinessStateEnum;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
@@ -38,11 +39,21 @@ class BusinessRepository implements BusinessRepositoryInterface
                 'services' => fn($q) => $q->where('is_active', true),
             ]);
 
-        // --- Scope: deleted / all / active ---
-        if ($dto->deleted === 'only') {
-            $query->onlyTrashed();
-        } elseif ($dto->deleted === 'with') {
-            $query->withTrashed();
+        if ($dto->statuses) {
+            $query->withTrashed()->where(function ($q) use ($dto) {
+                $stateValues = array_column(BusinessStateEnum::cases(), 'value');
+                $filteredStates = array_intersect($stateValues, $dto->statuses);
+
+                if (in_array('deleted', $dto->statuses)) {
+                    $q->orWhereNotNull('deleted_at');
+                }
+                if ($filteredStates) {
+                    $q->orWhere(function ($q2) use ($filteredStates) {
+                        $q2->whereIn('state', $filteredStates);
+
+                    });
+                }
+            });
         }
         // default: active only (no trashed)
 

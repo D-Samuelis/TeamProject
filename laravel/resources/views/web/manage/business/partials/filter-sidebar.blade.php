@@ -31,7 +31,7 @@
                 @foreach (['yes' => 'Published', 'no' => 'Unpublished'] as $val => $label)
                     <label class="checkbox-item checkbox-item--custom">
                         <input
-                            type="radio"
+                            type="checkbox"
                             name="published"
                             value="{{ $val }}"
                             {{ request('published') === $val ? 'checked' : '' }}
@@ -43,25 +43,23 @@
             </div>
         </div>
 
-        @if(auth()->user()->isAdmin())
-            <div class="filter-group">
-                <label>Deleted</label>
-                <div class="checkbox-list">
-                    @foreach (['only' => 'Deleted only', 'with' => 'Include deleted'] as $val => $label)
-                        <label class="checkbox-item checkbox-item--custom">
-                            <input
-                                type="radio"
-                                name="deleted"
-                                value="{{ $val }}"
-                                {{ request('deleted') === $val ? 'checked' : '' }}
-                            >
-                            <span class="checkbox-item__box"></span>
-                            <span class="checkbox-item__text">{{ $label }}</span>
-                        </label>
-                    @endforeach
-                </div>
+        <div class="filter-group">
+            <label>Status</label>
+            <div class="checkbox-list">
+                @foreach (['pending' => 'Pending', 'under_review' => 'Review', 'approved' => 'Approved', 'rejected' => 'Rejected', 'deleted' => 'Archived'] as $val => $label)
+                    <label class="checkbox-item checkbox-item--custom">
+                        <input
+                            type="checkbox"
+                            name="statuses[]"
+                            value="{{ $val }}"
+                            {{ in_array($val, request('statuses', [])) ? 'checked' : '' }}
+                        >
+                        <span class="checkbox-item__box"></span>
+                        <span class="checkbox-item__text">{{ $label }}</span>
+                    </label>
+                @endforeach
             </div>
-        @endif
+        </div>
 
         {{-- Placeholder: swap App\Models\Category with your real Category model when ready --}}
         <div class="filter-group">
