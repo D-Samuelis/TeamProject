@@ -61,6 +61,9 @@
                 </div>
                 <!-- TODO: Maybe some condition if user acctually has some businesses ??? -->
                 <div class="profile-menu__option" id="lightModeOption">
+                    <a href="/manage/businesses" class="profile-menu__link">Management</a>
+                </div>
+                {{-- <div class="profile-menu__option" id="lightModeOption">
                     <a href="/manage/businesses" class="profile-menu__link">My Businesses</a>
                 </div>
                 <div class="profile-menu__option" id="lightModeOption">
@@ -68,7 +71,7 @@
                 </div>
                 <div class="profile-menu__option" id="lightModeOption">
                     <a href="/manage/assets" class="profile-menu__link">My Assets</a>
-                </div>
+                </div> --}}
                 <div class="profile-menu__option" id="lightModeOption">
                     <a href="/profile" class="profile-menu__link">My Profile</a>
                 </div>
