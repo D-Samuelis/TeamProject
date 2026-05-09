@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers\Web\Business;
 
+use App\Application\DTO\BusinessSearchDTO;
 use App\Http\Controllers\Controller;
+use App\Models\Auth\User;
+use App\Models\Business\Business;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 // Requests
@@ -28,14 +33,35 @@ use App\Exceptions\Business\BusinessCreationFailedException;
 
 class ManageBusinessController extends Controller
 {
-    public function index(ListBusinesses $useCase)
+    public function index(Request $request, ListBusinesses $useCase)
     {
         $user = Auth::user();
 
         try {
+            $dto = BusinessSearchDTO::fromArray($request->query());
+            $paginator = $useCase->execute($dto, $user);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'data' => $paginator->items(),
+                    'meta' => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page'    => $paginator->lastPage(),
+                        'per_page'     => $paginator->perPage(),
+                        'total'        => $paginator->total(),
+                    ],
+                ]);
+            }
+
             return view('web.manage.business.index', [
-                'activeBusinesses'  => $useCase->execute($user, 'active'),
-                'deletedBusinesses' => $useCase->execute($user, 'deleted'),
+                'businesses'  => $paginator->getCollection(),
+                'meta'         => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page'    => $paginator->lastPage(),
+                    'per_page'     => $paginator->perPage(),
+                    'total'        => $paginator->total(),
+                ],
+                'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
             ]);
         } catch (\InvalidArgumentException $e) {
             return redirect()->route('login');
@@ -112,5 +138,25 @@ class ManageBusinessController extends Controller
         } catch (\Throwable $e) {
             return redirect()->route('manage.business.index')->with('error', 'Something went wrong. Please try again.');
         }
+    }
+
+    public function search(Request $request, ListBusinesses $listBusinesses): JsonResponse
+    {
+        $query = $request->query('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $dto = BusinessSearchDTO::fromArray([
+            'business_name' => $query,
+            'per_page'      => 8,
+        ]);
+
+        $results = $listBusinesses->execute($dto, Auth::user())
+            ->getCollection()
+            ->map(fn($b) => ['id' => $b->id, 'name' => $b->name]);
+
+        return response()->json($results);
     }
 }

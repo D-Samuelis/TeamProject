@@ -3,6 +3,7 @@
 namespace App\Application\Service\UseCases;
 
 use App\Application\DTO\SearchDTO;
+use App\Application\DTO\ServiceSearchDTO;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
@@ -14,21 +15,24 @@ class ListServices
         private readonly ServiceRepositoryInterface $serviceRepo
     ) {}
 
-    public function execute(
-        ?User $user = null,
-        ?Business $business = null,
-        string $scope = 'active',
-        array $filters = []
-    ): Collection {
-        if ($scope === 'public') {
-            $dto = SearchDTO::fromArray($filters);
-            return $this->serviceRepo->search($dto)->getCollection();
+    public function execute(ServiceSearchDTO $dto, ?User $user = null) {
+        if ($user && !$user->isAdmin()) {
+            $dto = new ServiceSearchDTO(
+                serviceName: $dto->serviceName,
+                description: $dto->description,
+                priceMin: $dto->priceMin,
+                priceMax: $dto->priceMax,
+                durationMin: $dto->durationMin,
+                durationMax: $dto->durationMax,
+                statuses: $dto->statuses,
+                businessId: $dto->businessId,
+                userId: null,
+                role: $dto->role,
+                perPage: $dto->perPage,
+                page: $dto->page,
+            );
         }
 
-        if (!$user) {
-            throw new \InvalidArgumentException('User is required for non-public service lists.');
-        }
-
-        return $this->serviceRepo->listForUser($user, $business, $scope);
+        return $this->serviceRepo->search($dto, $user);
     }
 }

@@ -6,6 +6,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'businesses'])
+
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.business.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">
@@ -16,7 +25,7 @@
 
                 <div class="business__header-info">
                     <h2 class="business-header__title">My Businesses</h2>
-                    
+
                     <div class="business-info">
                         <div class="stat-item stat-item--all">
                             <i class="fa-solid fa-layer-group"></i>
@@ -53,6 +62,8 @@
             <div class="business__body-wrapper">
                 <div id="businessTableContainer" class="list-view__body-wrapper"></div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
         </main>
         @include('components.ui.toolbar')
     </div>
@@ -60,7 +71,8 @@
 
 <script>
     window.BE_DATA = {
-        businesses: @json($activeBusinesses->merge($deletedBusinesses)),
+        businesses: @json($businesses),
+        meta: @json($meta),
         routes: {
             store: "{{ route('manage.business.store') }}",
             restore: "{{ route('manage.business.restore', ':id') }}",

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Asset;
 
+use App\Application\DTO\AssetSearchDTO;
 use App\Application\DTO\SearchDTO;
 use App\Application\Asset\DTO\UpdateAssetDTO;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
@@ -22,7 +23,57 @@ class AssetRepository implements AssetRepositoryInterface
         return Asset::create($data);
     }
 
-    public function search(SearchDTO $dto, ?User $user = null)
+    public function search(AssetSearchDTO $dto, ?User $user = null)
+    {
+        $query = Asset::withTrashed();
+
+        if ($user && !$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('branch', function ($b) use ($user) {
+                    $b->whereHas('users', fn($u) => $u->where('users.id', $user->id));
+                })
+                    ->orWhereHas('services', function ($s) use ($user) {
+                        $s->whereHas('users', fn($u) => $u->where('users.id', $user->id));
+                    })
+                    ->orWhereHas('branch.business', function ($b) use ($user) {
+                        $b->whereHas('users', function ($u) use ($user) {
+                            $u->where('users.id', $user->id)
+                                ->whereIn('model_has_users.role', ['owner', 'manager']);
+                        });
+                    });
+            });
+        }
+
+        if ($dto->statuses) {
+            $query->where(function ($q) use ($dto) {
+                if (in_array('deleted', $dto->statuses)) {
+                    $q->orWhereNotNull('deleted_at');
+                }
+                if (in_array('active', $dto->statuses)) {
+                    $q->orWhere('is_active', true);
+                }
+                if (in_array('inactive', $dto->statuses)) {
+                    $q->orWhere('is_active', false);
+                }
+            });
+        }
+
+        if ($dto->assetName) {
+            $query->where('name', 'like', '%' . $dto->assetName . '%');
+        }
+
+        if ($dto->description) {
+            $query->where('description', 'like', '%' . $dto->description . '%');
+        }
+
+        if ($dto->serviceId) {
+            $query->whereHas('services', fn($s) => $s->where('services.id', $dto->serviceId));
+        }
+
+        return $query->latest()->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function publicSearch(SearchDTO $dto, ?User $user = null)
     {
         $query = Asset::withTrashed();
 

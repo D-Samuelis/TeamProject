@@ -2,7 +2,7 @@
 
 namespace App\Mcp\Tools\Business;
 
-use App\Application\Business\UseCases\ListBusinesses;
+use App\Application\Business\UseCases\ListPublicBusinesses;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 use App\Models\Business\Business;
@@ -50,7 +50,7 @@ class ListBusinessesTool extends Tool
     MARKDOWN;
 
     public function __construct(
-        private readonly ListBusinesses $listBusinesses,
+        private readonly ListPublicBusinesses $listPublicBusinesses,
     ) {}
 
     public function handle(Request $request): Response
@@ -71,7 +71,7 @@ class ListBusinessesTool extends Tool
                 'page'             => 'nullable|integer|min:1',
             ]);
 
-            $businesses = $this->listBusinesses->execute(
+            $businesses = $this->listPublicBusinesses->execute(
                 user: null,
                 scope: 'public',
                 filters: [

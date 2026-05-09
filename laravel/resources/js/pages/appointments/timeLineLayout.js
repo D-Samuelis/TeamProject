@@ -21,12 +21,12 @@ export function initTimelineLayout(data = [], baseDate = new Date(), daysCount =
     renderDayHeaders(headerWrapper, dates);
     renderTimeAxis(bodyWrapper);
     renderDayColumns(bodyWrapper, daysCount);
-    
+
     renderAppointments(bodyWrapper, data, dates);
 
     renderNowIndicator(bodyWrapper);
     setupAutoScroll(bodyWrapper);
-    
+
     if (!window.indicatorIntervalStarted) {
         initIndicatorLoop();
         window.indicatorIntervalStarted = true;
@@ -44,12 +44,12 @@ function createWrapper(className, daysCount, hasScrollbarSpace, id = '') {
     const el = document.createElement('div');
     el.className = className;
     if (id) el.id = id;
-    
+
     const axisWidth = "100px";
     const scrollbarSpace = hasScrollbarSpace ? "6px" : "";
     el.style.display = 'grid';
     el.style.gridTemplateColumns = `${axisWidth} repeat(${daysCount}, 1fr) ${scrollbarSpace}`;
-    
+
     return el;
 }
 
@@ -61,7 +61,7 @@ function renderCorner(parent) {
     parent.innerHTML = ''; // Vyčistíme starý obsah
     const corner = document.createElement('div');
     corner.className = 'timeline__header-corner';
-    
+
     // Zistíme, ktorý pohľad je aktívny podľa ID elementov v DOM
     const isTimelineActive = !document.getElementById('timelineView').classList.contains('hidden');
 
@@ -75,7 +75,7 @@ function renderCorner(parent) {
             </button>
         </div>
     `;
-    
+
     parent.appendChild(corner);
 }
 
@@ -90,12 +90,12 @@ function renderDayHeaders(parent, dates) {
         const isToday = new Date().toDateString() === dateObj.toDateString();
         const header = document.createElement('div');
         header.className = `timeline__day-header ${isToday ? 'is-today' : ''}`;
-        
+
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
         const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
         const dayNumber = dateObj.getDate().toString().padStart(2, '0');
 
-        const count = window.BE_DATA.appointments.filter(a => 
+        const count = window.BE_DATA.appointments.filter(a =>
             new Date(a.date).toDateString() === dateObj.toDateString()
         ).length;
 
@@ -145,8 +145,8 @@ function renderDayColumns(parent, daysCount) {
     for (let d = 0; d < daysCount; d++) {
         const dayCol = document.createElement('div');
         dayCol.className = 'timeline__day-column';
-        
-        dayCol.style.paddingTop = '1.5rem'; 
+
+        dayCol.style.paddingTop = '1.5rem';
 
         for (let i = 0; i < 24; i++) {
             const slot = document.createElement('div');
@@ -259,7 +259,7 @@ function renderAppointments(parent, data, visibleDates) {
         dayApps.forEach(app => {
             const start = new Date(app.start_at).getTime();
             const end = start + (app.duration || 60) * 60000;
-            
+
             let placed = false;
             for (let group of groups) {
                 const isOverlapping = group.some(item => {
@@ -282,7 +282,7 @@ function renderAppointments(parent, data, visibleDates) {
                 renderSummaryBlock(columnEl, group, SLOT_HEIGHT, OFFSET_TOP);
             } else {
                 group.forEach((app, idx) => {
-                    const width = 98 / group.length; 
+                    const width = 98 / group.length;
                     const left = idx * width;
                     renderSingleAppointment(columnEl, app, SLOT_HEIGHT, OFFSET_TOP, width, left);
                 });
@@ -295,14 +295,14 @@ function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, le
     const startTime = new Date(app.start_at);
     const duration = app.duration || 60;
     const endTime = new Date(startTime.getTime() + duration * 60000);
-    
+
     const top = (startTime.getHours() * slotHeight) + (startTime.getMinutes() * (slotHeight / 60)) + offsetTop;
     const height = (duration * (slotHeight / 60));
 
     const appEl = document.createElement('div');
     appEl.className = `timeline__appointment is-${app.status} js-open-appointment-detail`;
     appEl.dataset.appointments = JSON.stringify([app]);
-    
+
     appEl.style.top = `${top}px`;
     appEl.style.height = `${height}px`;
     appEl.style.left = `${left}%`;
@@ -320,7 +320,7 @@ function renderSingleAppointment(columnEl, app, slotHeight, offsetTop, width, le
             <span>${serviceName}</span>
         </div>
     `;
-    
+
     columnEl.appendChild(appEl);
 }
 
@@ -333,24 +333,24 @@ function renderSummaryBlock(columnEl, group, slotHeight, offsetTop) {
 
     const minStart = new Date(Math.min(...times.map(t => t.start)));
     const maxEnd = new Date(Math.max(...times.map(t => t.end)));
-    
+
     const top = (minStart.getHours() * slotHeight) + (minStart.getMinutes() * (slotHeight / 60)) + offsetTop;
-    
+
     const durationMinutes = (maxEnd - minStart) / 60000;
     const height = durationMinutes * (slotHeight / 60);
 
     const appEl = document.createElement('div');
     appEl.className = `timeline__appointment is-multiple js-open-appointment-detail`;
     appEl.dataset.appointments = JSON.stringify(group);
-    
+
     appEl.style.top = `${top}px`;
     appEl.style.height = `${height}px`;
-    appEl.style.minHeight = `40px`; 
+    appEl.style.minHeight = `40px`;
 
     appEl.innerHTML = `
         <i class="fa-solid fa-layer-group"></i>
         <span>${group.length} Appointments</span>
     `;
-    
+
     columnEl.appendChild(appEl);
 }

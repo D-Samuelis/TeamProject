@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Branch;
 
+use App\Application\DTO\BranchSearchDTO;
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Branch\Enums\BranchRoleEnum;
@@ -21,7 +22,62 @@ class BranchRepository implements BranchRepositoryInterface
         return Branch::query()->where('is_active', true)->whereHas('business', fn($q) => $q->where('is_published', true))->findOrFail($id);
     }
 
-    public function search(SearchDTO $dto)
+    public function search(BranchSearchDTO $dto, User $user)
+    {
+        $query = Branch::query()->with(['business', 'services']);
+
+        if (!$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('business.users', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('users', fn($q) => $q->where('user_id', $user->id));
+            });
+        }
+
+        if ($dto->statuses) {
+            $query->where(function ($q) use ($dto) {
+                if (in_array('deleted', $dto->statuses)) {
+                    $q->orWhereNotNull('deleted_at');
+                }
+                if (in_array('active', $dto->statuses)) {
+                    $q->orWhere('is_active', true);
+                }
+                if (in_array('inactive', $dto->statuses)) {
+                    $q->orWhere('is_active', false);
+                }
+            });
+        }
+
+        if ($dto->branchName) {
+            $query->where('name', 'like', '%' . $dto->branchName . '%');
+        }
+
+        if ($dto->branchName) {
+            $query->where('city', 'like', '%' . $dto->city . '%');
+        }
+
+        if ($dto->country) {
+            $query->where('country', 'like', '%' . $dto->country . '%');
+        }
+
+        if ($dto->address) {
+            $query->where(function ($q) use ($dto) {
+                $q->where('address_line_1', 'like', '%' . $dto->address . '%')
+                    ->orWhere('address_line_2', 'like', '%' . $dto->address . '%');
+            });
+        }
+
+        if ($dto->businessId) {
+            $query->where('business_id', $dto->businessId);
+        }
+
+        if ($dto->types) {
+            $query->whereIn('type', $dto->types);
+        }
+
+        return $query->latest()->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function publicSearch(SearchDTO $dto)
     {
         $query = Branch::query()
             ->where('is_active', true)

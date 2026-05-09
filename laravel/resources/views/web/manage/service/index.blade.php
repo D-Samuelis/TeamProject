@@ -6,11 +6,20 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'services'])
+
+        <section class="service__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.service.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">
         <x-ui.breadcrumbs />
-        
+
         <main class="business__main">
             <header class="business__header-wrapper business__header-wrapper--simple">
                 <div class="business__header-corner"></div>
@@ -53,6 +62,9 @@
             <div class="business__body-wrapper">
                 <div id="serviceTableContainer" class="list-view__body-wrapper"></div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
+
         </main>
         @include('components.ui.toolbar')
     </div>
@@ -70,6 +82,7 @@
         'services'   => $services->merge($deletedServices ?? []),
         'businesses' => $businesses->map(fn($b) => ['id' => $b->id, 'name' => $b->name])->values(),
         'branches'   => $branches->map(fn($b) => ['id' => $b->id, 'name' => $b->name, 'city' => $b->city, 'business_id' => $b->business_id])->values(),
+        'meta' => $meta,
         'categories' => $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values(),
         'routes'     => [
             'store'   => route('manage.service.store'),

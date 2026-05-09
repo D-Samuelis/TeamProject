@@ -9,11 +9,14 @@ use App\Application\Appointment\UseCases\ListAppointments;
 use App\Application\Appointment\UseCases\DeleteAppointment;
 use App\Application\Appointment\UseCases\RescheduleAppointment;
 use App\Application\Appointment\UseCases\UpdateAppointment;
+use App\Application\DTO\AppointmentSearchDTO;
 use App\Domain\Appointment\Interfaces\AppointmentRepositoryInterface;
 use App\Http\Requests\Appointment\RescheduleAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
+use App\Models\Auth\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appointment\GetSlotsRequest;
@@ -30,12 +33,34 @@ class AppointmentController extends Controller
         private readonly CreateAppointment $createAppointment,
     ) {}
 
-    public function index(ListAppointments $listAppointments)
+    public function index(Request $request, ListAppointments $listAppointments): mixed
     {
         $user = Auth::user();
+        $dto = AppointmentSearchDTO::fromArray($request->query());
+        $paginator = $listAppointments->execute($dto, $user);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page'    => $paginator->lastPage(),
+                    'per_page'     => $paginator->perPage(),
+                    'total'        => $paginator->total(),
+                ],
+                'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
+            ]);
+        }
 
         return view('web.customer.appointment.index', [
-            'appointments'   => $listAppointments->execute([], $user),
+            'appointments' => $paginator->getCollection(),
+            'meta'         => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+            'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
         ]);
     }
 

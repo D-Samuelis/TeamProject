@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Web\Asset;
 
 use App\Application\Asset\UseCases\RestoreAsset;
+use App\Application\DTO\AssetSearchDTO;
+use App\Application\DTO\BranchSearchDTO;
+use App\Application\DTO\ServiceSearchDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Asset\StoreAssetRequest;
 use App\Http\Requests\Asset\UpdateAssetRequest;
@@ -19,27 +22,32 @@ use App\Application\Service\UseCases\ListServices;
 use App\Application\Service\UseCases\GetService;
 use App\Domain\Asset\Interfaces\AssetRepositoryInterface;
 use App\Models\Auth\User;
+use App\Models\Business\Service;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AssetController extends Controller
 {
-    public function index(ListAssets $listAssets, ListBranches $listBranches, ListServices $listServices)
+    public function index(Request $request, ListAssets $listAssets, ListBranches $listBranches, ListServices $listServices)
     {
         $user = Auth::user();
+        $dto = AssetSearchDTO::fromArray($request->query());
+
         [$branches, $services] = $this->getAssociatedBranchesAndServices($user, $listBranches, $listServices);
 
-        $assets = $listAssets->execute(['with_trashed' => true], $user);
-
-        if ($assets instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            $assets->getCollection()->load(['rules', 'branch', 'services.branches']);
-        } else {
-            $assets->load(['rules', 'branch', 'services.branches']);
-        }
+        $paginator = $listAssets->execute($dto, $user);
 
         return view('web.manage.asset.index', [
-            'assets'   => $assets,
+            'assets'   => $paginator->getCollection()->load(['rules', 'branch', 'services.branches']),
             'branches' => $branches,
             'services' => $services,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+            'selectedService' => $request->service_id ? Service::find((int) $request->service_id, ['id', 'name']) : null,
         ]);
     }
 
@@ -116,8 +124,8 @@ class AssetController extends Controller
         ListBranches $listBranches,
         ListServices $listServices
     ): array {
-        $branches = $listBranches->execute($user);
-        $services = $listServices->execute($user);
+        $branches = $listBranches->execute(BranchSearchDTO::fromArray([]), $user);
+        $services = $listServices->execute(ServiceSearchDTO::fromArray([]), $user);
 
         if (! $user->isAdmin()) {
             $user->loadMissing(['branches', 'services']);

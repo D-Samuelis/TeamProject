@@ -1,11 +1,12 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { initPaginator } from "../../components/displays/paginator.js";
 
 let sorter = null;
 let renderer = null;
 let originalData = [];
 
-export function initAssetListView(data = []) {
+export function initAssetListView(data = [], meta = {}) {
     const container = document.getElementById('assetTableContainer');
     if (!container) return;
 
@@ -17,7 +18,7 @@ export function initAssetListView(data = []) {
         searchId: '#assetSearchInput',
         rowClass: 'asset-table__row',
         columns: [
-            { 
+            {
                 label: 'Asset Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
@@ -25,18 +26,18 @@ export function initAssetListView(data = []) {
                         ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red); margin-left: 8px;">Archived</span>' : ''}
                     </div>`
             },
-            { 
+            {
                 label: 'Description', key: 'description', sortable: false, searchable: true,
                 render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
             },
-            { 
-                label: 'Connections', 
-                key: 'id', 
+            {
+                label: 'Connections',
+                key: 'id',
                 sortable: false,
                 render: (val, item) => {
                     const sCount = item.services?.length || 0;
                     const serviceLabel = sCount === 1 ? 'Service' : 'Services';
-                    
+
                     return `
                         <div class="stat-badge-group js-open-connections" data-id="${item.id}" style="cursor:pointer; display: flex; gap: 6px;">
                             <div class="stat-badge stat-badge--service" title="${item.branch ? item.branch.name : 'No Branch'}">
@@ -46,9 +47,9 @@ export function initAssetListView(data = []) {
                         </div>`;
                 }
             },
-            { 
-                label: 'Rules', 
-                key: 'rules', 
+            {
+                label: 'Rules',
+                key: 'rules',
                 sortable: false,
                 render: (val, item) => {
                     const rules = item.rules || [];
@@ -96,10 +97,10 @@ export function initAssetListView(data = []) {
                     <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </a>
-                    
-                    <button 
-                        type="button" 
-                        class="button-icon button-icon--danger js-archive-asset-btn" 
+
+                    <button
+                        type="button"
+                        class="button-icon button-icon--danger js-archive-asset-btn"
                         title="Delete Asset"
                         data-modal-target="archive-asset-modal"
                         data-id="${item.id}"
@@ -114,7 +115,7 @@ export function initAssetListView(data = []) {
     };
 
     renderer = new TableRenderer(tableConfig);
-    
+
     sorter = new TableSorter(originalData, 'name', 'asc', (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
@@ -135,6 +136,12 @@ export function initAssetListView(data = []) {
 
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
+    });
+
+    initPaginator(meta, (page) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
     });
 }
 

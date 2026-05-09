@@ -5,6 +5,7 @@ namespace App\Mcp\Tools\Asset;
 use App\Application\Asset\UseCases\ListAssets;
 use App\Application\Appointment\UseCases\GetAvailableSlots;
 use App\Application\Appointment\DTO\GetSlotsDTO;
+use App\Application\DTO\AssetSearchDTO;
 use Carbon\Carbon;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\ValidationException;
@@ -65,15 +66,16 @@ class ListAssetsTool extends Tool
                 'to'          => 'nullable|date|required_with:service_id,from',
             ]);
 
+
+            $dto = AssetSearchDTO::fromArray([
+                $validated['per_page'] ?? 10,
+                $validated['page'] ?? 1
+            ]);
+
             $assets = $this->listAssets->execute(
-                filters: [
-                    'target'      => 'asset',
-                    'business_id' => $validated['business_id'] ?? null,
-                    'per_page'    => $validated['per_page'] ?? 10,
-                    'page'        => $validated['page'] ?? 1,
-                ],
+                dto: $dto,
                 user: null,
-            );
+            )->getCollection();
 
             $serviceId = $validated['service_id'] ?? null;
             $from      = isset($validated['from']) ? Carbon::parse($validated['from']) : null;

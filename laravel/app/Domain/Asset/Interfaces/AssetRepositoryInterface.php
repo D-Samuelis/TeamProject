@@ -2,6 +2,7 @@
 
 namespace App\Domain\Asset\Interfaces;
 
+use App\Application\DTO\AssetSearchDTO;
 use App\Application\DTO\SearchDTO;
 use App\Models\Auth\User;
 use Illuminate\Support\Collection;
@@ -14,7 +15,9 @@ interface AssetRepositoryInterface
 
     public function save(array $data): Asset;
 
-    public function search(SearchDTO $dto, ?User $user = null);
+    public function search(AssetSearchDTO $dto, ?User $user = null);
+
+    public function publicSearch(SearchDTO $dto, ?User $user = null);
 
     public function attachBranches(Asset $Asset, array $branchIds): void;
 
