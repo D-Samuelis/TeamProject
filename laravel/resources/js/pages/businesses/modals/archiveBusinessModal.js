@@ -56,7 +56,7 @@ export function initArchiveBusinessModal() {
                     sessionStorage.setItem(
                         "pending_toast",
                         JSON.stringify({
-                            type: "success",
+                            type: "warning",
                             title: "Business archived",
                             message:
                                 "It can be restored before the expiry date.",
