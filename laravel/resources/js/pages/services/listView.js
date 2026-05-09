@@ -304,6 +304,87 @@ function applyFilters() {
     });
 }
 
+// ── Action handlers ─────────────────────────────────────────────────────────
+
+async function handleRestore(btn) {
+    const id = btn.dataset.id;
+    btn.disabled = true;
+
+    try {
+        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({ _method: "PATCH" }),
+        });
+
+        const record = originalData.find((s) => String(s.id) === String(id));
+        if (record) record.deleted_at = null;
+
+        Toast.success(
+            "Service restored",
+            "The service has been moved out of archives.",
+        );
+        rerender();
+    } catch (err) {
+        Toast.error("Restore failed", err.message);
+        btn.disabled = false;
+    }
+}
+
+async function handleToggleActive(btn) {
+    const id = btn.dataset.id;
+    const nextStatus = Number(btn.dataset.next);
+
+    const record = originalData.find((s) => String(s.id) === String(id));
+    if (!record) return;
+
+    btn.disabled = true;
+
+    try {
+        const businessId = record.business_id || record.business?.id;
+
+        await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({
+                _method: "PUT",
+                is_active: nextStatus,
+                business_id: businessId,
+            }),
+        });
+
+        record.is_active = nextStatus;
+        Toast.success(
+            "Status updated",
+            `Service is now ${nextStatus ? "active" : "inactive"}.`,
+        );
+        rerender();
+    } catch (err) {
+        Toast.error("Update failed", err.message);
+        btn.disabled = false;
+    }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function rerender() {
+    updateCounts(originalData);
+    sorter.setData(applyFilters());
+
+    const container = document.getElementById("serviceTableContainer");
+    if (container) renderer.render(container, sorter.getSortedData(), sorter);
+}
+
+function applyFilters() {
+    if (!activeFilters) {
+        return originalData.filter((s) => !s.deleted_at);
+    }
+
+    return originalData.filter((item) => {
+        if (item.deleted_at) return activeFilters.archived;
+        if (item.is_active) return activeFilters.active;
+        return activeFilters.inactive;
+    });
+}
+
 function updateCounts(data) {
     const stats = {
         all: data.length,
