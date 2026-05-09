@@ -184,9 +184,11 @@ function renderButtons(buttons) {
                             `<input type="hidden" name="${f.name}" value="${f.value}">`,
                     )
                     .join("");
-                return `<form action="${action.action}" method="POST" style="display:inline;">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
-                    </form>`;
+
+                // Add class="js-toolbar-form" here
+                return `<form action="${action.action}" method="POST" class="js-toolbar-form" style="display:inline;">
+                <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
+            </form>`;
             }
             return btnHtml;
         })
@@ -245,4 +247,44 @@ function rebindEvents(tplStatus) {
         },
         { once: true },
     );
+
+    document.querySelectorAll(".js-toolbar-form").forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault(); // This stops the raw JSON from appearing
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true; // Prevent double-clicks
+
+            try {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        Accept: "application/json",
+                    },
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Business Restored",
+                            message: result.message || "The business has been successfully restored.",
+                        }),
+                    );
+                    window.location.reload();
+                } else {
+                    alert(result.message || "Something went wrong");
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Action failed", error);
+                submitBtn.disabled = false;
+            }
+        });
+    });
 }

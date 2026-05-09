@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Service;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 use App\Http\Requests\Service\StoreServiceRequest;
 use App\Http\Requests\Service\UpdateServiceRequest;
@@ -28,7 +29,7 @@ use App\Models\Auth\User;
 use App\Models\Business\Category;
 use App\Models\Business\Service;
 use App\Notifications\CategoryRequestedNotification;
-use Illuminate\Support\Facades\Request;
+
 
 class ManageServiceController extends Controller
 {
@@ -36,7 +37,7 @@ class ManageServiceController extends Controller
     {
         return view('web.manage.service.index', [
             'services'   => $listServices->execute(Auth::user(), scope: 'all'),
-            'services'   => $listServices->execute(Auth::user(), scope: 'all'),
+            'deletedServices' => $listServices->execute(Auth::user(), scope: 'deleted'),
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
             'categories' => Category::orderBy('name', 'asc')->get(),
@@ -48,7 +49,6 @@ class ManageServiceController extends Controller
         $service = $getService->execute($serviceId, Auth::user());
         return view('web.manage.service.show', [
             'service'    => $service,
-            'service'    => $service,
             'businesses' => $listBusinesses->execute(Auth::user()),
             'branches' => $listBranches->execute(Auth::user()),
             'categories' => Category::orderBy('name', 'asc')->get(),
@@ -59,13 +59,37 @@ class ManageServiceController extends Controller
     {
         $service = $useCase->execute(StoreServiceDTO::fromRequest($request), Auth::user());
         return response()->json(['message' => "Service '{$service->name}' created successfully.", 'data' => $service], 201);
-        return response()->json(['message' => "Service '{$service->name}' created successfully.", 'data' => $service], 201);
     }
 
     public function update(int $serviceId, UpdateServiceRequest $request, UpdateService $useCase)
     {
         $service = $useCase->execute(UpdateServiceDTO::fromRequest($serviceId, $request), Auth::user());
         return response()->json(['message' => "Service '{$service->name}' updated successfully.", 'data' => $service]);
+    }
+
+    public function delete(int $serviceId, Request $request, DeleteService $useCase)
+    {
+        $expiresAt = $request->input('delete_at_timestamp');
+        $useCase->execute($serviceId, Auth::user());
+        return response()->json(['message' => 'Service archived successfully.', 'data' => $serviceId]);
+    }
+
+    public function restore(int $serviceId, RestoreService $useCase)
+    {
+        $service = $useCase->execute($serviceId, Auth::user());
+        return response()->json(['message' => 'Service restored successfully.', 'data' => $service]);
+    }
+
+    public function assign(int $serviceId, int $branchId, AssignServiceToBranch $useCase)
+    {
+        $useCase->execute($serviceId, $branchId, Auth::user());
+        return response()->json(['message' => 'Service assigned to branch successfully.', 'data' => $serviceId]);
+    }
+
+    public function unassign(int $serviceId, int $branchId, UnassignServiceFromBranch $useCase)
+    {
+        $useCase->execute($serviceId, $branchId, Auth::user());
+        return response()->json(['message' => 'Service removed from branch successfully.', 'data' => $serviceId]);
     }
 
     public function requestCategory(Request $request)
@@ -91,30 +115,6 @@ class ManageServiceController extends Controller
                 $validated['business_id'] ?? null
             )));
 
-        return back()->with('success', 'Category request was sent to admin.');
-    }
-
-    public function delete(int $serviceId, DeleteService $useCase)
-    {
-        $useCase->execute($serviceId, Auth::user());
-        return response()->json(['message' => 'Service deleted successfully.', 'data' => $serviceId]);
-    }
-
-    public function restore(int $serviceId, RestoreService $useCase)
-    {
-        $service = $useCase->execute($serviceId, Auth::user());
-        return response()->json(['message' => 'Service restored successfully.', 'data' => $service]);
-    }
-
-    public function assign(int $serviceId, int $branchId, AssignServiceToBranch $useCase)
-    {
-        $useCase->execute($serviceId, $branchId, Auth::user());
-        return response()->json(['message' => 'Service assigned to branch successfully.', 'data' => $serviceId]);
-    }
-
-    public function unassign(int $serviceId, int $branchId, UnassignServiceFromBranch $useCase)
-    {
-        $useCase->execute($serviceId, $branchId, Auth::user());
-        return response()->json(['message' => 'Service removed from branch successfully.', 'data' => $serviceId]);
+        return response()->json(['message' => 'Category request was sent to admin.']);
     }
 }

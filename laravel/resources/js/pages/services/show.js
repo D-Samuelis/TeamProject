@@ -1,34 +1,41 @@
-import { initCollapsibleList } from '../../components/miniLists/miniList.js';
-import { initEditServiceModal } from './modals/editServiceModal.js';
+import { initCollapsibleList } from "../../components/miniLists/miniList.js";
+import { initEditServiceModal } from "./modals/editServiceModal.js";
 
 export function initServiceShowPage() {
-    const page = document.querySelector('.service-settings-page');
+    const page = document.querySelector(".service-settings-page");
     if (!page) return;
 
-    initCollapsibleList('serviceInfo');
-    initCollapsibleList('serviceConnections');
+    const pendingToast = sessionStorage.getItem("pending_toast");
+    if (pendingToast) {
+        sessionStorage.removeItem("pending_toast");
+        const { type, title, message } = JSON.parse(pendingToast);
+        Toast[type]?.(title, message);
+    }
+
+    initCollapsibleList("serviceInfo");
+    initCollapsibleList("serviceConnections");
 
     initServiceViewToggle();
     initEditServiceModal();
 }
 
 function initServiceViewToggle() {
-    const coreBtn = document.getElementById('showServiceCore');
-    const branchesBtn = document.getElementById('showServiceBranches');
-    const coreView = document.getElementById('serviceCoreView');
-    const branchesView = document.getElementById('serviceBranchesView');
+    const coreBtn = document.getElementById("showServiceCore");
+    const branchesBtn = document.getElementById("showServiceBranches");
+    const coreView = document.getElementById("serviceCoreView");
+    const branchesView = document.getElementById("serviceBranchesView");
 
     if (!coreBtn || !branchesBtn || !coreView || !branchesView) return;
 
     const activate = (view) => {
-        const showCore = view === 'core';
+        const showCore = view === "core";
 
-        coreBtn.classList.toggle('active', showCore);
-        branchesBtn.classList.toggle('active', !showCore);
-        coreView.classList.toggle('hidden', !showCore);
-        branchesView.classList.toggle('hidden', showCore);
+        coreBtn.classList.toggle("active", showCore);
+        branchesBtn.classList.toggle("active", !showCore);
+        coreView.classList.toggle("hidden", !showCore);
+        branchesView.classList.toggle("hidden", showCore);
     };
 
-    coreBtn.addEventListener('click', () => activate('core'));
-    branchesBtn.addEventListener('click', () => activate('branches'));
+    coreBtn.addEventListener("click", () => activate("core"));
+    branchesBtn.addEventListener("click", () => activate("branches"));
 }

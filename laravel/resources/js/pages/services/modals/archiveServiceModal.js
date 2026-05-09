@@ -1,15 +1,26 @@
-import { Modal } from '../../../components/displays/modal.js';
-import { getFutureDateData } from '../../../utils/date.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { getFutureDateData } from "../../../utils/date.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initArchiveServiceModal() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-target="archive-service-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="archive-service-modal"]',
+        );
         if (!btn) return;
 
         e.preventDefault();
 
-        const id = btn.dataset.id || window.BE_DATA.service?.id;
-        const name = btn.dataset.name || window.BE_DATA.service?.name || 'this service';
+        const serviceData = window.BE_DATA.service || {};
+
+        const id = btn.dataset.id || serviceData.id;
+        const name = btn.dataset.name || serviceData.name || "this service";
+
+        const businessId =
+            btn.dataset.business_id ||
+            serviceData.business_id ||
+            serviceData.business?.id;
 
         if (!id) {
             console.error("No service ID found for archiving");
@@ -17,9 +28,9 @@ export function initArchiveServiceModal() {
         }
 
         Modal.showCustom({
-            title: 'Archive Service',
-            confirmText: 'Archive Service',
-            action: 'warning',
+            title: "Archive Service",
+            confirmText: "Archive Service",
+            action: "warning",
             body: `
                 <div class="modal-confirm-content">
                     <p>Are you sure you want to archive service <strong>${name}</strong>?</p>
@@ -38,43 +49,41 @@ export function initArchiveServiceModal() {
                 </div>
             `,
             onConfirm: async (modal) => {
-                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-                const expiryTimestamp = modal.querySelector('#archive-expiry-select-service').value;
-                
-                const url = window.BE_DATA.routes.delete.replace(':id', id);
+                const submitBtn = modal.querySelector(
+                    '[data-modal-action="confirm"]',
+                );
+                const expiryTimestamp = modal.querySelector(
+                    "#archive-expiry-select-service",
+                ).value;
+                const url = window.BE_DATA.routes.delete.replace(":id", id);
 
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': window.BE_DATA.csrf
-                        },
+                    await apiFetch(url, {
+                        method: "POST",
                         body: JSON.stringify({
-                            _token: window.BE_DATA.csrf,
-                            _method: 'DELETE',
-                            delete_at_timestamp: expiryTimestamp 
+                            _method: "DELETE",
+                            delete_at_timestamp: expiryTimestamp,
+                            business_id: businessId,
                         }),
                     });
 
-                    if (res.ok) {
-                        window.location.reload();
-                    } else {
-                        const errorData = await res.json();
-                        console.error("Server error:", errorData);
-                        alert(errorData.message || 'Error archiving service.');
-                        if (submitBtn) submitBtn.disabled = false;
-                    }
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "warning",
+                            title: "Service archived",
+                            message:
+                                "It can be restored before the expiry date.",
+                        }),
+                    );
+                    window.location.reload();
                 } catch (err) {
-                    console.error("Network error:", err);
-                    alert('An unexpected network error occurred.');
+                    Toast.error("Archive failed", err.message);
                     if (submitBtn) submitBtn.disabled = false;
                 }
-            }
+            },
         });
     });
 }
