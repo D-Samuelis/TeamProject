@@ -25,7 +25,7 @@ class RegisterRequest extends FormRequest
             'birth_date' => 'nullable|date',
             'title_suffix' => 'nullable|string|max:50',
             'phone_number' => 'nullable|string|max:20',
-            'gender' => 'nullable|string|in:male,female,other, none',
+            'gender' => 'nullable|string|in:male,female,other,none',
         ];
     }
 }
