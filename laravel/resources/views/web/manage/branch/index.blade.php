@@ -13,7 +13,7 @@
             store: "{{ route('manage.branch.store') }}",
             show: "{{ route('manage.branch.show', ':id') }}",
             update: "{{ route('manage.branch.update', ':id') }}",
-            delete: "{{ route('manage.branch.delete', ':id') }}",
+            branchDelete: "{{ route('manage.branch.delete', ':id') }}",
             restore: "{{ route('manage.branch.restore', ':id') }}"
         },
         toolbar: {
@@ -62,7 +62,7 @@
                         </div>
                         <div class="stat-item stat-item--published">
                             <i class="fa-solid fa-circle-check"></i>
-                            <div id="countPublished">{{ $branches->where('is_active', true)->count() }}</div> Active
+                            <div id="countActive">{{ $branches->where('is_active', true)->count() }}</div> Active
                         </div>
                         <div class="stat-item stat-item--deleted">
                             <i class="fa-solid fa-trash"></i>

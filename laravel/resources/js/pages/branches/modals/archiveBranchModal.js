@@ -1,44 +1,83 @@
-import { Modal } from '../../../components/displays/modal.js';
-import { getFutureDateData } from '../../../utils/date.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { getFutureDateData } from "../../../utils/date.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initArchiveBranchModal() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.js-archive-branch-btn') || e.target.closest('[data-modal-target="archive-branch-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="archive-branch-modal"]',
+        );
         if (!btn) return;
 
-        const branchId = btn.dataset.id || window.BE_DATA?.branch?.id;
-        const branchName = btn.dataset.name || window.BE_DATA?.branch?.name || 'this branch';
+        e.preventDefault();
+
+        const { id, name } = btn.dataset;
+
+        if (!id) {
+            console.error("No branch ID found for archiving");
+            return;
+        }
 
         Modal.showCustom({
-            title: 'Archive Branch',
-            confirmText: 'Archive',
-            action: 'warning',
+            title: "Archive Branch",
+            confirmText: "Archive Branch",
+            action: "warning",
             body: `
                 <div class="modal-confirm-content">
-                    <p>Are you sure you want to archive <strong>${branchName}</strong>?</p>
-                    <div style="margin-top: 1rem;" class="text-muted small">
-                        Pobočka bude označená ako archivovaná. Vyberte dobu, po ktorej sa definitívne zmaže:
-                        <select id="archive-expiry-select" class="form-select-inline" style="margin-left: 5px;">
-                            <option value="${getFutureDateData(7).timestamp}">1 týždeň</option>
-                            <option value="${getFutureDateData(30).timestamp}">1 mesiac</option>
-                        </select>
+                    <p>Are you sure you want to archive branch <strong>${name || "this branch"}</strong>?</p>
+                    
+                    <div class="archive-expiry-wrapper text-muted small" style="margin-top: 1.5rem;">
+                        <span>This branch will be marked as archived and automatically deleted in</span>
+
+                        <select id="archive-expiry-select-branch" class="form-select-inline" style="margin: 0 4px; padding: 2px 5px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="${getFutureDateData(1).timestamp}">1 Day [${getFutureDateData(1).display}]</option>
+                            <option value="${getFutureDateData(7).timestamp}" selected>1 Week [${getFutureDateData(7).display}]</option>
+                            <option value="${getFutureDateData(30).timestamp}">1 Month [${getFutureDateData(30).display}]</option>
+                        </select> 
+
+                        <span>if not restored in time.</span>
                     </div>
                 </div>
             `,
             onConfirm: async (modal) => {
-                const url = window.BE_DATA.routes.delete.replace(':id', branchId);
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': window.BE_DATA.csrf,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ _method: 'DELETE' })
-                });
+                const submitBtn = modal.querySelector(
+                    '[data-modal-action="confirm"]',
+                );
+                const expiryTimestamp = modal.querySelector(
+                    "#archive-expiry-select-branch",
+                ).value;
+                const url = window.BE_DATA.routes.branchDelete.replace(
+                    ":id",
+                    id,
+                );
 
-                if (res.ok) window.location.reload();
-            }
+                if (submitBtn) submitBtn.disabled = true;
+
+                try {
+                    await apiFetch(url, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            _method: "DELETE",
+                            delete_at: expiryTimestamp,
+                        }),
+                    });
+
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Branch archived",
+                            message:
+                                "It can be restored before the expiry date.",
+                        }),
+                    );
+                    window.location.reload();
+                } catch (err) {
+                    Toast.error("Archive failed", err.message);
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            },
         });
     });
 }
