@@ -13,6 +13,13 @@ use App\Application\DTO\SearchDTO;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 
+use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Service\Enums\ServiceRoleEnum;
+
 class ServiceRepository implements ServiceRepositoryInterface
 {
     /**
@@ -24,11 +31,18 @@ class ServiceRepository implements ServiceRepositoryInterface
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true))
             ->with(['assets' => fn($q) => $q->where('is_active', true)])
+        return Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true))
+            ->with(['assets' => fn($q) => $q->where('is_active', true)])
             ->findOrFail($id);
     }
 
     public function search(SearchDTO $dto)
     {
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
         $query = Service::query()
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
@@ -66,6 +80,8 @@ class ServiceRepository implements ServiceRepositoryInterface
             'deleted' => $query->onlyTrashed(),
             'all'     => $query->withTrashed(),
             default   => $query,
+            'all'     => $query->withTrashed(),
+            default   => $query,
         };
 
         return $query
@@ -87,7 +103,14 @@ class ServiceRepository implements ServiceRepositoryInterface
             ->where('business_id', $businessId)
             ->firstOrFail();
     }
+        return Service::where('id', $serviceId)
+            ->where('business_id', $businessId)
+            ->firstOrFail();
+    }
 
+    /**
+     * DATA PERSISTENCE
+     */
     /**
      * DATA PERSISTENCE
      */
@@ -116,9 +139,21 @@ class ServiceRepository implements ServiceRepositoryInterface
         return $service;
     }
 
+    public function update(Service $service, array $data): Service
+    {
+        if (isset($data['branch_ids'])) {
+            $service->branches()->sync($data['branch_ids']);
+            unset($data['branch_ids']);
+        }
+
+        $service->update($data);
+        return $service;
+    }
+
     public function delete(Service $service): void
     {
         $service->update([
+            'is_active'    => false,
             'is_active'    => false,
             'delete_after' => now()->addDays(7),
         ]);
@@ -126,15 +161,21 @@ class ServiceRepository implements ServiceRepositoryInterface
     }
 
     public function restore(Service $service): Service
+    public function restore(Service $service): Service
     {
         $service->update([
             'delete_after' => null,
             'is_active'    => true,
+            'is_active'    => true,
         ]);
         $service->restore();
         return $service;
+        return $service;
     }
 
+    /**
+     * RELATIONSHIPS
+     */
     /**
      * RELATIONSHIPS
      */
@@ -155,6 +196,9 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function count(SearchDTO $dto): int
     {
+        $query = Service::query()
+            ->where('is_active', true)
+            ->whereHas('business', fn($q) => $q->where('is_published', true));
         $query = Service::query()
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));
