@@ -7,7 +7,7 @@ import { apiFetch } from "../../utils/apiFetch.js";
 let sorter = null;
 let renderer = null;
 let originalData = [];
-let activeFilters = null; // tracks current filter state so rerender() respects it
+let activeFilters = null;
 
 export function initBusinessListView(data = [], meta = {}) {
     const container = document.getElementById('businessTableContainer');
@@ -217,7 +217,7 @@ async function handleTogglePublish(btn) {
         const msg = nextStatus
             ? "Business is now published."
             : "Business is now hidden.";
-        Toast.success("Status updated", msg);
+        Toast.warning("Business status changed", msg);
         rerender();
     } catch (err) {
         Toast.error("Failed to update status", err.message);
