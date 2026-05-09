@@ -62,20 +62,46 @@ class UserController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        abort_unless(Auth::user()->isAdmin(), 403);
-
         $query = $request->query('q', '');
 
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $users = User::query()
-            ->where('email', 'like', "%{$query}%")
-            ->orWhere('name', 'like', "%{$query}%")
-            ->limit(8)
-            ->get(['id', 'name', 'email']);
+        $user = Auth::user();
 
-        return response()->json($users);
+        $scope = $this->buildSearchScope($user);
+
+        return $scope
+            ->where(fn (Builder $q) =>
+            $q->where('name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%")
+            )
+            ->limit(8)
+            ->get(['id', 'name', 'email'])
+            ->pipe(fn ($results) => response()->json($results));
+    }
+
+    private function buildSearchScope(User $user): Builder
+    {
+        if ($user->isAdmin()) {
+            return User::query();
+        }
+
+        $businessIds = $user->businesses()->pluck('businesses.id');
+        $branchIds   = $user->branches()->pluck('branches.id');
+        $serviceIds  = $user->services()->pluck('services.id');
+
+        abort_if($businessIds->isEmpty() && $branchIds->isEmpty() && $serviceIds->isEmpty(), 403);
+
+        $allBranchIds  = Branch::whereIn('business_id', $businessIds)->pluck('id')
+            ->merge($branchIds)->unique();
+        $allServiceIds = Service::whereIn('branch_id', $allBranchIds)->pluck('id')
+            ->merge($serviceIds)->unique();
+
+        return User::query()
+            ->whereHas('appointments', fn (Builder $q) =>
+            $q->whereIn('service_id', $allServiceIds)
+            );
     }
 }

@@ -1,5 +1,5 @@
 <div class="filter-sidebar">
-    <form action="{{ route('myAppointments') }}" method="GET" class="filter-form">
+    <form action="{{ $form_action }}" method="GET" class="filter-form">
 
         <div class="filter-group">
             <label for="service_name">Service Name</label>
@@ -74,7 +74,7 @@
             >
         </div>
 
-        @if(auth()->user()->isAdmin())
+        @if($show_user_filter)
             <div class="filter-group">
                 <label>Filter by User</label>
 
@@ -113,7 +113,7 @@
 
         <div class="filter-actions">
             <button type="submit" class="btn-primary">Apply Filters</button>
-            <a href="{{ route('myAppointments') }}" class="btn-reset">Reset Filters</a>
+            <a href="{{ $form_action }}" class="btn-reset">Reset Filters</a>
         </div>
 
     </form>

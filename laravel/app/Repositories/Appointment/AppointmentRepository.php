@@ -32,17 +32,13 @@ class AppointmentRepository implements AppointmentRepositoryInterface
         return Appointment::find($id);
     }
 
-    public function search(AppointmentSearchDTO $dto, ?User $user = null)
+    public function assocSearch(AppointmentSearchDTO $dto, ?User $user = null)
     {
         $query = Appointment::query()
             ->with(['user', 'service', 'asset.branch.business']);
 
-        if ($user && !$user->isAdmin()) {
+        if ($user) {
             $query->where('user_id', $user->id);
-        }
-
-        if ($user?->isAdmin() && $dto->userId) {
-            $query->where('user_id', $dto->userId);
         }
 
         if ($dto->dateFrom) {
@@ -63,6 +59,88 @@ class AppointmentRepository implements AppointmentRepositoryInterface
             $query->whereIn('status', $dto->statuses);
         }
 
+        if ($dto->durationMin !== null) {
+            $query->where('duration', '>=', $dto->durationMin);
+        }
+        if ($dto->durationMax !== null) {
+            $query->where('duration', '<=', $dto->durationMax);
+        }
+
+        $needsServiceJoin = $dto->serviceName || $dto->priceMin !== null || $dto->priceMax !== null;
+
+        if ($needsServiceJoin) {
+            $query->whereHas('service', function ($q) use ($dto) {
+                if ($dto->serviceName) {
+                    $q->where('name', 'like', '%' . $dto->serviceName . '%');
+                }
+                if ($dto->priceMin !== null) {
+                    $q->where('price', '>=', $dto->priceMin);
+                }
+                if ($dto->priceMax !== null) {
+                    $q->where('price', '<=', $dto->priceMax);
+                }
+            });
+        }
+
+        return $query
+            ->orderBy('date', 'desc')
+            ->orderBy('start_at', 'desc')
+            ->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function search(AppointmentSearchDTO $dto, ?User $user = null)
+    {
+        $query = Appointment::query()
+            ->with(['user', 'service', 'asset.branch.business']);
+
+        if ($user && !$user->isAdmin()) {
+            // Resolve all service IDs this user is associated to
+            $businessIds = $user->businesses()->pluck('businesses.id');
+            $branchIds   = $user->branches()->pluck('branches.id');
+            $serviceIds  = $user->services()->pluck('services.id');
+
+            // Expand businesses → branches → services
+            $allBranchIds = \App\Models\Business\Branch::whereIn('business_id', $businessIds)
+                ->pluck('id')
+                ->merge($branchIds)
+                ->unique();
+
+            $allServiceIds = \App\Models\Business\Service::whereIn('branch_id', $allBranchIds)
+                ->pluck('id')
+                ->merge($serviceIds)
+                ->unique();
+
+            // Scope to appointments under those services
+            $query->whereHas('service', fn ($q) =>
+            $q->whereIn('id', $allServiceIds)
+            );
+
+            // Optional user filter within their visible scope
+            if ($dto->userId) {
+                $query->where('user_id', $dto->userId);
+            }
+        }
+
+        // Admin: optional user filter with no scope restriction
+        if ($user?->isAdmin() && $dto->userId) {
+            $query->where('user_id', $dto->userId);
+        }
+
+        if ($dto->dateFrom) {
+            $query->whereDate('date', '>=', $dto->dateFrom);
+        }
+        if ($dto->dateTo) {
+            $query->whereDate('date', '<=', $dto->dateTo);
+        }
+        if ($dto->timeFrom) {
+            $query->whereTime('start_at', '>=', $dto->timeFrom);
+        }
+        if ($dto->timeTo) {
+            $query->whereTime('start_at', '<=', $dto->timeTo);
+        }
+        if (!empty($dto->statuses)) {
+            $query->whereIn('status', $dto->statuses);
+        }
         if ($dto->durationMin !== null) {
             $query->where('duration', '>=', $dto->durationMin);
         }
