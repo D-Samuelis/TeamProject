@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Exceptions\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -24,25 +25,22 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (ModelNotFoundException $e, Request $request) {
-            $entity = class_basename($e->getModel());
-            if ($request->expectsJson()) {
-                return response()->json(['error' => "{$entity} not found."], 404);
-            }
-            return redirect()->back()->with('error', "{$entity} not found.");
-        });
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        $previous = $e->getPrevious();
 
-        $exceptions->render(function (UnauthorizedException $e, Request $request) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => $e->getMessage()], 403);
-            }
-            return redirect()->back()->with('error', $e->getMessage());
-        });
+        if ($previous instanceof ModelNotFoundException) {
+            $entity = class_basename($previous->getModel());
+            return response()->json(['error' => "{$entity} not found."], 404);
+        }
 
-        $exceptions->render(function (\InvalidArgumentException $e, Request $request) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => $e->getMessage()], 422);
-            }
-            return redirect()->back()->with('error', $e->getMessage());
-        });
+        return response()->json(['error' => 'Not found.'], 404);
+    });
+
+    $exceptions->render(function (UnauthorizedException $e, Request $request) {
+        return response()->json(['error' => $e->getMessage()], 403);
+    });
+
+    $exceptions->render(function (\InvalidArgumentException $e, Request $request) {
+        return response()->json(['error' => $e->getMessage()], 422);
+    });
     })->create();

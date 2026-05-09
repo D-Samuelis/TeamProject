@@ -1,9 +1,13 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
+import { _esc } from "../../../utils/helpers.js";
 
 export function initEditBusinessMetaDataModal() {
-    // Delegácia eventov pre dynamický toolbar
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-target="edit-business-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="edit-business-modal"]',
+        );
         if (!btn) return;
 
         e.preventDefault();
@@ -16,9 +20,9 @@ function openEditBusinessModal() {
     const updateUrl = window.BE_DATA.routes.update;
 
     Modal.showCustom({
-        title: 'Edit Business Info',
-        confirmText: 'Save Changes',
-        action: 'edit',
+        title: "Edit Business Info",
+        confirmText: "Save Changes",
+        action: "edit",
         body: `
             <form id="editBusinessForm">
                 <div class="modal-form__group">
@@ -33,63 +37,48 @@ function openEditBusinessModal() {
                     <label class="modal-form__label">Description</label>
                     <div class="input-wrapper">
                         <textarea name="description" class="modal-form__input"
-                            placeholder="Optional description" style="min-height: 100px; resize: vertical;">${_esc(description ?? '')}</textarea>
+                            placeholder="Optional description" style="min-height: 100px; resize: vertical;">${_esc(description ?? "")}</textarea>
                     </div>
                 </div>
             </form>
         `,
         onConfirm: async (modal) => {
-            const form = modal.querySelector('#editBusinessForm');
-            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-            
+            const form = modal.querySelector("#editBusinessForm");
+            const submitBtn = modal.querySelector(
+                '[data-modal-action="confirm"]',
+            );
+
             if (submitBtn) submitBtn.disabled = true;
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            formData.append('_token', window.BE_DATA.csrf);
-            formData.append('_method', 'PUT');
+            formData.append("_token", window.BE_DATA.csrf);
+            formData.append("_method", "PUT");
 
             try {
-                const res = await fetch(updateUrl, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': window.BE_DATA.csrf
-                    },
+                await apiFetch(updateUrl, {
+                    method: "POST",
                     body: formData,
                 });
 
-                if (res.ok) {
-                    window.location.reload();
-                    return;
-                }
-
-                if (res.status === 422) {
-                    const json = await res.json();
-                    Modal.showFieldErrors(modal, json.errors);
+                sessionStorage.setItem(
+                    "pending_toast",
+                    JSON.stringify({
+                        type: "success",
+                        title: "Business updated",
+                        message: "Your changes have been saved.",
+                    }),
+                );
+                window.location.reload();
+            } catch (err) {
+                if (err.status === 422 && err.errors) {
+                    Modal.showFieldErrors(modal, err.errors);
                 } else {
-                    const errorData = await res.json();
-                    alert(errorData.message || 'Update failed');
+                    Toast.error("Update failed", err.message);
                 }
-            } catch (error) {
-                console.error('Fetch error:', error);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
-        }
+        },
     });
-}
-
-/**
- * Jednoduchý escaping pre XSS ochranu a integritu HTML v value/textarea
- */
-function _esc(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
 }

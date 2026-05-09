@@ -1,8 +1,12 @@
-import { Modal } from '../../../components/displays/modal.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initCreateBranchModal() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-target="create-branch-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="create-branch-modal"]',
+        );
         if (!btn) return;
 
         e.preventDefault();
@@ -12,9 +16,9 @@ export function initCreateBranchModal() {
 
 function openCreateBranchModal() {
     Modal.showCustom({
-        title:      'Create New Branch',
-        confirmText: 'Create Branch',
-        action:      'create',
+        title: "Create New Branch",
+        confirmText: "Create Branch",
+        action: "create",
         body: `
             <form id="createBranchForm">
                 <div class="modal-form__group">
@@ -77,44 +81,42 @@ function openCreateBranchModal() {
             </form>
         `,
         onConfirm: async (modal) => {
-            const form = modal.querySelector('#createBranchForm');
-            const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-            
+            const form = modal.querySelector("#createBranchForm");
+            const submitBtn = modal.querySelector(
+                '[data-modal-action="confirm"]',
+            );
+
             if (submitBtn) submitBtn.disabled = true;
             Modal.clearFieldErrors(modal);
 
             const formData = new FormData(form);
-            formData.append('_token', window.BE_DATA.csrf);
-            formData.append('business_id', window.BE_DATA.business.id);
+            formData.append("_token", window.BE_DATA.csrf);
+            formData.append("business_id", window.BE_DATA.business.id);
 
             try {
-                const res = await fetch(window.BE_DATA.routes.branchStore, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': window.BE_DATA.csrf
-                    },
+                await apiFetch(window.BE_DATA.routes.branchStore, {
+                    method: "POST",
                     body: formData,
                 });
 
-                if (res.ok) {
-                    window.location.reload();
-                    return;
-                }
-
-                if (res.status === 422) {
-                    const json = await res.json();
-                    Modal.showFieldErrors(modal, json.errors);
+                sessionStorage.setItem(
+                    "pending_toast",
+                    JSON.stringify({
+                        type: "success",
+                        title: "Branch created",
+                        message: "The new branch has been added.",
+                    }),
+                );
+                window.location.reload();
+            } catch (err) {
+                if (err.status === 422 && err.errors) {
+                    Modal.showFieldErrors(modal, err.errors);
                 } else {
-                    const errorData = await res.json();
-                    alert(errorData.message || 'Server error occurred');
+                    Toast.error("Could not create branch", err.message);
                 }
-            } catch (error) {
-                console.error('Fetch error:', error);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
-        }
+        },
     });
 }
