@@ -27,7 +27,6 @@ class ManageBusinessController extends Controller
 {
     public function index(Request $request, ListBusinesses $useCase)
     {
-<<<<<<< HEAD
         $user = Auth::user();
 
         try {
@@ -61,12 +60,6 @@ class ManageBusinessController extends Controller
         } catch (\Throwable $e) {
             return back()->with('error', 'Something went wrong. Please try again.');
         }
-=======
-        return view('web.manage.business.index', [
-            'activeBusinesses'  => $useCase->execute(Auth::user(), 'active'),
-            'deletedBusinesses' => $useCase->execute(Auth::user(), 'deleted'),
-        ]);
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 
     public function show(int $businessId, GetBusiness $useCase)
@@ -89,6 +82,11 @@ class ManageBusinessController extends Controller
 >>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
 =======
         $business = $useCase->execute($businessId, Auth::user());
+
+        if (request()->expectsJson()) {
+            return response()->json(['data' => $business]);
+        }
+
         return view('web.manage.business.show', compact('business'));
 >>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
@@ -171,46 +169,5 @@ class ManageBusinessController extends Controller
 <<<<<<< HEAD
         $business = $useCase->execute($businessId, Auth::user());
         return response()->json(['message' => 'Business restored successfully.', 'data' => $business]);
-    }
-}
-=======
->>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
-        try {
-            $useCase->execute($businessId, Auth::user());
-            return response()->json(['message' => 'Business restored successfully.']);
-        } catch (BusinessNotFoundException $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        } catch (AuthorizationException $e) {
-            return response()->json(['error' => $e->getMessage()], 403);
-        } catch (\Throwable $e) {
-            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
-        }
-<<<<<<< HEAD
-    }
-
-    public function search(Request $request, ListBusinesses $listBusinesses): JsonResponse
-    {
-        $query = $request->query('q', '');
-
-        if (strlen($query) < 2) {
-            return response()->json([]);
-        }
-
-        $dto = BusinessSearchDTO::fromArray([
-            'business_name' => $query,
-            'per_page'      => 8,
-        ]);
-
-        $results = $listBusinesses->execute($dto, Auth::user())
-            ->getCollection()
-            ->map(fn($b) => ['id' => $b->id, 'name' => $b->name]);
-
-        return response()->json($results);
-=======
->>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
-=======
-        $business = $useCase->execute($businessId, Auth::user());
-        return response()->json(['message' => 'Business restored successfully.', 'data' => $business]);
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 }

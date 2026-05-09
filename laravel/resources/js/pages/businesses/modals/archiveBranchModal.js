@@ -1,9 +1,13 @@
-import { Modal } from '../../../components/displays/modal.js';
-import { getFutureDateData } from '../../../utils/date.js';
+import { Modal } from "../../../components/displays/modal.js";
+import { getFutureDateData } from "../../../utils/date.js";
+import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initArchiveBranchModal() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-modal-target="archive-branch-modal"]');
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(
+            '[data-modal-target="archive-branch-modal"]',
+        );
         if (!btn) return;
 
         e.preventDefault();
@@ -16,12 +20,12 @@ export function initArchiveBranchModal() {
         }
 
         Modal.showCustom({
-            title: 'Archive Branch',
-            confirmText: 'Archive Branch',
-            action: 'warning',
+            title: "Archive Branch",
+            confirmText: "Archive Branch",
+            action: "warning",
             body: `
                 <div class="modal-confirm-content">
-                    <p>Are you sure you want to archive branch <strong>${name || 'this branch'}</strong>?</p>
+                    <p>Are you sure you want to archive branch <strong>${name || "this branch"}</strong>?</p>
                     
                     <div class="archive-expiry-wrapper text-muted small" style="margin-top: 1.5rem;">
                         <span>This branch will be marked as archived and automatically deleted in</span>
@@ -37,41 +41,43 @@ export function initArchiveBranchModal() {
                 </div>
             `,
             onConfirm: async (modal) => {
-                const submitBtn = modal.querySelector('[data-modal-action="confirm"]');
-                const expiryTimestamp = modal.querySelector('#archive-expiry-select-branch').value;
-                const url = window.BE_DATA.routes.branchDelete.replace(':id', id);
+                const submitBtn = modal.querySelector(
+                    '[data-modal-action="confirm"]',
+                );
+                const expiryTimestamp = modal.querySelector(
+                    "#archive-expiry-select-branch",
+                ).value;
+                const url = window.BE_DATA.routes.branchDelete.replace(
+                    ":id",
+                    id,
+                );
 
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': window.BE_DATA.csrf
-                        },
+                    await apiFetch(url, {
+                        method: "POST",
                         body: JSON.stringify({
-                            _token: window.BE_DATA.csrf,
-                            _method: 'DELETE',
-                            delete_at: expiryTimestamp 
+                            _method: "DELETE",
+                            delete_at: expiryTimestamp,
                         }),
                     });
 
-                    if (res.ok) {
-                        window.location.reload();
-                    } else {
-                        const errorData = await res.json();
-                        console.error("Server error:", errorData);
-                        alert(errorData.message || 'Error archiving branch.');
-                        if (submitBtn) submitBtn.disabled = false;
-                    }
+                    sessionStorage.setItem(
+                        "pending_toast",
+                        JSON.stringify({
+                            type: "success",
+                            title: "Branch archived",
+                            message:
+                                "It can be restored before the expiry date.",
+                        }),
+                    );
+                    window.location.reload();
                 } catch (err) {
-                    console.error("Network error:", err);
+                    Toast.error("Archive failed", err.message);
                     if (submitBtn) submitBtn.disabled = false;
                 }
-            }
+            },
         });
     });
 }
