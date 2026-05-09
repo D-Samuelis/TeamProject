@@ -4,10 +4,7 @@ export function initTitleComboboxes() {
         'titles_after_list': ['PhD.', 'MBA', 'LL.M.', 'DrSc.', 'CSc.']
     };
 
-    const messages = {
-        standard: "Verification required! You will need to upload a scan of your diploma in your profile settings later.",
-        unrecognized: "Warning! This title is not in our database yet. It will be sent for manual approval and you will need to upload your diploma in your profile."
-    };
+    const unrecognizedMessage = "This title is not in our database yet. It may be reviewed manually and you may be asked to provide proof of your diploma later.";
 
     Object.entries(config).forEach(([listId, titles]) => {
         const datalist = document.getElementById(listId);
@@ -39,22 +36,19 @@ export function initTitleComboboxes() {
             const cleanVal = rawVal.toLowerCase().replace(/\./g, '');
             const matched = titles.find(t => t.toLowerCase().replace(/\./g, '') === cleanVal);
 
+            if (matched) {
+                input.value = matched;
+                infoBox?.classList.remove('active');
+                input.dispatchEvent(new Event('input'));
+                return;
+            }
+
             if (infoBox && tooltip) {
                 infoBox.classList.add('active');
-
-                if (matched) {
-                    input.value = matched;
-                    tooltip.textContent = messages.standard;
-                    infoBox.style.color = "var(--color-primary)";
-                    infoBox.style.background = "color-mix(in srgb, var(--color-primary), transparent 90%)";
-                } else {
-                    tooltip.textContent = messages.unrecognized;
-                    infoBox.style.color = "var(--color-warning-text)";
-                    infoBox.style.background = "color-mix(in srgb, var(--color-warning), transparent 80%)";
-                }
+                tooltip.textContent = unrecognizedMessage;
+                infoBox.style.color = "var(--color-warning-text)";
+                infoBox.style.background = "var(--color-bg-complement-v2)";
             }
-            
-            if (matched) input.dispatchEvent(new Event('input'));
         });
     });
 }
