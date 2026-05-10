@@ -21,13 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initServicesListView(window.BE_DATA.services, window.BE_DATA.meta);
 
+    initToolbar();
     initCollapsibleList("managementList");
-    initServicesListView(window.BE_DATA.services);
 
-    initServiceConnectionsModal(window.BE_DATA.services);
+    if (window.BE_DATA.services) {
+        initServicesListView(window.BE_DATA.services);
+    }
 
+    initServiceConnectionsModal();
     initCreateServiceModal();
     initArchiveServiceModal();
+    initEditServiceModal();
     initServiceShowPage();
 
     initToolbar();

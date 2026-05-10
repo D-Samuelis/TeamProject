@@ -1,22 +1,13 @@
 import { initCollapsibleList } from "../../components/miniLists/miniList.js";
-import { initEditServiceModal } from "./modals/editServiceModal.js";
 
 export function initServiceShowPage() {
     const page = document.querySelector(".service-settings-page");
     if (!page) return;
 
-    const pendingToast = sessionStorage.getItem("pending_toast");
-    if (pendingToast) {
-        sessionStorage.removeItem("pending_toast");
-        const { type, title, message } = JSON.parse(pendingToast);
-        Toast[type]?.(title, message);
-    }
-
     initCollapsibleList("serviceInfo");
     initCollapsibleList("serviceConnections");
 
     initServiceViewToggle();
-    initEditServiceModal();
 }
 
 function initServiceViewToggle() {

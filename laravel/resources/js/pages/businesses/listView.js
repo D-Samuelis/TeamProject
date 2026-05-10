@@ -206,7 +206,7 @@ async function handleTogglePublish(btn) {
     btn.disabled = true;
 
     try {
-        await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
+        const response = await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
             method: "POST",
             body: JSON.stringify({ _method: "PUT", is_published: nextStatus }),
         });
@@ -214,17 +214,13 @@ async function handleTogglePublish(btn) {
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.is_published = nextStatus;
 
-        if (nextStatus) {
-            Toast.success(
-                "Business published",
-                "The business is now publicly visible.",
-            );
-        } else {
-            Toast.warning(
-                "Business hidden",
-                "The business is no longer publicly visible.",
-            );
-        }
+        const title = nextStatus ? "Business activated" : "Business deactivated";
+        const type = nextStatus ? "success" : "warning";
+        const fallback = nextStatus
+            ? "The business is now publicly visible."
+            : "The business is now hidden.";
+
+        Toast[type](title, response?.message || fallback);
 
         rerender();
     } catch (err) {

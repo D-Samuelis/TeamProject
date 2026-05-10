@@ -69,6 +69,14 @@ function openCreateBranchModal(businesses) {
                     </div>
                 </div>
 
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="address_line_2" class="modal-form__input"
+                               placeholder="2nd floor / door number 6">
+                    </div>
+                </div>
+
                 <div style="display:flex;gap:12px;">
                     <div class="modal-form__group" style="flex:2;">
                         <label class="modal-form__label">City</label>

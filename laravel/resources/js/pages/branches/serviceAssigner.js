@@ -40,6 +40,7 @@ function buildServiceCard(service) {
     const div = document.createElement("div");
     div.className = "service-row";
     div.dataset.id = service.id;
+    div.dataset.name = service.name; // add this
     div.innerHTML = `
         <a href="${showUrl}" class="service-card-link">
             <i class="fa-solid fa-bell-concierge"
@@ -108,6 +109,7 @@ export function initServiceAssigner() {
                 '<i class="fa-solid fa-spinner fa-spin"></i> Linking…';
 
             const errors = [];
+            const linkedNames = [];
 
             for (const opt of selectedOptions) {
                 const service = window.BE_DATA.allServices.find(
@@ -121,12 +123,12 @@ export function initServiceAssigner() {
                             window.BE_DATA.routes.assignService,
                             service.id,
                         ),
-                        {
-                            method: "POST",
-                        },
+                        { method: "POST" },
                     );
+
                     clearEmptyState(list);
                     list.appendChild(buildServiceCard(service));
+                    linkedNames.push(service.name);
 
                     const optIdx = Array.from(selectEl.options).findIndex(
                         (o) => o.value === String(service.id),
@@ -146,10 +148,12 @@ export function initServiceAssigner() {
                     "Linking failed",
                     `Could not link: ${errors.join(", ")}`,
                 );
-            } else {
+            }
+
+            if (linkedNames.length) {
                 Toast.success(
                     "Services linked",
-                    `${selectedOptions.length} service(s) linked successfully.`,
+                    `Service ${linkedNames.join(", ")} linked to this branch successfully.`,
                 );
             }
         });
@@ -207,6 +211,7 @@ export function initServiceAssigner() {
         const card = form.closest(".service-row");
         const btn = form.querySelector('button[type="submit"]');
         const serviceId = card?.dataset?.id;
+        const serviceName = card?.dataset?.name;
 
         if (btn) btn.disabled = true;
 
@@ -224,9 +229,9 @@ export function initServiceAssigner() {
             }
 
             setEmptyState(list);
-            Toast.success(
+            Toast.warning(
                 "Service unlinked",
-                "The service has been removed from this branch.",
+                `The service '${serviceName}' has been removed from this branch.`,
             );
         } catch (err) {
             if (btn) btn.disabled = false;

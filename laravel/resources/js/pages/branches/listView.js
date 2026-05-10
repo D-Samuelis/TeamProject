@@ -156,7 +156,7 @@ export function initBranchListView(data = [], meta = {}) {
 
     renderer = new TableRenderer(tableConfig);
 
-    // Default view: Hide archived unless filters say otherwise
+    // Default view: hide archived unless filters say otherwise
     const initialData = originalData.filter((b) => !b.deleted_at);
 
     sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
@@ -192,18 +192,9 @@ export function initBranchListView(data = [], meta = {}) {
         const toggleBtn = e.target.closest(".js-toggle-active-btn");
         if (toggleBtn) {
             await handleToggleActive(toggleBtn);
-            return;
         }
 
-        // ADD THIS SECTION:
-        const archiveBtn = e.target.closest(".js-archive-branch-btn");
-        if (archiveBtn) {
-            // We don't call an async handler here because
-            // initArchiveBranchModal() already has a listener on document.
-            // However, some event setups require a manual trigger or
-            // the preventDefault() to work correctly.
-            return;
-        }
+        // Archive is handled by initArchiveBranchModal via document listener — nothing to do here.
     });
 
     // ── Filter listener ─────────────────────────────────────────────────────
@@ -221,7 +212,6 @@ export function initBranchListView(data = [], meta = {}) {
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
 
-        // Re-trigger search if input has value
         const searchInput = document.querySelector(tableConfig.searchId);
         if (searchInput && searchInput.value) {
             searchInput.dispatchEvent(new Event("input"));
@@ -236,15 +226,21 @@ async function handleRestore(btn) {
     btn.disabled = true;
 
     try {
-        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({ _method: "PATCH" }),
-        });
+        const response = await apiFetch(
+            window.BE_DATA.routes.restore.replace(":id", id),
+            {
+                method: "POST",
+                body: JSON.stringify({ _method: "PATCH" }),
+            },
+        );
 
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.deleted_at = null;
 
-        Toast.success("Branch restored", "The branch is now active again.");
+        Toast.success(
+            "Branch restored",
+            response?.message || "The branch is now active again.",
+        );
         rerender();
     } catch (err) {
         Toast.error("Restore failed", err.message);
@@ -276,8 +272,11 @@ async function handleToggleActive(btn) {
 
         const title = nextStatus ? "Branch activated" : "Branch deactivated";
         const type = nextStatus ? "success" : "warning";
+        const fallback = nextStatus
+            ? "The branch is now active."
+            : "The branch is now inactive.";
 
-        Toast[type](title, response.message);
+        Toast[type](title, response?.message || fallback);
 
         rerender();
     } catch (err) {
