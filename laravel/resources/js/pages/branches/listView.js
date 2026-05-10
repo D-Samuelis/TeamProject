@@ -228,10 +228,7 @@ async function handleRestore(btn) {
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.deleted_at = null;
 
-        Toast.success(
-            "Branch restored",
-            "The branch has been moved out of archives.",
-        );
+        Toast.success("Branch restored", "The branch is now active again.");
         rerender();
     } catch (err) {
         Toast.error("Restore failed", err.message);
@@ -246,22 +243,26 @@ async function handleToggleActive(btn) {
     btn.disabled = true;
 
     try {
-        await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({
-                _method: "PUT",
-                is_active: nextStatus,
-                business_id: businessId,
-            }),
-        });
+        const response = await apiFetch(
+            window.BE_DATA.routes.update.replace(":id", id),
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    _method: "PUT",
+                    is_active: nextStatus,
+                    business_id: businessId,
+                }),
+            },
+        );
 
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.is_active = nextStatus;
 
-        const msg = nextStatus
-            ? "Branch is now active."
-            : "Branch is now inactive.";
-        Toast.warning("Branch status changed", msg);
+        const title = nextStatus ? "Branch activated" : "Branch deactivated";
+        const type = nextStatus ? "success" : "warning";
+
+        Toast[type](title, response.message);
+
         rerender();
     } catch (err) {
         Toast.error("Update failed", err.message);

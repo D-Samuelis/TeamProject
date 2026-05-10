@@ -132,6 +132,9 @@ function buildBranchActions() {
                               ? "Branch deactivated"
                               : "Branch activated",
                           toastType: isActive ? "warning" : "success",
+                          toastText: isActive
+                              ? "The branch is now inactive."
+                              : "The branch is now active.",
                           action: window.BE_DATA.routes.branchUpdate.replace(
                               ":id",
                               branchData.id,
@@ -161,6 +164,7 @@ function buildBranchActions() {
                           isForm: true,
                           toastTitle: "Branch restored",
                           toastType: "success",
+                          toastText: "The branch is now active again.",
                           action: window.BE_DATA.routes.branchRestore.replace(
                               ":id",
                               branchData.id,
@@ -172,6 +176,9 @@ function buildBranchActions() {
                           modal: "archive-branch-modal",
                           id: branchData.id,
                           name: branchData.name,
+                          toastTitle: "Branch archived",
+                          toastType: "warning",
+                          toastText: "The branch has been archived.",
                       }),
             },
         ];
