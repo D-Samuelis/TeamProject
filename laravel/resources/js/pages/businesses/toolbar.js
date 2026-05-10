@@ -64,47 +64,102 @@ function renderToolbar() {
                 };
             }
 
-            branchActions = [
-                {
-                    label: `Status: ${branchData.is_active ? "Active" : "Inactive"}`,
-                    icon: branchData.is_active
-                        ? "fa-circle text-green"
-                        : "fa-circle text-yellow",
-                    isForm: true,
-                    action: window.BE_DATA.routes.branchUpdate.replace(
-                        ":id",
-                        branchData.id,
-                    ),
-                    hiddenFields: [
-                        {
-                            name: "business_id",
-                            value: window.BE_DATA.business.id,
-                        },
-                        {
-                            name: "is_active",
-                            value: branchData.is_active ? 0 : 1,
-                        },
-                        { name: "_method", value: "PUT" },
-                    ],
-                },
-                {
-                    label: "Manage Branch",
-                    icon: "fa-gear",
-                    modal: "edit-branch-modal",
-                    branchData: branchData,
-                },
-                {
-                    label: "Archive Branch",
-                    icon: "fa-box-archive",
-                    class: "delete-action",
-                    modal: "archive-branch-modal",
-                    id: branchData.id,
-                    name: branchData.name,
-                },
-            ];
-        } catch (e) {
-            console.error("Toolbar render error:", e);
-        }
+        branchData = {
+            ...branchData,
+            id: activeEl.dataset.branchId,
+            name:
+                activeEl.querySelector(".member-name")?.textContent.trim() ||
+                branchData.name ||
+                "Branch",
+
+            // Always trust visible DOM state
+            is_active: /\bActive\b/.test(roleText) ? 1 : 0,
+
+            // Check trashed state from class
+            trashed: activeEl.classList.contains("team-member-item--trashed"),
+        };
+
+        const isArchived = branchData.trashed;
+        const isActive = Number(branchData.is_active) === 1;
+        const nextActive = isActive ? 0 : 1;
+
+        return [
+            {
+                label: isArchived
+                    ? "Status: Archived"
+                    : `Status: ${isActive ? "Active" : "Inactive"}`,
+
+                icon: isArchived
+                    ? "fa-box-archive text-gray"
+                    : isActive
+                      ? "fa-circle text-green"
+                      : "fa-circle text-yellow",
+
+                isForm: !isArchived,
+
+                ...(isArchived
+                    ? {
+                          disabled: true,
+                          class: "toolbar__action-button--disabled",
+                      }
+                    : {
+                          toastTitle: isActive
+                              ? "Branch deactivated"
+                              : "Branch activated",
+                          toastType: isActive ? "warning" : "success",
+                          toastText: isActive
+                              ? "The branch is now inactive."
+                              : "The branch is now active.",
+                          action: window.BE_DATA.routes.branchUpdate.replace(
+                              ":id",
+                              branchData.id,
+                          ),
+                          hiddenFields: [
+                              {
+                                  name: "business_id",
+                                  value: window.BE_DATA.business.id,
+                              },
+                              { name: "is_active", value: nextActive },
+                              { name: "_method", value: "PUT" },
+                          ],
+                      }),
+            },
+            {
+                label: "Manage Branch",
+                icon: "fa-gear",
+                modal: "edit-branch-modal",
+                branchData,
+            },
+            {
+                label: isArchived ? "Restore Branch" : "Archive Branch",
+                icon: isArchived ? "fa-rotate-left" : "fa-box-archive",
+
+                ...(isArchived
+                    ? {
+                          isForm: true,
+                          toastTitle: "Branch restored",
+                          toastType: "success",
+                          toastText: "The branch is now active again.",
+                          action: window.BE_DATA.routes.branchRestore.replace(
+                              ":id",
+                              branchData.id,
+                          ),
+                          hiddenFields: [{ name: "_method", value: "PATCH" }],
+                      }
+                    : {
+                          class: "delete-action",
+                          modal: "archive-branch-modal",
+                          id: branchData.id,
+                          name: branchData.name,
+                          toastTitle: "Branch archived",
+                          toastType: "warning",
+                          toastText: "The branch has been archived.",
+                      }),
+            },
+        ];
+    } catch (err) {
+        console.error("Toolbar branch action render error:", err);
+        return [];
     }
 
     let centerHtml = '';
