@@ -27,8 +27,6 @@ export function initEditBranchModal() {
 }
 
 function openEditBranchModal(branch) {
-    // Both index page (routes.update = "…/:id") and show page (routes.update = "…/:id")
-    // use the same key — see show.blade.php.
     const updateUrl = window.BE_DATA.routes.update.replace(":id", branch.id);
     const businesses = window.BE_DATA?.businesses || [];
     const currentBusiness = businesses.find((b) => b.id == branch.business_id);
