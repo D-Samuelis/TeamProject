@@ -3,6 +3,7 @@
 namespace App\Mcp\Tools\Appointment;
 
 use App\Application\Appointment\UseCases\ListAppointments;
+use App\Application\DTO\AppointmentSearchDTO;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
@@ -58,13 +59,15 @@ class ListAppointmentsTool extends Tool
                 return Response::text('Unauthorized: You must be logged in to view appointments.');
             }
 
+            $dto = AppointmentSearchDTO::fromArray([
+                $validated['per_page'] ?? 10,
+                $validated['page'] ?? 1
+            ]);
+
             $appointments = $this->listAppointments->execute(
-                filters: [
-                    'per_page' => $validated['per_page'] ?? 10,
-                    'page'     => $validated['page'] ?? 1,
-                ],
+                dto: $dto,
                 user: $user,
-            );
+            )->getCollection();
 
             if ($appointments->isEmpty()) {
                 return Response::text('No appointments found.');

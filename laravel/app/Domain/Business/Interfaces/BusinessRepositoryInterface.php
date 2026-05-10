@@ -2,6 +2,7 @@
 
 namespace App\Domain\Business\Interfaces;
 
+use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Business;
@@ -19,7 +20,9 @@ interface BusinessRepositoryInterface
     /**
      * PUBLIC: Search for businesses in the marketplace.
      */
-    public function search(SearchDTO $dto);
+    public function search(BusinessSearchDTO $dto, User $user = null);
+
+    public function publicSearch(SearchDTO $dto);
 
     /**
      * MANAGEMENT: Find a business by ID for owner/admin actions.

@@ -21,10 +21,9 @@ class SlotGeneratorService
         if (!$asset->is_active) {
             return [];
         }
-        // ISO: Mon=1..Sun=7, minus 1 gives Mon=0..Sun=6
-        $dayOfWeek = $date->dayOfWeekIso - 1;
 
-        $ranges = $this->getRangesForDate($asset, $date, $dayOfWeek);
+        $dayOfWeek = $date->dayOfWeekIso - 1;
+        $ranges    = $this->getRangesForDate($asset, $date, $dayOfWeek);
 
         if (empty($ranges)) {
             return [];
@@ -33,10 +32,22 @@ class SlotGeneratorService
         $allSlots   = $this->buildSlots($ranges, $durationMinutes, $bufferMinutes);
         $takenSlots = $this->appointmentRepo->getTakenSlots($asset->id, $date)->toArray();
 
-        return array_values(array_filter(
+        $availableSlots = array_values(array_filter(
             $allSlots,
-            fn(string $slot) => ! in_array($slot, $takenSlots, true)
+            fn(string $slot) => !in_array($slot, $takenSlots, true)
         ));
+
+        // Filter out past slots if the date is today
+        if ($date->isToday()) {
+            $nowMinutes = Carbon::now()->hour * 60 + Carbon::now()->minute;
+
+            $availableSlots = array_values(array_filter(
+                $availableSlots,
+                fn(string $slot) => $this->timeToMinutes($slot) > $nowMinutes
+            ));
+        }
+
+        return $availableSlots;
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

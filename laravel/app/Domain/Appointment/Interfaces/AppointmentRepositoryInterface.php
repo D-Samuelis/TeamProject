@@ -2,6 +2,7 @@
 
 namespace App\Domain\Appointment\Interfaces;
 
+use App\Application\DTO\AppointmentSearchDTO;
 use App\Application\DTO\SearchDTO;
 use App\Domain\Appointment\Enums\AppointmentStatusEnum;
 use App\Models\Auth\User;
@@ -27,9 +28,7 @@ interface AppointmentRepositoryInterface
      */
     public function findById(int $id): ?Appointment;
 
-    public function getForCustomer(SearchDTO $dto, ?User $user = null);
-
-    public function search(SearchDTO $dto, ?User $user = null);
+    public function search(AppointmentSearchDTO $dto, ?User $user = null);
 
     public function update(Appointment $appointment, array $data): Appointment;
 

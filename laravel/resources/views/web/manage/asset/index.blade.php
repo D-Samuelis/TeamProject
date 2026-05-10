@@ -6,10 +6,10 @@
 
 <script>
     window.BE_DATA = {
-        csrf: '{{ csrf_token() }}',
         assets: @json($assets),
         allBranches: @json($branches),
         allServices: @json($services),
+        meta: @json($meta),
         routes: {
             store: "{{ route('manage.asset.store') }}",
             show: "{{ route('manage.asset.show', ':id') }}",
@@ -44,6 +44,15 @@
 <div class="business">
     <aside class="business__sidebar">
         @include('components.partials.dashboard_sidebar_info', ['active' => 'assets'])
+
+        <section class="business__filters">
+            <h3 class="miniLists__subtitle">
+                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fa-solid fa-filter"></i>
+                Filters
+            </h3>
+            @include('web.manage.asset.partials.filter-sidebar')
+        </section>
     </aside>
 
     <div class="display-column">
@@ -92,6 +101,8 @@
                 <div id="assetTableContainer" class="list-view__body-wrapper">
                 </div>
             </div>
+
+            <div id="paginationContainer" class="pagination"></div>
         </main>
         @include('components.ui.toolbar')
     </div>

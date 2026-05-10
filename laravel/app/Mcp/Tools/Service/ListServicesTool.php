@@ -3,7 +3,7 @@
 namespace App\Mcp\Tools\Service;
 
 use App\Application\DTO\SearchDTO;
-use App\Application\Service\UseCases\ListServices;
+use App\Application\Service\UseCases\ListPublicServices;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
 use App\Models\Business\Service;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -50,7 +50,7 @@ class ListServicesTool extends Tool
     MARKDOWN;
 
     public function __construct(
-        private readonly ListServices $listServices,
+        private readonly ListPublicServices $listPublicServices,
     ) {}
 
     public function handle(Request $request): Response
@@ -71,7 +71,7 @@ class ListServicesTool extends Tool
 
             logger()->debug('ListServicesTool validated parameters: ', ['validated' => $validated]);
 
-            $services = $this->listServices->execute(
+            $services = $this->listPublicServices->execute(
                 user: null,
                 business: null,
                 scope: 'public',

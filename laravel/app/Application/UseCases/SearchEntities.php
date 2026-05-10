@@ -18,7 +18,7 @@ class SearchEntities
     public function execute(SearchDTO $dto): array
     {
         $businesses = ($dto->target === 'business')
-            ? $this->businessRepo->search($dto)
+            ? $this->businessRepo->publicSearch($dto)
             : $this->businessRepo->count($dto);
 
         $branches = ($dto->target === 'branch')
@@ -26,7 +26,7 @@ class SearchEntities
             : $this->branchRepo->count($dto);
 
         $services = ($dto->target === 'service')
-            ? $this->serviceRepo->search($dto)
+            ? $this->serviceRepo->publicSearch($dto)
             : $this->serviceRepo->count($dto);
 
         $results = match ($dto->target) {

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Service\Interfaces;
 
+use App\Application\DTO\ServiceSearchDTO;
 use Illuminate\Support\Collection;
 use App\Models\Business\Service;
 use App\Application\DTO\SearchDTO;
@@ -16,7 +17,9 @@ interface ServiceRepositoryInterface
      */
     public function findActive(int $id): Service;
 
-    public function search(SearchDTO $dto);
+    public function search(ServiceSearchDTO $dto, User $user = null);
+
+    public function publicSearch(SearchDTO $dto);
 
     public function findMultipleByIds(array $ids): Collection;
 
@@ -44,7 +47,7 @@ interface ServiceRepositoryInterface
      * RELATIONSHIPS
      */
     public function attachBranches(Service $service, array $branchIds): void;
-    
+
     public function attachUser(Service $service, int $userId, ServiceRoleEnum $role): void;
 
     public function detachUser(Service $service, int $userId): int;

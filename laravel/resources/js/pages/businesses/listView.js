@@ -1,11 +1,12 @@
 import { TableSorter } from '../../components/table/tableSorter.js';
 import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { initPaginator } from "../../components/displays/paginator.js";
 
 let sorter = null;
 let renderer = null;
 let originalData = [];
 
-export function initBusinessListView(data = []) {
+export function initBusinessListView(data = [], meta = {}) {
     const container = document.getElementById('businessTableContainer');
     if (!container) return;
 
@@ -17,7 +18,7 @@ export function initBusinessListView(data = []) {
         searchId: '#businessSearchInput',
         rowClass: 'business-table__row',
         columns: [
-            { 
+            {
                 label: 'Business Name', key: 'name', sortable: true, searchable: true,
                 render: (val, item) => `
                     <div class="name-cell">
@@ -25,15 +26,15 @@ export function initBusinessListView(data = []) {
                         ${item.deleted_at ? '<span class="today-badge" style="background: var(--status-red)">Archived</span>' : ''}
                     </div>`
             },
-            { 
+            {
                 label: 'Description', key: 'description', sortable: false, searchable: true,
                 render: (val) => `<div class="description-cell">${val || 'No description'}</div>`
             },
-            { 
-                label: 'Status', key: 'is_published', sortable: true, 
+            {
+                label: 'Status', key: 'is_published', sortable: true,
                 render: (val, item) => {
                     if (item.deleted_at) return `<span class="status-cell filter-item--red">Deleted</span>`;
-                    return val 
+                    return val
                         ? `<span class="status-cell filter-item--green">Published</span>`
                         : `<span class="status-cell filter-item--yellow">Hidden</span>`;
                 }
@@ -67,12 +68,13 @@ export function initBusinessListView(data = []) {
                     <a href="${window.BE_DATA.routes.show.replace(':id', item.id)}" class="button-icon" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </a>
-                    
-                    <button 
-                        type="button" 
-                        class="button-icon button-icon--danger js-archive-business-btn" 
+
+                    <button
+                        type="button"
+                        class="button-icon button-icon--danger js-archive-business-btn"
                         title="Archive"
                         data-id="${item.id}"
+                        data-modal-target="archive-business-modal"
                         data-name="${item.name}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -84,9 +86,9 @@ export function initBusinessListView(data = []) {
     };
 
     renderer = new TableRenderer(tableConfig);
-    
+
     const initialData = originalData.filter(b => !b.deleted_at);
-    
+
     sorter = new TableSorter(initialData, 'name', 'asc', (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
@@ -95,7 +97,7 @@ export function initBusinessListView(data = []) {
 
     window.addEventListener('businessFiltersChanged', (event) => {
         const statuses = event.detail.statuses;
-        
+
         const activeFilters = statuses.reduce((acc, s) => {
             acc[s.id] = s.active;
             return acc;
@@ -109,11 +111,17 @@ export function initBusinessListView(data = []) {
 
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
-        
+
         const searchInput = document.querySelector(tableConfig.searchId);
         if (searchInput && searchInput.value) {
             searchInput.dispatchEvent(new Event('input'));
         }
+    });
+
+    initPaginator(meta, (page) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
     });
 }
 
