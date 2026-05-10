@@ -27,8 +27,6 @@ export function initEditBranchModal() {
 }
 
 function openEditBranchModal(branch) {
-    // Both index page (routes.update = "…/:id") and show page (routes.update = "…/:id")
-    // use the same key — see show.blade.php.
     const updateUrl = window.BE_DATA.routes.update.replace(":id", branch.id);
     const businesses = window.BE_DATA?.businesses || [];
     const currentBusiness = businesses.find((b) => b.id == branch.business_id);
@@ -93,6 +91,15 @@ function openEditBranchModal(branch) {
                         <input type="text" name="address_line_1" class="modal-form__input"
                                value="${_esc(branch.address_line_1 ?? "")}"
                                placeholder="Street and number">
+                    </div>
+                </div>
+
+                <div class="modal-form__group">
+                    <label class="modal-form__label">Unit / Floor / Suite (Optional)</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="address_line_2" class="modal-form__input"
+                               value="${_esc(branch.address_line_2 ?? "")}"
+                               placeholder="2nd floor / door number 6">
                     </div>
                 </div>
 
