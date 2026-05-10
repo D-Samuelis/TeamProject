@@ -1,9 +1,9 @@
 import { initCollapsibleList } from "../../components/miniLists/miniList.js";
 import { initServicesListView } from "./listView.js";
 import { initServiceConnectionsModal } from "./modals/connectionsModal.js";
-import { initServiceStatusFilters } from "./statusFilters.js";
 import { initCreateServiceModal } from "./modals/createServiceModal.js";
 import { initArchiveServiceModal } from "./modals/archiveServiceModal.js";
+import { initEditServiceModal } from "./modals/editServiceModal.js";
 import { initServiceShowPage } from "./show.js";
 import { initToolbar } from "./toolbar.js";
 import { Toast } from "../../components/displays/toast.js";
@@ -16,14 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
         Toast[type]?.(title, message);
     }
 
+    initToolbar();
     initCollapsibleList("managementList");
-    initServicesListView(window.BE_DATA.services);
 
-    initServiceConnectionsModal(window.BE_DATA.services);
+    if (window.BE_DATA.services) {
+        initServicesListView(window.BE_DATA.services);
+    }
 
+    initServiceConnectionsModal();
     initCreateServiceModal();
     initArchiveServiceModal();
+    initEditServiceModal();
     initServiceShowPage();
-
-    initToolbar();
 });

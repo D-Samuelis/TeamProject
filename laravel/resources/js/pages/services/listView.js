@@ -86,8 +86,7 @@ export function initServicesListView(data = []) {
                 render: (val, item) => {
                     const branchCount = item.branches?.length ?? 0;
                     const assetCount = item.assets?.length ?? 0;
-                    const branchLabel =
-                        branchCount === 1 ? "Branch" : "Branches";
+                    const branchLabel = branchCount === 1 ? "Branch" : "Branches";
                     const assetLabel = assetCount === 1 ? "Asset" : "Assets";
 
                     return `
@@ -142,10 +141,10 @@ export function initServicesListView(data = []) {
                     <a href="${window.BE_DATA.routes.show.replace(":id", item.id)}" class="button-icon" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </a>
-                    
-                    <button 
-                        type="button" 
-                        class="button-icon button-icon--danger js-archive-service-btn" 
+
+                    <button
+                        type="button"
+                        class="button-icon button-icon--danger js-archive-service-btn"
                         title="Archive"
                         data-modal-target="archive-service-modal"
                         data-id="${item.id}"
@@ -182,14 +181,15 @@ export function initServicesListView(data = []) {
         const toggleBtn = e.target.closest(".js-toggle-active-btn");
         if (toggleBtn) {
             await handleToggleActive(toggleBtn);
-            return;
         }
+
+        // Archive is handled by initArchiveServiceModal via document listener.
     });
 
     // ── Filter listener ─────────────────────────────────────────────────────
 
-    window.addEventListener("serviceFiltersChanged", (event) => {
-        const statuses = event.detail.statuses;
+    window.addEventListener("serviceFiltersChanged", (e) => {
+        const statuses = e.detail.statuses;
 
         activeFilters = statuses.reduce((acc, s) => {
             acc[s.id] = s.active;
@@ -200,7 +200,6 @@ export function initServicesListView(data = []) {
 
         sorter.setData(filteredData);
         renderer.render(container, sorter.getSortedData(), sorter);
-        updateCounts(filteredData);
 
         const searchInput = document.querySelector(tableConfig.searchId);
         if (searchInput && searchInput.value) {
@@ -216,17 +215,20 @@ async function handleRestore(btn) {
     btn.disabled = true;
 
     try {
-        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({ _method: "PATCH" }),
-        });
+        const response = await apiFetch(
+            window.BE_DATA.routes.restore.replace(":id", id),
+            {
+                method: "POST",
+                body: JSON.stringify({ _method: "PATCH" }),
+            },
+        );
 
         const record = originalData.find((s) => String(s.id) === String(id));
         if (record) record.deleted_at = null;
 
         Toast.success(
             "Service restored",
-            "The service has been moved out of archives.",
+            response?.message || "The service is now active again.",
         );
         rerender();
     } catch (err) {
@@ -247,20 +249,28 @@ async function handleToggleActive(btn) {
     try {
         const businessId = record.business_id || record.business?.id;
 
-        await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({
-                _method: "PUT",
-                is_active: nextStatus,
-                business_id: businessId,
-            }),
-        });
+        const response = await apiFetch(
+            window.BE_DATA.routes.update.replace(":id", id),
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    _method: "PUT",
+                    is_active: nextStatus,
+                    business_id: businessId,
+                }),
+            },
+        );
 
         record.is_active = nextStatus;
-        Toast.success(
-            "Status updated",
-            `Service is now ${nextStatus ? "active" : "inactive"}.`,
-        );
+
+        const title = nextStatus ? "Service activated" : "Service deactivated";
+        const type = nextStatus ? "success" : "warning";
+        const fallback = nextStatus
+            ? "The service is now active."
+            : "The service is now inactive.";
+
+        Toast[type](title, response?.message || fallback);
+
         rerender();
     } catch (err) {
         Toast.error("Update failed", err.message);
@@ -298,13 +308,15 @@ function updateCounts(data) {
         archived: data.filter((s) => s.deleted_at).length,
     };
 
-    updateStatElement("countAll", stats.all);
-    updateStatElement("countActive", stats.active);
-    updateStatElement("countInactive", stats.inactive);
-    updateStatElement("countDeleted", stats.archived);
-}
+    const mapping = {
+        countAll: stats.all,
+        countActive: stats.active,
+        countInactive: stats.inactive,
+        countDeleted: stats.archived,
+    };
 
-function updateStatElement(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
+    Object.entries(mapping).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    });
 }

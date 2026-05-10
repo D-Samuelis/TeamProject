@@ -167,7 +167,7 @@
                     <h3 style="margin-bottom:0.8rem;font-size:16px;">Linked Services</h3>
                     <div id="linkedServicesList">
                         @foreach ($branch->services as $service)
-                            <div class="service-row" data-id="{{ $service->id }}">
+                            <div class="service-row" data-id="{{ $service->id }}" data-name="{{ $service->name }}">
                                 <a href="{{ route('manage.service.show', $service->id) }}" class="service-card-link">
                                     <i class="fa-solid fa-bell-concierge"
                                         style="margin-right:12px;color:var(--color-primary);font-size:16px;"></i>
