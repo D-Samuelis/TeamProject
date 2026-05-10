@@ -22,19 +22,21 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->route('user') ?? $this->user()?->id;
+        $adultDate = now()->subYears(18)->format('Y-m-d');
+        $oldestAllowedDate = now()->subYears(100)->format('Y-m-d');
 
         return [
             'current_password' => ['required', 'current_password'],
-            'name'         => ['sometimes', 'string', 'max:255'],
-            'email'        => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $userId],
+            'name'         => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
             'password'  => ['sometimes', 'nullable', 'confirmed', Password::defaults()],
-            'city'         => ['sometimes', 'nullable', 'string', 'max:255'],
-            'country'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'city'         => ['required', 'string', 'max:255'],
+            'country'      => ['required', 'string', 'max:255'],
             'title_prefix' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'birth_date'   => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'birth_date'   => ['required', 'date_format:Y-m-d', 'before_or_equal:' . $adultDate, 'after:' . $oldestAllowedDate],
             'title_suffix' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'phone_number' => ['sometimes', 'nullable', 'string', 'max:20'],
-            'gender'       => ['sometimes', 'nullable', 'string', 'in:male,female,other'],
+            'phone_number' => ['required', 'string', 'max:16', 'regex:/^\+[1-9]\d{7,14}$/'],
+            'gender'       => ['sometimes', 'nullable', 'string', 'in:male,female,other,none'],
         ];
     }
 
@@ -44,8 +46,11 @@ class UpdateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'gender.in' => 'The selected gender must be male, female, or other.',
+            'gender.in' => 'The selected gender must be male, female, other, or unspecified.',
             'birth_date.date_format' => 'The birth date must match the format YYYY-MM-DD.',
+            'birth_date.before_or_equal' => 'You must be at least 18 years old.',
+            'birth_date.after' => 'Age must be under 100 years.',
+            'phone_number.regex' => 'Use international format, e.g. +421901234567.',
             'current_password.required' => 'Please enter your current password to confirm changes.',
             'current_password.current_password' => 'The current password is incorrect.',
         ];

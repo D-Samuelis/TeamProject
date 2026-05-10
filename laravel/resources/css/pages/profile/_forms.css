@@ -78,6 +78,20 @@
     margin-bottom: 0;
 }
 
+.modal-form__input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.modal-form__input-wrapper--date .modal-form__input {
+    padding-right: 2.75rem;
+}
+
+.modal-form__input-wrapper--date .modal-form__input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .modal .modal-form__input {
     min-height: 2.75rem;
 }

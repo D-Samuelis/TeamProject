@@ -11,17 +11,7 @@
         </button>
     </div>
 
-    @if ($errors->any())
-        <div class="form-alert form-alert--error">
-            {{ $errors->first('current_password') ?: 'Please check your profile details and try saving again.' }}
-        </div>
-    @elseif (session('success'))
-        <div class="form-alert form-alert--success">{{ session('success') }}</div>
-    @endif
-
     <div class="profile-form-block">
-        <h4 class="profile-form-block__title">Basic details</h4>
-
         <div class="profile-info-grid">
             <div class="profile-info-item">
                 <span class="profile-info-item__label">Title before name</span>

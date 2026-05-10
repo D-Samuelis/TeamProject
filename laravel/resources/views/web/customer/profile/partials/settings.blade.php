@@ -1,25 +1,10 @@
 <div class="profile-section">
-    <div class="profile-section__header">
-        <div>
-            <h3 class="profile-section__title">Settings</h3>
-            <p class="profile-section__subtitle">Review notification preferences and account visibility.</p>
-        </div>
-
+    <div class="profile-section__header profile-section__header--actions-only">
         <button class="btn-primary" type="button" data-profile-modal="settings">
             <i class="fa-solid fa-pen"></i>
             <span>Edit settings</span>
         </button>
     </div>
-
-    @if ($errors->any())
-        <div class="form-alert form-alert--error">
-            {{ $errors->first() }}
-        </div>
-    @elseif (session('error'))
-        <div class="form-alert form-alert--error">{{ session('error') }}</div>
-    @elseif (session('success'))
-        <div class="form-alert form-alert--success">{{ session('success') }}</div>
-    @endif
 
     <div class="profile-form-block">
         <h4 class="profile-form-block__title">Notifications</h4>
@@ -67,17 +52,16 @@
 
     <div class="profile-divider"></div>
 
-    {{-- nefunkcne --}}
-    <div class="danger-zone">
+    <div class="danger-zone" id="delete-account-prompt">
         <div>
             <div class="danger-zone__title">Danger zone</div>
             <div class="danger-zone__desc">Permanently remove your account and related profile data.</div>
         </div>
 
-        <button class="btn-danger" type="button"
-            onclick="document.getElementById('delete-confirm').classList.toggle('hidden')">
+        <button class="danger-zone__button danger-zone__button--danger" type="button"
+            onclick="document.getElementById('delete-confirm').classList.remove('hidden'); document.getElementById('delete-account-prompt').classList.add('hidden')">
             <i class="fa-solid fa-trash"></i>
-            <span class="text-black">Delete account</span>
+            <span>Delete account</span>
         </button>
     </div>
 
@@ -100,7 +84,7 @@
 
                 <div class="danger-zone__input-wrap">
                     <input type="password" name="password" placeholder="Confirm your password"
-                        class="input @error('password') input--error @enderror" autocomplete="current-password">
+                        class="danger-zone__input @error('password') input--error @enderror" autocomplete="current-password">
                     @error('password')
                         <span class="input__error">{{ $message }}</span>
                     @enderror
@@ -108,12 +92,12 @@
             </div>
 
             <div class="danger-zone__actions">
-                <button type="submit" class="btn-danger">
+                <button type="submit" class="danger-zone__button danger-zone__button--danger">
                     <i class="fa-solid fa-trash"></i>
-                    <span class="text-black">Delete</span>
+                    <span>Delete</span>
                 </button>
-                <button type="button" class="btn-ghost"
-                    onclick="document.getElementById('delete-confirm').classList.add('hidden')">
+                <button type="button" class="danger-zone__button danger-zone__button--secondary"
+                    onclick="document.getElementById('delete-confirm').classList.add('hidden'); document.getElementById('delete-account-prompt').classList.remove('hidden')">
                     Cancel
                 </button>
             </div>

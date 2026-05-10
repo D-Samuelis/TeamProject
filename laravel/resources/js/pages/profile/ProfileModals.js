@@ -1,12 +1,13 @@
 import { Modal } from "../../components/displays/modal.js";
 import { initTitleComboboxes } from "../auth/titleCombobox";
+import { initDatePickerToggle } from "../auth/datePickerToggle";
 import { initProfileEditValidator } from "./profileEditValidator";
 
 const genderOptions = [
-    { value: "", label: "Select..." },
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
     { value: "other", label: "Other" },
+    { value: "none", label: "Prefer not to say" },
 ];
 
 function escapeHtml(value) {
@@ -27,7 +28,7 @@ function profileData() {
 
 function profileFormBody() {
     const { routes, csrf, user } = profileData();
-    const selectedGender = user.gender || "";
+    const selectedGender = user.gender || "none";
 
     return `
         <form class="modal-form form-profile-info" method="POST" action="${escapeHtml(routes.update)}">
@@ -61,25 +62,30 @@ function profileFormBody() {
 
                 <div class="modal-form__group">
                     <label class="modal-form__label">Phone</label>
-                    <input class="modal-form__input" type="text" name="phone_number" value="${escapeHtml(user.phone_number)}" placeholder=" ">
+                    <input class="modal-form__input" type="text" name="phone_number" value="${escapeHtml(user.phone_number)}" placeholder="+421901234567" pattern="\\+[1-9]\\d{7,14}" maxlength="16" required>
                     <div class="modal-form__error invalid-input-field"></div>
                 </div>
 
                 <div class="modal-form__group">
                     <label class="modal-form__label">Birth date</label>
-                    <input class="modal-form__input" type="date" name="birth_date" value="${escapeHtml(user.birth_date)}" placeholder=" ">
+                    <div class="modal-form__input-wrapper modal-form__input-wrapper--date">
+                        <input class="modal-form__input" type="date" name="birth_date" value="${escapeHtml(user.birth_date)}" placeholder=" " required>
+                        <button type="button" class="date-picker-toggle" tabindex="-1" aria-label="Open date picker">
+                            <i class="fa-regular fa-calendar"></i>
+                        </button>
+                    </div>
                     <div class="modal-form__error invalid-input-field"></div>
                 </div>
 
                 <div class="modal-form__group">
                     <label class="modal-form__label">City</label>
-                    <input class="modal-form__input" type="text" name="city" value="${escapeHtml(user.city)}" placeholder=" ">
+                    <input class="modal-form__input" type="text" name="city" value="${escapeHtml(user.city)}" placeholder=" " required>
                     <div class="modal-form__error invalid-input-field"></div>
                 </div>
 
                 <div class="modal-form__group">
                     <label class="modal-form__label">Country</label>
-                    <input class="modal-form__input" type="text" name="country" value="${escapeHtml(user.country)}" placeholder=" ">
+                    <input class="modal-form__input" type="text" name="country" value="${escapeHtml(user.country)}" placeholder=" " required>
                     <div class="modal-form__error invalid-input-field"></div>
                 </div>
 
@@ -113,6 +119,9 @@ function profileFormBody() {
             <div class="modal-form__group profile-modal-current-password">
                 <label class="modal-form__label">Current password</label>
                 <input class="modal-form__input" type="password" name="current_password" autocomplete="current-password" placeholder=" " required>
+                <p class="profile-modal-current-password__note">
+                    Enter your current password to confirm any profile changes.
+                </p>
                 <div class="modal-form__error invalid-input-field"></div>
             </div>
 
@@ -193,12 +202,17 @@ function openProfileModal() {
         rules: {
             name: { required: { value: true, message: "Full name is required" } },
             email: { required: { value: true, message: "Email address is required" } },
+            phone_number: { required: { value: true, message: "Phone number is required" } },
+            birth_date: { required: { value: true, message: "Birth date is required" } },
+            city: { required: { value: true, message: "City is required" } },
+            country: { required: { value: true, message: "Country is required" } },
             current_password: { required: { value: true, message: "Current password is required" } },
         },
     });
 
     initTitleComboboxes();
     initProfileEditValidator();
+    initDatePickerToggle();
 }
 
 function openSettingsModal() {

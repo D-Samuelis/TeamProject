@@ -19,13 +19,18 @@ export default function initAuthValidator() {
         required: { value: true, message: 'Please confirm your password' },
         match: { value: 'password', message: 'Passwords do not match' }
     },
-    birth: {
+    birth_date: {
         required: { value: true, message: 'Please select your birth date' },
-        ageCheck: { max: 100, message: 'You surely are not 100 years old' }
+        ageCheck: {
+            min: 18,
+            max: 100,
+            minMessage: 'You must be at least 18 years old',
+            maxMessage: 'Age must be under 100 years'
+        }
     },
-    phone: {
+    phone_number: {
         required: { value: true, message: 'Phone number is required' },
-        isPhone: { value: true, message: 'Format: +421 9xx xxx xxx' }
+        isPhone: { value: true, message: 'Use international format, e.g. +421901234567' }
     },
     country: {
         required: { value: true, message: 'Country is a required field' }
@@ -81,14 +86,19 @@ export default function initAuthValidator() {
                 return false;
             }
 
-            if (age > rules.ageCheck.max) {
-                show(rules.ageCheck.message);
+            if (age < rules.ageCheck.min) {
+                show(rules.ageCheck.minMessage);
+                return false;
+            }
+
+            if (age >= rules.ageCheck.max) {
+                show(rules.ageCheck.maxMessage);
                 return false;
             }
         }
 
         if (rules.isPhone && value) {
-            if (!/^\+[0-9\s]{10,20}$/.test(value)) {
+            if (!/^\+[1-9]\d{7,14}$/.test(value)) {
                 show(rules.isPhone.message);
                 return false;
             }
@@ -123,7 +133,7 @@ export default function initAuthValidator() {
         const inputs = form.querySelectorAll('input:not([type="radio"]), select');
 
         inputs.forEach(input => {
-            if (input.name === 'phone') {
+            if (input.name === 'phone_number') {
                 input.addEventListener('input', (e) => {
                     let value = input.value;
 
@@ -140,15 +150,7 @@ export default function initAuthValidator() {
                     const digits = value.replace(/\D/g, '');
 
                     let formatted = hasPlus ? '+' : '';
-                    
-                    if (digits.length > 0) {
-                        formatted += digits.substring(0, 3);
-                        
-                        if (digits.length > 3) {
-                            const rest = digits.substring(3).match(/.{1,3}/g);
-                            formatted += ' ' + rest.join(' ');
-                        }
-                    }
+                    formatted += digits.substring(0, 15);
 
                     input.value = formatted.substring(0, 16);
                 });

@@ -13,17 +13,9 @@
 
     </div>
 
-    @if ($errors->any())
-        <div class="auth-form__global-error">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            {{-- <span>Invalid email address or password. Please try again.</span> --}}
-            <span>{{ $errors->first() }}</span>
-        </div>
-    @endif
+    <div class="auth-form__content auth-form__content--login">
 
-    <div class="auth-form__content">
-
-        <div class="auth-form__column">
+        <div class="auth-form__column auth-form__column--login">
 
             <x-auth-input id="login_email" name="email" label="Email Address" type="email" 
                           placeholder="john@example.com" />

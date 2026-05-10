@@ -10,8 +10,14 @@ export function initProfileEditValidator() {
             required: { value: true, message: "Email address is required" },
             isEmail: { value: true, message: "This email format is incorrect" },
         },
-        phone_number: {
-            isPhone: { value: true, message: "Format: +421 9xx xxx xxx" },
+        birth_date: {
+            required: { value: true, message: "Birth date is required" },
+            ageCheck: {
+                min: 18,
+                max: 100,
+                minMessage: "You must be at least 18 years old",
+                maxMessage: "Age must be under 100 years",
+            },
         },
         password: {
             min: {
@@ -21,6 +27,16 @@ export function initProfileEditValidator() {
         },
         password_confirmation: {
             match: { value: "password", message: "Passwords do not match" },
+        },
+        phone_number: {
+            required: { value: true, message: "Phone number is required" },
+            isPhone: { value: true, message: "Use international format, e.g. +421901234567" },
+        },
+        city: {
+            required: { value: true, message: "City is required" },
+        },
+        country: {
+            required: { value: true, message: "Country is required" },
         },
         current_password: {
             required: {
@@ -74,8 +90,37 @@ export function initProfileEditValidator() {
         }
 
         if (rules.isPhone && value) {
-            if (!/^\+[0-9\s]{10,20}$/.test(value)) {
+            if (!/^\+[1-9]\d{7,14}$/.test(value)) {
                 show(rules.isPhone.message);
+                return false;
+            }
+        }
+
+        if (rules.ageCheck && value) {
+            const birthDate = new Date(value);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (
+                monthDiff < 0 ||
+                (monthDiff === 0 && today.getDate() < birthDate.getDate())
+            ) {
+                age--;
+            }
+
+            if (birthDate > today) {
+                show("Birth date cannot be in the future");
+                return false;
+            }
+
+            if (age < rules.ageCheck.min) {
+                show(rules.ageCheck.minMessage);
+                return false;
+            }
+
+            if (age >= rules.ageCheck.max) {
+                show(rules.ageCheck.maxMessage);
                 return false;
             }
         }
@@ -103,14 +148,20 @@ export function initProfileEditValidator() {
         const inputs = form.querySelectorAll("input, select");
 
         inputs.forEach((input) => {
+            input.addEventListener("input", () => {
+                if (input.classList.contains("input-error"))
+                    validateField(input, form);
+            });
+
+            input.addEventListener("blur", () => validateField(input, form));
+
             if (input.name === "phone_number") {
                 input.addEventListener("input", () => {
                     let value = input.value;
 
                     if (value.length === 1 && value !== "+") {
-                        if (/\d/.test(value)) {
-                            value = "+" + value;
-                        } else {
+                        if (/\d/.test(value)) value = "+" + value;
+                        else {
                             input.value = "";
                             return;
                         }
@@ -120,26 +171,11 @@ export function initProfileEditValidator() {
                     const digits = value.replace(/\D/g, "");
 
                     let formatted = hasPlus ? "+" : "";
-
-                    if (digits.length > 0) {
-                        formatted += digits.substring(0, 3);
-
-                        if (digits.length > 3) {
-                            const rest = digits.substring(3).match(/.{1,3}/g);
-                            formatted += " " + rest.join(" ");
-                        }
-                    }
+                    formatted += digits.substring(0, 15);
 
                     input.value = formatted.substring(0, 16);
                 });
             }
-
-            input.addEventListener("input", () => {
-                if (input.classList.contains("input-error"))
-                    validateField(input, form);
-            });
-
-            input.addEventListener("blur", () => validateField(input, form));
         });
 
         form.addEventListener("submit", (e) => {

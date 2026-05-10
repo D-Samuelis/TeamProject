@@ -49,7 +49,7 @@ class AuthController extends Controller
             $request->input('birth_date'),
             $request->input('title_suffix'),
             $request->input('phone_number'),
-            $request->input('gender'),
+            $request->input('gender') === 'none' ? null : $request->input('gender'),
         );
 
         $result = $registerUser->execute($dto);

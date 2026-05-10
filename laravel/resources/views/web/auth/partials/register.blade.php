@@ -13,35 +13,43 @@
 
     </div>
 
-    <div class="auth-form__content">
+    <div class="auth-form__content auth-form__content--register">
 
-        <div class="auth-form__column">
-            <x-auth-input id="register_name" name="name" label="Full Name" placeholder="John Doe" />
-            
-            <x-auth-input id="register_title_prefix" name="title_prefix" label="Title Before Name [Optional]" 
-                          placeholder="Bc." list="titles_before_list" info="true" />
-            
-            <x-auth-input id="register_email" name="email" label="Email Address" type="email" 
-                          placeholder="john@example.com" />
-            
-            <x-auth-input id="register_country" name="country" label="Country" placeholder="Slovakia" />
-            
-            <x-auth-input id="register_password" name="password" label="Password" type="password" 
-                          placeholder="Min. 8 characters" />
+        <div class="auth-form__row">
+            <x-auth-input id="register_name" name="name" label="Full Name" placeholder="John Doe" required />
+            <x-auth-input id="register_birth" name="birth_date" label="Birth Date" type="date" required />
         </div>
 
-        <div class="auth-form__column">
-            <x-auth-input id="register_birth" name="birth_date" label="Birth Date" type="date" />
-            
-            <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name [Optional]" 
-                          placeholder="PhD." list="titles_after_list" info="true" />
-            
-            <x-auth-input id="register_phone" name="phone_number" label="Phone Number" placeholder="+421 000 000 000" />
-            
-            <x-auth-input id="register_city" name="city" label="City" placeholder="Bratislava" />
-            
-            <x-auth-input id="register_password_confirmation" name="password_confirmation" 
-                          label="Confirm Password" type="password" placeholder="••••••••" />
+        <div class="auth-form__info active auth-form__info--titles">
+            <i class="fa-solid fa-circle-info"></i>
+            <span class="info-label">Title Info</span>
+            <div class="info-tooltip">You may be asked to provide proof of your diploma later.</div>
+        </div>
+
+        <div class="auth-form__row">
+            <x-auth-input id="register_title_prefix" name="title_prefix" label="Title Before Name [Optional]"
+                          placeholder="Bc." list="titles_before_list" />
+            <x-auth-input id="register_title_suffix" name="title_suffix" label="Title After Name [Optional]"
+                          placeholder="PhD." list="titles_after_list" />
+        </div>
+
+        <div class="auth-form__row">
+            <x-auth-input id="register_email" name="email" label="Email Address" type="email"
+                          placeholder="john@example.com" required />
+            <x-auth-input id="register_phone" name="phone_number" label="Phone Number" placeholder="+421901234567"
+                          pattern="\+[1-9]\d{7,14}" maxlength="16" required />
+        </div>
+
+        <div class="auth-form__row">
+            <x-auth-input id="register_country" name="country" label="Country" placeholder="Slovakia" required />
+            <x-auth-input id="register_city" name="city" label="City" placeholder="Bratislava" required />
+        </div>
+
+        <div class="auth-form__row">
+            <x-auth-input id="register_password" name="password" label="Password" type="password"
+                          placeholder="Min. 8 characters" required />
+            <x-auth-input id="register_password_confirmation" name="password_confirmation"
+                          label="Confirm Password" type="password" placeholder="********" required />
         </div>
 
     </div>
