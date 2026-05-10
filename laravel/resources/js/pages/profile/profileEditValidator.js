@@ -10,9 +10,6 @@ export function initProfileEditValidator() {
             required: { value: true, message: "Email address is required" },
             isEmail: { value: true, message: "This email format is incorrect" },
         },
-        phone_number: {
-            isPhone: { value: true, message: "Format: +421 9xx xxx xxx" },
-        },
         password: {
             min: {
                 value: 8,
@@ -21,6 +18,9 @@ export function initProfileEditValidator() {
         },
         password_confirmation: {
             match: { value: "password", message: "Passwords do not match" },
+        },
+        phone_number: {
+            isPhone: { value: true, message: "Format: +421 9xx xxx xxx" },
         },
         current_password: {
             required: {
@@ -103,14 +103,20 @@ export function initProfileEditValidator() {
         const inputs = form.querySelectorAll("input, select");
 
         inputs.forEach((input) => {
+            input.addEventListener("input", () => {
+                if (input.classList.contains("input-error"))
+                    validateField(input, form);
+            });
+
+            input.addEventListener("blur", () => validateField(input, form));
+
             if (input.name === "phone_number") {
                 input.addEventListener("input", () => {
                     let value = input.value;
 
                     if (value.length === 1 && value !== "+") {
-                        if (/\d/.test(value)) {
-                            value = "+" + value;
-                        } else {
+                        if (/\d/.test(value)) value = "+" + value;
+                        else {
                             input.value = "";
                             return;
                         }
@@ -120,10 +126,8 @@ export function initProfileEditValidator() {
                     const digits = value.replace(/\D/g, "");
 
                     let formatted = hasPlus ? "+" : "";
-
                     if (digits.length > 0) {
                         formatted += digits.substring(0, 3);
-
                         if (digits.length > 3) {
                             const rest = digits.substring(3).match(/.{1,3}/g);
                             formatted += " " + rest.join(" ");
@@ -133,13 +137,6 @@ export function initProfileEditValidator() {
                     input.value = formatted.substring(0, 16);
                 });
             }
-
-            input.addEventListener("input", () => {
-                if (input.classList.contains("input-error"))
-                    validateField(input, form);
-            });
-
-            input.addEventListener("blur", () => validateField(input, form));
         });
 
         form.addEventListener("submit", (e) => {
