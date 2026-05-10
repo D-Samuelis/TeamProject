@@ -1,6 +1,7 @@
 import { Toolbar } from '../../components/toolbar/Toolbar.js';
 import { openSidebar, closeSidebar } from '../../chatbot/main.js';
 import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
+import { Toolbar } from "../../components/toolbar/Toolbar.js";
 
 export function initToolbar() {
     renderToolbar();
@@ -23,13 +24,7 @@ function renderToolbar() {
     }
 
     if (config.rightAction) {
-        const isBexiOpen = localStorage.getItem(BEXI_SIDEBAR_KEY) === "true";
-        actions.right = `
-            <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
-                <i class="fa-solid ${isBexiOpen ? "fa-xmark" : "fa-message"}"></i> 
-                <span>${isBexiOpen ? "Close Bexi" : config.rightAction.label}</span>
-            </button>
-        `;
+        actions.right = buildBexiButtonHtml(config.rightAction.label);
     }
 
     Toolbar.setActions(actions);

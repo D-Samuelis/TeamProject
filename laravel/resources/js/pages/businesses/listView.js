@@ -101,10 +101,10 @@ export function initBusinessListView(data = [], meta = {}) {
                         data-href="${window.BE_DATA.routes.show.replace(":id", item.id)}">
                         <i class="fa-solid fa-gear"></i>
                     </button>
-                    
-                    <button 
-                        type="button" 
-                        class="button-icon button-icon--danger js-archive-business-btn"
+
+                    <button
+                        type="button"
+                        class="button-icon button-icon--danger"
                         data-modal-target="archive-business-modal"
                         data-id="${item.id}"
                         data-name="${item.name}"
@@ -214,10 +214,18 @@ async function handleTogglePublish(btn) {
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.is_published = nextStatus;
 
-        const msg = nextStatus
-            ? "Business is now published."
-            : "Business is now hidden.";
-        Toast.warning("Business status changed", msg);
+        if (nextStatus) {
+            Toast.success(
+                "Business published",
+                "The business is now publicly visible.",
+            );
+        } else {
+            Toast.warning(
+                "Business hidden",
+                "The business is no longer publicly visible.",
+            );
+        }
+
         rerender();
     } catch (err) {
         Toast.error("Failed to update status", err.message);
@@ -239,7 +247,7 @@ function rerender() {
 
 function applyFilters() {
     if (!activeFilters) {
-        // no filter event has fired yet — default view hides deleted
+        // No filter event has fired yet — default view hides deleted
         return originalData.filter((b) => !b.deleted_at);
     }
 
