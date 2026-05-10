@@ -33,6 +33,7 @@
                                     isForm: true,
                                     toastTitle: 'Business restored',
                                     toastType: 'success',
+                                    toastText: 'The business is now active again.',
                                     action: '{{ route('manage.business.restore', $business->id) }}',
                                     hiddenFields: [{
                                         name: "_method",
