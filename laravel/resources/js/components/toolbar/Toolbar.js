@@ -1,3 +1,5 @@
+// resources/js/components/toolbar/Toolbar.js
+
 export const Toolbar = {
     get el() { return document.getElementById('main-toolbar'); },
     get left() { return document.getElementById('toolbar-left'); },

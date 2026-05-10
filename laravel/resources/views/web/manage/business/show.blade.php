@@ -31,6 +31,8 @@
                                     label: 'Restore Business',
                                     icon: 'fa-rotate-left',
                                     isForm: true,
+                                    toastTitle: 'Business restored',
+                                    toastType: 'success',
                                     action: '{{ route('manage.business.restore', $business->id) }}',
                                     hiddenFields: [{
                                         name: "_method",

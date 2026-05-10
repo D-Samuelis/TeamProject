@@ -1,5 +1,6 @@
 import { Modal } from "../../../components/displays/modal.js";
 import { Toast } from "../../../components/displays/toast.js";
+import { apiFetch } from "../../../utils/apiFetch.js";
 
 export function initCreateBranchModal() {
     document.addEventListener("click", (e) => {
@@ -9,10 +10,7 @@ export function initCreateBranchModal() {
         if (!btn) return;
 
         e.preventDefault();
-
-        const businesses = window.BE_DATA?.businesses || [];
-        openCreateBranchModal(businesses);
-        console.log(businesses);
+        openCreateBranchModal(window.BE_DATA?.businesses || []);
     });
 }
 
@@ -28,8 +26,8 @@ function openCreateBranchModal(businesses) {
                 <div class="modal-form__group">
                     <label class="modal-form__label">Business</label>
                     <div class="searchable-select-wrapper" style="position:relative;">
-                        <input type="text" id="business_search" class="modal-form__input" 
-                               placeholder="Search and select business..." autocomplete="off" required>
+                        <input type="text" id="business_search" class="modal-form__input"
+                               placeholder="Search and select business..." autocomplete="off">
                         <div id="business_dropdown" class="custom-dropdown" style="display:none;">
                             ${businesses.map((b) => `<div class="dropdown-item" data-value="${b.id}">${b.name}</div>`).join("")}
                         </div>
@@ -39,7 +37,8 @@ function openCreateBranchModal(businesses) {
                 <div class="modal-form__group">
                     <label class="modal-form__label">Name</label>
                     <div class="input-wrapper">
-                        <input type="text" name="name" class="modal-form__input" placeholder="Enter branch name" required autofocus>
+                        <input type="text" name="name" class="modal-form__input"
+                               placeholder="Enter branch name" required autofocus>
                     </div>
                 </div>
 
@@ -54,27 +53,28 @@ function openCreateBranchModal(businesses) {
                     </div>
                 </div>
 
-                <div class="modal-form__group checkbox-group">
-                    <label class="modal-form__checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <div class="modal-form__group">
+                    <label class="modal-form__label toggle-label"
+                           style="display:flex;flex-direction:row;align-items:center;gap:8px;cursor:pointer;">
                         <input type="checkbox" name="is_active" value="1" checked>
-                        <span>Active Status</span>
+                        Active Status
                     </label>
                 </div>
 
                 <div class="modal-form__group">
                     <label class="modal-form__label">Street Address</label>
                     <div class="input-wrapper">
-                        <input type="text" name="address_line_1" class="modal-form__input" placeholder="Bajkalská 21">
+                        <input type="text" name="address_line_1" class="modal-form__input"
+                               placeholder="Bajkalská 21">
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 12px;">
-                    <div class="modal-form__group" style="flex: 2;">
+                <div style="display:flex;gap:12px;">
+                    <div class="modal-form__group" style="flex:2;">
                         <label class="modal-form__label">City</label>
                         <input type="text" name="city" class="modal-form__input">
                     </div>
-                    
-                    <div class="modal-form__group" style="flex: 1;">
+                    <div class="modal-form__group" style="flex:1;">
                         <label class="modal-form__label">Postal Code</label>
                         <input type="text" name="postal_code" class="modal-form__input">
                     </div>
@@ -110,64 +110,44 @@ function openCreateBranchModal(businesses) {
             formData.append("_token", window.BE_DATA.csrf);
 
             try {
-                const res = await fetch(window.BE_DATA.routes.store, {
+                await apiFetch(window.BE_DATA.routes.store, {
                     method: "POST",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        Accept: "application/json",
-                        "X-CSRF-TOKEN": window.BE_DATA.csrf,
-                    },
                     body: formData,
                 });
 
-                if (res.ok) {
-                    sessionStorage.setItem(
-                        "pending_toast",
-                        JSON.stringify({
-                            type: "success",
-                            title: "Branch created",
-                            message:
-                                "The new branch has been added successfully.",
-                        }),
-                    );
-                    window.location.reload();
-                    return;
-                }
-
-                if (res.status === 422) {
-                    const json = await res.json();
-                    Modal.showFieldErrors(modal, json.errors);
-                } else {
-                    const errorData = await res.json();
-                    Toast.error(
-                        "Create failed",
-                        errorData.message || "A server error occurred.",
-                    );
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                Toast.error(
-                    "Create failed",
-                    "An unexpected error occurred. Please try again.",
+                sessionStorage.setItem(
+                    "pending_toast",
+                    JSON.stringify({
+                        type: "success",
+                        title: "Branch created",
+                        message: "The new branch has been added successfully.",
+                    }),
                 );
+                window.location.reload();
+            } catch (err) {
+                if (err.status === 422 && err.errors) {
+                    Modal.showFieldErrors(modal, err.errors);
+                } else {
+                    Toast.error("Create failed", err.message);
+                }
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
         },
     });
 
-    setTimeout(() => {
-        setupBusinessSearch();
-    }, 10);
+    // Set up the searchable business picker after the modal is in the DOM
+    setTimeout(setupBusinessSearch, 10);
 }
 
 function setupBusinessSearch() {
     const searchInput = document.getElementById("business_search");
     const dropdown = document.getElementById("business_dropdown");
     const hiddenInput = document.getElementById("business_id_input");
-    const items = dropdown?.querySelectorAll(".dropdown-item");
 
     if (!searchInput || !dropdown) return;
+
+    const items = dropdown.querySelectorAll(".dropdown-item");
 
     searchInput.addEventListener("focus", () => {
         dropdown.style.display = "block";
@@ -177,16 +157,12 @@ function setupBusinessSearch() {
     searchInput.addEventListener("input", () => {
         const filter = searchInput.value.toLowerCase();
         dropdown.style.display = "block";
-
         items.forEach((item) => {
             item.style.display = item.textContent.toLowerCase().includes(filter)
                 ? "block"
                 : "none";
         });
-
-        if (!searchInput.value) {
-            hiddenInput.value = "";
-        }
+        if (!searchInput.value) hiddenInput.value = "";
     });
 
     items.forEach((item) => {
