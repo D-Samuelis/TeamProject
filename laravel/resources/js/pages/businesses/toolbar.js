@@ -33,6 +33,8 @@ export function initToolbar() {
     }
 }
 
+// ─── Render ───────────────────────────────────────────────────────────────────
+
 function renderToolbar() {
     const config = window.BE_DATA?.toolbar || {};
     const actions = { left: "", center: "", right: "" };
