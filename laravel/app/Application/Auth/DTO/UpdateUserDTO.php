@@ -17,6 +17,9 @@ class UpdateUserDTO
         public readonly ?string $title_suffix = null,
         public readonly ?string $phone_number = null,
         public readonly ?string $gender = null,
+        public readonly bool $titlePrefixProvided = false,
+        public readonly bool $titleSuffixProvided = false,
+        public readonly bool $genderProvided = false,
     ) {}
 
     /**
@@ -36,7 +39,10 @@ class UpdateUserDTO
                 : null,
             title_suffix: $request->input('title_suffix'),
             phone_number: $request->input('phone_number'),
-            gender: $request->input('gender'),
+            gender: $request->input('gender') === 'none' ? null : $request->input('gender'),
+            titlePrefixProvided: $request->has('title_prefix'),
+            titleSuffixProvided: $request->has('title_suffix'),
+            genderProvided: $request->has('gender'),
         );
     }
 
@@ -46,7 +52,7 @@ class UpdateUserDTO
      */
     public function toArray(): array
     {
-        return array_filter([
+        $data = array_filter([
             'name'         => $this->name,
             'email'        => $this->email,
             'password'     => $this->password ? bcrypt($this->password) : null,
@@ -58,5 +64,19 @@ class UpdateUserDTO
             'phone_number' => $this->phone_number,
             'gender'       => $this->gender,
         ], fn($value) => $value !== null);
+
+        if ($this->genderProvided) {
+            $data['gender'] = $this->gender;
+        }
+
+        if ($this->titlePrefixProvided) {
+            $data['title_prefix'] = $this->title_prefix;
+        }
+
+        if ($this->titleSuffixProvided) {
+            $data['title_suffix'] = $this->title_suffix;
+        }
+
+        return $data;
     }
 }

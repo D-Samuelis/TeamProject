@@ -13,6 +13,9 @@ class RegisterRequest extends FormRequest
 
     public function rules(): array
     {
+        $adultDate = now()->subYears(18)->format('Y-m-d');
+        $oldestAllowedDate = now()->subYears(100)->format('Y-m-d');
+
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -22,10 +25,19 @@ class RegisterRequest extends FormRequest
             'password_confirmation' => 'required|string|min:8',
 
             'title_prefix' => 'nullable|string|max:50',
-            'birth_date' => 'nullable|date',
+            'birth_date' => ['required', 'date', 'before_or_equal:' . $adultDate, 'after:' . $oldestAllowedDate],
             'title_suffix' => 'nullable|string|max:50',
-            'phone_number' => 'nullable|string|max:20',
+            'phone_number' => ['required', 'string', 'max:16', 'regex:/^\+[1-9]\d{7,14}$/'],
             'gender' => 'nullable|string|in:male,female,other,none',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'birth_date.before_or_equal' => 'You must be at least 18 years old.',
+            'birth_date.after' => 'Age must be under 100 years.',
+            'phone_number.regex' => 'Use international format, e.g. +421901234567.',
         ];
     }
 }

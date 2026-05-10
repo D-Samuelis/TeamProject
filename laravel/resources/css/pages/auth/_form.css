@@ -60,6 +60,11 @@
     font-size: var(--font-size-base);
 }
 
+.auth-form__label .required-marker {
+    color: var(--color-primary);
+    font-size: var(--font-size-small);
+}
+
 .auth-form__input {
     padding: 0.55rem 0.75rem;
     border-radius: 0.25rem;
@@ -148,6 +153,7 @@
 }
 
 .auth-form__info {
+    position: relative;
     display: none;
     align-items: center;
     gap: 0.5rem;
@@ -176,9 +182,14 @@
 }
 
 .auth-form__info {
-    color: var(--color-primary);
+    color: var(--color-text-unimportant);
     background-color: var(--color-bg-complement-v2);
     z-index: 20;
+}
+
+.auth-form__info--titles {
+    margin-top: -0.4rem;
+    margin-bottom: -0.2rem;
 }
 
 .auth-form__error i,
@@ -288,9 +299,8 @@
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateY(10px);
-    z-index: 100;
+    z-index: 1000;
     box-shadow: 0 4px 15px var(--color-box-shadow);
-    z-index: 100;
 }
 
 .info-tooltip::after {
