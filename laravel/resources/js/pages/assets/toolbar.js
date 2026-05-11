@@ -61,10 +61,8 @@ export function initToolbar() {
         `;
     }
 
-    // Vykreslenie do DOMu cez tvoju Toolbar komponentu
     Toolbar.setActions(actions);
 
-    // Re-inicializácia eventov (Bexi, Dropdowny)
     initBexiToggle();
     if (tplConnections) {
         setupDropdown('toolbarConnectionsBtn', 'toolbarConnectionsDropdown');

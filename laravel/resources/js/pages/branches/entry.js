@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initServiceAssigner();
 
-
     initArchiveBranchModal();
     initBranchConnectionsModal();
     initCreateBranchModal();
