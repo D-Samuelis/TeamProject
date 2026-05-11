@@ -1,6 +1,4 @@
 import { Toolbar } from '../../components/toolbar/Toolbar.js';
-import { initAssetStatusFilters } from '../assets/statusFilters.js';
-import { initServiceStatusFilters } from '../services/statusFilters.js';
 import { openSidebar, closeSidebar } from '../../chatbot/main.js';
 import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
 
@@ -8,28 +6,14 @@ export function initToolbar() {
     const config = window.BE_DATA?.toolbar || {};
     const actions = { left: '', center: '', right: '' };
 
-    // --- LEFT (Statusy a Connections) ---
-    const tplStatus = document.getElementById('tpl-status-filters');
-    if (tplStatus) {
-        actions.left += `
-            <div class="toolbar__status-filters" id="toolbarStatusBtn">
-                Status <i class="fa-solid fa-chevron-down"></i>
-                <div class="toolbar__status-dropdown" id="toolbarStatusDropdown" style="display:none">
-                    <div id="statusFilterContainer">${tplStatus.innerHTML}</div>
-                </div>
-            </div>`;
-    }
-
     const tplConnections = document.getElementById('tpl-connections');
     
     if (tplConnections) {
-        // Ak je tplConnections div, musíme nájsť template vo vnútri
         const templateElement = tplConnections.tagName === 'TEMPLATE' 
             ? tplConnections 
             : tplConnections.querySelector('template');
 
         if (templateElement) {
-            // Použijeme pomocný div na pretransformovanie document-fragmentu na HTML reťazec
             const tempDiv = document.createElement('div');
             tempDiv.appendChild(templateElement.content.cloneNode(true));
 
@@ -43,11 +27,9 @@ export function initToolbar() {
         }
     }
 
-    // --- CENTER (Dynamické akcie: Create, Edit, Status Toggle) ---
     if (Array.isArray(config.centerGroups)) {
         actions.center = config.centerGroups.map(group => {
             const buttonsHtml = group.actions.map(action => {
-                // Príprava dát pre modaly (ak existujú)
                 const dataAttr = action.serviceData ? `data-service='${JSON.stringify(action.serviceData)}'` : '';
                 const assetAttr = action.assetData ? `data-asset='${JSON.stringify(action.assetData)}'` : '';
 
@@ -90,29 +72,15 @@ export function initToolbar() {
             </button>`;
     }
 
-    // 1. Vykreslenie do DOM
     Toolbar.setActions(actions);
 
-    // 2. Inicializácia eventov
     initBexiToggle();
-    
-    if (tplStatus) {
-        setupDropdown('toolbarStatusBtn', 'toolbarStatusDropdown', () => {
-            // Ak máme v BE_DATA "service", sme v sekcii služieb
-            if (window.BE_DATA.service || window.BE_DATA.services) {
-                initServiceStatusFilters('statusFilterContainer'); 
-            } else {
-                initAssetStatusFilters('statusFilterContainer');
-            }
-        });
-    }
     
     if (tplConnections) {
         setupDropdown('toolbarConnectionsBtn', 'toolbarConnectionsDropdown');
     }
 }
 
-// --- POMOCNÉ FUNKCIE (Nemenia sa) ---
 function setupDropdown(btnId, dropdownId, onOpen) {
     const btn = document.getElementById(btnId);
     const dropdown = document.getElementById(dropdownId);

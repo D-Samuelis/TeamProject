@@ -1,23 +1,10 @@
 import { Toolbar } from '../../components/toolbar/Toolbar.js';
-import { initAssetStatusFilters } from './statusFilters.js';
 import { openSidebar, closeSidebar } from '../../chatbot/main.js';
 import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
 
 export function initToolbar() {
     const config = window.BE_DATA?.toolbar || {};
     const actions = { left: '', center: '', right: '' };
-
-    // --- LEFT (Statusy a Connections) ---
-    const tplStatus = document.getElementById('tpl-status-filters');
-    if (tplStatus) {
-        actions.left += `
-            <div class="toolbar__status-filters" id="toolbarStatusBtn">
-                Status <i class="fa-solid fa-chevron-down"></i>
-                <div class="toolbar__status-dropdown" id="toolbarStatusDropdown" style="display:none">
-                    ${tplStatus.innerHTML}
-                </div>
-            </div>`;
-    }
 
     const tplConnections = document.getElementById('tpl-connections');
     if (tplConnections) {
@@ -74,16 +61,9 @@ export function initToolbar() {
         `;
     }
 
-    // Vykreslenie do DOMu cez tvoju Toolbar komponentu
     Toolbar.setActions(actions);
 
-    // Re-inicializácia eventov (Bexi, Dropdowny)
     initBexiToggle();
-    if (tplStatus) {
-        setupDropdown('toolbarStatusBtn', 'toolbarStatusDropdown', () => {
-            initAssetStatusFilters('toolbarStatusDropdown'); 
-        });
-    }
     if (tplConnections) {
         setupDropdown('toolbarConnectionsBtn', 'toolbarConnectionsDropdown');
     }

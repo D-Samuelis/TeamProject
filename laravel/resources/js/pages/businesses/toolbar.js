@@ -1,5 +1,4 @@
 import { Toolbar } from '../../components/toolbar/Toolbar.js';
-import { initBusinessStatusFilters } from './statusFilters.js';
 import { openSidebar, closeSidebar } from '../../chatbot/main.js';
 import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
 
@@ -85,19 +84,6 @@ function renderToolbar() {
         }
     }
 
-    // --- LEFT (Status filtre biznisu) ---
-    const tplStatus = document.getElementById('tpl-business-filters');
-    if (tplStatus) {
-        actions.left = `
-            <div class="toolbar__status-filters" id="toolbarStatusBtn">
-                Status <i class="fa-solid fa-chevron-down"></i>
-                <div class="toolbar__status-dropdown" id="toolbarStatusDropdown" style="display:none">
-                    ${tplStatus.innerHTML}
-                </div>
-            </div>`;
-    }
-
-    // --- CENTER (Kombinácia Branch akcií a globálnych akcií) ---
     let centerHtml = '';
     
     if (branchActions.length > 0) {
@@ -130,7 +116,6 @@ function renderToolbar() {
     }
 
     Toolbar.setActions(actions);
-    rebindEvents(tplStatus);
 }
 
 function renderButtons(buttons) {
@@ -156,47 +141,4 @@ function renderButtons(buttons) {
         }
         return btnHtml;
     }).join('');
-}
-
-function rebindEvents(tplStatus) {
-    // Dropdown
-    const btn = document.getElementById('toolbarStatusBtn');
-    const dropdown = document.getElementById('toolbarStatusDropdown');
-    if (btn && dropdown) {
-        btn.onclick = (e) => {
-            e.stopPropagation();
-            const isVisible = dropdown.style.display === 'block';
-            dropdown.style.display = isVisible ? 'none' : 'block';
-            if (!isVisible && tplStatus) initBusinessStatusFilters('toolbarStatusDropdown');
-        };
-    }
-
-    // Bexi
-    const bexiBtn = document.getElementById('bexiToggleBtn');
-    if (bexiBtn) {
-        bexiBtn.onclick = (e) => {
-            e.stopPropagation();
-            const willOpen = !bexiBtn.classList.contains('is-active');
-            if (willOpen) {
-                bexiBtn.querySelector('span').textContent = 'Close Bexi';
-                bexiBtn.querySelector('i').className = 'fa-solid fa-xmark';
-                bexiBtn.classList.add('is-active');
-                localStorage.setItem(BEXI_SIDEBAR_KEY, 'true');
-                openSidebar();
-            } else {
-                bexiBtn.querySelector('span').textContent = 'Ask Bexi';
-                bexiBtn.querySelector('i').className = 'fa-solid fa-message';
-                bexiBtn.classList.remove('is-active');
-                localStorage.setItem(BEXI_SIDEBAR_KEY, 'false');
-                closeSidebar();
-            }
-        };
-        if (localStorage.getItem(BEXI_SIDEBAR_KEY) === 'true') bexiBtn.classList.add('is-active');
-    }
-
-    document.addEventListener('click', (e) => {
-        if (btn && !btn.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
 }
