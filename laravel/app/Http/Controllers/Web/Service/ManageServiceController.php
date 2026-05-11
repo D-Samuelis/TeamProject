@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Service;
 
+use App\Application\Branch\UseCases\ListBranches;
+use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\DTO\BranchSearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
@@ -29,8 +31,6 @@ use App\Models\Business\Business;
 use App\Models\Business\Service;
 use App\Notifications\CategoryRequestedNotification;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ManageServiceController extends Controller
 {
@@ -128,56 +128,6 @@ class ManageServiceController extends Controller
             )));
 
         return response()->json(['message' => 'Category request was sent to admin.']);
-    }
-
-    public function requestCategory(Request $request)
-    {
-        $validated = $request->validate([
-            'requested_category_name' => ['required', 'string', 'max:100'],
-            'service_name' => ['nullable', 'string', 'max:255'],
-            'business_id' => ['nullable', 'integer', 'exists:businesses,id'],
-            'service_id' => ['nullable', 'integer', 'exists:services,id'],
-        ]);
-
-        $service = isset($validated['service_id'])
-            ? Service::find($validated['service_id'])
-            : null;
-
-        User::where('is_admin', true)
-            ->get()
-            ->each(fn(User $admin) => $admin->notify(new CategoryRequestedNotification(
-                Auth::user(),
-                trim($validated['requested_category_name']),
-                $service,
-                $validated['service_name'] ?? null,
-                $validated['business_id'] ?? null
-            )));
-
-        return back()->with('success', 'Category request was sent to admin.');
-    }
-
-    public function delete(int $serviceId, DeleteService $useCase)
-    {
-        $useCase->execute($serviceId, Auth::user());
-        return response()->json(['message' => 'Service deleted successfully.', 'data' => $serviceId]);
-    }
-
-    public function restore(int $serviceId, RestoreService $useCase)
-    {
-        $service = $useCase->execute($serviceId, Auth::user());
-        return response()->json(['message' => 'Service restored successfully.', 'data' => $service]);
-    }
-
-    public function assign(int $serviceId, int $branchId, AssignServiceToBranch $useCase)
-    {
-        $useCase->execute($serviceId, $branchId, Auth::user());
-        return response()->json(['message' => 'Service assigned to branch successfully.', 'data' => $serviceId]);
-    }
-
-    public function unassign(int $serviceId, int $branchId, UnassignServiceFromBranch $useCase)
-    {
-        $useCase->execute($serviceId, $branchId, Auth::user());
-        return response()->json(['message' => 'Service removed from branch successfully.', 'data' => $serviceId]);
     }
 
     public function search(Request $request, ListServices $listServices): JsonResponse

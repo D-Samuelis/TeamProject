@@ -2,13 +2,10 @@
 
 namespace App\Domain\Branch\Interfaces;
 
-<<<<<<< HEAD
 use App\Application\DTO\BranchSearchDTO;
-=======
-use App\Models\Auth\User;
-use App\Models\Business\Business;
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 use App\Models\Business\Branch;
+use App\Models\Business\Business;
+use App\Models\Auth\User;
 
 use Illuminate\Support\Collection;
 use App\Application\DTO\SearchDTO;
@@ -54,10 +51,6 @@ interface BranchRepositoryInterface
      */
     public function attachServices(Branch $branch, array $serviceIds): void;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     public function attachUser(Branch $branch, int $userId, BranchRoleEnum $role): void;
 
     public function detachUser(Branch $branch, int $userId): int;

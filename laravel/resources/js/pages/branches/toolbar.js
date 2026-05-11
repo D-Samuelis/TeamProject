@@ -1,7 +1,7 @@
-import { Toolbar } from '../../components/toolbar/Toolbar.js';
-import { openSidebar, closeSidebar } from '../../chatbot/main.js';
-import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
 import { Toolbar } from "../../components/toolbar/Toolbar.js";
+import { openSidebar, closeSidebar } from "../../chatbot/main.js";
+import { BEXI_SIDEBAR_KEY } from "../../config/storageKeys.js";
+import { buildBexiButtonHtml } from "../../components/toolbar/toolBarHelpers.js";
 
 export function initToolbar() {
     renderToolbar();
@@ -28,7 +28,6 @@ function renderToolbar() {
     }
 
     Toolbar.setActions(actions);
-    setupEvents();
     setupBexiEvent();
 }
 
@@ -65,57 +64,32 @@ function renderButtons(buttons) {
         .join("");
 }
 
-function setupEvents() {
-    const bexiBtn = document.getElementById('bexiToggleBtn');
-    if (bexiBtn) {
-        bexiBtn.onclick = (e) => {
-            e.stopPropagation();
-            const isOpen = bexiBtn.classList.contains("is-active");
-            if (!isOpen) {
-                bexiBtn.querySelector("span").textContent = "Close Bexi";
-                bexiBtn.querySelector("i").className = "fa-solid fa-xmark";
-                bexiBtn.classList.add("is-active");
-                localStorage.setItem(BEXI_SIDEBAR_KEY, "true");
-                openSidebar();
-            } else {
-                bexiBtn.querySelector("span").textContent =
-                    window.BE_DATA.toolbar.rightAction.label;
-                bexiBtn.querySelector("i").className = "fa-solid fa-message";
-                bexiBtn.classList.remove("is-active");
-                localStorage.setItem(BEXI_SIDEBAR_KEY, "false");
-                closeSidebar();
-            }
-        };
-
-        if (localStorage.getItem(BEXI_SIDEBAR_KEY) === 'true') bexiBtn.classList.add('is-active');
-    }
-}
-
 function setupBexiEvent() {
-    const bexiBtn = document.getElementById('bexiToggleBtn');
+    const bexiBtn = document.getElementById("bexiToggleBtn");
     if (!bexiBtn) return;
 
     bexiBtn.onclick = (e) => {
         e.stopPropagation();
-        const isOpen = bexiBtn.classList.contains('is-active');
-        
+        const isOpen = bexiBtn.classList.contains("is-active");
+
         if (!isOpen) {
-            bexiBtn.querySelector('span').textContent = 'Close Bexi';
-            bexiBtn.querySelector('i').className = 'fa-solid fa-xmark';
-            bexiBtn.classList.add('is-active');
-            localStorage.setItem(BEXI_SIDEBAR_KEY, 'true');
+            bexiBtn.querySelector("span").textContent = "Close Bexi";
+            bexiBtn.querySelector("i").className = "fa-solid fa-xmark";
+            bexiBtn.classList.add("is-active");
+            localStorage.setItem(BEXI_SIDEBAR_KEY, "true");
             openSidebar();
         } else {
-            bexiBtn.querySelector('span').textContent = window.BE_DATA.toolbar.rightAction.label;
-            bexiBtn.querySelector('i').className = 'fa-solid fa-message';
-            bexiBtn.classList.remove('is-active');
-            localStorage.setItem(BEXI_SIDEBAR_KEY, 'false');
+            bexiBtn.querySelector("span").textContent =
+                window.BE_DATA.toolbar.rightAction.label;
+            bexiBtn.querySelector("i").className = "fa-solid fa-message";
+            bexiBtn.classList.remove("is-active");
+            localStorage.setItem(BEXI_SIDEBAR_KEY, "false");
             closeSidebar();
         }
     };
 
-    if (localStorage.getItem(BEXI_SIDEBAR_KEY) === 'true') {
-        bexiBtn.classList.add('is-active');
+    if (localStorage.getItem(BEXI_SIDEBAR_KEY) === "true") {
+        bexiBtn.classList.add("is-active");
     }
 
     document.querySelectorAll(".js-toolbar-form").forEach((form) => {

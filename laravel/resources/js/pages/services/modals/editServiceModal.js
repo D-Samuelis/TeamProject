@@ -150,24 +150,36 @@ export function initEditServiceModal() {
                 Modal.clearFieldErrors(modal);
                 if (submitBtn) submitBtn.disabled = true;
 
-                const formData = new FormData(form);
-                formData.append("_token", csrf);
-                formData.append("_method", "PUT");
-                formData.append(
-                    "business_id",
-                    service.business_id || service.business?.id || "",
-                );
+                const fd = new FormData(form);
 
-                if (!formData.has("is_active")) formData.set("is_active", "0");
-                if (!formData.has("requires_manual_acceptance"))
-                    formData.set("requires_manual_acceptance", "0");
-                if (!formData.has("branch_ids[]"))
-                    formData.set("branch_ids[]", "");
+                const payload = {
+                    _method: "PUT",
+                    name: fd.get("name"),
+                    description: fd.get("description") || "",
+                    category_id: fd.get("category_id") || null,
+                    duration_minutes: fd.get("duration_minutes"),
+                    price: fd.get("price"),
+                    location_type: fd.get("location_type"),
+                    cancellation_period: fd.get("cancellation_period") || "",
+                    is_active: form.querySelector('[name="is_active"]')?.checked
+                        ? 1
+                        : 0,
+                    requires_manual_acceptance: form.querySelector(
+                        '[name="requires_manual_acceptance"]',
+                    )?.checked
+                        ? 1
+                        : 0,
+                    business_id:
+                        service.business_id || service.business?.id || null,
+                    branch_ids: fd
+                        .getAll("branch_ids[]")
+                        .filter((v) => v !== ""),
+                };
 
                 try {
                     await apiFetch(routes.update, {
                         method: "POST",
-                        body: formData,
+                        body: JSON.stringify(payload),
                     });
 
                     sessionStorage.setItem(
