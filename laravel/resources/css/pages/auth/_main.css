@@ -5,7 +5,7 @@
     flex: 1;
     width: 100%;
     padding: 2rem;
-    background: var(--color-bg-complement);
+    background: var(--color-bg);
 }
 
 .auth-page__form {

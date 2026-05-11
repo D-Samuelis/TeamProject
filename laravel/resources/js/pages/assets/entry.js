@@ -7,7 +7,6 @@ import { initArchiveAssetModal } from './modals/archiveAssetModal.js';
 import { initDeleteRuleModal } from '../assets/modals/deleteRuleModal.js';
 import { initListSearch } from '../../components/table/searchBar.js';
 import { initAssetListView } from './listView.js';
-import { initAssetStatusFilters } from './statusFilters.js'; /* TODO: CLEAR THIS SHIT INTO ONE FILE (+ businesses entry) */
 import { initConnectionsModal } from './modals/connectionsModal.js';
 import { initRuleDetailModal } from './modals/ruleDetailModal.js';
 import { initCreateAssetModal } from './modals/createAssetModal.js';
