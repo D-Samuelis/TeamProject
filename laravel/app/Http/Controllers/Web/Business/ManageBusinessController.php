@@ -64,34 +64,89 @@ class ManageBusinessController extends Controller
 
     public function show(int $businessId, GetBusiness $useCase)
     {
+<<<<<<< HEAD
         $business = $useCase->execute($businessId, Auth::user());
         return view('web.manage.business.show', compact('business'));
+=======
+        try {
+            $business = $useCase->execute($businessId, Auth::user());
+            return view('web.manage.business.show', compact('business'));
+        } catch (BusinessNotFoundException $e) {
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+        } catch (AuthorizationException $e) {
+            return redirect()->route('manage.business.index')->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Something went wrong. Please try again.');
+        }
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
     }
 
     public function store(StoreBusinessRequest $request, StoreBusiness $useCase)
     {
+<<<<<<< HEAD
         $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
         return response()->json(['message' => "Business '{$business->name}' created successfully.", 'data' => $business], 201);
+=======
+        try {
+            $business = $useCase->execute(StoreBusinessDTO::fromRequest($request), Auth::user());
+            return response()->json(['message' => "Business '{$business->name}' created successfully."]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        } catch (BusinessCreationFailedException $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+        }
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
     }
 
     public function update(int $businessId, UpdateBusinessRequest $request, UpdateBusiness $useCase)
     {
+<<<<<<< HEAD
         $business = $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
         return response()->json(['message' => "Business '{$business->name}' updated successfully.", 'data' => $business]);
+=======
+        try {
+            $useCase->execute(UpdateBusinessDTO::fromRequest($businessId, $request), Auth::user());
+            return response()->json(['message' => 'Business updated successfully!']);
+        } catch (BusinessNotFoundException $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        } catch (AuthorizationException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+        }
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
     }
 
     public function delete(int $businessId, DeleteBusiness $useCase)
     {
+<<<<<<< HEAD
         $useCase->execute($businessId, Auth::user());
         return response()->json(['message' => 'Business deleted successfully.', 'data' => $businessId]);
+=======
+        try {
+            $useCase->execute($businessId, Auth::user());
+            return response()->json(['message' => 'Business deleted successfully.']);
+        } catch (BusinessNotFoundException $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        } catch (AuthorizationException $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+        }
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
     }
 
     public function restore(int $businessId, RestoreBusiness $useCase)
     {
+<<<<<<< HEAD
         $business = $useCase->execute($businessId, Auth::user());
         return response()->json(['message' => 'Business restored successfully.', 'data' => $business]);
     }
 }
+=======
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
         try {
             $useCase->execute($businessId, Auth::user());
             return response()->json(['message' => 'Business restored successfully.']);
@@ -102,6 +157,7 @@ class ManageBusinessController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
         }
+<<<<<<< HEAD
     }
 
     public function search(Request $request, ListBusinesses $listBusinesses): JsonResponse
@@ -122,5 +178,7 @@ class ManageBusinessController extends Controller
             ->map(fn($b) => ['id' => $b->id, 'name' => $b->name]);
 
         return response()->json($results);
+=======
+>>>>>>> 39297f8 ([FEAT] Reworked Business controller methods to return JSON, except the views.)
     }
 }
