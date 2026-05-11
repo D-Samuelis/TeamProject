@@ -4,13 +4,19 @@
         {{-- Business --}}
         <div class="service-settings__sidebar-group">
             <p class="service-settings__sidebar-group-title">Business</p>
-            <a href="{{ route('manage.business.show', $service->business->id) }}" class="team-member-item service-settings__sidebar-link">
-                <div class="member-info">
-                    <span class="member-name">{{ $service->business->name }}</span>
-                    <span class="member-role">Open business detail</span>
+            @if($service->business)
+                <a href="{{ route('manage.business.show', $service->business->id) }}" class="team-member-item service-settings__sidebar-link">
+                    <div class="member-info">
+                        <span class="member-name">{{ $service->business->name }}</span>
+                        <span class="member-role">Open business detail</span>
+                    </div>
+                    <i class="fa-solid fa-briefcase"></i>
+                </a>
+            @else
+                <div class="team-member-item service-settings__sidebar-link--muted">
+                    <span class="member-role">No business linked</span>
                 </div>
-                <i class="fa-solid fa-briefcase"></i>
-            </a>
+            @endif
         </div>
 
         {{-- Branches --}}
@@ -34,7 +40,7 @@
         {{-- Assets --}}
         <div class="service-settings__sidebar-group">
             <p class="service-settings__sidebar-group-title">Assets</p>
-            @forelse($service->assets as $asset) {{-- Tu použi $service->assets --}}
+            @forelse($service->assets as $asset)
                 <a href="{{ route('manage.asset.show', $asset->id) }}" class="team-member-item service-settings__sidebar-link">
                     <div class="member-info">
                         <span class="member-name">{{ $asset->name }}</span>

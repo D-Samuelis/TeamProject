@@ -1,5 +1,5 @@
-import { TableSorter } from '../../components/table/tableSorter.js';
-import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { TableSorter } from "../../components/table/tableSorter.js";
+import { TableRenderer } from "../../components/table/tableRenderer.js";
 import { initPaginator } from "../../components/displays/paginator.js";
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
@@ -10,7 +10,7 @@ let originalData = [];
 let activeFilters = null;
 
 export function initBranchListView(data = [], meta = {}) {
-    const container = document.getElementById('branchTableContainer');
+    const container = document.getElementById("branchTableContainer");
     if (!container) return;
 
     // Handle highlighting from URL
@@ -165,19 +165,10 @@ export function initBranchListView(data = [], meta = {}) {
 
     renderer.render(container, sorter.getSortedData(), sorter);
 
-    window.addEventListener('branchFiltersChanged', (e) => {
-        const activeStatuses = e.detail.statuses.filter(s => s.active).map(s => s.id);
-
-        const filteredData = originalData.filter(item => {
-            let status = 'inactive';
-            if (item.deleted_at) status = 'archived';
-            else if (item.is_active) status = 'active';
-
-            return activeStatuses.includes(status);
-        });
-
-        sorter.data = filteredData;
-        renderer.render(container, sorter.getSortedData(), sorter);
+    initPaginator(meta, (page) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", page);
+        window.location.href = url.toString();
     });
 
     // ── Delegated handlers ──────────────────────────────────────────────────
@@ -304,12 +295,6 @@ function applyFilters() {
         if (item.deleted_at) return activeFilters.archived;
         if (item.is_active) return activeFilters.active;
         return activeFilters.inactive;
-    });
-
-    initPaginator(meta, (page) => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
-        window.location.href = url.toString();
     });
 }
 

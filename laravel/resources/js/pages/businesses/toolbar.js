@@ -1,6 +1,7 @@
-import { Toolbar } from '../../components/toolbar/Toolbar.js';
-import { openSidebar, closeSidebar } from '../../chatbot/main.js';
-import { BEXI_SIDEBAR_KEY } from '../../config/storageKeys.js';
+import { Toolbar } from "../../components/toolbar/Toolbar.js";
+import { openSidebar, closeSidebar } from "../../chatbot/main.js";
+import { BEXI_SIDEBAR_KEY } from "../../config/storageKeys.js";
+import { apiFetch } from "../../utils/apiFetch.js";
 
 export function initToolbar() {
     const params = new URLSearchParams(window.location.search);
@@ -14,6 +15,7 @@ export function initToolbar() {
     }
 
     renderToolbar();
+    initToolbarForms();
 
     const sidebar = document.querySelector(".business__sidebar");
     if (sidebar) {
@@ -41,6 +43,35 @@ function renderToolbar() {
 
     const isRealBranch = activeEl && activeEl.dataset.filter !== "all";
 
+    let branchData = {};
+
+    if (activeEl) {
+        const rawBranch = activeEl.dataset.branch
+            ? JSON.parse(activeEl.dataset.branch)
+            : {};
+        const roleText =
+            activeEl.querySelector(".member-role")?.textContent ?? "";
+
+        branchData = {
+            ...rawBranch,
+            id: activeEl.dataset.branchId,
+            name:
+                activeEl.querySelector(".member-name")?.textContent.trim() ||
+                rawBranch.name ||
+                "Branch",
+
+            // Always trust visible DOM state
+            is_active: /\bActive\b/.test(roleText) ? 1 : 0,
+
+            // Check trashed state from class
+            trashed: activeEl.classList.contains("team-member-item--trashed"),
+        };
+    }
+
+    const isArchived = branchData.trashed;
+    const isActive = Number(branchData.is_active) === 1;
+    const nextActive = isActive ? 0 : 1;
+
     let branchActions = [];
 
     if (isRealBranch) {
@@ -64,106 +95,89 @@ function renderToolbar() {
                 };
             }
 
-        branchData = {
-            ...branchData,
-            id: activeEl.dataset.branchId,
-            name:
-                activeEl.querySelector(".member-name")?.textContent.trim() ||
-                branchData.name ||
-                "Branch",
+            branchActions = [
+                {
+                    label: isArchived
+                        ? "Status: Archived"
+                        : `Status: ${isActive ? "Active" : "Inactive"}`,
 
-            // Always trust visible DOM state
-            is_active: /\bActive\b/.test(roleText) ? 1 : 0,
+                    icon: isArchived
+                        ? "fa-box-archive text-gray"
+                        : isActive
+                          ? "fa-circle text-green"
+                          : "fa-circle text-yellow",
 
-            // Check trashed state from class
-            trashed: activeEl.classList.contains("team-member-item--trashed"),
-        };
+                    isForm: !isArchived,
 
-        const isArchived = branchData.trashed;
-        const isActive = Number(branchData.is_active) === 1;
-        const nextActive = isActive ? 0 : 1;
+                    ...(isArchived
+                        ? {
+                              disabled: true,
+                              class: "toolbar__action-button--disabled",
+                          }
+                        : {
+                              toastTitle: isActive
+                                  ? "Branch deactivated"
+                                  : "Branch activated",
+                              toastType: isActive ? "warning" : "success",
+                              toastText: isActive
+                                  ? "The branch is now inactive."
+                                  : "The branch is now active.",
+                              action: window.BE_DATA.routes.branchUpdate.replace(
+                                  ":id",
+                                  branchData.id,
+                              ),
+                              hiddenFields: [
+                                  {
+                                      name: "business_id",
+                                      value: window.BE_DATA.business.id,
+                                  },
+                                  { name: "is_active", value: nextActive },
+                                  { name: "_method", value: "PUT" },
+                              ],
+                          }),
+                },
+                {
+                    label: "Manage Branch",
+                    icon: "fa-gear",
+                    modal: "edit-branch-modal",
+                    branchData,
+                },
+                {
+                    label: isArchived ? "Restore Branch" : "Archive Branch",
+                    icon: isArchived ? "fa-rotate-left" : "fa-box-archive",
 
-        return [
-            {
-                label: isArchived
-                    ? "Status: Archived"
-                    : `Status: ${isActive ? "Active" : "Inactive"}`,
-
-                icon: isArchived
-                    ? "fa-box-archive text-gray"
-                    : isActive
-                      ? "fa-circle text-green"
-                      : "fa-circle text-yellow",
-
-                isForm: !isArchived,
-
-                ...(isArchived
-                    ? {
-                          disabled: true,
-                          class: "toolbar__action-button--disabled",
-                      }
-                    : {
-                          toastTitle: isActive
-                              ? "Branch deactivated"
-                              : "Branch activated",
-                          toastType: isActive ? "warning" : "success",
-                          toastText: isActive
-                              ? "The branch is now inactive."
-                              : "The branch is now active.",
-                          action: window.BE_DATA.routes.branchUpdate.replace(
-                              ":id",
-                              branchData.id,
-                          ),
-                          hiddenFields: [
-                              {
-                                  name: "business_id",
-                                  value: window.BE_DATA.business.id,
-                              },
-                              { name: "is_active", value: nextActive },
-                              { name: "_method", value: "PUT" },
-                          ],
-                      }),
-            },
-            {
-                label: "Manage Branch",
-                icon: "fa-gear",
-                modal: "edit-branch-modal",
-                branchData,
-            },
-            {
-                label: isArchived ? "Restore Branch" : "Archive Branch",
-                icon: isArchived ? "fa-rotate-left" : "fa-box-archive",
-
-                ...(isArchived
-                    ? {
-                          isForm: true,
-                          toastTitle: "Branch restored",
-                          toastType: "success",
-                          toastText: "The branch is now active again.",
-                          action: window.BE_DATA.routes.branchRestore.replace(
-                              ":id",
-                              branchData.id,
-                          ),
-                          hiddenFields: [{ name: "_method", value: "PATCH" }],
-                      }
-                    : {
-                          class: "delete-action",
-                          modal: "archive-branch-modal",
-                          id: branchData.id,
-                          name: branchData.name,
-                          toastTitle: "Branch archived",
-                          toastType: "warning",
-                          toastText: "The branch has been archived.",
-                      }),
-            },
-        ];
-    } catch (err) {
-        console.error("Toolbar branch action render error:", err);
-        return [];
+                    ...(isArchived
+                        ? {
+                              isForm: true,
+                              toastTitle: "Branch restored",
+                              toastType: "success",
+                              toastText: "The branch is now active again.",
+                              action: window.BE_DATA.routes.branchRestore.replace(
+                                  ":id",
+                                  branchData.id,
+                              ),
+                              hiddenFields: [
+                                  { name: "_method", value: "PATCH" },
+                              ],
+                          }
+                        : {
+                              class: "delete-action",
+                              modal: "archive-branch-modal",
+                              id: branchData.id,
+                              name: branchData.name,
+                              toastTitle: "Branch archived",
+                              toastType: "warning",
+                              toastText: "The branch has been archived.",
+                          }),
+                },
+            ];
+        } catch (e) {
+            console.error("Toolbar render error:", e);
+        }
     }
 
-    let centerHtml = '';
-    
+    let centerHtml = "";
+
     if (branchActions.length > 0) {
         centerHtml += `<div class="toolbar__group">${renderButtons(branchActions)}</div>`;
 
@@ -194,10 +208,10 @@ function renderToolbar() {
         const isBexiOpen = localStorage.getItem(BEXI_SIDEBAR_KEY) === "true";
         actions.right = `
             <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
-                <i class="fa-solid ${isBexiOpen ? "fa-xmark" : "fa-message"}"></i> 
+                <i class="fa-solid ${isBexiOpen ? "fa-xmark" : "fa-message"}"></i>
                 <span>${isBexiOpen ? "Close Bexi" : config.rightAction.label}</span>
             </button>
-        `;
+`;
     }
 
     Toolbar.setActions(actions);
@@ -207,15 +221,18 @@ function renderButtons(buttons) {
     return buttons
         .map((action) => {
             const btnHtml = `
-            <button type="${action.isForm ? "submit" : "button"}" 
-                class="toolbar__action-button ${action.class || ""}" 
-                ${action.modal ? `data-modal-target="${action.modal}"` : ""}
-                ${action.id ? `data-id="${action.id}"` : ""}
-                ${action.name ? `data-name="${action.name}"` : ""}
-                ${action.branchData ? `data-branch='${JSON.stringify(action.branchData)}'` : ""}>
-                <i class="fa-solid ${action.icon}"></i> ${action.label}
-            </button>
-        `;
+                <button type="${action.isForm ? "submit" : "button"}" class="toolbar__action-button ${action.class || ""}" ${
+                    action.modal ? `data-modal-target="${action.modal}"` : ""
+                } ${action.id ? `data-id="${action.id}"` : ""} ${
+                    action.name ? `data-name="${action.name}"` : ""
+                } ${
+                    action.branchData
+                        ? `data-branch='${JSON.stringify(action.branchData)}'`
+                        : ""
+                }>
+                    <i class="fa-solid ${action.icon}"></i> ${action.label}
+                </button>
+`;
 
             if (action.isForm) {
                 const hiddens = (action.hiddenFields || [])
@@ -224,10 +241,53 @@ function renderButtons(buttons) {
                             `<input type="hidden" name="${f.name}" value="${f.value}">`,
                     )
                     .join("");
-                return `<form action="${action.action}" method="POST" style="display:inline;">
-                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">${hiddens}${btnHtml}
+
+                // Add data-intercept and toast attributes here
+                return `
+                    <form action="${action.action}" method="POST" style="display:inline;"
+                        data-intercept
+                        data-toast-title="${action.toastTitle || ""}"
+                        data-toast-type="${action.toastType || "success"}"
+                        data-toast-text="${action.toastText || ""}">
+                        <input type="hidden" name="_token" value="${window.BE_DATA.csrf}">
+                        ${hiddens}
+                        ${btnHtml}
                     </form>`;
+            }
+            return btnHtml;
+        })
+        .join("");
+}
+
+function initToolbarForms() {
+    document.addEventListener("submit", async (e) => {
+        const form = e.target.closest("form[data-intercept]");
+        if (!form) return;
+
+        e.preventDefault();
+
+        const btn = form.querySelector('[type="submit"]');
+        if (btn) btn.disabled = true;
+
+        try {
+            const response = await apiFetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+            });
+
+            sessionStorage.setItem(
+                "pending_toast",
+                JSON.stringify({
+                    type: form.dataset.toastType || "success",
+                    title: form.dataset.toastTitle || "Done",
+                    message: response.message ?? form.dataset.toastText
+                }),
+            );
+
+            window.location.reload();
+        } catch (err) {
+            console.error("Action failed", err);
+            if (btn) btn.disabled = false;
         }
-        return btnHtml;
-    }).join('');
+    });
 }

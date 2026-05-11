@@ -1,5 +1,5 @@
-import { TableSorter } from '../../components/table/tableSorter.js';
-import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { TableSorter } from "../../components/table/tableSorter.js";
+import { TableRenderer } from "../../components/table/tableRenderer.js";
 import { initPaginator } from "../../components/displays/paginator.js";
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
@@ -10,7 +10,7 @@ let originalData = [];
 let activeFilters = null;
 
 export function initServicesListView(data = [], meta = {}) {
-    const container = document.getElementById('serviceTableContainer');
+    const container = document.getElementById("serviceTableContainer");
     if (!container) return;
 
     originalData = data;
@@ -87,7 +87,8 @@ export function initServicesListView(data = [], meta = {}) {
                 render: (val, item) => {
                     const branchCount = item.branches?.length ?? 0;
                     const assetCount = item.assets?.length ?? 0;
-                    const branchLabel = branchCount === 1 ? "Branch" : "Branches";
+                    const branchLabel =
+                        branchCount === 1 ? "Branch" : "Branches";
                     const assetLabel = assetCount === 1 ? "Asset" : "Assets";
 
                     return `
@@ -106,9 +107,12 @@ export function initServicesListView(data = [], meta = {}) {
                 },
             },
             {
-                label: 'Status', key: 'is_active', sortable: false,
+                label: "Status",
+                key: "is_active",
+                sortable: false,
                 render: (val, item) => {
-                    if (item.deleted_at) return `<span class="status-cell filter-item--red">Archived</span>`;
+                    if (item.deleted_at)
+                        return `<span class="status-cell filter-item--red">Archived</span>`;
                     return val
                         ? `<span class="status-cell filter-item--green">Active</span>`
                         : `<span class="status-cell filter-item--yellow">Inactive</span>`;
@@ -161,7 +165,7 @@ export function initServicesListView(data = [], meta = {}) {
 
     const initialData = originalData;
 
-    sorter = new TableSorter(initialData, 'name', 'asc', (sortedData) => {
+    sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
 
@@ -207,7 +211,7 @@ export function initServicesListView(data = [], meta = {}) {
 
     initPaginator(meta, (page) => {
         const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
+        url.searchParams.set("page", page);
         window.location.href = url.toString();
     });
 }
@@ -219,22 +223,20 @@ async function handleRestore(btn) {
     btn.disabled = true;
 
     try {
-        const response = await apiFetch(
-            window.BE_DATA.routes.restore.replace(":id", id),
-            {
-                method: "POST",
-                body: JSON.stringify({ _method: "PATCH" }),
-            },
-        );
+        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({ _method: "PATCH" }),
+        });
 
-        const record = originalData.find((s) => String(s.id) === String(id));
-        if (record) record.deleted_at = null;
-
-        Toast.success(
-            "Service restored",
-            response?.message || "The service is now active again.",
+        sessionStorage.setItem(
+            "pending_toast",
+            JSON.stringify({
+                type: "success",
+                title: "Service restored",
+                message: "The service is now active again.",
+            }),
         );
-        rerender();
+        window.location.reload();
     } catch (err) {
         Toast.error("Restore failed", err.message);
         btn.disabled = false;
@@ -269,9 +271,7 @@ async function handleToggleActive(btn) {
 
         const title = nextStatus ? "Service activated" : "Service deactivated";
         const type = nextStatus ? "success" : "warning";
-        const fallback = nextStatus
-            ? "The service is now active."
-            : "The service is now inactive.";
+        const fallback = nextStatus ? 'The service is now inactive and won\'t be bookable.' : 'The service is now active and available for booking.';
 
         Toast[type](title, response?.message || fallback);
 

@@ -33,11 +33,11 @@
                                     isForm: true,
                                     toastTitle: 'Business restored',
                                     toastType: 'success',
-                                    toastText: 'The business is now active again.',
+                                    toastText: 'The business is successfully restored.',
                                     action: '{{ route('manage.business.restore', $business->id) }}',
                                     hiddenFields: [{
-                                        name: "_method",
-                                        value: "PATCH"
+                                        name: '_method',
+                                        value: 'PATCH'
                                     }]
                                 }
                             @else
@@ -146,10 +146,9 @@
                     @endcan
 
                     @foreach ($business->branches as $branch)
-                        <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}"
+                        <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }} {{ request('branch') == $branch->id ? 'is-active' : '' }}"
                             data-filter="branch-{{ $branch->id }}" data-branch-id="{{ $branch->id }}"
-                            data-name="{{ $branch->name }}" data-branch='{{ json_encode($branch) }}'
-                            style="cursor: pointer;">
+                            data-branch='{{ json_encode($branch) }}' style="cursor: pointer;">
                             <div class="member-info">
                                 <span class="member-name">{{ $branch->name }}</span>
                                 <span class="member-role">
@@ -422,8 +421,11 @@
                     }
                     window.history.replaceState({}, '', url);
 
-                    filterItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
+                    filterItems.forEach(i => {
+                        i.classList.remove('active');
+                        i.classList.remove('is-active');
+                    });
+                    this.classList.add('is-active');
 
                     titleHeader.innerText = filter === 'all' ? 'Business Overview' : 'Branch: ' +
                         branchName;

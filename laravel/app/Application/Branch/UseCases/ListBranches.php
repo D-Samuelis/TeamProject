@@ -2,20 +2,9 @@
 
 namespace App\Application\Branch\UseCases;
 
-<<<<<<< HEAD
-use App\Application\DTO\SearchDTO;
 use App\Application\DTO\BranchSearchDTO;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
-=======
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
 use App\Models\Auth\User;
-use App\Models\Business\Business;
-
-use Illuminate\Support\Collection;
-use App\Application\DTO\SearchDTO;
-use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
-
-use App\Exceptions\InvalidScopeException;
 
 class ListBranches
 {
@@ -31,26 +20,7 @@ class ListBranches
      * @param array $filters Search/Filter criteria for public browsing
      * @return Collection A collection of Branch model instances matching the criteria.
      */
-<<<<<<< HEAD
     public function execute(BranchSearchDTO $dto, ?User $user = null) {
         return $this->branchRepo->search($dto, $user);
-=======
-    public function execute(
-        ?User $user = null,
-        ?Business $business = null,
-        string $scope = 'active',
-        array $filters = []
-    ): Collection {
-        if ($scope === 'public') {
-            $dto = SearchDTO::fromArray($filters);
-            return $this->branchRepo->search($dto)->getCollection();
-        }
-
-        if (!$user) {
-            throw new InvalidScopeException('User is required for this scope.');
-        }
-
-        return $this->branchRepo->listForUser($user, $business, $scope);
->>>>>>> 97c82cc ([FEAT] Added exception handling for Beanch and Service models.)
     }
 }

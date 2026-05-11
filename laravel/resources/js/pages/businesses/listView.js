@@ -1,5 +1,5 @@
-import { TableSorter } from '../../components/table/tableSorter.js';
-import { TableRenderer } from '../../components/table/tableRenderer.js';
+import { TableSorter } from "../../components/table/tableSorter.js";
+import { TableRenderer } from "../../components/table/tableRenderer.js";
 import { initPaginator } from "../../components/displays/paginator.js";
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
@@ -10,7 +10,7 @@ let originalData = [];
 let activeFilters = null;
 
 export function initBusinessListView(data = [], meta = {}) {
-    const container = document.getElementById('businessTableContainer');
+    const container = document.getElementById("businessTableContainer");
     if (!container) return;
 
     originalData = data;
@@ -120,9 +120,9 @@ export function initBusinessListView(data = [], meta = {}) {
 
     renderer = new TableRenderer(tableConfig);
 
-    const initialData = originalData.filter(b => !b.deleted_at);
+    const initialData = originalData.filter((b) => !b.deleted_at);
 
-    sorter = new TableSorter(initialData, 'name', 'asc', (sortedData) => {
+    sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
 
@@ -154,7 +154,7 @@ export function initBusinessListView(data = [], meta = {}) {
     window.addEventListener("businessFiltersChanged", (event) => {
         const statuses = event.detail.statuses;
 
-        const activeFilters = statuses.reduce((acc, s) => {
+        activeFilters = statuses.reduce((acc, s) => {
             acc[s.id] = s.active;
             return acc;
         }, {});
@@ -172,7 +172,7 @@ export function initBusinessListView(data = [], meta = {}) {
 
     initPaginator(meta, (page) => {
         const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
+        url.searchParams.set("page", page);
         window.location.href = url.toString();
     });
 }
@@ -206,15 +206,23 @@ async function handleTogglePublish(btn) {
     btn.disabled = true;
 
     try {
-        const response = await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({ _method: "PUT", is_published: nextStatus }),
-        });
+        const response = await apiFetch(
+            window.BE_DATA.routes.update.replace(":id", id),
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    _method: "PUT",
+                    is_published: nextStatus,
+                }),
+            },
+        );
 
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.is_published = nextStatus;
 
-        const title = nextStatus ? "Business activated" : "Business deactivated";
+        const title = nextStatus
+            ? "Business activated"
+            : "Business deactivated";
         const type = nextStatus ? "success" : "warning";
         const fallback = nextStatus
             ? "The business is now publicly visible."

@@ -85,6 +85,15 @@
                                 'fa-circle text-yellow',
                             isForm: true,
                             action: '{{ route('manage.service.update', $service->id) }}',
+
+                            // Dynamics Toasts based on current state
+                            toastTitle: @json($service->is_active) ? 'Service deactivated' :
+                                'Service activated',
+                            toastType: @json($service->is_active) ? 'warning' : 'success',
+                            toastText: @json($service->is_active) ?
+                                'The service is now inactive and won\'t be bookable.' :
+                                'The service is now active and available for booking.',
+
                             hiddenFields: [{
                                     name: 'is_active',
                                     value: @json($service->is_active) ? 0 : 1
@@ -93,6 +102,10 @@
                                     name: '_method',
                                     value: 'PUT'
                                 },
+                                {
+                                    name: 'business_id',
+                                    value: '{{ $service->business_id }}'
+                                }
                             ]
                         }]
                     },
@@ -435,77 +448,84 @@
                                         <span class="service-settings__fact-label">Business structure</span>
                                     </div>
 
-                                    <a href="{{ route('manage.business.show', $service->business->id) }}"
-                                        class="service-settings__tree-node service-settings__tree-node--business service-settings__tree-link">
-                                        <span class="service-settings__connection-icon">
-                                            <i class="fa-solid fa-briefcase"></i>
-                                        </span>
-                                        <div>
-                                            <span class="service-settings__fact-label">Business</span>
-                                            <strong>{{ $service->business->name }}</strong>
-                                        </div>
-                                    </a>
+                                    @if ($service->business)
+                                        <a href="{{ route('manage.business.show', $service->business->id) }}"
+                                            class="service-settings__tree-node service-settings__tree-node--business service-settings__tree-link">
+                                            <span class="service-settings__connection-icon">
+                                                <i class="fa-solid fa-briefcase"></i>
+                                            </span>
+                                            <div>
+                                                <span class="service-settings__fact-label">Business</span>
+                                                <strong>{{ $service->business->name }}</strong>
+                                            </div>
+                                        </a>
 
-                                    <div class="service-settings__connection-tree">
-                                        @forelse($service->branches as $branch)
-                                            @php
-                                                $branchAssets = $service->assets->where('branch_id', $branch->id);
-                                            @endphp
-                                            <div class="service-settings__tree-branch">
-                                                <a href="{{ route('manage.branch.show', $branch->id) }}"
-                                                    class="service-settings__tree-node service-settings__tree-node--branch service-settings__tree-link">
-                                                    <span class="service-settings__connection-icon">
-                                                        <i class="fa-solid fa-location-dot"></i>
-                                                    </span>
-                                                    <div>
-                                                        <span class="service-settings__fact-label">Branch</span>
-                                                        <strong>{{ $branch->name }}</strong>
-                                                        @if ($branch->city)
-                                                            <small>{{ $branch->city }}</small>
-                                                        @endif
-                                                    </div>
-                                                </a>
-
-                                                <div class="service-settings__tree-services">
-                                                    <div
-                                                        class="service-settings__tree-node service-settings__tree-node--service">
+                                        <div class="service-settings__connection-tree">
+                                            @forelse($service->branches as $branch)
+                                                @php
+                                                    $branchAssets = $service->assets->where('branch_id', $branch->id);
+                                                @endphp
+                                                <div class="service-settings__tree-branch">
+                                                    <a href="{{ route('manage.branch.show', $branch->id) }}"
+                                                        class="service-settings__tree-node service-settings__tree-node--branch service-settings__tree-link">
                                                         <span class="service-settings__connection-icon">
-                                                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                                                            <i class="fa-solid fa-location-dot"></i>
                                                         </span>
                                                         <div>
-                                                            <span class="service-settings__fact-label">Service</span>
-                                                            <strong>{{ $service->name }}</strong>
+                                                            <span class="service-settings__fact-label">Branch</span>
+                                                            <strong>{{ $branch->name }}</strong>
+                                                            @if ($branch->city)
+                                                                <small>{{ $branch->city }}</small>
+                                                            @endif
+                                                        </div>
+                                                    </a>
+
+                                                    <div class="service-settings__tree-services">
+                                                        <div
+                                                            class="service-settings__tree-node service-settings__tree-node--service">
+                                                            <span class="service-settings__connection-icon">
+                                                                <i class="fa-solid fa-screwdriver-wrench"></i>
+                                                            </span>
+                                                            <div>
+                                                                <span class="service-settings__fact-label">Service</span>
+                                                                <strong>{{ $service->name }}</strong>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="service-settings__tree-assets">
+                                                            @forelse($branchAssets as $asset)
+                                                                <a href="{{ route('manage.asset.show', $asset->id) }}"
+                                                                    class="service-settings__tree-node service-settings__tree-node--asset">
+                                                                    <span class="service-settings__connection-icon">
+                                                                        <i class="fa-regular fa-gem"></i>
+                                                                    </span>
+                                                                    <div>
+                                                                        <span
+                                                                            class="service-settings__fact-label">Asset</span>
+                                                                        <strong>{{ $asset->name }}</strong>
+                                                                    </div>
+                                                                </a>
+                                                            @empty
+                                                                <a href="{{ route('manage.asset.index') }}"
+                                                                    class="service-settings__tree-empty service-settings__tree-empty--link">
+                                                                    No assets connected to this service in this branch.
+                                                                    <span>Open My Assets</span>
+                                                                </a>
+                                                            @endforelse
                                                         </div>
                                                     </div>
-
-                                                    <div class="service-settings__tree-assets">
-                                                        @forelse($branchAssets as $asset)
-                                                            <a href="{{ route('manage.asset.show', $asset->id) }}"
-                                                                class="service-settings__tree-node service-settings__tree-node--asset">
-                                                                <span class="service-settings__connection-icon">
-                                                                    <i class="fa-regular fa-gem"></i>
-                                                                </span>
-                                                                <div>
-                                                                    <span class="service-settings__fact-label">Asset</span>
-                                                                    <strong>{{ $asset->name }}</strong>
-                                                                </div>
-                                                            </a>
-                                                        @empty
-                                                            <a href="{{ route('manage.asset.index') }}"
-                                                                class="service-settings__tree-empty service-settings__tree-empty--link">
-                                                                No assets connected to this service in this branch.
-                                                                <span>Open My Assets</span>
-                                                            </a>
-                                                        @endforelse
-                                                    </div>
                                                 </div>
-                                            </div>
-                                        @empty
-                                            <div class="service-settings__tree-empty">
-                                                No branches assigned to this service yet.
-                                            </div>
-                                        @endforelse
-                                    </div>
+                                            @empty
+                                                <div class="service-settings__tree-empty">
+                                                    No branches assigned to this service yet.
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                    @else
+                                        <div class="service-settings__tree-empty">
+                                            No business linked to this service.
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
