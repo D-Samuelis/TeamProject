@@ -1,5 +1,9 @@
 import { initCollapsibleList } from "../../components/miniLists/miniList.js";
 import { initBusinessListView } from "./listView.js";
+<<<<<<< HEAD
+=======
+import { initBusinessStatusFilters } from "./statusFilters.js"; /* TODO: CLEAR THIS SHIT INTO ONE FILE (+ assets entry) */
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 import { initCreateBusinessModal } from "./modals/createBusinessModal.js";
 import { initEditBusinessMetaDataModal } from "./modals/editBusinessMetaDataModal.js";
 import { initCreateBranchModal } from "./modals/createBranchModal.js";
@@ -12,7 +16,10 @@ import { initRemoveUserModal } from "./modals/removeEmployeeModal.js";
 import { initArchiveBusinessModal } from "./modals/archiveBusinessModal.js";
 import { initToolbar } from "./toolbar.js";
 import { Toast } from '../../components/displays/toast.js';
+<<<<<<< HEAD
 import { initUserSearch } from "../../components/displays/userSearch.js";
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
 document.addEventListener("DOMContentLoaded", () => {
     const pendingToast = sessionStorage.getItem('pending_toast');
@@ -23,10 +30,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* index */
+<<<<<<< HEAD
     initCollapsibleList('managementList');
     initCollapsibleList('statusList');
 
     initBusinessListView(window.BE_DATA.businesses, window.BE_DATA.meta);
+=======
+    initCollapsibleList("managementList");
+    initCollapsibleList("statusList");
+
+    initBusinessListView(window.BE_DATA.businesses);
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
     initCreateBusinessModal();
 
@@ -56,6 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
     initArchiveBusinessModal();
 
     initToolbar();
+<<<<<<< HEAD
 
     initUserSearch()
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 });

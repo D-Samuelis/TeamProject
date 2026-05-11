@@ -95,6 +95,7 @@
                 </header>
 
                 <div class="business__body-wrapper">
+<<<<<<< HEAD
                     <div id="serviceTableContainer" class="list-view__body-wrapper"></div>
                 </div>
 
@@ -161,3 +162,21 @@
     </div>
     @vite('resources/js/pages/services/entry.js')
 @endsection
+=======
+                    <div id="serviceTableContainer" class="list-view__body-wrapper">
+                        {{-- Rendered via JavaScript --}}
+                    </div>
+                </div>
+            </main>
+            @include('components.ui.toolbar')
+        </div>
+    </div>
+
+    @vite('resources/js/pages/services/entry.js')
+
+@endsection
+
+<div id="tpl-status-filters" style="display: none;">
+    @include('components.statuses_service')
+</div>
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf

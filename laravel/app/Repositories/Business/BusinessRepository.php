@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Business;
 
+<<<<<<< HEAD
 use App\Application\DTO\SearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Domain\Business\Enums\BusinessStateEnum;
@@ -9,7 +10,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+=======
+use App\Models\Auth\User;
+use App\Models\Business\Business;
+
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+use App\Domain\Business\Enums\BusinessRoleEnum;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Business\Enums\BusinessRoleEnum;
 
 class BusinessRepository implements BusinessRepositoryInterface

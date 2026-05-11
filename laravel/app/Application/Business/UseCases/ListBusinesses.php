@@ -4,8 +4,19 @@ namespace App\Application\Business\UseCases;
 
 use App\Application\DTO\BusinessSearchDTO;
 use App\Models\Auth\User;
+<<<<<<< HEAD
 use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
 
+=======
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+
+use App\Domain\Business\Interfaces\BusinessRepositoryInterface;
+
+use App\Exceptions\InvalidScopeException;
+
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 class ListBusinesses
 {
     public function __construct(
@@ -35,6 +46,14 @@ class ListBusinesses
             );
         }
 
+<<<<<<< HEAD
         return $this->businessRepo->search($dto, $user);
+=======
+        if (!$user) {
+            throw new InvalidScopeException('User is required for non-public business lists.');
+        }
+
+        return $this->businessRepo->listForUser($user, $scope);
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     }
 }

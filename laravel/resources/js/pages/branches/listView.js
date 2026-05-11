@@ -1,6 +1,9 @@
 import { TableSorter } from "../../components/table/tableSorter.js";
 import { TableRenderer } from "../../components/table/tableRenderer.js";
+<<<<<<< HEAD
 import { initPaginator } from "../../components/displays/paginator.js";
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
 
@@ -9,7 +12,11 @@ let renderer = null;
 let originalData = [];
 let activeFilters = null;
 
+<<<<<<< HEAD
 export function initBranchListView(data = [], meta = {}) {
+=======
+export function initBranchListView(data = []) {
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     const container = document.getElementById("branchTableContainer");
     if (!container) return;
 
@@ -165,6 +172,7 @@ export function initBranchListView(data = [], meta = {}) {
 
     renderer.render(container, sorter.getSortedData(), sorter);
 
+<<<<<<< HEAD
     initPaginator(meta, (page) => {
         const url = new URL(window.location.href);
         url.searchParams.set("page", page);
@@ -173,6 +181,10 @@ export function initBranchListView(data = [], meta = {}) {
 
     // ── Delegated handlers ──────────────────────────────────────────────────
 
+=======
+    // ── Delegated handlers ──────────────────────────────────────────────────
+
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     container.addEventListener("click", async (e) => {
         const restoreBtn = e.target.closest(".js-restore-branch-btn");
         if (restoreBtn) {

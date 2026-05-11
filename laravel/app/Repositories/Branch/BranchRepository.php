@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Branch;
 
+<<<<<<< HEAD
 use App\Application\DTO\BranchSearchDTO;
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
@@ -9,8 +10,18 @@ use App\Domain\Branch\Enums\BranchRoleEnum;
 use Illuminate\Support\Collection;
 use App\Models\Business\Branch;
 use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 use App\Models\Auth\User;
 use App\Models\Business\Business;
+use App\Models\Business\Branch;
+
+use App\Domain\Branch\Interfaces\BranchRepositoryInterface;
+
+use Illuminate\Support\Collection;
+use App\Application\DTO\SearchDTO;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Branch\Enums\BranchRoleEnum;
 
 class BranchRepository implements BranchRepositoryInterface
 {

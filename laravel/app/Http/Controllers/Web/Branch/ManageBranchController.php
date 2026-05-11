@@ -84,6 +84,7 @@ class ManageBranchController extends Controller
     {
         $branch = $useCase->execute($branchId, Auth::user());
         return response()->json(['message' => 'Branch restored successfully.', 'data' => $branch]);
+<<<<<<< HEAD
     }
 
     public function search(Request $request): JsonResponse
@@ -103,5 +104,7 @@ class ManageBranchController extends Controller
             ->get(['id', 'name']);
 
         return response()->json($businesses);
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     }
 }

@@ -27,6 +27,7 @@ class ManageBusinessController extends Controller
 {
     public function index(Request $request, ListBusinesses $useCase)
     {
+<<<<<<< HEAD
         $user = Auth::user();
 
         try {
@@ -60,11 +61,25 @@ class ManageBusinessController extends Controller
         } catch (\Throwable $e) {
             return back()->with('error', 'Something went wrong. Please try again.');
         }
+=======
+        return view('web.manage.business.index', [
+            'activeBusinesses'  => $useCase->execute(Auth::user(), 'active'),
+            'deletedBusinesses' => $useCase->execute(Auth::user(), 'deleted'),
+        ]);
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     }
 
     public function show(int $businessId, GetBusiness $useCase)
     {
         $business = $useCase->execute($businessId, Auth::user());
+<<<<<<< HEAD
+=======
+
+        if (request()->expectsJson()) {
+            return response()->json(['data' => $business]);
+        }
+
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
         return view('web.manage.business.show', compact('business'));
     }
 

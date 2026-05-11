@@ -1,6 +1,9 @@
 import { TableSorter } from "../../components/table/tableSorter.js";
 import { TableRenderer } from "../../components/table/tableRenderer.js";
+<<<<<<< HEAD
 import { initPaginator } from "../../components/displays/paginator.js";
+=======
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
 
@@ -9,7 +12,11 @@ let renderer = null;
 let originalData = [];
 let activeFilters = null;
 
+<<<<<<< HEAD
 export function initBusinessListView(data = [], meta = {}) {
+=======
+export function initBusinessListView(data = []) {
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     const container = document.getElementById("businessTableContainer");
     if (!container) return;
 
@@ -206,6 +213,7 @@ async function handleTogglePublish(btn) {
     btn.disabled = true;
 
     try {
+<<<<<<< HEAD
         const response = await apiFetch(
             window.BE_DATA.routes.update.replace(":id", id),
             {
@@ -216,13 +224,23 @@ async function handleTogglePublish(btn) {
                 }),
             },
         );
+=======
+        const response = await apiFetch(window.BE_DATA.routes.update.replace(":id", id), {
+            method: "POST",
+            body: JSON.stringify({ _method: "PUT", is_published: nextStatus }),
+        });
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
         const record = originalData.find((b) => String(b.id) === String(id));
         if (record) record.is_published = nextStatus;
 
+<<<<<<< HEAD
         const title = nextStatus
             ? "Business activated"
             : "Business deactivated";
+=======
+        const title = nextStatus ? "Business activated" : "Business deactivated";
+>>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
         const type = nextStatus ? "success" : "warning";
         const fallback = nextStatus
             ? "The business is now publicly visible."
