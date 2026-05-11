@@ -1,0 +1,97 @@
+footer {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 2rem;
+    z-index: 10;
+}
+
+.trademark {
+    position: absolute;
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trademark-in-footer {
+    font-size: var(--font-size-small);
+    color: var(--color-text-unimportant);
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -.65rem;
+}
+
+.call-to-action {
+    position: absolute;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-size: var(--font-size-small);
+    color: var(--color-primary);
+}
+
+footer:hover {
+    background: var(--color-bg-complement);
+}
+
+.footer-nav-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg-complement);
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
+    transform: translateY(100%);
+    transition: transform 0.15s ease-in-out;
+    z-index: 1000;
+    padding: 1rem 0 1rem 0;
+    margin: 0 auto;
+    pointer-events: none;
+    opacity: 0;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.footer-nav-panel.visible {
+    transform: translateY(0);
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.footer-nav-columns {
+    display: flex;
+    justify-content: space-between;
+    max-width: 800px;
+    margin: 0 auto;
+    gap: 2rem;
+}
+.footer-nav-col {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+.footer-nav-col.left { text-align: left; }
+.footer-nav-col.center { text-align: center; }
+.footer-nav-col.right { text-align: right; }
+.footer-nav-title {
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+}
+.footer-nav-panel a {
+    color: var(--color-primary);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+.footer-nav-panel a:hover {
+    text-decoration: underline;
+}

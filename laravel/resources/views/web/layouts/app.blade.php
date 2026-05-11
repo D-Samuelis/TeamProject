@@ -99,9 +99,11 @@
         @yield('content')
     </main>
 
+
     <footer>
         @include('web.layouts.partials.footer')
     </footer>
+    <script type="module" src="{{ Vite::asset('resources/js/components/footer/footer.js') }}"></script>
 
     @include('web.layouts.partials.overlays')
     @include('web.layouts.partials.chatbot')
