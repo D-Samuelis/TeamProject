@@ -30,6 +30,8 @@
     </div>
 </div>
 
-@vite('resources/js/pages/welcome/entry.js')
+<button id="bexiToggleBtn" class="bexi-call-trigger" type="button"><i class="fa-regular fa-message"></i> Ask Bexi</button>
+
+@vite(['resources/js/pages/welcome/entry.js'])
 
 @endsection
