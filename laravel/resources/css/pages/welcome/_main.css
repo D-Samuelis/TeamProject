@@ -130,3 +130,36 @@
 .welcome__text-link:hover {
     color: var(--color-primary-hover);
 }
+
+.bexi-call-trigger {
+    position: absolute;
+    bottom: 3rem;
+    right: 3rem;
+    cursor: pointer;
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    padding: .5rem 1.5rem;
+    border-radius: .15rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    animation: riseAndFall 3s ease-in-out infinite;
+}
+
+.bexi-call-trigger:hover {
+    background: var(--color-primary-hover);
+}
+
+.bexi-call-trigger i {
+    font-size: 0.8rem;
+    margin-right: .75rem;
+}
+
+@keyframes riseAndFall {
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-0.25rem); 
+    }
+}

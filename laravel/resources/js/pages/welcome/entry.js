@@ -1,5 +1,6 @@
 import { setRandomPlaceholder } from '../../components/helpers/textGenerator.js';
 import { APPOINTMENT_SAMPLES } from '../../config/constants.js';
+import { initBexiButton } from './bexi.js';
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('aiBookingInput');
     if (!input) return;
@@ -17,4 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.bexiOpenAndSend?.(text);
     });
+
+    initBexiButton();
 });
