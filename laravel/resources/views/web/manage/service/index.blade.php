@@ -20,6 +20,7 @@
             businesses: @json($jsBusinesses),
             branches: @json($jsBranches),
             categories: @json($jsCategories),
+            meta: @json($meta),
             routes: {
                 store: "{{ route('manage.service.store') }}",
                 categoryRequest: "{{ route('manage.service.category.request') }}",
@@ -49,6 +50,15 @@
     <div class="business">
         <aside class="business__sidebar">
             @include('components.partials.dashboard_sidebar_info', ['active' => 'services'])
+
+            <section class="service__filters">
+                <h3 class="miniLists__subtitle">
+                    <i class="fa-solid fa-chevron-down"></i>
+                    <i class="fa-solid fa-filter"></i>
+                    Filters
+                </h3>
+                @include('web.manage.service.partials.filter-sidebar')
+            </section>
         </aside>
 
         <div class="display-column">

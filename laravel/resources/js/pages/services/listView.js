@@ -162,9 +162,7 @@ export function initServicesListView(data = [], meta = {}) {
 
     renderer = new TableRenderer(tableConfig);
 
-    const initialData = originalData;
-
-    sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
+    sorter = new TableSorter(originalData, "name", "asc", (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
 
