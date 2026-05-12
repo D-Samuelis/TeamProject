@@ -2,16 +2,10 @@
 
 namespace App\Domain\Branch\Interfaces;
 
-<<<<<<< HEAD
 use App\Application\DTO\BranchSearchDTO;
 use App\Models\Business\Branch;
 use App\Models\Business\Business;
 use App\Models\Auth\User;
-=======
-use App\Models\Auth\User;
-use App\Models\Business\Business;
-use App\Models\Business\Branch;
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
 use Illuminate\Support\Collection;
 use App\Application\DTO\SearchDTO;

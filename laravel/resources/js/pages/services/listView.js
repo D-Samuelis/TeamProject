@@ -1,9 +1,6 @@
 import { TableSorter } from "../../components/table/tableSorter.js";
 import { TableRenderer } from "../../components/table/tableRenderer.js";
-<<<<<<< HEAD
 import { initPaginator } from "../../components/displays/paginator.js";
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 import { Toast } from "../../components/displays/toast.js";
 import { apiFetch } from "../../utils/apiFetch.js";
 
@@ -12,11 +9,7 @@ let renderer = null;
 let originalData = [];
 let activeFilters = null;
 
-<<<<<<< HEAD
 export function initServicesListView(data = [], meta = {}) {
-=======
-export function initServicesListView(data = []) {
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     const container = document.getElementById("serviceTableContainer");
     if (!container) return;
 
@@ -94,12 +87,8 @@ export function initServicesListView(data = []) {
                 render: (val, item) => {
                     const branchCount = item.branches?.length ?? 0;
                     const assetCount = item.assets?.length ?? 0;
-<<<<<<< HEAD
                     const branchLabel =
                         branchCount === 1 ? "Branch" : "Branches";
-=======
-                    const branchLabel = branchCount === 1 ? "Branch" : "Branches";
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
                     const assetLabel = assetCount === 1 ? "Asset" : "Assets";
 
                     return `
@@ -174,11 +163,7 @@ export function initServicesListView(data = []) {
 
     renderer = new TableRenderer(tableConfig);
 
-<<<<<<< HEAD
     const initialData = originalData;
-=======
-    const initialData = originalData.filter((s) => !s.deleted_at);
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
     sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
         renderer.render(container, sortedData, sorter);
@@ -208,11 +193,7 @@ export function initServicesListView(data = []) {
     window.addEventListener("serviceFiltersChanged", (e) => {
         const statuses = e.detail.statuses;
 
-<<<<<<< HEAD
         const activeFilters = statuses.reduce((acc, s) => {
-=======
-        activeFilters = statuses.reduce((acc, s) => {
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
             acc[s.id] = s.active;
             return acc;
         }, {});
@@ -235,93 +216,6 @@ export function initServicesListView(data = []) {
     });
 }
 
-// ── Action handlers ─────────────────────────────────────────────────────────
-
-async function handleRestore(btn) {
-    const id = btn.dataset.id;
-    btn.disabled = true;
-
-    try {
-        await apiFetch(window.BE_DATA.routes.restore.replace(":id", id), {
-            method: "POST",
-            body: JSON.stringify({ _method: "PATCH" }),
-        });
-
-        sessionStorage.setItem(
-            "pending_toast",
-            JSON.stringify({
-                type: "success",
-                title: "Service restored",
-                message: "The service is now active again.",
-            }),
-        );
-        window.location.reload();
-    } catch (err) {
-        Toast.error("Restore failed", err.message);
-        btn.disabled = false;
-    }
-}
-
-async function handleToggleActive(btn) {
-    const id = btn.dataset.id;
-    const nextStatus = Number(btn.dataset.next);
-
-    const record = originalData.find((s) => String(s.id) === String(id));
-    if (!record) return;
-
-    btn.disabled = true;
-
-    try {
-        const businessId = record.business_id || record.business?.id;
-
-        const response = await apiFetch(
-            window.BE_DATA.routes.update.replace(":id", id),
-            {
-                method: "POST",
-                body: JSON.stringify({
-                    _method: "PUT",
-                    is_active: nextStatus,
-                    business_id: businessId,
-                }),
-            },
-        );
-
-        record.is_active = nextStatus;
-
-        const title = nextStatus ? "Service activated" : "Service deactivated";
-        const type = nextStatus ? "success" : "warning";
-        const fallback = nextStatus ? 'The service is now inactive and won\'t be bookable.' : 'The service is now active and available for booking.';
-
-        Toast[type](title, response?.message || fallback);
-
-        rerender();
-    } catch (err) {
-        Toast.error("Update failed", err.message);
-        btn.disabled = false;
-    }
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function rerender() {
-    updateCounts(originalData);
-    sorter.setData(applyFilters());
-
-    const container = document.getElementById("serviceTableContainer");
-    if (container) renderer.render(container, sorter.getSortedData(), sorter);
-}
-
-function applyFilters() {
-    if (!activeFilters) {
-        return originalData.filter((s) => !s.deleted_at);
-    }
-
-    return originalData.filter((item) => {
-        if (item.deleted_at) return activeFilters.archived;
-        if (item.is_active) return activeFilters.active;
-        return activeFilters.inactive;
-    });
-}
 
 // ── Action handlers ─────────────────────────────────────────────────────────
 
@@ -434,8 +328,4 @@ function updateCounts(data) {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
     });
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf

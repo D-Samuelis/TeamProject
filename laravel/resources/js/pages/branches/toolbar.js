@@ -1,19 +1,7 @@
 import { Toolbar } from "../../components/toolbar/Toolbar.js";
-<<<<<<< HEAD
 import { openSidebar, closeSidebar } from "../../chatbot/main.js";
 import { BEXI_SIDEBAR_KEY } from "../../config/storageKeys.js";
 import { buildBexiButtonHtml } from "../../components/toolbar/toolBarHelpers.js";
-=======
-import { initBranchStatusFilters } from "./statusFilters.js";
-import {
-    buildBexiButtonHtml,
-    buildStatusDropdownHtml,
-    renderCenterGroupsHtml,
-    initBexiToggle,
-    initStatusDropdown,
-    initToolbarForms,
-} from "../../components/toolbar/toolbarHelpers.js";
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
 export function initToolbar() {
     renderToolbar();
@@ -23,7 +11,6 @@ function renderToolbar() {
     const config = window.BE_DATA?.toolbar || {};
     const actions = { left: "", center: "", right: "" };
 
-<<<<<<< HEAD
     if (Array.isArray(config.centerGroups)) {
         actions.center = config.centerGroups
             .map((group, index) => {
@@ -36,25 +23,11 @@ function renderToolbar() {
             .join("");
     }
 
-=======
-    // ── LEFT: status filter (index page only; show page sets showStatus:false) ──
-    if (config.showStatus !== false) {
-        actions.left = buildStatusDropdownHtml("tpl-status-filters");
-    }
-
-    // ── CENTER: groups from BE_DATA ───────────────────────────────────────
-    actions.center = renderCenterGroupsHtml(
-        Array.isArray(config.centerGroups) ? config.centerGroups : [],
-    );
-
-    // ── RIGHT: Bexi chatbot toggle ────────────────────────────────────────
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
     if (config.rightAction) {
         actions.right = buildBexiButtonHtml(config.rightAction.label);
     }
 
     Toolbar.setActions(actions);
-<<<<<<< HEAD
     setupBexiEvent();
 }
 
@@ -161,13 +134,3 @@ function setupBexiEvent() {
         });
     });
 }
-=======
-    bindEvents(config.rightAction);
-}
-
-function bindEvents(rightActionConfig) {
-    initStatusDropdown((containerId) => initBranchStatusFilters(containerId));
-    initBexiToggle(rightActionConfig);
-    initToolbarForms();
-}
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf

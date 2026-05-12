@@ -7,6 +7,7 @@ use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\DTO\BranchSearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
+use App\Application\Service\DTO\StoreServiceDTO;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -14,17 +15,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Service\StoreServiceRequest;
 use App\Http\Requests\Service\UpdateServiceRequest;
 
-<<<<<<< HEAD
-use App\Application\Service\DTO\StoreServiceDTO;
 use App\Application\Service\DTO\UpdateServiceDTO;
 
-=======
-
-use App\Application\Service\DTO\StoreServiceDTO;
-use App\Application\Service\DTO\UpdateServiceDTO;
-
-
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 use App\Application\Service\UseCases\StoreService;
 use App\Application\Service\UseCases\UpdateService;
 use App\Application\Service\UseCases\DeleteService;
@@ -34,18 +26,12 @@ use App\Application\Service\UseCases\ListServices;
 use App\Application\Service\UseCases\AssignServiceToBranch;
 use App\Application\Service\UseCases\UnassignServiceFromBranch;
 
-use App\Application\Branch\UseCases\ListBranches;
-use App\Application\Business\UseCases\ListBusinesses;
 use App\Models\Auth\User;
 use App\Models\Business\Category;
 use App\Models\Business\Business;
 use App\Models\Business\Service;
 use App\Notifications\CategoryRequestedNotification;
-<<<<<<< HEAD
 use Illuminate\Http\JsonResponse;
-=======
-
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
 class ManageServiceController extends Controller
 {
@@ -56,7 +42,6 @@ class ManageServiceController extends Controller
         $paginator = $listServices->execute($dto, $user);
 
         return view('web.manage.service.index', [
-<<<<<<< HEAD
             'services' => $paginator->getCollection(),
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
@@ -69,13 +54,6 @@ class ManageServiceController extends Controller
             'selectedUser'     => $request->user_id ? User::find((int) $request->user_id, ['id', 'name', 'email']) : null,
             'selectedBusiness' => $request->business_id ? Business::find((int) $request->business_id, ['id', 'name']) : null,
             'categories' => Category::orderBy('name')->get(),
-=======
-            'services'   => $listServices->execute(Auth::user(), scope: 'all'),
-            'deletedServices' => $listServices->execute(Auth::user(), scope: 'deleted'),
-            'businesses' => $listBusinesses->execute(Auth::user()),
-            'branches' => $listBranches->execute(Auth::user()),
-            'categories' => Category::orderBy('name', 'asc')->get(),
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
         ]);
     }
 
@@ -83,17 +61,10 @@ class ManageServiceController extends Controller
     {
         $service = $getService->execute($serviceId, Auth::user());
         return view('web.manage.service.show', [
-<<<<<<< HEAD
             'service' => $service,
             'businesses' => $listBusinesses->execute(BusinessSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'branches' => $listBranches->execute(BranchSearchDTO::fromArray([]), Auth::user())->getCollection(),
             'categories' => Category::orderBy('name')->get(),
-=======
-            'service'    => $service,
-            'businesses' => $listBusinesses->execute(Auth::user()),
-            'branches' => $listBranches->execute(Auth::user()),
-            'categories' => Category::orderBy('name', 'asc')->get(),
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
         ]);
     }
 
@@ -159,7 +130,6 @@ class ManageServiceController extends Controller
 
         return response()->json(['message' => 'Category request was sent to admin.']);
     }
-<<<<<<< HEAD
 
     public function search(Request $request, ListServices $listServices): JsonResponse
     {
@@ -181,6 +151,3 @@ class ManageServiceController extends Controller
         return response()->json($results);
     }
 }
-=======
-}
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf

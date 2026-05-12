@@ -150,7 +150,6 @@ export function initEditServiceModal() {
                 Modal.clearFieldErrors(modal);
                 if (submitBtn) submitBtn.disabled = true;
 
-<<<<<<< HEAD
                 const fd = new FormData(form);
 
                 const payload = {
@@ -176,30 +175,11 @@ export function initEditServiceModal() {
                         .getAll("branch_ids[]")
                         .filter((v) => v !== ""),
                 };
-=======
-                const formData = new FormData(form);
-                formData.append("_token", csrf);
-                formData.append("_method", "PUT");
-                formData.append(
-                    "business_id",
-                    service.business_id || service.business?.id || "",
-                );
-
-                if (!formData.has("is_active")) formData.set("is_active", "0");
-                if (!formData.has("requires_manual_acceptance"))
-                    formData.set("requires_manual_acceptance", "0");
-                if (!formData.has("branch_ids[]"))
-                    formData.set("branch_ids[]", "");
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
                 try {
                     await apiFetch(routes.update, {
                         method: "POST",
-<<<<<<< HEAD
                         body: JSON.stringify(payload),
-=======
-                        body: formData,
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
                     });
 
                     sessionStorage.setItem(

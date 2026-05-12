@@ -2,17 +2,11 @@
 
 namespace App\Domain\Business\Interfaces;
 
-<<<<<<< HEAD
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\SearchDTO;
 use Illuminate\Support\Collection;
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 use App\Models\Business\Business;
 use App\Models\Auth\User;
-
-use Illuminate\Support\Collection;
-use App\Application\DTO\SearchDTO;
 
 use App\Domain\Business\Enums\BusinessRoleEnum;
 

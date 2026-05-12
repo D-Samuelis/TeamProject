@@ -2,25 +2,15 @@
 
 namespace App\Repositories\Service;
 
-<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Builder;
 use App\Application\DTO\SearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
 use App\Domain\Service\Enums\ServiceRoleEnum;
 use Illuminate\Support\Collection;
 use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 use App\Models\Auth\User;
 use App\Models\Business\Business;
 use App\Models\Business\Service;
-
-use App\Domain\Service\Interfaces\ServiceRepositoryInterface;
-
-use Illuminate\Support\Collection;
-use App\Application\DTO\SearchDTO;
-use Illuminate\Database\Eloquent\Builder;
-use App\Domain\Service\Enums\ServiceRoleEnum;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {
@@ -38,7 +28,6 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function search(ServiceSearchDTO $dto, ?User $user = null)
     {
-<<<<<<< HEAD
         $query = Service::query()->with(['business', 'branches', 'assets']);
 
         // Non-admins only see services belonging to their own businesses/branches
@@ -109,8 +98,6 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function publicSearch(SearchDTO $dto)
     {
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
         $query = Service::query()
             ->where('is_active', true)
             ->whereHas('business', fn($q) => $q->where('is_published', true));

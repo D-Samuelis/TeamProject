@@ -7,11 +7,8 @@ import { initEditServiceModal } from "./modals/editServiceModal.js";
 import { initServiceShowPage } from "./show.js";
 import { initToolbar } from "./toolbar.js";
 import { Toast } from "../../components/displays/toast.js";
-<<<<<<< HEAD
 import { initUserSearch } from "../../components/displays/userSearch.js";
 import { initBusinessSearch } from "../../components/displays/businessSearch.js";
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
 document.addEventListener("DOMContentLoaded", () => {
     const pendingToast = sessionStorage.getItem("pending_toast");
@@ -33,10 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initArchiveServiceModal();
     initEditServiceModal();
     initServiceShowPage();
-<<<<<<< HEAD
 
     initUserSearch();
     initBusinessSearch();
-=======
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 });

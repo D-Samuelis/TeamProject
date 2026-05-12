@@ -33,19 +33,11 @@
                                     isForm: true,
                                     toastTitle: 'Business restored',
                                     toastType: 'success',
-<<<<<<< HEAD
                                     toastText: 'The business is successfully restored.',
                                     action: '{{ route('manage.business.restore', $business->id) }}',
                                     hiddenFields: [{
                                         name: '_method',
                                         value: 'PATCH'
-=======
-                                    toastText: 'The business is now active again.',
-                                    action: '{{ route('manage.business.restore', $business->id) }}',
-                                    hiddenFields: [{
-                                        name: "_method",
-                                        value: "PATCH"
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
                                     }]
                                 }
                             @else
@@ -154,16 +146,9 @@
                     @endcan
 
                     @foreach ($business->branches as $branch)
-<<<<<<< HEAD
                         <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }} {{ request('branch') == $branch->id ? 'is-active' : '' }}"
                             data-filter="branch-{{ $branch->id }}" data-branch-id="{{ $branch->id }}"
                             data-branch='{{ json_encode($branch) }}' style="cursor: pointer;">
-=======
-                        <div class="team-member-item branch-filter-item {{ $branch->trashed() ? 'team-member-item--trashed' : '' }}"
-                            data-filter="branch-{{ $branch->id }}" data-branch-id="{{ $branch->id }}"
-                            data-name="{{ $branch->name }}" data-branch='{{ json_encode($branch) }}'
-                            style="cursor: pointer;">
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
                             <div class="member-info">
                                 <span class="member-name">{{ $branch->name }}</span>
                                 <span class="member-role">
@@ -436,16 +421,11 @@
                     }
                     window.history.replaceState({}, '', url);
 
-<<<<<<< HEAD
                     filterItems.forEach(i => {
                         i.classList.remove('active');
                         i.classList.remove('is-active');
                     });
                     this.classList.add('is-active');
-=======
-                    filterItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
->>>>>>> 9b2034c34521c9a6ab3916fb5b482b8336129fbf
 
                     titleHeader.innerText = filter === 'all' ? 'Business Overview' : 'Branch: ' +
                         branchName;
