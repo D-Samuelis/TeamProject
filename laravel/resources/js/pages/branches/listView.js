@@ -120,16 +120,16 @@ export function initBranchListView(data = [], meta = {}) {
 
             return `
                 <div class="business__actions">
-                    <button type="button" class="button-icon button-icon--warning js-toggle-active-btn" 
+                    <button type="button" class="button-icon button-icon--warning js-toggle-active-btn"
                             title="${toggleTitle}" data-id="${item.id}" data-next="${nextStatus}" data-bizid="${item.business_id}">
                         <i class="fa-solid ${toggleIcon}" style="${!item.is_active ? "opacity: 0.5" : ""}"></i>
                     </button>
                     <a href="${window.BE_DATA.routes.show.replace(":id", item.id)}" class="button-icon"><i class="fa-solid fa-gear"></i></a>
-                    <button type="button" 
-                            class="button-icon button-icon--danger js-archive-branch-btn" 
-                            data-modal-target="archive-branch-modal" 
-                            data-id="${item.id}" 
-                            data-name="${item.name}" 
+                    <button type="button"
+                            class="button-icon button-icon--danger js-archive-branch-btn"
+                            data-modal-target="archive-branch-modal"
+                            data-id="${item.id}"
+                            data-name="${item.name}"
                             title="Archive">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -156,10 +156,7 @@ export function initBranchListView(data = [], meta = {}) {
 
     renderer = new TableRenderer(tableConfig);
 
-    // Default view: hide archived unless filters say otherwise
-    const initialData = originalData.filter((b) => !b.deleted_at);
-
-    sorter = new TableSorter(initialData, "name", "asc", (sortedData) => {
+    sorter = new TableSorter(originalData, "name", "asc", (sortedData) => {
         renderer.render(container, sortedData, sorter);
     });
 

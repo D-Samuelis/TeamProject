@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initCollapsibleList("managementList");
 
     if (window.BE_DATA.services) {
-        initServicesListView(window.BE_DATA.services);
+        initServicesListView(window.BE_DATA.services, window.BE_DATA.meta);
     }
 
     initServiceConnectionsModal();
