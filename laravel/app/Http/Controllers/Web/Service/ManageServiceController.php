@@ -7,6 +7,7 @@ use App\Application\Business\UseCases\ListBusinesses;
 use App\Application\DTO\BranchSearchDTO;
 use App\Application\DTO\BusinessSearchDTO;
 use App\Application\DTO\ServiceSearchDTO;
+use App\Application\Service\DTO\StoreServiceDTO;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -14,7 +15,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Service\StoreServiceRequest;
 use App\Http\Requests\Service\UpdateServiceRequest;
 
-use App\Application\Service\DTO\StoreServiceDTO;
 use App\Application\Service\DTO\UpdateServiceDTO;
 
 use App\Application\Service\UseCases\StoreService;
