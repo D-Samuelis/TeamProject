@@ -16,6 +16,7 @@ export function initToolbar() {
 
     renderToolbar();
     initToolbarForms();
+    initBexiToggle();
 
     const sidebar = document.querySelector(".business__sidebar");
     if (sidebar) {
@@ -62,10 +63,8 @@ function renderToolbar() {
                 rawBranch.name ||
                 "Branch",
 
-            // Always trust visible DOM state
             is_active: /\bActive\b/.test(roleText) ? 1 : 0,
 
-            // Check trashed state from class
             trashed: activeEl.classList.contains("team-member-item--trashed"),
         };
     }
@@ -207,7 +206,7 @@ function renderToolbar() {
 
     // --- RIGHT (Bexi Chatbot) ---
     if (config.rightAction) {
-        const isBexiOpen = localStorage.getItem(BEXI_SIDEBAR_KEY) === "true";
+        const isBexiOpen = sessionStorage.getItem('bexi-open') === 'true';
         actions.right = `
             <button type="button" class="toolbar__action-button toolbar__action-button--bexi" id="bexiToggleBtn">
                 <i class="fa-solid ${isBexiOpen ? "fa-xmark" : "fa-message"}"></i>
@@ -291,5 +290,15 @@ function initToolbarForms() {
             console.error("Action failed", err);
             if (btn) btn.disabled = false;
         }
+    });
+}
+
+function initBexiToggle() {
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#bexiToggleBtn')) return;
+
+        const isBexiOpen = sessionStorage.getItem('bexi-open') === 'true';
+        isBexiOpen ? closeSidebar() : openSidebar();
+        renderToolbar();
     });
 }

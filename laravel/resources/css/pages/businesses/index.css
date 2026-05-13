@@ -4,4 +4,5 @@
 @import "./_list.css";
 
 /* styling for view: show*/
-@import "./_dashboard.css"
+@import "./_dashboard.css";
+@import "./_detailCards.css";
