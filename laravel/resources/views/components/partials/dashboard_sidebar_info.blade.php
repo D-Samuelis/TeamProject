@@ -15,6 +15,15 @@
 </div>
 
 <div class="business__sidebar-links">
+    {{-- Dashboard --}}
+    <a href="{{ route('dashboard') }}" 
+       class="business__sidebar-link {{ ($active ?? '') === 'dashboard' ? 'business__sidebar-link--active' : '' }}">
+        <i class="fa-solid fa-layer-group"></i>
+        Overview
+    </a>
+</div>
+
+<div class="business__sidebar-links">
     {{-- Businesses --}}
     <a href="{{ route('manage.business.index') }}" 
        class="business__sidebar-link {{ ($active ?? '') === 'businesses' ? 'business__sidebar-link--active' : '' }}">

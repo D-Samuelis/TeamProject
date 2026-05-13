@@ -18,6 +18,7 @@ use App\Http\Controllers\Web\Appointment\AppointmentController;
 use App\Http\Controllers\Web\Book\BookController;
 use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Web\Dashboard\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,7 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/my-appointments', [AppointmentController::class, 'index'])->name('myAppointments');
 
     Route::prefix('notifications')->name('notifications.')->controller(NotificationController::class)->group(function () {
