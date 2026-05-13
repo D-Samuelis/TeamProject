@@ -1,0 +1,319 @@
+/* Business Detail Card */
+.business-detail-card {
+    background: var(--bg-card, var(--bg-secondary));
+    border: 1px solid var(--color-border-light);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.business-detail-card__title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.business-detail-card__name {
+    letter-spacing: .025rem;
+    margin: 0;
+}
+
+.business-detail-card__desc {
+    color: var(--color-text-unimportant);
+    font-size: 0.9rem;
+    margin: 6px 0 0;
+}
+
+.business-detail-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.business-detail-card__meta-item {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    padding: 8px 14px;
+    min-width: 100px;
+}
+
+.business-detail-card__meta-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.business-detail-card__meta-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.business-detail-card__actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+/* Service Cards */
+.services-grid {
+    padding: 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.service-item-card {
+    background: var(--bg-card, var(--bg-secondary));
+    border: 1px solid var(--color-border-light);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.service-item-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.service-item-card__name {
+    font-size: 0.95rem;
+}
+
+.service-item-card__badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.service-item-card__badge--active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+}
+
+.service-item-card__badge--inactive {
+    background: rgba(156, 163, 175, 0.15);
+    color: var(--text-muted);
+}
+
+.service-item-card__desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.service-item-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.service-item-card__meta-item {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.service-item-card__meta-item--warning {
+    color: var(--color-warning, #f59e0b);
+}
+
+.service-item-card__branches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.service-item-card__branch-tag {
+    font-size: 0.7rem;
+    background: var(--color-primary-subtle, rgba(99, 102, 241, 0.1));
+    color: var(--color-primary);
+    border-radius: 4px;
+    padding: 2px 7px;
+}
+
+.service-item-card__footer {
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+.service-manage-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.service-manage-button i {
+    font-size: 0.65rem;
+}
+
+.service-manage-button:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.business-detail-card__meta-label {
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.business-detail-card__meta-value {
+    font-weight: 500;
+}
+
+.state-blue {
+    border-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #2980b9;
+}
+
+.state-purple {
+    border-color: #8c59b6;
+    background-color: rgba(155, 89, 182, 0.1);
+    color: #8344ad;
+}
+
+.state-orange {
+    border-color: #e67e22;
+    background-color: rgba(230, 126, 34, 0.1);
+    color: #d35400;
+}
+
+.state-gray {
+    border-color: #24cdda;
+    background-color: rgba(58, 255, 229, 0.1);
+    color: #1587a3;
+}
+
+.state-green {
+    border-color: #27ae60;
+    background-color: rgba(39, 174, 96, 0.1);
+    color: #1e8449;
+}
+
+.state-yellow {
+    border-color: #f1c40f;
+    background-color: rgba(241, 196, 15, 0.1);
+    color: #9a7d0a;
+}
+
+.manage-business-button {
+    color: var(--color-primary);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    cursor: pointer;
+    border: 1px solid var(--color-primary);
+}
+
+.manage-business-button i {
+    font-size: 0.7rem;
+}
+
+.manage-business-button:hover {
+    color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+} 
+
+.archive-business-button {
+    color: var(--color-danger);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    cursor: pointer;
+    border: 1px solid var(--color-danger);
+}
+
+.archive-business-button i {
+    font-size: 0.7rem;
+}
+
+.archive-business-button:hover {
+    color: var(--color-danger-hover);
+    border-color: var(--color-danger-hover);
+}
+
+.business-detail-card {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.business-detail-card__status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+.service-item-card__badge--inactive {
+    background: #ffd208;
+    color: #6d5a04;
+}
+
+.manage-business-actions {
+    font-size: 0.75rem;
+    color: var(--color-border);
+    text-transform: uppercase;
+    letter-spacing: .075rem;
+    margin-bottom: -.75rem;
+    margin-top: .25rem;
+}
+
+.user-actions-buttons {
+    position: absolute;
+    top: .25rem;
+    right: .5rem;
+    cursor: pointer;
+    color: var(--color-danger);
+}
+
+.member-item__remove {
+    cursor: pointer;
+    color: var(--color-danger);
+}
+
+.member-item__remove:hover {
+    color: var(--color-danger-hover);
+}
+
+.member-item__remove i {
+    font-size: 0.75rem;
+}
+
+.member-item__email {
+    font-size: 0.75rem;
+    color: var(--color-text-unimportant);
+}
+
+.member-item__name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}

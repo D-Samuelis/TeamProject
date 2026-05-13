@@ -480,3 +480,126 @@
     color: var(--color-primary);
     cursor: pointer;
 }
+
+.business__main {
+    border-right: 1px solid var(--color-border-light);
+}
+
+.business-layout-container {
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+}
+
+.business__main {
+    overflow-y: auto;
+    padding: 1rem;
+    padding-bottom: 0;
+    background: var(--bg-primary);
+}
+
+.business__right-sidebar {
+    border-left: 1px solid var(--border-color);
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.member-group__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--text-muted);
+    margin: 15px 0 8px 5px;
+}
+
+.member-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: .25rem;
+    transition: border-color 0.2s;
+    border: 1px solid var(--color-border-light);
+    margin-bottom: .15rem;
+}
+
+.member-item:hover {
+    border-color: var(--color-border);
+}
+
+.member-item__avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.member-item__subtext,
+.member-item__branches-dropdown summary {
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.member-item__branches-dropdown summary {
+    border-radius: .25rem;
+    padding: 0.05rem 0.25rem;
+    border: 1px solid var(--color-primary);
+}
+
+.member-item__branches-dropdown {
+    display: inline-flex;
+    position: relative;
+}
+
+.member-item__branches-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.member-item__branches-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    border-radius: 6px;
+    padding: 4px 0;
+    z-index: 10;
+    min-width: 140px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    list-style: none;
+    margin: 0;
+}
+
+.member-item__branches-list li {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.business__sidebar-header-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-unimportant);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05rem;
+}
+
+.team-member-item.branch-filter-item.is-active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    border-bottom: 1px solid var(--color-bg-complement);
+}
