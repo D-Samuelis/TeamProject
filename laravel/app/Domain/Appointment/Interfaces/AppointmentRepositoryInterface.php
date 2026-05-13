@@ -30,6 +30,8 @@ interface AppointmentRepositoryInterface
 
     public function search(AppointmentSearchDTO $dto, ?User $user = null);
 
+    public function assocSearch(AppointmentSearchDTO $dto, ?User $user = null);
+
     public function update(Appointment $appointment, array $data): Appointment;
 
     public function delete(Appointment $appointment): void;

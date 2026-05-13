@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', fn() => view('web.manage.dashboard'))->name('dashboard');
-    Route::get('/my-appointments', [AppointmentController::class, 'index'])->name('myAppointments');
+    Route::get('/my-appointments', [AppointmentController::class, 'user_index'])->name('myAppointments');
 
     Route::prefix('notifications')->name('notifications.')->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index')->name('index');
