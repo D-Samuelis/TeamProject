@@ -28,6 +28,24 @@ export function closeSidebar() {
     widget.classList.add("sidebar-closed");
     document.body.classList.remove("sidebar-open");
     sessionStorage.setItem("bexi-open", "false");
+
+    const isBexiOpen = sessionStorage.getItem('bexi-open') === 'true';
+
+
+    const bexiToolbarButton = document.getElementById("bexiToggleBtn");
+    
+    if (bexiToolbarButton) {
+        const icon = bexiToolbarButton.querySelector('i');
+        const span = bexiToolbarButton.querySelector('span');
+
+        if (isBexiOpen) {
+            if (icon) icon.className = "fa-solid fa-xmark";
+            if (span) span.textContent = "Close Bexi";
+        } else {
+            if (icon) icon.className = "fa-solid fa-message";
+            if (span) span.textContent = "Ask Bexi";
+        }
+    }
 }
 
 const wasOpen = sessionStorage.getItem("bexi-open") === "true";
